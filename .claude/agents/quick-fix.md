@@ -11,7 +11,7 @@ You will receive the bug context (description, root cause, affected repo, epic k
 ## Step 1: Open Jira Bug
 
 ```bash
-KEY=$(jira issue create -t Bug --project MGMT \
+KEY=$(jira issue create -t Bug --project OSAC \
   --summary "<concise bug title>" \
   --body "**Description of the problem:**
 
@@ -47,18 +47,18 @@ jira issue assign $KEY $(jira me)
 jira issue move $KEY "In Progress"
 ```
 
-Report: `Created $KEY: https://issues.redhat.com/browse/$KEY`
+Report: `Created $KEY: https://redhat.atlassian.net/browse/$KEY`
 
 ## Step 2: Create Branch
 
 In the affected submodule/repo:
 
 ```bash
-git checkout -b <KEY>-<short-kebab-slug>
+git checkout -b fix/<KEY>-<short-kebab-slug>
 ```
 
-Branch naming: `<JIRA-KEY>-<kebab-case-slug>` (max ~50 chars).
-Example: `MGMT-23626-fix-vm-namespace-lookup`
+Branch naming: `fix/<JIRA-KEY>-<kebab-case-slug>` (max ~50 chars).
+Example: `fix/OSAC-356-vm-namespace-lookup`
 
 ## Step 3: Write the Fix
 
@@ -133,7 +133,7 @@ EOF
 ```
 
 Commit message format: `<JIRA-KEY>: <imperative description>`
-Example: `MGMT-23626: fix VM namespace lookup when subnetRef is set`
+Example: `OSAC-356: fix VM namespace lookup when subnetRef is set`
 
 ## Step 7: Push and Create PR
 
@@ -155,7 +155,7 @@ gh pr create \
 - [x] <test description 2>
 - [x] All existing tests pass (<N> total)
 
-Fixes: https://issues.redhat.com/browse/<KEY>
+Fixes: https://redhat.atlassian.net/browse/<KEY>
 
 Assisted-By: Claude Code <noreply@anthropic.com>
 EOF
@@ -175,7 +175,7 @@ Your final output MUST be a structured summary:
 ```
 Bug fix complete:
 
-Jira:   https://issues.redhat.com/browse/<KEY>
+Jira:   https://redhat.atlassian.net/browse/<KEY>
 PR:     <full PR URL>
 Status: Code Review
 Tests:  <N> passing
