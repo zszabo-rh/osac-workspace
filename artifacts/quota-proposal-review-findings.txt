@@ -1,0 +1,292 @@
+  Overall Assessment                                                                                                                                                                                               
+                                                                                                                                                                                                                   
+  This is a strong, well-thought-out proposal that represents a significant improvement over the original PR #8. The spec-based, no-ledger architecture is the right call for OSAC's scale, and the generic
+  approval framework is a genuinely valuable abstraction. The writing is clear, the alternatives are well-argued, and the scope is disciplined.
+
+  That said, I've identified issues across several categories — some are significant design gaps that need resolution before implementation, others are clarifications the proposal should address for
+  implementors.
+
+  ---
+  1. Architectural Issues
+
+  1.1 Concurrency Control is Under-Specified (HIGH)
+
+  The proposal says "per-tenant row-level locking in the Quota Service database during the approval decision" (line 380). But the approval decision spans two services:
+
+  1. Read pending resources from Fulfillment Service (gRPC call)
+  2. Read all tenant resources from Fulfillment Service (gRPC call)
+  3. Check against limits in Quota Service DB
+  4. Write approval decision back to Fulfillment Service (gRPC call)
+
+  Row-level locking in the Quota Service DB (step 3) does not prevent a TOCTOU race: between step 2 (reading usage) and step 4 (writing approval), another request could be approved by a different process. This
+  is a distributed transaction problem that single-DB row locking doesn't solve.
+
+  Furthermore, the proposal says "HA deployment with at least 2 replicas" (line 381) but also says "process pending resources serially per tenant" (line 243). Serialization within one process doesn't help when
+  two replicas process the same tenant concurrently. The proposal needs to specify one of:
+  - Leader election (only one replica processes approvals at a time)
+  - Distributed locking (e.g., advisory locks via Fulfillment Service)
+  - Optimistic concurrency (e.g., a version/generation field on approval_state — write fails if state changed since read)
+  - Claim mechanism (Quota Service "claims" a pending resource via the API before evaluating, preventing other replicas from processing it)
+
+  Recommendation: Address how serialization works across multiple Quota Service replicas. Leader election is probably simplest for v1.
+
+  1.2 desired_spec Typing is Ambiguous (HIGH)
+
+  The proposal says desired_spec is "the desired resource spec awaiting approval" but doesn't specify its type precisely. For clusters, the current spec contains:
+  - template (string, immutable)
+  - template_parameters (map, immutable)
+  - node_sets (map, scalable)
+
+  For a new resource, desired_spec would need to hold the full resolved spec (node_sets at minimum). For a scale operation, it only holds the new node_sets target. Does desired_spec have the same protobuf type
+  as spec? Or is it a subset?
+
+  If desired_spec has the same type as spec, then for new resources it would contain template and template_parameters redundantly (they're already stored elsewhere). If it's a different type, you need a new
+  proto message per resource type.
+
+  Recommendation: Clarify that desired_spec has the same proto type as spec but only quota-relevant fields are populated (e.g., node_sets for clusters, cores/memory_gib for VMs). Or define a separate
+  ResourceFootprint message that extracts just the quotable dimensions.
+
+  1.3 ComputeInstance Public API Lacks Mutation Protection  (HIGH) 
+
+  The proposal's trust model requires that tenants cannot write approval_state, status, or immutable spec fields like spec.template. But the current API doesn't enforce this uniformly.                           
+                  
+  The Clusters, HostPools, and Hosts public servers all strip status from inbound writes via AddIgnoredFields(statusField.FullName()) on their GenericMapper. The ComputeInstances public server does not — its    
+  inMapper has no ignored fields at all (compute_instances_server.go:88-91). The test at compute_instances_server_test.go:338-382 confirms this is the current behavior: it updates spec.template from
+  general.small to general.large and status.state from STARTING to RUNNING via the public API, and asserts success.
+
+  This means once approval_state is added, unless the mapper is updated, a tenant could call Update with field_mask: ["approval_state"] and set it to "approved" themselves — a direct quota bypass. More broadly,
+  no resource type enforces immutability of spec.template or spec.template_parameters after creation, and the GenericServer.Update() path (generic_server.go:489-506) applies field mask paths mechanically with no
+   field-level authorization.
+
+  This is a hard prerequisite, not a parallel workstream. Minimum hardening for v1:
+  1. Add AddIgnoredFields(statusField) to ComputeInstances inMapper (parity fix, one line)
+  2. Add approval_state, decision_reason, desired_spec to ignored fields on all three public inMappers
+  3. Enforce immutability of spec.template and spec.template_parameters on Update in the private servers
+
+  Recommendation: The proposal should list these as explicit prerequisites with the understanding that the approval gate is unenforceable without them.
+
+  1.4 Polling vs Events API (MEDIUM)
+
+  The Fulfillment Service already has a streaming Events API (eventsClient.Watch()) that the reconcilers use for near-instant notification of changes. The proposal instead uses polling (default 5s interval),
+  adding unnecessary latency.
+
+  The proposal should explain why polling was chosen over the existing Events API. If there's no good reason, the Quota Service should watch for events with approval_state = "pending" via the Events stream,
+  which would reduce approval latency from seconds to milliseconds.
+
+  Recommendation: Use the Events API for near-instant notification, with polling as a fallback (same pattern the existing reconcilers use).
+
+  1.5 Who Moves desired_spec → spec? (MEDIUM)
+
+  The proposal says "The Fulfillment Service detects the approval, moves desired_spec → spec" (line 87). But the current reconciler doesn't watch for field-level transitions. The reconciler processes objects
+  holistically — it doesn't currently have logic to detect "this field just changed from X to Y."
+
+  The proposal needs to specify:
+  - Is this a new reconciler, or a modification to the existing per-resource reconcilers?
+  - How does the reconciler detect that approval just happened? (Check approval_state == "approved" && desired_spec != nil?)
+  - Is the desired_spec → spec move atomic with CR creation? (It should be, to avoid a window where spec is updated but CR hasn't been created yet)
+
+  Recommendation: Describe the reconciler modification explicitly. The natural approach: existing reconciler checks approval_state before creating/updating CRs, and moves desired_spec → spec as part of the same
+  reconciliation pass.
+
+  1.6 Hub Selection Timing (LOW)
+
+  Currently, hub selection happens in the reconciler when creating a CR. With the approval gate, should hub selection happen:
+  - Before approval (during initial request processing)? Pro: faster post-approval. Con: wastes hub selection for rejected resources.
+  - After approval (in the reconciler, as today)? Pro: simpler, no change. Con: hub selection adds latency after approval.
+
+  The current approach (after approval) is fine and matches existing code, but the proposal should explicitly state this to prevent implementors from over-optimizing.
+
+  ---
+  2. Correctness Issues
+
+  2.1 Scale Rejection Lifecycle Has a Lurking Bug (HIGH)
+
+  For a rejected scale operation, the proposal says (line 99):
+  "the Fulfillment Service clears desired_spec and reverts approval_state to "approved""
+
+  But who triggers this revert? The Quota Service writes approval_state = "rejected". Then the Fulfillment Service must:
+  1. Detect that approval_state was set to "rejected" AND spec is non-empty (meaning this is a scale, not a new resource)
+  2. Clear desired_spec
+  3. Set approval_state back to "approved"
+
+  This creates a three-state dance: approved → pending → rejected → approved. The reconciler must distinguish between:
+  - A newly rejected resource (don't revert)
+  - A rejected scale on an existing resource (do revert)
+
+  The proposal describes the logic (check if spec is empty) but doesn't specify where this logic runs. Is it in the reconciler? A separate watcher? A database trigger? And there's a subtle race: if the Quota
+  Service sees approval_state = "approved" (after revert) during its next poll, it might think this is a normal approved resource and skip it. But what if the revert hasn't been fully processed yet?
+
+  Recommendation: Specify the exact component and code path for the revert. Consider whether a separate approval_state value (e.g., "scale_rejected") would be cleaner than reusing "rejected" with implicit
+  semantics.
+
+  2.2 Pending Resource Deletion is Too Restrictive (MEDIUM)
+
+  The proposal says (line 145):
+  "The Fulfillment Service rejects any modification requests (scale, parameter changes, deletion) for resources with approval_state = "pending""
+
+  Blocking deletion of pending resources is problematic. If the Quota Service is slow or down, a tenant has created a resource they don't want, and they can't cancel it. They must wait for the approval decision
+  (which may never come if the Quota Service is down).
+
+  Other cloud platforms (AWS, GCP) allow cancellation of pending requests. The proposal even acknowledges this: "(or request cancellation, if supported in a future version)" — but deferring cancellation to the
+  future creates a poor UX in v1.
+
+  Recommendation: Allow deletion of pending resources in v1. When a pending resource is deleted, set approval_state = "cancelled" (or simply soft-delete it). The Quota Service should check for deletion before
+  processing a pending resource.
+
+  2.3 Concurrent Pending States (MEDIUM)
+
+  What happens if a tenant submits a scale request while a previous scale request for the same resource is still pending? The proposal says pending resources reject modifications, which handles this. But what
+  about:
+  - Tenant A creates resource X (pending) → Tenant A creates resource Y (pending) → Both are for the same tenant and both count against quota. The Quota Service must evaluate them in order — if it evaluates Y
+  first and approves it, then evaluates X and the total exceeds quota, X gets rejected. But from the tenant's perspective, they submitted X first. Is FIFO ordering guaranteed?
+
+  Recommendation: Specify ordering guarantees. If the Quota Service processes pending resources by creation timestamp (FIFO), document this. If not, document that approval order is not guaranteed.
+
+  ---
+  3. Cross-Cutting Concerns
+
+  3.1 Organizations Proposal Interaction is Missing (HIGH)
+
+  The Organizations proposal introduces a completely different auth architecture than what the quota proposal assumes:
+  - Gateway-level auth via Kuadrant/Authorino — all API requests go through a Gateway where tokens are validated and authorization is enforced before reaching the Fulfillment Service
+  - Per-organization Keycloak realms — not a single Keycloak instance
+  - Fulfillment Service receives identity via HTTP headers (X-Remote-User, X-Organization, X-Roles), not by parsing tokens directly
+  - Network policies enforce that Fulfillment Service is only reachable through the Gateway
+
+  The quota proposal assumes the Quota Service authenticates directly to the Fulfillment Service via a Keycloak service account. But with the Organizations architecture:
+  - Does the Quota Service go through the Gateway? (It should, for consistency)
+  - Which Keycloak realm does the Quota Service's service account live in? (Probably the System realm)
+  - How does the approval-writer role map to the Organization proposal's role model?
+  - The Fulfillment Service doesn't parse tokens — how does it enforce field-level write permissions for the approval-writer role?
+
+  Recommendation: Add a section on how the Quota Service integrates with the Organizations/Gateway architecture. Specify whether it's an internal service (bypasses Gateway) or external (goes through Gateway).
+  Coordinate the role model with the Organizations proposal.
+
+  3.2 Quota Scope: Organization vs Project (MEDIUM)
+
+  The proposal says quotas are "per tenant" but the Organizations proposal introduces a two-level hierarchy: Organizations contain Projects. Should quotas be:
+  - Per Organization — the org has a total budget, all projects share it
+  - Per Project — each project has its own quota
+  - Hierarchical — org quota with project sub-quotas
+
+  The proposal uses "tenant" throughout but doesn't map this to the Organization/Project model. At MOC, ColdFront allocations are per-project (each research group gets their own allocation).
+
+  Recommendation: Clarify that tenant in the quota context maps to the Organization entity from the Organizations proposal. Note that per-Project quotas may be needed in the future and the design supports it
+  (the tenant field in quota limits could be extended to organization/project).
+
+  3.3 Field-Level Authorization Doesn't Exist Today (MEDIUM)
+
+  The proposal defines a field write permissions table (line 133) with granular per-field access control. But the current Fulfillment Service uses Update with field masks — there is no existing mechanism for
+  field-level authorization. Anyone who can call Update can update any field in the mask.
+
+  Implementing the approval-writer role requires adding field-level authorization to the Fulfillment Service, which is a non-trivial change that affects the generic server infrastructure (generic_server.go).
+
+  Recommendation: Acknowledge this as a prerequisite and estimate the effort. It's not just a Quota Service change — it's a Fulfillment Service authorization infrastructure change.
+
+  3.4 Private API vs Public API (LOW)
+
+  The Fulfillment Service has separate public and private APIs (the private API adds fields like status.hub). The proposal doesn't specify where the new fields go:
+  - approval_state and decision_reason → public API (tenants need to read them)
+  - desired_spec → public API (tenants can see pending changes)
+  - But should the Quota Service use the private API for writes? The private API has system-internal fields and may be better suited for service-to-service communication.
+
+  Recommendation: Specify that approval_state, decision_reason, and desired_spec are added to the public proto, and the Quota Service uses the public API (or private, with justification).
+
+  ---
+  4. Gaps
+
+  4.1 No Sequence Diagrams
+
+  For a proposal with this many interacting components (Tenant → Fulfillment Service → Reconciler → Hub CR, plus Quota Service polling and writing back), mermaid sequence diagrams would significantly improve
+  clarity. The template recommends them, and the complexity warrants it. At minimum:
+  - Resource creation flow (happy path)
+  - Resource creation flow (rejection)
+  - Scale-out flow (approval + rejection)
+  - Quota Service internal decision loop
+
+  4.2 No Observability Section
+
+  The graduation criteria mention "Observability (metrics, alerts) in place" for GA, but the proposal doesn't describe:
+  - What Prometheus metrics the Quota Service should expose (e.g., quota_decisions_total{result="approved|rejected"}, quota_utilization_ratio{tenant, resource_type}, quota_pending_resources_count)
+  - What alerts should fire (e.g., "Quota Service has not processed any pending resources in 5 minutes")
+  - How audit logging is structured (format, retention, searchability)
+
+  4.3 No CLI/UI Workflow Examples
+
+  The proposal mentions fulfillment-cli get clusters showing approval_state but doesn't provide concrete CLI output examples. What does a rejected resource look like in the CLI? How does a tenant discover their
+  quota limits and current usage?
+
+  4.4 Missing: What Happens During In-Flight Requests at Upgrade Time
+
+  The upgrade section (line 485) describes setting approval_state = "approved" for existing resources. But what about resources that are currently PROGRESSING (in the middle of provisioning)? They should be
+  "approved" since they already passed the (non-existent) gate. This is stated but could be more explicit about edge cases (e.g., a resource created moments before the upgrade).
+
+  4.5 GPU Tracking for VMs
+
+  The proposal identifies this as a "known gap" (line 171) but doesn't propose a path forward. Since the VM API fields proposal already defines standardized fields, this is the right place to add a gpus field.
+  The quota proposal should recommend this as a prerequisite or parallel workstream.
+
+  ---
+  5. Overengineering Assessment
+
+  The proposal is well-scoped with one potential exception:
+
+  5.1 Template Metadata Enrichment May Be Premature
+
+  The countParameter and quotable fields (lines 183-198) solve a real problem, but only for templates where a parameter overrides the node count. The proposal's own table (line 202) shows this is needed in only
+  one of four scenarios. For v1, it may be simpler to:
+  - Require templates that allow parameter-driven node counts to declare this in default_node_request directly
+  - Or defer the enrichment until a template actually needs it
+
+  That said, the enrichment is minimal (two optional fields) and backwards-compatible, so the cost of including it is low.
+
+  5.2 Generic Approval Framework is Justified
+
+  The abstraction cost is genuinely minimal — three fields (approval_state, decision_reason, desired_spec) plus a boolean config flag. The future use cases (manual approval, policy-based approval) are real and
+  the design doesn't add unnecessary complexity. This is good design, not overengineering.
+
+  ---
+  6. Style & Presentation
+
+  6.1 Duplicate Header (Line 129-130)
+
+  "Field write permissions:" appears twice in succession. Remove one.
+
+  6.2 Missing Template Section
+
+  The enhancement template requires an "Implementation Details/Notes/Constraints" section. The proposal folds this into the main Proposal section, which works but doesn't match the template structure.
+
+  6.3 Length
+
+  At 515 lines, this is significantly longer than the VM API fields proposal (~80 lines) and comparable to the Organizations proposal. The length is justified by the complexity, but some sections are repetitive
+  — the quota computation formula is explained three times (lines 151-161, 241-242, and implicitly in section "Resource Creation" lines 81-84). Consolidating would help.
+
+  6.4 Terminology Consistency
+
+  The proposal uses both "denied" (line 288) and "rejected" (line 88) for the negative approval decision. The approval_state enum value is "rejected" — use that consistently throughout.
+
+  ---
+  7. Summary of Recommendations by Priority
+
+  Must Fix Before Implementation
+
+  1. Concurrency control across HA replicas — specify leader election or equivalent
+  2. desired_spec typing — clarify the proto message type
+  3. Scale rejection lifecycle — specify which component handles the revert and the exact trigger
+  4. Organizations/Gateway integration — how does the Quota Service fit into the Kuadrant architecture?
+
+  Should Fix Before Merging Proposal
+
+  5. Allow deletion of pending resources — blocking deletion creates poor UX
+  6. Field-level authorization — acknowledge as a prerequisite
+  7. Quota scope mapping — map tenant to Organization/Project model
+  8. Sequence diagrams — add at least creation and scale flows
+  9. Fix duplicate header and terminology inconsistency
+
+  Nice to Have
+
+  10. Events API instead of polling — reduces latency
+  11. Observability section — metrics, alerts, audit log format
+  12. CLI output examples — show concrete user experience
+  13. FIFO ordering guarantee — document approval ordering semantics
+  14. Hub selection timing — state explicitly it happens after approval

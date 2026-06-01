@@ -1,0 +1,491 @@
+[PROCESSED 2026-04-17]
+﻿📝 Notes
+Apr 15, 2026
+OSAC ecosystem sync
+Invited Adrien Gentil Jason Kary Elad Tabak Akshay Nadkarni Avishay Traeger Eran Cohen Juan Hernández Michael Hrivnak Oved Ourfali Trey West Zoltan Szabo Ethan Kim Ofer Bochan Omer Vishlitzky Ameya Sathe Crystal Chun Dakota Crowder Ilya Skornyakov Ori Amizur Siddarth Royapally Will Gordon Rom Freiman Alona Paz Dan Manor
+Attachments OSAC ecosystem sync
+Meeting records Transcript Recording 
+
+
+
+
+Summary
+Sprint review debrief prioritized weekly demo integration with focus on end-to-end user flows for VM and Cluster as a Service enhancements.
+
+Sprint Review and Demo
+The team integrated weekly demos, requiring participants to identify demoable components in their tickets and establish a plan for when these demos can occur. Consensus was reached to prioritize demos of user flows and end-to-end features rather than isolated components, showing technical work that benefits from early feedback.
+
+OSAC, Storage, and IP Status
+Eran Cohen is finalizing basic components for OSAC networking, while Akshay Nadkarni is readying partial demos for public IP pools and storage tiers. Crystal Chun integrated IDP APIs using Keycloak, with a full demo planned after connecting Keycloak to the tenant creation flow.
+
+VM and Cluster Services
+Ameya Sathe successfully ran a Windows VM and is creating an epic for full support. Elad Tabak enhanced the Cluster as a Service API and discussed a demo outlining 2 use cases for UX team support.
+
+
+
+
+Next steps
+* [Eran Cohen] Validate Isolation: Complete the task validating isolation between provider networks.
+* [Adrien Gentil, Elliot Belovich] Plan Demos: Collaborate to integrate demo pieces based on mockups. Create a plan detailing weekly demo content.
+* [Akshay Nadkarni] Demo CR: Try showing the CR using CR based functionality next week.
+* [Ameya Sathe] Update Epic: Move the Windows VM support epic status to in progress.
+* [Avishay Traeger] Select Epic: Take a new epic and begin tackling implementation work.
+* [Dakota Crowder] Post PRs: Post ready pull requests for the bug fix issue.
+* [Dakota Crowder] Provide Heads-up: Give a heads-up when needing additional to-do tasks.
+* [Elad Tabak, Trey West, Oved Ourfali] Review Demo: Review existing demo recordings and associated documentation. Discuss findings tomorrow during the scheduled meeting.
+* [Elad Tabak] Create Demo Task: Create a tracking task for the planned demo effort.
+* [Omer Vishlitzky] Share CI Details: Share CI implementation details on the Slack channel.
+* [Trey West] Record Demo: Record a demo covering points outlined in Oveds document today.
+* [Trey West] Update Agenda: Add the planned demo to the Monday fulfillment meeting agenda.
+* [The group] Agenda Addition: Add any potential demo items to the Monday meeting agenda.
+* [Eran Cohen] Share Workflow: Share documentation on workspace usage and the bug fix process today.
+
+
+
+
+Details
+* Sprint Review and Demo Planning: The team reviewed the current sprint, noting that they continue to use the same sprint until the "done" column becomes too large (00:00:00). A key new initiative is to integrate weekly demos, requiring participants to identify demoable components in their tickets and establish a plan for when these demos can occur, starting with a "VM as a service" exercise (00:01:50). The intent is to create a high-level plan for weekly or bi-weekly demos, potentially integrated into the existing fulfillment service call to avoid adding new meetings (00:08:13).
+* Eran Cohen's Progress: Eran Cohen is nearing the finalization of the basic components for OSAC networking, with only a few bugs and approximately five tickets remaining (00:00:00). They are also working on a generic workflow for OSAC, which will likely result in a developer enablement session rather than a demo. The networking work is demoable, though a more substantial demo will be available once the public IPs component, which Akshay Nadkarni is leading, is integrated, completing the full network story (00:02:56).
+* Adrien Gentil's Updates and Summit Demo Preparation: Adrien Gentil had limited work recently due to being on vacation and being pulled into other tasks. They created several epics related to identified gaps, including work on events, alerts, and observability metrics for VMs (CPU, memory, etc.), which are intended to align with the upcoming summit demo (00:04:20). Adrien Gentil and Elliot Belovich are encouraged to work together to prioritize and implement features from the currently mocked-up summit demo (00:05:39).
+* Akshay Nadkarni's Progress on Storage and Public IP Pools: Akshay Nadkarni reported that all their in-progress work is currently in review, focusing on storage tiers and public IP pools. They estimate that public IP pools may be partially demoable by next week, with the operator and API-related components ready, while fulfillment is being addressed by Dakota Crowder and Sedat. A full, end-to-end demo of this feature is estimated to be ready in a couple of weeks (00:06:56).
+* Ameya Sathe's Windows VM Support: Ameya Sathe has successfully run a Windows VM as part of openization and is creating a plan for the epic to support Windows VMs (00:09:59). This work is currently in progress, and they are using Jira plugins to help plan the implementation (00:11:30).
+* Crystal Chun's IDP and Keycloak Integration: Crystal Chun reported that the IDP APIs are merged, implemented using Keycloak APIs. The next steps involve connecting the organization APIs to use the Keycloak APIs for creation and deploying Keycloak within the fulfillment service (00:11:30). A partial demo showing creation in Keycloak might be possible next week, but a better, full demo would be available once they hook it up to the tenant creation flow (00:12:49).
+* Dakota Crowder's Initial Week and Assignments: Dakota Crowder reported that it was their first week fully dedicated to the project, and they are currently cleaning up bug fix PRs for review. They will then transition to the two "to-do" tasks assigned by Akshay Nadkarni (00:12:49).
+* Elad Tabak's Cluster as a Service Enhancements: Elad Tabak's main focus was enhancing the Cluster as a Service API, and they are currently waiting on human review for that work (00:14:07). Other pending work includes an end-to-end test for cluster service and writing cloud code hooks for automating PR reviews and workflow. Elad Tabak also started working on network-related tickets to replace the non-standard Fully Qualified Domain Name (FQN) usage with standardized User IDs (UIDs) (00:15:27).
+* Discussion on Cluster as a Service Demo: Elad Tabak and Trey West joined Oved Ourfali to discuss the Cluster as a Service demo, which Oved Ourfali has documented as a checkpoint to help the UX team with UI mockups (00:15:27). The demo outlines two use cases (ESI and Carbine) and includes setup, configuration, provisioning, and isolation (00:16:45). Trey West noted that previous demos focused on the user perspective (fulfillment interaction), and the current demo aims to determine how much of the backend (AAP, OSAC operator) should be included, while acknowledging limitations in demonstrating vendor-controlled environments like Carbine (00:17:59).
+* Ilya Skornyakov, Jason, and Repositories: Ilya Skornyakov reported using their task as a learning opportunity, focusing on deploying and setting up the local environment, and they do not have specific questions. The team confirmed that the task related to the number of repositories was considered done, previously executed by Kuan (00:21:31).
+* Juan Hernández's GPU Support and Refactoring: Juan Hernández is working on GPU support and catalog implementation, with both the enhancement request and implementation awaiting reviews. They are also doing minor refactoring work to move some items from fulfillment to a new location (00:22:46).
+* Omer Vishlitzky's CI Implementation: Omer Vishlitzky is working on the Continuous Integration (CI) for both VM as a Service (VMAS) and Cluster as a Service (CASS). The VMAS networking CI was recently merged, and they have four open PRs for the OSAC installer adjustments and release PRs, all requiring reviews. The OSAC installer changes are mandatory, while other repository tests are periodic (00:24:05). Omer Vishlitzky will share CI progress via Slack, noting that the test infrastructure runs the tests, and Prow creates the necessary clusters for testing (00:25:30).
+* Siddarth Royapally's Reviews and Public IP Pools: Siddarth Royapally is finalizing an in-progress issue and has a PR ready for review. Once that is completed, they will begin work on the public IP pool tasks (00:26:26).
+* Trey West's Carbide Integration and Demo Recording: Trey West is focused on Carbide integration, specifically adding roles, and has successfully implemented creation and deletion. They are working on scale-up and scale-down functionality, which requires cleanup due to components being left behind (00:26:26). Since there is no API to move an instance between Virtual Private Clouds (VPCs), the process involves deleting instances after scale-down to maintain tenant isolation (00:27:52). Trey West is planning to record a demo that covers many items from Oved Ourfali's document and will add it to the agenda for the Monday fulfillment meeting (00:29:06).
+* Will Gordon's Ongoing Fixes and Issue Tracking: Will Gordon noted that while digging into existing work, they are finding other items that need fixing. They confirmed that they will file a Jira ticket for any new bug fixes to ensure everything is tracked (00:30:16). They have open draft PRs for their current tasks, including work related to network class defaulting (00:31:25).
+* Team Availability and Need for Tasks: Ori Amizur and Ofer Bochan reported being close to onboarding completion or looking for new tasks, indicating that they will soon take on their first assignments (00:32:50). The team is encouraged to use the fulfillment meeting agenda to schedule ready demos or to put dates on the calendar for upcoming demos (00:34:42).
+* Clarifying Demo Scope and Purpose: There was a discussion about the scope of demos, with a question on whether to focus on showcasing completed work in parts or demonstrating full end-to-end user flows (00:34:42). While Oved Ourfali sees value in showing progress weekly, even on incomplete components, Eran Cohen prefers focusing on end-to-end feature demos rather than showing isolated pieces of work (00:35:56). The consensus leaned towards prioritizing user flows and end-to-end features, but also showing important technical work that could benefit from early feedback (00:38:58).
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 15, 2026
+OSAC ecosystem sync - Transcript
+00:00:00
+ 
+Eran Cohen: Okay. So, I started transcript. Let me see how I start recording. Great. We have 14. Yes. Wait a couple of minutes.
+Avishay Traeger: I think we're at Cororum.
+Eran Cohen: Oh, I think yeah, we do have report. Cool. Okay. So, usually we just go over the sprint. It's always the same sprint until we decide there's too much in the done column. So, we start start a new sprint. Uh hopefully one day we'll actually have meaningful strings with duration. But any case, let's go. Um, if by the end of this your name didn't came up, that means that you're working on a task that wasn't added to the sprint. It's not an issue. Just raise your hand and talk and then we can add it to the sprint. Um, okay. I guess I I'll just start. So, I think I'm finalizing the basic components of the OC networking. There just a few bugs there and I guess about five last
+ 
+ 
+00:01:50
+ 
+Oved Ourfali: Yeah,
+Eran Cohen: tickets.
+Oved Ourfali: I'm sorry I'm interrupting but maybe I thought it might be good to share just a few words before uh we are trying to see how we can like try and demo things on a weekly basis. So when going through uh the sprint now if you identify like you're talking about your tickets uh and identify things that are demoable let's try to see okay when can we demo it and try to see okay can we demo it next week and we demo it the week after because we're trying to create kind of uh a high level plan of things we can demo on a weekly basis we're starting with a VM as a service now as an exercise but that applies to I guess each and every one of these uh the activities happening here. So let's try and see while we go through those. Okay, can we demo that? Is it worth demoing? What can be demoed and how? Um and um and try to create tickets that are relevant for that as well.
+ 
+ 
+00:02:56
+ 
+Eran Cohen: Okay. So I think it's true for perhaps all Apex probably most AEX that they should have like a demo. So networking definitely something we can demo. It's not going to be that amazing but we can show it. I think once we have uh the epic actual is currently leading with the public IPs then it will complete like the network story or like that's like so maybe we can demo what we currently have. It's it's something once we have what actually is working. It's a nicer demo. We did demo the CDM provider network integration. This is near done. There just one task for validating the isolation between those networks. I need to get to it for some time. I'll try to complete this one. And this is what I'm actually working on on a gentic workflow for OSAC. Um trying to create different different skills and MD files and defining how we work. Um I I don't know if this one will be a demo, but there's probably going to be a developer enablement session for this.
+ 
+ 
+00:04:20
+ 
+Eran Cohen: Um that's it for me. Let's get someone Adrian
+Adrien Gentil: Yeah. Uh, I didn't work much on that. So, I was I was pulled out on something else. So, and last week I was on vacation. So, I have not much to to say. Uh, just created some epics because we Yes, you have that demo. Uh, we have some mockups. If you already have not looked at them, you can uh have them here. I think it's it's already in the it was shut on the chat but just in case. So that's the demo for the summit. Uh I created a few epics um related to to the gaps that uh we identified with what we do. Uh so that will be some things with the events and alerts. Uh we have I just have a cap somewhere um for the observability. So to to have the the metrics for each um each VMs so CPU, memory, etc. Um and then uh
+Eran Cohen: in the product in the demo or in
+ 
+ 
+00:05:39
+ 
+Adrien Gentil: sorry at least in for the
+Eran Cohen: OSAP.
+Adrien Gentil: demo.
+Eran Cohen: Okay. Because the demo is locked, right? It's not real.
+Adrien Gentil: Yeah, it's not I mean we want to align with the demo.
+Eran Cohen: Okay.
+Adrien Gentil: Uh we want to to move forward uh to to prioritize some features that are in the demo until the summit. Maybe some things will be mock but uh at least we we move
+Oved Ourfali: Yeah.
+Adrien Gentil: forward uh on the
+Oved Ourfali: Yeah. I want to ask Adrian and Elliot Belovich is to try and work together and see okay it's true that the
+Adrien Gentil: implementation.
+Oved Ourfali: demo is uh that the summit boost demo is mocked but let's see okay what pieces of it we can integrate now and to start developing that based on based on demo cups that created right so that's and and let's have a plan on and again it's connected to what I said there like let's make a plan of okay what can we demo next week what we can like to divide it to like a work of I don't know three weeks and see okay what can we demo when uh I assume it will be a gradual progress but let's uh see what when can we put the basics in we have uh some of the APIs already in place and we know that we don't have others so um to try and divide and have a weekly
+ 
+ 
+00:06:56
+ 
+Oved Ourfali: plan around
+Eran Cohen: Wait, I'm sorry.
+Akshay Nadkarni: Yeah, sure. So, um, for me, I think, uh, everything that's currently in progress is in a review state. So, any feedback, I'm kind of going back and forth with it. Um, the first one is related to storage tiers and the latter part of it is mostly related to public IP pools. So um from uh a demo perspective I think uh public IP pools may be partially ready next week because the way I've done it is the operator and AAP stuff is ready the fulfillment side um uh Dakota and Sedat are working on it. Um but I'll see like what we can get done and so I'm kind of moving to the public IP parts of it. uh and I'll start um uh with the implementation for that uh once these PRs are wrapped up. So I'll just do it in uh parallel but that that's basically the plan. So I think maybe a full-on end toend demo uh I think in a couple of weeks I think we should be have be in a good place to at least uh uh show something.
+ 
+ 
+00:08:13
+ 
+Akshay Nadkarni: That would be my uh current estimation.
+Oved Ourfali: Okay. But there are pieces you mentioned that we can show maybe even next week or like to
+Eran Cohen: Okay.
+Akshay Nadkarni: Yeah, I'll try to like Yeah, just like try to um uh using just the CR show something like Yeah, I can try to do that for sure.
+Eran Cohen: Wait, wait. What is the scope?
+Akshay Nadkarni: Yeah.
+Eran Cohen: Like who are we demoing this to? And
+Oved Ourfali: It's an internal. It's to show like to show uh it's to both put some boundaries
+Eran Cohen: what
+Oved Ourfali: like uh like we do in spring demos. you're trying to um you
+Eran Cohen: likely bi-weekly?
+Oved Ourfali: know I I thought
+Eran Cohen: Is there a meeting?
+Oved Ourfali: of weekly but uh I guess that even if we end up with bi-weekly it would also make sense and because we we have a lot of people here and trying to move in a fast space so I guess by either weekly or bi-weekly would make sense. I wouldn't do it more than that.
+ 
+ 
+00:09:10
+ 
+Oved Ourfali: I wonder whether we should have a separate call for that or whether we should demo some of these in the uh in the fulfillment uh um in the fulfillment service call. I don't know if you have thoughts on that.
+Eran Cohen: Okay, we can do the fulfillment.
+Oved Ourfali: Um yeah because I see that in the last few week in the last few weeks
+Eran Cohen: No need for additional meeting.
+Oved Ourfali: uh um it ended like we had a complete hour and we only used no more than 30 minutes from it. So maybe it can be good to you meant Aisha you meant no more meeting
+Eran Cohen: Yes.
+Oved Ourfali: please.
+Avishay Traeger: I was being funny.
+Akshay Nadkarni: I think
+Eran Cohen: Okay. So,
+Oved Ourfali: Yeah,
+Eran Cohen: we
+Akshay Nadkarni: that's
+Oved Ourfali: that's why I'm I'm not really happy of adding you. On the other end, I thought okay,
+Eran Cohen: go
+Oved Ourfali: we can share demos in Slack as well, but that means you need to record it and I'm not sure I don't want to add extra burden on that.
+ 
+ 
+00:09:59
+ 
+Oved Ourfali: So, I guess that if if stuff is recorded and it's easy for you to record and you can share the recording in Slack, that is always welcome, right? Uh but if we want to avoid the burden of polishing and recording and just showing uh showing it in a group, that might be easier, I guess.
+Eran Cohen: Okay. In any case, I do think we want to show a full epic a feature that works end to end, not hey, there's one CRD that I've implemented. So, whenever an epic is ready, we can put it on the on that meeting for a demo. Anything else? Actually,
+Akshay Nadkarni: Uh, no. That that that's it from
+Eran Cohen: I'm here.
+Ameya Sathe: Yeah, I'm here. Uh, so I got I got around finally to running the Windows VM as part of openization. Uh, and uh I'm creating a plan uh under the epic to support Windows VM. So next step is Mhm.
+Eran Cohen: So it's in progress.
+Ameya Sathe: Sorry it is in progress.
+Eran Cohen: So it's in progress.
+ 
+ 
+00:11:30
+ 
+Ameya Sathe: I need to move it. Yeah, sorry. I'll move it. I'll move that ape too.
+Eran Cohen: You can use you can use quad for helping you create the
+Ameya Sathe: Yes,
+Eran Cohen: maps.
+Ameya Sathe: I am. Yeah. Yes, I am going I'm reading about cloud plugins about the Jira plugins to plan it out. So, I'm working on that. That's also a skill to learn. Uh
+Eran Cohen: Okay, so that's in progress,
+Ameya Sathe: Yes, there's
+Eran Cohen: Alicia.
+Avishay Traeger: Yeah, I was mostly um the other project edge manager last week. I'm going to take a new epic and then tackle it.
+Crystal Chun: Hello.
+Eran Cohen: Crystal.
+Crystal Chun: Um so thank you for all the reviewers. The IDP APIs are in now um with keycloak APIs also as the implementation of it. Now I will need to um like connect it the organization um APIs that I created earlier to actually uh use the keycloak APIs to create it in keycloak. So that's what I'm working on as well as actually deploying Keycloak within the fulfillment service.
+ 
+ 
+00:12:49
+ 
+Crystal Chun: Um and then I will after that continue to um connect it to like the tenant creation and hook it up into the CLI. Um and this stuff could be demoable. I don't think it would actually do or I guess we could see it get created in Keycloak um around next week if I finish everything. um related to connecting the uh or APIs to the keyclick APIs. But I think a full better demo would be once I hook it up into the tenant creation so that we can see the full flow.
+Eran Cohen: makes sense. Thanks, Dakota.
+Dakota Crowder: So, uh, yeah,
+Eran Cohen: Welcome
+Dakota Crowder: this has been kind of my first week, I guess, more fully all in on this. Um, I'm cleaning up some PRs to have up for the issue in progress. So, hopefully those will be up and then I'll be moving over um to to the items in to-do that Ash has so kindly assigned. Um, so I've kind of read over those but haven't begun. Um, I'll post the PRs when when those are ready for this um this bug fix here and um hopefully get some get some eyes on there.
+ 
+ 
+00:14:07
+ 
+Dakota Crowder: So things are going smooth.
+Oved Ourfali: So you need additional task at this point or you still uh you think
+Dakota Crowder: Still good for now because I have I have the two assigned that I haven't pulled in yet.
+Oved Ourfali: uh
+Dakota Crowder: Um, but we'll we'll see where things stand in a couple days.
+Oved Ourfali: okay give us a has a heads up so that again there are a lot of activities going on and a lot of people involved so uh give us a heads up so we'll prepare It's
+Eran Cohen: Okay, refreshing. Okay. Okay. Here we go. Okay, almost. We have that on the call.
+Oved Ourfali: Now he's in reserve duty. is back to M.
+Eran Cohen: Okay.
+Elad Tabak: Thank you for uh refreshing.
+Eran Cohen: Elad
+Elad Tabak: Um main focus was the enhancement for the cluster as a service API. I am waiting on a human review. So if you are a human, I would appreciate your review. Um I did reach out to a couple of folks here uh waiting on you guys.
+ 
+ 
+00:15:27
+ 
+Elad Tabak: um basically taking some of the fields from templates um parameters and making them like first uh citizens in the cluster spec um also wrote an end to end test for the cluster service uh that's also pending and I wrote some cloud code hooks uh for automating the PR reviews uh and workflow And I took some u network related tickets um basically replacing the unable FQN to use the UIDs uh that we want to use uh as standardized way to use the ids. Um I will work is just leave you
+Oved Ourfali: Ela, do we want to use two minutes on the call to discuss that demo or you prefer to do it tomorrow?
+Elad Tabak: demo for what the
+Oved Ourfali: Yeah, that's the that's like thread we have like do you prefer to do it tomorrow
+Elad Tabak: demo
+Oved Ourfali: or
+Elad Tabak: um do we have train here?
+Oved Ourfali: Sure.
+Elad Tabak: Yeah,
+Trey West: Yes.
+Elad Tabak: sure. So yeah,
+Eran Cohen: We
+Elad Tabak: worth it.
+Oved Ourfali: So the idea so we'll try to use like two minutes and uh see uh
+ 
+ 
+00:16:45
+ 
+Eran Cohen: Yeah.
+Oved Ourfali: so I created a doc for cluster as a service demo so that we will get to some checkpoint of okay this is what was done so far and I think it will also be useful for the UIX team trying to develop also um um
+Eran Cohen: Okay.
+Oved Ourfali: UI mockups for these so that we will add those like starting to work on building a UI as well. So I think it would be useful for these reasons and the idea was to that we will do this checkpoint now and as we add functionality like to add stuff to that demo etc. Now I I mapped two use cases in one m one using ESI the other is using carbine. Uh and in the flow again what I wrote isn't written in stone right it can be changed but what I wrote is like um showing how you set up the environment showing what you need to configure and showing how things are uh um are being set up doing a cluster the cluster provisioning uh showing the isolation etc. These were kind of a few things written there.
+ 
+ 
+00:17:59
+ 
+Oved Ourfali: So I guess the question is and I know that you're working on a demo that might be less in depth. So I guess the question is what what would be the different because I think we learn a lot from the end to end exercise of demoing it and see maybe we have gaps maybe things we need to address while I think today's demo is probably more targeted in okay let's show Nvidia how we're using carbide and um so I don't know um so just trying to explain what was my main motivation and incentive and I don't know what the differences are
+Trey West: Yeah, I think for me it depends on how in-depth we want to go into the backend stuff and how all of that works. Um, like obviously we don't really have a carbide environment where we can show I I guess some of the things that you outlined in your document because like we're just a tenant to them. Um,
+Eran Cohen: Are
+Trey West: I'm hoping in the future we're getting another lab where we own the instance of carbide and we can show more of that.
+ 
+ 
+00:19:02
+ 
+Trey West: I think this first pass is just going to be more so like how are we using carbide um to you know provision clusters and the other thing is like the demos that I've shown in the past they I guess they were sort of user they were from the user perspective where you're really just demoing like the fulfillment like interaction and then that at the end of all that like I get a cluster um if we want to go into depth about like what AAP looks like and what the OSAC operator looks like and like all the components between the end user and actually getting a cluster. That area hasn't really been uh demoed yet. So,
+Oved Ourfali: Yeah, I'm not sure we needed that in depth. Um um and so I guess maybe the question is what's the difference between what you demoed in the past to what uh what is in the dock if we
+Trey West: The main thing is the backend stuff. So like any of the pieces in ESI that are like showing the ironic like things on the back end, none of that was done because I didn't have access to it.
+ 
+ 
+00:20:21
+ 
+Trey West: And similarly, we're like we're in the same situation with carbide because I can't show access to that either.
+Oved Ourfali: Okay. So, let's all look at the recordings, the document, etc. And what you create today and uh talk tomorrow and see I guess uh is because
+Trey West: Yeah.
+Oved Ourfali: I I don't want to create redundant work. If we think that the recording we had like from a few months ago uh is something let's say that we can both uh share more widely I guess and and on the other hand also uh show the urix and UI team like okay go ahead and uh create us mockups for this flow then then then maybe it's enough right uh
+Trey West: There's one there's one more thing. So, uh, Juan and I worked on another demo which was with another another Nvidia product, BCM. So, in that demo, we did mock up a UI that Elor worked on. So if you want to get some information on that u that might be useful too.
+Oved Ourfali: Yeah. Okay. Let's see.
+ 
+ 
+00:21:31
+ 
+Oved Ourfali: Uh so let's discuss more in depth tomorrow, I guess. But uh
+Eran Cohen: If you're going to do a demo, have a task for the demo just so like I
+Elad Tabak: We only have a meeting scheduled for tomorrow. So, sorry. Go ahead.
+Ilya Skornyakov: So uh using this task as more of a learning opportunity. So don't really have any substantial updates here. Deploying was creating up the local environment things like that.
+Eran Cohen: Okay, if you have any questions, I guess we can.
+Ilya Skornyakov: I don't have any specific questions.
+Eran Cohen: Okay, we have Jason on the call.
+Oved Ourfali: No. So I think we this I ask it I think each time. Wasn't that what you did? Like if you I think
+Trey West: I think this I think this was already done like back when Jason was still working on
+Oved Ourfali: Yeah. Yeah.
+Trey West: stuff.
+Oved Ourfali: Let's move it to
+Eran Cohen: I think we're good in regards to the number of repos.
+Oved Ourfali: down.
+Eran Cohen: We're not going to converts anymore.
+ 
+ 
+00:22:46
+ 
+Eran Cohen: So done.
+Oved Ourfali: So, it's done or obsolete.
+Eran Cohen: It was done.
+Oved Ourfali: Uh,
+Eran Cohen: I think it was done mainly by Kuan. one but
+Oved Ourfali: yeah. Okay. Let's move it then.
+Eran Cohen: okaying
+Oved Ourfali: Uh,
+Eran Cohen: what
+Oved Ourfali: you don't have permissions to move it. Ah,
+Eran Cohen: do everything is slow that's why I don't have my
+Oved Ourfali: okay. X.
+Eran Cohen: camera think I need an exception for refreshing my laptop that's
+Will Gordon: Too much claw in the background.
+Juan Hernández: So I guess I should go next. I am working on the GPU support GPU question support. The request has been there for a long time and ready waiting for reviews and same for the catalog. Both the enhancement request and the implementation are waiting for
+Eran Cohen: I thought you're working on moving uh
+Juan Hernández: reviews.
+Eran Cohen: from fulfillment to to on Friday.
+Juan Hernández: That's I think that I'm doing is just a set of minor refactorness.
+Eran Cohen: No.
+Juan Hernández: I'm not really changing anything.
+ 
+ 
+00:24:05
+ 
+Juan Hernández: Just reflecting it a bit.
+Eran Cohen: Okay. Thanks. Okay. I don't think we have mic. Oh
+Omer Vishlitzky: Hey.
+Eran Cohen: man.
+Omer Vishlitzky: Uh, so I'm working on the CI of both Vimas and Cass. Um, VMAS networking CI uh was just merged. Now I need and I have another PR for the OSAK installer to make adjustments for both the K and Vivas. And the release PRs uh of both are also open. Basically all I have four PRs open. Um I need reviews on all of them. Um
+Eran Cohen: Okay, post on the OSAC channel.
+Omer Vishlitzky: then
+Eran Cohen: I think this is like a great milestone. We're finally going to have CI. They are optional, I assume.
+Omer Vishlitzky: so for the OSAC installer they're not optional like whenever we bump a module whenever we bump a submodule we do want to make sure nothing breaks but for the others for the for the other repos they are uh periodic
+Eran Cohen: Okay. I guess do you get did you do enough cycles that we're sure the tests are okay?
+ 
+ 
+00:25:30
+ 
+Omer Vishlitzky: So I did I I ran them uh on my yes locally but for for the release PR uh so whenever the test infra uh PR and OS installer PR will be merged I can run uh rehearsals on the release PRs so don't approve like they won't merge the release PRs until I I have done enough cycles. Um over uh I don't know if they I can demo anything about it.
+Eran Cohen: Oh,
+Omer Vishlitzky: Um
+Eran Cohen: you can share though. You can share on Slack. You can show uh like GI
+Omer Vishlitzky: yeah,
+Eran Cohen: and
+Omer Vishlitzky: I will share on Slack. Uh I hope I I'm not sure it will be ready by tomorrow like tomorrow because we do need to run some cycles but
+Oved Ourfali: Yeah,
+Omer Vishlitzky: uh once we Yeah.
+Oved Ourfali: not a demo instantly, but yeah.
+Omer Vishlitzky: Okay. Sure.
+Oved Ourfali: Okay.
+Will Gordon: What what's the overlap between the test infro repo and Prow?
+Eran Cohen: Okay.
+Will Gordon: Are we putting all our tests into test info and then Prow runs that?
+ 
+ 
+00:26:26
+ 
+Omer Vishlitzky: Yeah, exactly. The test infra is what runs the test pro is just like create the the infrastructure, create the actual clusters to install uh OSAC on them and test etc.
+Eran Cohen: Thanks. Okay.
+Siddarth Royapally: Oh yeah.
+Eran Cohen: See
+Siddarth Royapally: So just uh wrapping up on the uh on the in progress issue and have a PR up for it uh uh which is ready to be reviewed and uh once that's done u I'll start uh looking into the to-do task regarding the public pool public IT pool work.
+Trey West: Hey. Yes, I'm mainly still working on the Carbide integration stuff.
+Eran Cohen: Right.
+Trey West: Uh, I went ahead and closed the I guess investigative uh task I had open. We know how to install with the Carbide API. Right now I'm just working on actually like adding the roles um to
+Eran Cohen: What the
+Trey West: open a PR for uh getting it into the repo. Um I've successfully done like creation and deletion today. Uh this morning I'm looking into scale up scale down scale down and scale up work but there's some things that are being left behind that I need to clean up.
+ 
+ 
+00:27:52
+ 
+Trey West: Um, so I think I have it fixed now, but I need to test it and make sure. Um,
+Eran Cohen: Do we get the hosts back?
+Trey West: say that again.
+Eran Cohen: Do we get the hosts back as available?
+Trey West: Um so in this scenario whenever you delete or scale down the instances like they reboot into the discovery but then they get deleted afterward because like whenever you request an instance it's just create like it's just provisioned at request time.
+Eran Cohen: Okay, we go through the full cycle of like discovering it and
+Trey West: Um yeah bec like initially we thought that we would just boot it with the
+Eran Cohen: then
+Trey West: discovery ISO. Um but the problem is there's no API to be able to move an instance from one VP VPC to another. And since we want that like VPC isolation per tenant, it makes sense just to create it um whenever it's requested. So, um, yes. So, I'm testing that out. I opened a few PRs, uh, just to address some issues I ran into with fulfillment.
+ 
+ 
+00:29:06
+ 
+Trey West: Um, one of them was merged. One other one I'm just going to test out one more time to see if I can reproduce something for Juan to look at. Um, but yeah, and then I'm going to demo I'm going to record a demo of the uh, a lot of the things that OD mentioned in his document today. So that's it for me.
+Oved Ourfali: So do you want to also demo I just sent them we decided to do the different demos on the fulfillment uh um meeting now that that that occurs on Mondays. So I'm not sure there are enough days for folks to prepare some of the demos we were talking about here but maybe you can add yours to the agenda there to also show show others.
+Trey West: Yeah, it's the uh the Monday call that we always
+Oved Ourfali: Yeah. Yeah.
+Trey West: have.
+Oved Ourfali: I just pasted the the Google doc on the chat here.
+Trey West: Okay. Yeah, I'll add it.
+Oved Ourfali: and others if you think you can uh there was something on Monday uh edit there as well.
+ 
+ 
+00:30:16
+ 
+Eran Cohen: Okay, if you have PRs that needs review, post to the channel. And by the way, like it's easy to get like uh some cloud skill to review stuff, but if if the PR is fairly small, just go over it as a human and LGTM, we'll give feedback. Okay, Sue is not on the call. Well, lots of in progress.
+Will Gordon: Yeah. Well, I I'm as I'm digging through stuff, I find other things that should be fixed. That was actually a question I had. If something should be fixed, should we file a Jira for it or should we just file a no issue PR? Doesn't
+Eran Cohen: So, so what I do I have a skill I call it bug fix and then it opens
+Will Gordon: matter.
+Eran Cohen: Jira with the details and go fix it and then everything is trapped and linked with the AR back.
+Will Gordon: Okay. All
+Eran Cohen: uh you should have it I guess on the on the workspace uh I'll share I'll share later today like how we work with that workspace I
+ 
+ 
+00:31:25
+ 
+Will Gordon: right. Yeah, I'll keep doing the jer. That works.
+Eran Cohen: hope
+Will Gordon: Um I I don't necessarily know how much of this is is uh demoable. I don't know. Maybe you can watch a network class be default something. Um, but yeah, the there's PRs open for all these. Um, I open them as drafts and then review them myself and then switch them to ready when other people can jump in and we can get them merged.
+Eran Cohen: Okay, Zan is on the call. Sorry.
+Oved Ourfali: Do we know if there is any progress on the quer piece? I didn't look at patches or anything, but if someone uh was
+Eran Cohen: I don't think anyone is working on
+Oved Ourfali: certain
+Adrien Gentil: Yeah, I think Zultani was working on it and um Michael wanted to push for the
+Eran Cohen: it.
+Adrien Gentil: meing before uh we implement the the kota from the last thread I s I saw on on Slack.
+Oved Ourfali: Okay, I'll try to find is
+Eran Cohen: Um I think we also have a call offer and I think that's it.
+ 
+ 
+00:32:50
+ 
+Eran Cohen: Are you guys working on something you want to share? It's not part of the sprint. You're looking for tasks. You're good.
+Ori Amizur: Well, I think that soon I will try the first task. Probably tomorrow try my first task which I don't know yet what it is, but it will be my first one.
+Eran Cohen: Okay. Are you done with on boarding?
+Ori Amizur: Almost here.
+Eran Cohen: Okay.
+Ofer Bochan: Yes, I'm here. Okay, I
+Eran Cohen: Do you have a task?
+Ofer Bochan: sorry,
+Eran Cohen: Are you busy working on something or you're looking for a
+Ofer Bochan: I'm looking for a task also.
+Eran Cohen: task?
+Ofer Bochan: I was working on some PR. Uh that's all
+Eran Cohen: Okay.
+Ofer Bochan: really
+Eran Cohen: So let's I I'll think you guys I don't know what stuff we can start working on. I think that's it. So, maybe we should have a doc like we can definitely add stuff to the agenda of the of the group meeting, but maybe you want to schedule like have a schedule of demos because we can probably demo everything that's ready already, but then there's a stuff that we're working on.
+ 
+ 
+00:34:42
+ 
+Eran Cohen: Maybe put some some dates on the calendar. Or maybe we can just use the fulfillment the the same agenda just already put some stuff on the coming weeks.
+Oved Ourfali: Yeah. So um for that I need input from you folks on things that can be demoed. I mean I I did try to create the ones that are more high level features like VM as a service and cluster as a service but I assume there are smaller ones that can be demoed or uh uh and and and that I need your help with right folks because uh
+Akshay Nadkarni: So when from a demo perspective are you looking at like a user flow like
+Adrien Gentil: Okay.
+Akshay Nadkarni: so let's take an example of like public IP pool for example right like one part of it is done but it is not still connected to the end user creating a public IP pool which could be the cloud provider admin. So for the demo purposes is it valuable to just showcase what is done like is it like a work done demo or is it like here is a cloud provider admin this is how they can create a public IP pool now and that is the support that we've added
+ 
+ 
+00:35:56
+ 
+Oved Ourfali: So, so there is a value I guess in both. I mean, if we made progress in one, we should show that. Uh uh I think that again I I would want to see uh like I'm coming always coming back to the VM as a service one because I think that once we'll have an end to end VM as a service demo once we add a functionality like what you just mentioned we can add that to the demo and we add another type of functionality we add so it will be an iterative like the user flow in my perspective. So uh so there are two purposes here.
+Akshay Nadkarni: Okay.
+Oved Ourfali: One is to share the the progress being made on a weekly basis or bi-weekly depends on what we can find and the other is to okay to see how to improve the the overall picture of okay so we added this functionality now in the overall flow this is what the user will need to do this is what the user will be able to get et so so so it's it's mainly both right eventually uh
+ 
+ 
+00:36:53
+ 
+Akshay Nadkarni: Good. Okay.
+Oved Ourfali: but I wouldn't wait for the user one in order to show that if we had progress on on on one
+Akshay Nadkarni: Okay.
+Oved Ourfali: Right? Because that might lead to okay that might lead to the discussion of okay we did that what pieces are missing okay we need to add Jira folders etc.
+Akshay Nadkarni: Okay.
+Eran Cohen: I think we let's just do like end to end like why do we need demos of like random pieces?
+Oved Ourfali: for stuff we have end to end. Let's do end to end.
+Eran Cohen: have end to end like a week later. So why demo like a piece of a feature like for example public IP pools like they are not a fe like it's it's part of a feature for public IPs but it's like the first step and a week later two weeks later you will have the full feature. So let's demo that like instead of hey I can create something it sits in a
+Oved Ourfali: Yeah, I mean I I don't have the exact details,
+ 
+ 
+00:37:54
+ 
+Eran Cohen: database.
+Oved Ourfali: right? So eventually I trust you to to make your judgment around that, right? I'm I'm not saying what's right or wrong. Uh so make a judgment yourself. Okay, it makes sense to demo doesn't make yet sense to demo. Uh same goes for for each and every feature, right? I mean um I'm trying to say
+Eran Cohen: Stop
+Oved Ourfali: I'm I'm trying to to show the functionality and to show the prog because there is a lot of things that
+Eran Cohen: it.
+Oved Ourfali: are being made by the team and not not everything is visible to everyone.
+Akshay Nadkarni: So I think
+Oved Ourfali: So the more we can demo the better but it doesn't mean that if someone added like a small minor thing that is not yet
+Akshay Nadkarni: that
+Oved Ourfali: concerned by anyone maybe it's worth demoing because there is some technical piece there that is important but if not then maybe not. So I trust your judgment on that one right. So yeah, I think someone was uh saying something.
+ 
+ 
+00:38:58
+ 
+Akshay Nadkarni: No, I No, I was just saying like because some demo to me at least have like two purposes,
+Eran Cohen: What?
+Akshay Nadkarni: right? One is like okay we want to show a full end to-end user flow so that people can actually understand like how the user flow looks like but the other purpose for demos may be like okay there's lots of work going on but we uh just want to show what work is being done in this space and that's why I was asking like what are are are the purposes both or is it just we care about the end to end user flow and the impression that I'm getting is that end to end user flows are
+Eran Cohen: Yeah.
+Akshay Nadkarni: definitely valuable uh from at least a final perspective but I think there's even this question around okay what is the work that's being done and can we demo pieces of it or something like that even though they are in development that's the impression I'm getting
+Oved Ourfali: Yeah. So I I I'll I'll focus on okay user flaws but also things that are important to demo
+Akshay Nadkarni: u
+Oved Ourfali: technically. If you if you did something and you you think that that would pre that would uh get you some feedback from others or uh like okay we think it should be done this way we need to so if you if if we see value of that and I think demoing it before it gets to the end is better right so that's the that's the idea
+Akshay Nadkarni: Okay. So,
+Eran Cohen: Okay, there's nothing else. Thanks everyone.
+Akshay Nadkarni: Thanks,
+Avishay Traeger: All right.
+Akshay Nadkarni: Iran.
+Trey West: Thanks.
+Ameya Sathe: Thank you.
+ 
+ 
+Transcription ended after 00:40:53
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

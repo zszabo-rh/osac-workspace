@@ -1,0 +1,472 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Apr 8, 2026
+innabox full team weekly 
+Invited Juan Hernández Danni Shi Isaiah Stapleton Taj Salawu Jen Stacy Daniel Erez Thorsten Schwesig Michael Hrivnak Heidi Dempsey Dylan Stewart Orran Krieger Surbhi Kanthed Lars Kellogg-Stedman Oved Ourfali Tzu-Mainn Chen Dmitry Tantsur Red Hat Research Program Calendar Jason Schlessman Nora Haxhidautiova Michael Daitzman naved001@bu.edu Quan Pham joachimw@bu.edu mmunakami@g.harvard.edu Austin Jamias Meera Malhotra Bradford Nichols Trey West knikolla@bu.edu Elior Erez Akshay Nadkarni Omri Hochman Eran Cohen Zoltan Szabo Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Rom Freiman Adrien Gentil Christopher Tate Alona Paz Simone Ferlin-Reiter Marek Grac Jason Kary Maor Friedman Avishay Traeger Elad Tabak Dan Manor
+Attachments innabox full team weekly  innabox - 2025  Notes - innabox full team weekly   
+Meeting records Transcript Recording 
+
+
+Summary
+Discussion focused on bare metal as a service enhancement proposal with ensuring future ACM compatibility and validating VM as a service for MOC 2.0 readiness.
+
+OSAC ESI, Floating IP Use
+OSAC will continue using OpenStack/ESI for the foreseeable future and allocates 2 floating IPs per cluster: 1 for the API address and 1 for the ingress IP. Requiring 2 IPs per cluster aligns with previous networking discussions regarding IPv4 requirements.
+
+Bare Metal Service Approval
+The Bare Metal as a Service enhancement proposal must proceed quickly to meet June deadlines while ensuring the design is not objectionable to the ACM team. It was decided that the architecture must result in a broadly useful solution that is not exclusively specific to OSAC and can converge with broader product direction.
+
+VM as a Service Validation
+VM as a service is not production-ready for MOC 2.0 due to unsolved operational problems like monitoring and charging. The proposed strategy is to deploy VM as a service to a development MOC environment as an optional service for non-production use, allowing teams to gain experience and validate the operational experience.
+
+
+Details
+* OSAC Use of ESI and Floating IP Allocation: Naved Ansari inquired about OSAC's continued use of ESI and how floating IPs are allocated when deploying a cluster. Lars Kellogg-Stedman confirmed that OSAC will continue to use OpenStack/ESI for the foreseeable future and clarified that OSAC allocates two floating IPs per cluster: one for the API address hosted on the management cluster, and another for the ingress IP hosted on the worker nodes, as a single IP cannot point to both locations (00:02:00). Naved Ansari confirmed that requiring two IPs per cluster aligns with their previous discussions during networking calls regarding IPv4 requirements (00:03:57).
+* Audio Issues and Improvement: Lars Kellogg-Stedman briefly addressed an issue with their audio quality, which Robby Stahl and Kristi Nikolla described as "almost unintelligible" and sounding "Secure underwater," respectively. Lars Kellogg-Stedman switched microphones, resulting in improved audio quality according to Robby Stahl and Oved Ourfali (00:03:57).
+* Status of Bare Metal as a Service Enhancement Proposal: The discussion turned to the open enhancement proposal for bare metal as a service, aiming to determine what is needed for its approval (00:03:57). Tzu-Mainn Chen noted that Michael Hrivnak prefers that a solution for bare metal fulfillment exists within ACM, and they suggested adding verbiage to the document stating that a more generic ACM solution could replace the current proposal if one emerges (00:05:05). Michael Hrivnak clarified that the focus should be on ensuring the current design is not objectionable to the ACM team and that it can be extended and made useful beyond just OSAC (00:06:15).
+* Timeline and Scope for Bare Metal as a Service: Heidi Dempsey emphasized that the internal product timeline for ACM integration is too short for the upcoming June projects and that discussions about what gets into ACM should not be part of the open design document (00:07:22). Lars Kellogg-Stedman concluded that the current goal is to ensure that design decisions do not "paint ourselves into a corner" that would be difficult to escape from in the future (00:08:33). Michael Hrivnak stressed that the architecture must result in a solution that is broadly useful and not exclusively specific to OSAC (00:10:09).
+* Aligning OSAC with ACM Direction: Oved Ourfali and Orran Krieger agreed that while the current bare metal solution must proceed to meet current deadlines, it is essential to ensure that the approach is not divergent from the overall direction of ACM and other Red Hat projects. Oved Ourfali stated they are trying to avoid a scenario where OSAC's implementation and the product team's direction cannot converge later on, similar to the process used for VM as a service (00:09:23) (00:11:10). The consensus was to avoid pausing the current bare metal solution but to proceed with diligence to ensure future compatibility (00:12:17).
+* Separation of Bare Metal Fulfillment Operators: Tzu-Mainn Chen questioned whether the desire for the bare metal fulfillment to be useful outside of OSAC contexts necessitates separating the bare metal fulfillment operators from the main OSAC operator. Lars Kellogg-Stedman and Michael Hrivnak agreed that separation is worth considering and that, at minimum, they should be operationally distinct (00:13:07).
+* VM as a Service Deployment and Confidence: Orran Krieger raised concerns about the VM as a service offering, expressing uncertainty about whether it is production-ready for deployment to people who need to move off OpenStack. Lars Kellogg-Stedman suggested treating it as any new service by first deploying it to a development environment for non-production interaction and validation before transitioning it to production (00:14:07). Oved Ourfali mentioned they plan to demo VM as a service at the Summit booth to gather feedback, identify gaps, and document consumption, acknowledging that a product roadmap is not currently in place (00:15:06).
+* Strategy for Early Adoption and Testing: Orran Krieger proposed using the VM as a service solution for early, non-production users to gain experience and credibility, suggesting a joint effort between MOC and the engineering team. Kristi Nikolla asked if the solution is different from OpenShift CNV, and Lars Kellogg-Stedman explained that while it is built on CNV, it provides a more limited and standard API experience for various resource types, including virtual machines and bare metal (00:17:19) (00:19:34). Kristi Nikolla expressed concern about "moving the goalpost" by waiting for a perfect replacement to OpenStack (00:21:45).
+* Addressing Floating IP Allocation for CNV: Naved Ansari confirmed that the proposed OSAC solution for VM as a service, which includes the ability to allocate floating IPs to virtual machines, will solve a problem that existed with deploying OpenShift CNV (00:21:45). Lars Kellogg-Stedman clarified that the goal is to provide a consistent API for both virtual machines and bare metal, allowing for the use of floating IPs (00:23:53).
+* MOC Timeline and VM as a Service Deployment: The conversation concluded with a focus on the next steps for deploying VM as a service and the differing timelines for the MOC's challenges versus the OSAC 2.0 release in June. Heidi Dempsey clarified that OSAC will not be ready for VM as a service in a production MOC environment because operational problems like monitoring and charging have not yet been solved (00:23:53). Orran Krieger suggested getting OSAC into the MOC dev environment as an optional service to encourage non-production use and gain experience for a potential production transition by the end of the summer (00:25:24) (00:28:17).
+* MOC 2.0 Context and Transition: Kristi Nikolla provided clarification on the MOC 1.0 and MOC 2.0 efforts, explaining that MOC 2.0 is a near-future reboot focused on NIS compliance and hospital use cases, which only requires a production OpenShift cluster initially (00:31:29). The requirements for MOC 1.0, including VM as a service, are on a longer timeline and could be added to OSAC later (00:32:40). Orran Krieger noted that MOC operations are transitioning to the regular enterprise IT team, who currently lack experience with OpenShift but are committed to the change (00:34:08).
+* Alternative to Guinea Pig Users for Validation: Robby Stahl suggested that instead of immediately subjecting users to a development cluster, the team could contrive standard candle workloads, fully instrument their testing, and verify they behave the same as in the existing environment, using this to exercise the entire system and run books. Lars Kellogg-Stedman agreed that validation of the operational experience is the key metric, not just the workload behavior (00:35:12).
+
+
+Suggested next steps
+* [Michael Hrivnak] Consult ACM Team: Talk to the ACM team, specifically Dimmitri, regarding bare metal fulfillment design. Ensure OSAC approach is suitable for future generic ACM solutions.
+* [Michael Hrivnak] Verify Implementation: Check with Nick Arboni, Assisted Installer expert, about bare metal management implementation. Validate compatibility with existing tooling.
+* [Tzu-Mainn Chen] Update Proposal: Fix up the bare metal enhancement proposal document. Address late afternoon comments received.
+* [Lars Kellogg-Stedman] Review Cluster Exercise: Review Oved Ourfali's sent message detailing the Cluster as a Service exercise.
+* [The group] Define Service Gaps: Identify and list current infrastructure gaps, such as quota limitations, in the VM and Cluster services. Add identified gaps to the specific work stream for resolution.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Apr 8, 2026
+innabox full team weekly  - Transcript
+00:00:00
+ 
+Oved Ourfali: Hey, good morning.
+Lars Kellogg-Stedman: Good morning, Rod. How you
+Oved Ourfali: Good. How are
+ 
+ 
+Session ended after 00:00:09
+ 
+00:02:00
+ 
+Lars Kellogg-Stedman: All right, welcome everyone to another Wednesday meeting. We have two items on the agenda right now plus uh you know anything other folks want to bring up. Oh, we got someone joining me. So, let's just get right into it. Uh Ned, you had a question you wanted to bring up today.
+Naved Ansari: Yes, it might be a very simple question. So like I'm assuming that OSAC will continue to use ESI for the next couple of months at least.
+Lars Kellogg-Stedman: It will be using OpenStack for the foreseeable future at the MOC one way or the
+Naved Ansari: Okay. So,
+Lars Kellogg-Stedman: other.
+Naved Ansari: so then as a user I ask OSAC to deploy a cluster for me. Will it automatically allocate a floating IP from ESI or and is that true?
+Lars Kellogg-Stedman: Yes.
+Naved Ansari: And will it allocate just a single IP and forward it to both use it for app and app?
+Lars Kellogg-Stedman: No,
+ 
+ 
+00:02:55
+ 
+Naved Ansari: No. Oh.
+Lars Kellogg-Stedman: it allocates two floating IPs and that's one of the reasons for that is that the API address is hosted on the management cluster that is running the control plane but the ingress IP is hosted on the worker nodes. Um, and there's a a in-cluster load balancer that manage that across the worker nodes. So you can't have a single IP pointing to both locations.
+Naved Ansari: I see how does it work in our EDU cluster that we have deployed. It's not deployed by OSAC but it is using a single ESI floating IP for both.
+Lars Kellogg-Stedman: I haven't looked at it, but if all of the nodes there are on the same network,
+Naved Ansari: Oh, I see your point.
+Lars Kellogg-Stedman: then you could have single IP doing
+Naved Ansari: Okay. Because the control plane is in ACM here.
+Lars Kellogg-Stedman: it.
+Naved Ansari: So how Okay. Okay.
+Lars Kellogg-Stedman: And OpenStack does not let you forward an IP address to do port forwarding across multiple networks.
+Naved Ansari: That works. That makes sense. Yes.
+ 
+ 
+00:03:57
+ 
+Naved Ansari: All those IPs are for the same internal network,
+Lars Kellogg-Stedman: Yeah.
+Naved Ansari: right?
+Lars Kellogg-Stedman: All
+Naved Ansari: Okay. All right. So, OSAC to deploy clusters will need two. All right. That is what I told people when with the networking call when we were begging for IPv4s. I was like, please do two per cluster. Okay. Thank you.
+Lars Kellogg-Stedman: right. Quick question. Audio is weird. Is it unintelligably weird or is it just kind of mildly weird?
+Robby Stahl: almost unintelligible.
+Kristi Nikolla: Secure underwater.
+Robby Stahl: There's a lot of blocking going on.
+Lars Kellogg-Stedman: Let's just That's um let's see here. What are my options? How's that?
+Robby Stahl: improved.
+Oved Ourfali: I think it's better. Yeah.
+Lars Kellogg-Stedman: Okay, switching mics. We'll figure out what was going on with the other one later. All right. Um the second thing we wanted to cover today. So we have an open enhancement proposal for um the bare metal as a service and wanted to check in and see uh basically what's left to get that approved.
+ 
+ 
+00:05:05
+ 
+Lars Kellogg-Stedman: Um men I was looking through it. I don't think there's all that many unresolved comments left other than the smattering that I left yesterday which I think are mostly um minor in nature.
+Tzu-Mainn Chen: I I actually I mean I actually had like a maybe like a broader
+Lars Kellogg-Stedman: Are you
+Tzu-Mainn Chen: question surrounding that which is like I'm I'm getting the sense from Michael that his preference would be
+Lars Kellogg-Stedman: Yep.
+Tzu-Mainn Chen: for there to exist a solution in ACM for the bare mail fulfillment and I'm and I don't think it's there now but I'm wondering if there should be like verbiage maybe in in the documents stating that if and when like uh a more generic ACM solution exists then we can just replace all us with that.
+Michael Hrivnak: I think I'm more interested in suggesting of we should make that and that what we do should be that.
+Tzu-Mainn Chen: Okay.
+Michael Hrivnak: Um I and I think it's pretty close to that. Uh what we've talked about the key you know things to I guess to follow through on or like one talk to the ACM team talk to Dimmitri in particular.
+ 
+ 
+00:06:15
+ 
+Michael Hrivnak: If we think about bare metal host as the first implementation that we're going to use and now we're gonna we're adding Nvidia's thing and maybe we're going to add uh OpenStack more directly as an option or like whatever the other options are going to be that are going to be op like pluggable options that we can use in the system. Um we have at least one example that works and we want to add new ones. So looking at how is that manifested in ACM today and who owns that and how could we work with that so that we can extend that and that whatever we do is more useful beyond OSAC and could be used by anybody who wants to just use ACM to provision clusters with Nvidia's thing for example. That's all I'm
+Lars Kellogg-Stedman: Do you think that that has a practical impact on what we are doing right
+Michael Hrivnak: suggesting.
+Tzu-Mainn Chen: Specifically,
+Lars Kellogg-Stedman: now?
+Michael Hrivnak: we should make sure that what we're doing right now is at least not objectionable when it, you know, when we show it to people like Dimmitri, uh, or other folks involved in the bare metal management ACM.
+ 
+ 
+00:07:22
+ 
+Michael Hrivnak: Um, Nick who's weighing in on this is another good Nick Arboni has very deep experience with the assisted installer where this plugs in is a great check. Um, so as long as we like if we do that and if we can just make sure and I think we are that what we do and what we build is not going to depend on anything OSAC specific that we have we can show a complete story of I can turn on this tooling and I can use it to convert servers that are interact and off into agents that are running and ready to be provisioned. with Open Shift or you know the couple other stories similar to that then then I think we're good.
+Lars Kellogg-Stedman: Okay,
+Michael Hrivnak: Heidi,
+Lars Kellogg-Stedman: Heidi,
+Michael Hrivnak: what do you think?
+Lars Kellogg-Stedman: you better hand up.
+Heidi Dempsey: Yeah. Um, so first of all, this is all inside baseball for Red Hat and and like that should not be part of what we're talking about in the open design document. Whether or not something gets into ACM, that doesn't matter to the outside world.
+ 
+ 
+00:08:33
+ 
+Heidi Dempsey: And second of all, our timeline to deploy this is far too short to have something, you know, go through the ACM product manager, engineering manager, get on the road map, get scheduled like it's fine to work on that, but that is not what we have to get working to deploy uh for the upcoming projects we have in June.
+Lars Kellogg-Stedman: That was kind of the nature of my question when I said what's the practical impact right now and I I think what I'm getting the sense
+Heidi Dempsey: Yeah. Right.
+Lars Kellogg-Stedman: is from Michael that the answer is not necessarily a whole lot but as we make design decisions we should try to make sure we're not painting ourselves into a corner that will be hard to escape from. And I think I think we're in okay shape on that front.
+Michael Hrivnak: Yeah.
+Tzu-Mainn Chen: Yeah, I feel like I I feel like discussions yesterday with Dmitri were positive.
+Michael Hrivnak: I
+Orran Krieger: Yeah.
+Tzu-Mainn Chen: Like I think he is generally on board with what we're doing.
+Lars Kellogg-Stedman: Yeah. He doesn't seem to think we're crazy people.
+ 
+ 
+00:09:23
+ 
+Tzu-Mainn Chen: Um
+Heidi Dempsey: Yeah. I mean, we've been working with him for years. We know that.
+Orran Krieger: But I think I think that the the point here is that it we do want an open-
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: source solution that at some point Red Hat's going to be standing behind as a product and that will be it, but it ain't there now. So,
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: we have to do something until that happens. Um, but but I think that that does seem like a plausible approach to go to. I had exactly the same we had exactly the same conversation, but I do think it's important for us to keep remembering the fact that the timing means that we we need
+Michael Hrivnak: Yeah.
+Orran Krieger: something now.
+Michael Hrivnak: And yeah,
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: I'm not asking or suggesting that we get something agreed onto any product roadmap uh by any other product um or product team in the very near future. That's not going to happen. But we can do the diligence of designing something and talking to the people who own those things about what would
+ 
+ 
+00:10:09
+ 
+Heidi Dempsey: Right.
+Michael Hrivnak: or would not be a decent fit. And then let's we can recon converge uh as we go along. Um and the the
+Heidi Dempsey: Yeah, of course.
+Lars Kellogg-Stedman: Yeah,
+Michael Hrivnak: pro
+Heidi Dempsey: But but not that's not an element of what needs to get discussed in the architecture document.
+Michael Hrivnak: it's critical for the architecture document.
+Heidi Dempsey: That's
+Michael Hrivnak: We h we the critical piece is we we cannot paint ourselves into a corner where we've done something that only we can
+Lars Kellogg-Stedman: sure.
+Michael Hrivnak: use and that's not useful uh more broadly. So that that's like the most important part is ensuring that we are designing and and creating something that is not just OSAC and maybe this is you you made a good point about the the product discussion. I guess the real theme is we want something that's not just specific to us but they can have a broader community of users using it where it's more applicable to many more use cases besides just multi-tenant self-service provisioning uh in a cloud.
+Heidi Dempsey: Yeah.
+ 
+ 
+00:11:10
+ 
+Michael Hrivnak: Sure.
+Heidi Dempsey: And there are lots of things that are like ACM out in the open source world that do the same thing where you'd want to support interfaces to them, too. Yeah.
+Oved Ourfali: We do the same process by the way for VM as a service like we try to understand what ACM is doing in this space before we went to our I mean so this kind of understanding where the entire direction is going
+Michael Hrivnak: Yep.
+Heidi Dempsey: Yeah.
+Oved Ourfali: it doesn't mean like we need to stop now and wait for Dimmitri to ship something in a year right but uh if in a year from now we'll do two different distinct things that are like that can't be
+Orran Krieger: Yep.
+Oved Ourfali: converged at some point then uh then we're probably in a bad spot So uh that's what we're trying to avoid and uh and it goes with the projects like oran that was mentioned uh open ran that was mentioned also during the call yesterday that uh so to avoid each project taking a different path and then like so Dimitri has the full picture and on the product side so we should at least see what we're doing is not uh you know a turn right where they're turning left.
+ 
+ 
+00:12:17
+ 
+Oved Ourfali: Okay. So
+Heidi Dempsey: Yeah, I I totally agree.
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: As long as we're not pausing on getting our our solution out there for bare metal that we've already
+Oved Ourfali: that's
+Heidi Dempsey: spent literally months discussing,
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: then it's
+Orran Krieger: I'd really appreciate it if we changed the name of that other thing away from
+Heidi Dempsey: fun.
+Lars Kellogg-Stedman: Well, you can go have a conversation with those people.
+Orran Krieger: Oruran.
+Heidi Dempsey: That's in the That's in the real world around.
+Lars Kellogg-Stedman: That is not our Bailey Wick.
+Heidi Dempsey: You can't change that.
+Oved Ourfali: yeah once I said oran I was like okay someone might understand it differently so I said open ran uh
+Lars Kellogg-Stedman: We'll have to have a meeting where oron and Iran can talk about Oran and uh we can record that as a YouTube video and become YouTube famous.
+Heidi Dempsey: Hi.
+Lars Kellogg-Stedman: All right. So, Min other other than the bigger issues,
+Tzu-Mainn Chen: Yeah.
+Lars Kellogg-Stedman: are there kind of specific feedback that you're from that you're waiting for from some people on the proposal?
+ 
+ 
+00:13:07
+ 
+Tzu-Mainn Chen: Uh,
+Heidi Dempsey: All right.
+Tzu-Mainn Chen: no, there there are some things I had to fix up based on the comments you left like late afternoon, but that that's basically it. Um, I did have one more question though, which is like the idea that this bare mail fulfillment would be useful outside of an OSAC context. Is that would that be a reason to separate out the bare mail fulfillment operators from the big OAC operator?
+Lars Kellogg-Stedman: Yeah,
+Michael Hrivnak: Maybe that that's an easy enough change to make
+Lars Kellogg-Stedman: sure.
+Michael Hrivnak: uh now or later. I don't feel super strong about that,
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: but yeah, like at least operationally they should be distinct, but it's worth considering.
+Lars Kellogg-Stedman: Orang, you have a hand up.
+Orran Krieger: Yeah. So, I mean, I guess one thing I've been wondering about, we've had this, so so the MOC is going through, you know, a very um a very big set of changes with RPH and everything else coming in. And one of the things is we we want to get people, we have an OpenStack environment.
+ 
+ 
+00:14:07
+ 
+Orran Krieger: We want to get people off of it. Um and um you know what we've been talking about that we have a VM as a service offering here right is it I my assumption has been that that is not production that is not something we would feel comfortable m putting people onto but I'd love to hear differently
+Lars Kellogg-Stedman: Well, so I would say that we should treat that the way we would treat any other new service,
+Orran Krieger: Hey,
+Lars Kellogg-Stedman: which is to first get it into the dev environment where people can interact with it in a non-production fashion and make sure that it meets their needs and if people are happy with it, then we transition to it to production.
+Orran Krieger: So I mean the the from the ecosystem engineering side, you guys have been building this for a long time. Does this make sense to you? Because there's always going to be the first time you're deploying it for real with real users. You're going to hit a whole bunch of problems, right? And this isn't a supported thing.
+ 
+ 
+00:15:06
+ 
+Orran Krieger: So everything we've done from research, we've always sort of put a tax on ourselves to then work with people using it for the first time and get experience. Is this a useful thing for
+Oved Ourfali: Yeah,
+Orran Krieger: you?
+Oved Ourfali: I mean I was going to mention I was going to reply on the previous comment, but to to this point I think that uh what we've been trying to do is and and that brings me to also the the next bullet on the agenda is to try and see okay what things we did so far, what things can we demo and to whom. Um and so we started with the VM as a service is something we want to demo at the booth in the summit for people to you know to ask questions to see what we've done so far and also to use that opportunity in order to see what what are the gaps how can we uh design UI on top of it which is something we know we're lacking and and I've been doing the same exercise for cluster as a service I'd appreciate I sent a message earlier this morning if you can take a look that would be great this one isn't isn't targeted to the summit booth But as an opportunity to see because we've done a lot of work around that and obviously if we're adding
+ 
+ 
+00:16:18
+ 
+Oved Ourfali: things in the infra like quota and like uh more sophisticated network isolation etc that that might need to or carbide that might need to align with that as well but to show the things we did so far um so that you know people that are interested can can see how they can consume it. Now, we did try with the VM as a service to have uh IBM use it in their sovereign core, but they were kind of uh it was currently it's off the table, not because of what we deliver, but because of their uh ability to currently consume it. Um but a as I see it, we can definitely have it upstream. People can uh can use it. If we demo it and document it better then it would be easier for you know people to try and out and consume. Uh from that to having a product with that we're not there yet right. So u currently there is no like product road map around that as you're aware right but but that's what we need to get to.
+ 
+ 
+00:17:19
+ 
+Orran Krieger: Yes. So that that's sort of the the thing we we are going to be a while till there's a product roadmap on this, right? But at the same time, you know, we've been doing things together certainly with the MOC group where we expose things that are pre-product, but that, you know, it's a joint effort, right? Is this something that is valuable for us to do that way? um because it takes work to do that and it t you know the engineering team has to kind of you know we can't just throw it over the wall something that's that that has that characteristic because um but and I I just it's not I don't have confidence on whether how you guys feel about doing that like do we want to do that because I would it would be great to demo part of what we're doing and having being used for real it feels like it would add credibility to our project but it's also different from just doing pure engineering
+Lars Kellogg-Stedman: That's the first
+Oved Ourfali: Yeah, I mean not sure what the question is but but as I see but but as
+ 
+ 
+00:18:24
+ 
+Orran Krieger: Maybe it's offline.
+Oved Ourfali: I see I mean I don't know what was the um what was your relationship at the moment with regards I mean with regards to supporting it with regards to I mean I definitely think that that this solution should be used and MOC was kind of customer zero around it but uh I don't know what implications it has around I mean currently the support let's take support for example who's going to support it is is this team together is going to support it are we going to do something else around that uh how formal it is how they consider the customer I mean all of these questions I guess are relevant also to the offering you had today but I'm not sure what was the model you you did there right so um and I think I I assume it
+Orran Krieger: Yeah.
+Oved Ourfali: should uh I assume you should continue in a similar model to to what you've been doing so far. But we need to see together how can we support it at what scale is it going to work because you know that should we do per scale testing around it or not uh who is going to use it exactly how many how many environments are going to use it etc.
+ 
+ 
+00:19:34
+ 
+Orran Krieger: Well,
+Oved Ourfali: A lot of
+Orran Krieger: that sounds great. It sounds like in general,
+Oved Ourfali: questions.
+Orran Krieger: in principle, you're not opposed to this. And so, I think we should we should probably have that conversation. Like the MOC folks are here. You know, you guys are here. We're trying to move people off of the OpenStack environment. um it would we don't want to make this product in the near term. You know, there's but but working to this is this is a place where we could expose it um for some early users that were moving off of um OpenStack anyhow. So um yeah, let's let's um Christy,
+Kristi Nikolla: Um,
+Orran Krieger: you have a comment?
+Kristi Nikolla: is this different from Open Shift CNV?
+Lars Kellogg-Stedman: It is built on top of open shift CNV but like um the other services that we're working on there is a API sitting there is a a standard API in front of it the fulfillment service API that would provide the public facing experience and if we built UIs or automated workflows, that's what they would interact with.
+ 
+ 
+00:20:37
+ 
+Lars Kellogg-Stedman: So, it would be using CNV as the backend hosting, but that wouldn't be directly exposed to the end user.
+Kristi Nikolla: Why would that not be the case? Uh at least as a intermediary first step um for something that is a supported product as far as I know um and would get us the kicking the tires running.
+Lars Kellogg-Stedman: So the MOC could MOC could absolutely decide to just deploy CNV and use that. But we are trying to build something that provides a more limited uh set of options in order to make it easier to interact with. um CNV you need to know a lot about how CN CNV works in order to make effective use of it. And the goal here is to present something that gives you a uh you know smaller API in order to have a standard way of getting different sets of resources whether those are virtual machines or clusters or bare metal hosts. Does that answer the question at
+Kristi Nikolla: Um,
+Lars Kellogg-Stedman: all?
+Kristi Nikolla: it does. I, um, quickly before we go to Nav, I'm a bit concerned about moving the goalpost.
+ 
+ 
+00:21:45
+ 
+Kristi Nikolla: Uh, like, uh, we're going to be stuck having OpenStack forever if we keep, uh, like waiting for something that's perfect to replace it. So, that's that's one concern.
+Lars Kellogg-Stedman: So which gop posts are moving?
+Kristi Nikolla: um
+Lars Kellogg-Stedman: I mean here what I just described has been kind of the goal of this project since its inception.
+Kristi Nikolla: um this project maybe but the collaboration between MOC and Red Hat to replace OpenStack uh did go through some let's use CNV phases for which we prepared the groundwork and then that never really happened.
+Lars Kellogg-Stedman: Rob, my feeling there was that was because it was rejected by the nerk because of some issues around um
+Kristi Nikolla: Um
+Lars Kellogg-Stedman: networking.
+Kristi Nikolla: yeah. Yes.
+Naved Ansari: want to jump in Christie but L so yes you talk about networking and that is the only blocker that cannot deploy open shift CNV does whatever OSAC is going to do with open shift open
+Lars Kellogg-Stedman: Yeah.
+Naved Ansari: open shift CNV give us that if not then we're still at the same problem.
+Lars Kellogg-Stedman: with the solution that we're building with OSAC is supposed to provide the ability to allocate floating IPs to virtual machines.
+ 
+ 
+00:22:50
+ 
+Naved Ansari: Okay, then that will actually solve a problem. But you know,
+Lars Kellogg-Stedman: Yeah.
+Naved Ansari: we'll see how long it'll take. But ideally, Metal LB becomes part of Open Shift. I don't know, they take it more seriously and fix it in Open Shift CMV. But this is another solution.
+Lars Kellogg-Stedman: So,
+Naved Ansari: Let's see how it is. F.F.
+Lars Kellogg-Stedman: so we're going a little bit into implementation here, but I mean you can use Metal LB with CNV to deploy virtual IPs for your virtual machines. uh but those aren't necessarily going to be public in a typical installation. The way that we build things, you would need some kind of external service like Neutron or like a you know dedicated load balancing device to provide a mapping between an actual public IP and um the load balancer uh IPs that Metal LB allocates. And honestly that's not difficult to automate. So again, just deploying CNV by itself is a thing that MSC could pursue if they wanted to and just build something that handles that mapping.
+ 
+ 
+00:23:53
+ 
+Lars Kellogg-Stedman: But um our goal is to provide something that lets you get floating IPs and use them with virtual machines or with bare metal machines um and kind of having the same API experience for both of those things. Cool. All right. Uh, do we have anything else to cover today? That looks like a no on
+Michael Hrivnak: So what's the what's the next steps on that conversation?
+Lars Kellogg-Stedman: which conversation we just had lots.
+Michael Hrivnak: Well,
+Orran Krieger: I
+Michael Hrivnak: deploying VM is a service. Try
+Heidi Dempsey: I think Iran Iran is being somewhat unclear.
+Lars Kellogg-Stedman: Well,
+Orran Krieger: Yeah.
+Michael Hrivnak: again.
+Heidi Dempsey: The MOC has a problem which is they need to move projects off of OpenStack somewhere by a certain time which is not this project's problem and they need to decide how they want to solve that problem. The timeline for that is much longer than the timeline that I keep harping on which is 2.0 in June.
+Lars Kellogg-Stedman: Uh-huh.
+Heidi Dempsey: So those are two different problems. OSAC might be a solution, but it's the MOC's decision about whether they want to solve the problem by doing two different things over the time that they have because OSAC will not be ready to do VM as a service in the MOC because we haven't solved all the operational problems like monitoring and charging and all that stuff which I know you're looking at but it's not there.
+ 
+ 
+00:25:24
+ 
+Lars Kellogg-Stedman: Yeah,
+Heidi Dempsey: So,
+Lars Kellogg-Stedman: I mean I think I think again getting OSAC into a deaf environment at the MOC and having people able to use it and you know poke it poke the buttons and see what
+Heidi Dempsey: Yep. It will help.
+Lars Kellogg-Stedman: breaks would be the necessary first step.
+Heidi Dempsey: Yep. But we may not even have the people to do that and do MOC 2.0 at the same time in the
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: MOC.
+Orran Krieger: Yeah. So I think that what here's what I would sort of say I don't think we're in a position that we can fully execute on this. On the same side, I really love the idea of getting something out there. So having this in the dev environment if that's a joint effort we can do and exposing it to people is an optional thing which when they decide that so so and because we are going to have to decommission at some point that environment that OpenStack environment so let's make it available as an optional thing and see if we can start encouraging people to use it.
+ 
+ 
+00:26:28
+ 
+Orran Krieger: Does that make sense?
+Heidi Dempsey: it it it's not going to help as Christie is pointing out in chat with the problem which is production users who are not going to be at all interested in trying this out in a dev cluster.
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: So sure, I mean, putting this in the dev cluster is in fact part of the plan for 2.0. Finding people who want to play with it and why is a different thing we have to solve. It's not an OSAC thing at the moment.
+Orran Krieger: Yeah, I think I think we will. So we'll get I think some users especially um there's use cases that are that require sort of thin provision things VMs that you know that are not the critical production things but the point is this would be this would be testing um to give us all experience on whether or not we can you know by the end of the summer move people in production off of it onto
+Heidi Dempsey: Yeah, with a different new set of users, not the existing one.
+Orran Krieger: Yeah.
+ 
+ 
+00:27:29
+ 
+Orran Krieger: Yeah. But the point is I think there
+Heidi Dempsey: Just don't scare the operations people that you're going to take production customers and put them into a dev cluster because
+Orran Krieger: are
+Heidi Dempsey: that's what you're saying and that's not what you mean.
+Orran Krieger: no I the point is there's a process here. If we're going to by the end of summer even think about moving the production customers onto here, that means that in June, July, we should be having people kicking the tires of it that are not those customers or some of their students kicking
+Heidi Dempsey: Yeah.
+Orran Krieger: the tires on it, right? And giving us back feedback and and I'm I am comfortable with offering it in that kind of a fashion. I mean, Chrissy, do you have any problem with that? I think that just good for us to get the
+Kristi Nikolla: Um, could you rephrase that?
+Orran Krieger: experience.
+Kristi Nikolla: Uh, I was distracted by the chat. There's two conversations at the same time.
+Orran Krieger: So we will get the floating IP in through this.
+ 
+ 
+00:28:17
+ 
+Orran Krieger: So this is a way of solving that problem um that doesn't come natural with CNV. And so the idea is offer this off offer we are already want to get um OSAC into in as a dev thing in this summer. Let's get it in there and let's exposing it as an optional service with the and get non-production users using it so that by the end of the summer we'll have that experience to move the production users to it.
+Kristi Nikolla: Yep. Um, that works. We have mechanisms for exposing multiple clusters. We have mechanism for creating users and projects in those clusters. All that's really missing is the cluster
+Orran Krieger: Okay.
+Kristi Nikolla: itself.
+Orran Krieger: So, so I mean that's the biggest thing is that having the folks engineers on your side of it that are willing to kind of work with this as we hit problems and stuff like that. The people that have developed this, you know, being able to jump in again. This won't be for production and by the end of the summer is when we'll want to transition to production and by then hopefully we'll have a story of how this becomes production.
+ 
+ 
+00:29:28
+ 
+Orran Krieger: Does that make sense?
+Oved Ourfali: Yeah. And I see that. But for VM as a service, if I read hide this comment, I don't know. You can speak.
+Orran Krieger: What's that?
+Heidi Dempsey: Oh, I was just saying, yeah, there's always a transition. There's always a list of requirements. We literally have not done this for VM as a service because it was intentionally not included as part of 2.0. We were very clear about what we needed, which was clusters and bare metal. That is what has to be deployed and that's why OSAC is going into a dev cluster in that time frame. There are not enough MOC engineers to handle the production transition of OSAC plus
+Orran Krieger: Yeah.
+Heidi Dempsey: adding this.
+Orran Krieger: Yeah.
+Heidi Dempsey: So no, they haven't, you know, looked into the future and write their new requirements for this. But I guarantee you that they have them.
+Orran Krieger: Well, and so so this is let let me just be expand this a little bit. So some of these requirements are coming from me.
+ 
+ 
+00:30:28
+ 
+Orran Krieger: The core requirements is a compliance for RPA that'll be coming in in hopefully they'll be decided this next week. Um that will the contract will come through and we and the first use cases are going to really provide us environments that we need to work together compliance that we want to use the bare cluster as a service and we're going to initially do that without OSAC but I'd like to transition that all to OSAC. some point we're going to need to make these things very elastic um because they're going to be hospitals that for example will have um very little demand you know they're just going to be doing metadata operations stuff like that and I don't want to install these things on bare metal so at that point we're going to want to do these as virtual clusters as a service but even better for some use cases we're going to just run a few VMs and not have a whole open shift cluster um and so This is not the hard immediate requirement but it is going to be a requirement um over the next year.
+ 
+ 
+00:31:29
+ 
+Kristi Nikolla: So I want to um add something to that and it's that there are many things that currently are the MOC or that will be the MOC um since MOC 2.0 has been mentioned several times in the chat. It's perhaps worth clarifying what MOC 1.0 is and how that will change or not. So currently um we do have one open stack and one open shift well multiple open shift production clusters that we expose to users and we charge users for them.
+Heidi Dempsey: Let's
+Kristi Nikolla: We do support these clusters um in a in a technical and also a facilitator position. Um at the same time the 2.0 know is a reboot um
+Heidi Dempsey: see.
+Kristi Nikolla: on a separate cluster of the MOC to solve for the NIS compliant and hospital use case with the hope that the infrastructure for standing that up is going to gobble up the requirements to be able to also fulfill the previous requirements of MOC 1.0 O which includes VM as a service and bare metal as a service and open shift production clusters. These are different timelines.
+ 
+ 
+00:32:40
+ 
+Kristi Nikolla: So the MOC 2.0 is a very very near future in the next few months. We just need an open shift production cluster. doesn't matter how it's deployed as long as within the next couple of months OSAC should be able to gobble up the templates that it was spent up from and um be something that it supports. Um and then in the next year or so perhaps those requirements for non-NIST compliant what the MOC currently does can also be added to OSAC um as further use cases so that it can free us the resources that are currently supporting those Snowflake clusters um with something that can uh cookie cutter deploy and maintain them. Um, so there's a lot of things at the same time and there's three of us. So yeah, hope that clarified some things rather than created more confusion.
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: Did I hear you responding there?
+Orran Krieger: Um yeah, everything Christy said is totally accurate. Um the the but having said that um there's a commitment by the CIO of BEu to um to do the operations for the effort as to do a full transition to the um the product team.
+ 
+ 
+00:34:08
+ 
+Orran Krieger: And I I met Heidi with Chris last night and we had a long conversation. and he's he's he's had conversation with Greg. They're going to be moving the team, but it just right now they don't have the experience with all the open shift stuff. So there is that commitment and there's a transition going on. So it'll be the regular enterprise IT team that actually operates the enterprise infrastructure also operating the research infrastructure and operating the MOC um for the broader set of use cases. So Chrissy's comment about it being three people is true, but it's also it will be transitioned, but people are aren't skilled right now in this. In fact, they all are they're they've done everything with vCloud director. So it's all my fault.
+Lars Kellogg-Stedman: All right. Well, with that, unless anyone else has one more thing to bring up, I think we are all done.
+Robby Stahl: I have one small thing that we should well small to me because I've done it before that we should think about.
+Lars Kellogg-Stedman: All right.
+ 
+ 
+00:35:12
+ 
+Robby Stahl: So um in the conversation you were talking about I don't remember who but essentially um having users be guinea pigs in a development cluster before production. You don't strictly need to do that. So what I've what I've done in the past is basically pick some workloads or contrive some workloads you can use as standard candles. you fully instrument the testing of those and verify that they behave the same in OpenStack as well as another hypervisor and if so then you can then it's probably ready for users to play on it. It's also the kind of thing you can easily throw at an intern
+Lars Kellogg-Stedman: Right. Although in in general our goal isn't does the workload behave the same but it is are the people responsible for operating the cluster happy with their experience.
+Robby Stahl: Right. But the
+Lars Kellogg-Stedman: Like we we we we assume that because the underlying hypervisor is actually the same technology that the workloads will probably run.
+Robby Stahl: work
+Lars Kellogg-Stedman: Okay. Um so it's really the the the decorations around that the operational experience that is the thing we want to get validation on.
+ 
+ 
+00:36:14
+ 
+Robby Stahl: I agree. So the workload is actually not the most important piece,
+Orran Krieger: Cool.
+Robby Stahl: but use it to exercise the entire system as well as run books.
+Lars Kellogg-Stedman: Yeah.
+Robby Stahl: That's all I got.
+Lars Kellogg-Stedman: All right.
+Orran Krieger: Well, I'm excited. So,
+Lars Kellogg-Stedman: Cool.
+Orran Krieger: what I heard is that ecosystem engineering is willing to fully support a whole bunch of users on on VM as a service next month. Awesome.
+Lars Kellogg-Stedman: And on that note, um, we'll see you folks later.
+Orran Krieger: No, I I I I No,
+Lars Kellogg-Stedman: Oh, nope. Nope.
+Orran Krieger: I I I am really excited about this.
+Lars Kellogg-Stedman: Our run's not done yet.
+Orran Krieger: This is great. I really want to get our s***
+Oved Ourfali: And I think we need to work on it together to make it happen.
+Orran Krieger: being used by people.
+Oved Ourfali: That's what we try to do with uh again we try to do this with the IBM offering.
+Lars Kellogg-Stedman: Absolutely.
+Oved Ourfali: They're not there yet. But I I think we have a lot of opportunities here and there are gaps probably.
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: Yeah.
+Oved Ourfali: Let's understand what these gaps are, right? If there are things that we need to do um again I'm mentioning stuff on the info like we know quarter is a gap, right? We don't have that yet. Um for example, right? Um, but if we know of different things that are gaps, let's list those down and then, you know, add this to the specific work stream and get this done. So,
+ 
+ 
+Transcription ended after 00:37:51
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

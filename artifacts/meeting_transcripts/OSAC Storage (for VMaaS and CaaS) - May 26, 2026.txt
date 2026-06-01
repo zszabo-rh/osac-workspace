@@ -1,0 +1,81 @@
+[PROCESSED 2026-05-27]
+warning: unknown output format 'text'; falling back to json (valid options: json, table, yaml, csv)
+Using keyring backend: keyring
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Storage (for VMaaS and CaaS)” May 26, 2026
+Date: Tue, 26 May 2026 14:13:28 +0000
+---
+Notes from “OSAC Storage (for VMaaS and CaaS)”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 26, 2026, 4:11 PM CEST and may  
+contain errors.
+
+
+Summary
+Storage roadmap discussions covered implementation phases, vendor-agnostic  
+tier definitions, and established provisioning strategies for June  
+milestones.
+
+
+Storage Phases and Abstraction
+Participants outlined 3 storage phases, including onboarding and tier  
+definition, while debating the long-term need for an abstraction layer over  
+vendor-specific drivers.
+
+Addressing Architectural Concerns
+The group discussed the risks of vendor-specific logic and on-demand  
+provisioning, emphasizing the need for consistency across multi-cluster  
+environments.
+
+Finalizing Provisioning Strategy
+The group decided to pre-provision storage classes and Container Storage  
+Interface drivers ahead of user requests to ensure system readiness and  
+avoid runtime failures.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Finalize Storage Tier Process: Connect with Avishay  
+Traeger during the week to discuss and finalize the storage tier creation  
+process and OSAC CLI requirements.
+
+[Akshay Nadkarni] Rework Storage Epic: Rework the epic related to storage  
+tiers to ensure it correctly translates to the defined line items and  
+supports the onboarding flow.
+
+[The group] Review Storage Sheet: Review the shared Google sheet and  
+provide feedback or comments offline to ensure alignment on the storage  
+onboarding phases.
+
+[Akshay Nadkarni] Evaluate OpenStack: Determine if integrating existing  
+OpenStack services into the OSAC solution is a viable path forward.
+
+[The group] Refine Tier Model: Further analyze the storage tier abstraction  
+requirements to support multiple backends and long term vendor transitions.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

@@ -1,0 +1,453 @@
+[PROCESSED 2026-04-23]
+﻿📝 Notes
+Apr 22, 2026
+OSAC ecosystem sync
+Invited Adrien Gentil Jason Kary Akshay Nadkarni Eran Cohen Juan Hernández Oved Ourfali Trey West Zoltan Szabo Ethan Kim Ofer Bochan Omer Vishlitzky Ameya Sathe Crystal Chun Dakota Crowder Ilya Skornyakov Ori Amizur Siddarth Royapally Will Gordon Fabien Dupont Elad Tabak Alona Paz Avishay Traeger Michael Hrivnak Dan Manor
+Attachments OSAC ecosystem sync
+Meeting records Transcript Recording 
+
+
+
+
+Summary
+The team aligned on storage and networking objectives with an emphasis on improving code review efficiency.
+
+Storage and Networking Progress
+The team continues advancing storage tier enhancements and public IP management. Development remains targeted for May 1 completion for networking components.
+
+Technical Integration Challenges
+Efforts are underway to integrate Windows virtual machines via data volumes and to align storage automation with NVIDIA cloud partner requirements. A decision was made to prioritize VAST storage integration over other storage project requests.
+
+Workflow and Architecture Strategy
+Collaborators are forming mini-review groups to mitigate dependency blockers and accelerate development velocity. Future design efforts will maintain flexibility to support both hosted control plane and sovereign environment use cases.
+
+
+
+
+Next steps
+* [Akshay Nadkarni] Schedule Meeting: Set up meeting with Michael to finalize storage tier enhancement proposal approval.
+* [Akshay Nadkarni] Meet Will: Set up time with Will to ensure storage proposal aligns with current storage discussions.
+* [Akshay Nadkarni] Contact Zoltan: Connect with Zoltan; send update regarding storage tier proposal implementation startup today.
+* [Ameya Sathe] Update Computer Instance: Expand source reference and source type in computer instance to support data volume.
+* [Ameya Sathe] Consult Team: Talk to Adrian and Alona about Windows VM plans.
+* [Crystal Chun, Juan Hernández] Code Review: Catch up, divide work, review each others code to prevent blocking.
+* [Juan Hernández] Assist Crystal: Help Crystal with current work, focusing on the epic marked as a dependency.
+* [Will Gordon] Update Sprint: Assign self to 2 storage cards (fast storage specific, storage automation piece); add them to the current sprint.
+* [Will Gordon] Test VAST Cloud: Spin up VAST cloud offering in AWS to test initial working setup.
+* [Will Gordon] Investigate Plug-in: Look into creating a VAST storage plug-in for project Enclave after figuring out Ansible pieces.
+* [Fabien Dupont] Review DGXO Doc: Go through the NVIDIA DGXO reference architecture document mentioned by Will.
+* [Oved Ourfali] Schedule Follow-up: Add Fabien Dupont to the meeting tomorrow with Rome to discuss priorities and NCP perspective.
+
+
+
+
+Details
+* Attendance and Initial Updates: Due to the holidays and low attendance, the team briefly covered current tasks, noting that Adrian was working on the demo and associated follow-ups. Akshay Nadkarni provided an update on the storage tier enhancement proposal, which they addressed feedback on and are awaiting Michael's final response, though Aisha has already approved it (00:00:00). Akshay Nadkarni plans to coordinate with Will Gordon to ensure the proposal is aligned with their storage discussions (00:01:02).
+* Storage Proposal Implementation and Follow-up: Akshay Nadkarni confirmed that Zultan has not yet started the implementation of the storage tier enhancement, as there is no activity on the related Jira tickets (00:01:02). Akshay Nadkarni committed to connecting with Zultan and sending an update so they can begin work on the implementation soon (00:02:02).
+* Networking and Public IP Management: Akshay Nadkarni reported progress on the networking side, specifically the public IP management epic, which they are dividing the work for with Dakota Crowder and Sedat. The public IP pool fulfillment service is nearly ready, and the backend operator and AAP components are currently in place (00:02:02). The team is still targeting May 1st to finish the implementation and provide a demo (00:03:16).
+* Windows VM and Image Source Challenge: Ameya Sathe successfully ran Windows 11 and Windows 2025 directly from OpenShift using a PVC-backed data volume image source (00:03:16). The next challenge is that the existing compute instance templates currently only support container registry-based images, requiring expansion of the source type to support data volumes for the Windows demo VM. Oved Ourfali suggested that Ameya Sathe follow up offline with Adrian and Alona to ensure they are on the right track (00:04:54).
+* Organization Implementation and Keycloak Integration: Crystal Chun and Juan Hernández have not yet talked about dividing their work, but plan to catch up later. Crystal Chun has an open Pull Request (PR) for the organization implementation that is awaiting review, and they have been working on manifest changes for Keycloak integration, which requires waiting for other code to proceed (00:06:17). Oved Ourfali requested that Crystal Chun and Juan Hernández start reviewing each other’s code to avoid dependency blockers and speed up progress (00:07:31).
+* GPU Pass-Through and Instance Type Modeling: Juan Hernández reported submitting a PR to automatically configure the Kubernetes CRD to support GPUs, which is currently awaiting review. Their understanding is that Abishai will work on creating an enhancement proposal for the concept of instance types, which will necessitate further follow-up to determine the appropriate higher-level model (00:08:43).
+* Catalog Proposal and Dependency Management: Juan Hernández noted that the catalog proposal needs to be finalized and merged, although they would be content to start working on it as is. Oved Ourfali encouraged Juan Hernández to use this time to finalize work with Crystal Chun, as the epic Crystal Chun is working on is currently marked as a dependency for other tasks (00:09:55).
+* OSAC Carbide Integration Demo and Infrastructure Changes: Trey West worked on and recorded the demo for the OSAT Carbide integration and plans to share it the following Monday. They are currently working on ironing out remaining integration issues and rebasing their code due to significant changes from the merged Netrris cluster-as-a-service changes, with a goal to publish their PR by the end of the next day (00:10:56).
+* Code Review Efficiency: Oved Ourfali observed that people are sometimes blocked waiting for code reviews and suggested that individuals identify two or three people closely related to their work to establish mini-groups for faster, mutual review cycles. The goal is to facilitate smoother workflow progression rather than waiting endlessly for others to review changes (00:12:07).
+* OSAC Service Renaming and Storage Automation: Will Gordon reported that the OSAC CLI work is complete, and Elad submitted a proposal to rename 'fulfillment service' to 'OSAC service'. Will Gordon committed to assigning themself to and placing the fast storage specific card and the storage automation piece on the current sprint (00:13:17).
+* VAST Storage Provisioning Focus: Will Gordon's immediate plan for storage automation is to get the Ansible pieces working so other Ansible playbooks can call the storage playbooks for provisioning. A current blocker is the lack of a VAST virtual appliance, but Will Gordon plans to explore using their cloud offering in AWS (00:14:15).
+* Storage Plug-ins and VAST Integration: Oved Ourfali suggested that Will Gordon look into creating a VAST storage plug-in for Enclave, which is a project focused on bootstrapping the entire OSAC stack in disconnected environments (00:15:17). This plug-in, similar to the existing ODF and LVMS ones, would manage deployment and image mirroring on the management cluster, allowing for leveraging the storage for Quay and workloads (00:17:54).
+* VAST Storage Use Case and HPC Focus: Fabien Dupont inquired about the VAST project's use case, which Will Gordon clarified is a general-purpose storage management system layer (00:17:54). Fabien Dupont noted that VAST is frequently marketed for high-performance computing, such as for KV cache and model storage, which aligns with addressing the NVIDIA Cloud Partner (NCP) use case (00:21:48). Will Gordon plans to investigate the DGXO reference architecture with NVIDIA to understand how VAST should be integrated for this use case (00:23:12).
+* Pure Storage Involvement: Akshay Nadkarni asked if the team is involved with the Pure Storage project mentioned by Heidi from MOC, which has a June deadline. Oved Ourfali assumed the MOC team is handling it, and Will Gordon noted their priority is getting VAST and a generalized Ansible interface working, which the other team could potentially reuse for Pure Storage (00:24:33).
+* Sovereignty and Hosted Control Plane Considerations: Oved Ourfali cautioned the team to consider use cases beyond hosted control planes (HCP) when designing solutions, as some customers with sovereignty requirements may not prefer shared HCP environments (00:25:32). The need for true sovereignty may imply a disconnected environment with clear boundaries, though customers may also opt for connected HCP environments for better resource utilization (00:28:46). The design goal is to support HCP but not to build solutions that block supporting other use cases (00:30:02).
+* Bare Metal as a Service (BMaaS) Status: Fabien Dupont inquired about the status of the BMaaS work, which Oved Ourfali confirmed should have an approved or nearly approved enhancement proposal (00:31:27). Akshay Nadkarni confirmed a pull request for the bare metal fulfillment proposal exists and is approved but unmerged (00:32:55). The plan involves a separate bare metal operator, likely using the operator model with AAP in the backend for workflow execution, but Min would be the best source for details (00:34:06).
+* Compute Abstraction and Instance Types: The discussion touched on whether bare metal and VM should be merged into a single "compute resource" abstraction layer, but Oved Ourfali noted that the team has not yet defined instance types or the abstraction on top of them. It was suggested that Fabien Dupont discuss this with Abishai, who is starting work on the instance type enhancement proposal (00:37:33).
+* NCP and Future Priorities: Fabien Dupont confirmed they are looking at OSAC from an NCP perspective, assessing the need for providers like Carbide, the viability of a non-Carbide version, and how an NCP would build their catalog abstraction (00:38:32). Fabien Dupont was added to an upcoming meeting with Rome to align on priorities from the NCP perspective (00:39:44).
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 22, 2026
+OSAC ecosystem sync - Transcript
+00:00:00
+ 
+Oved Ourfali: Okay. So, thanks for joining. Again, as I mentioned, uh due to the holidays, uh and some people don't feel well, so I guess we'll have light attendance today. Um so, let's go over the tasks quickly. So, Adrian, uh I know he doesn't feel well. He's been working on the the demo and I assume some fixes, follow-ups for that. Um Ashai, you want to share your updates?
+Akshay Nadkarni: Yeah. So, I spoke with uh Michael earlier this week about the storage tier enhancement proposal because it's been out for a while. Uh um he did u have some feedback uh which
+Oved Ourfali: Mhm.
+Akshay Nadkarni: I've addressed um I think um on Monday. Today's Wednesday, right? Yeah.
+Oved Ourfali: Yeah.
+Akshay Nadkarni: Um I pinged him yesterday um and so I I'm still waiting uh for him to kind of um get back to me. Maybe I'll just set up a meeting which is what I did on Monday.
+Oved Ourfali: I'm
+Akshay Nadkarni: Aisha has already approved the uh storage tier proposal.
+ 
+ 
+00:01:02
+ 
+Oved Ourfali: not.
+Akshay Nadkarni: Um so I'm guessing like from an implementation perspective because I know that was something that Zultan was supposed to work on. U at least he can get started uh with it. I would like to also just talk to Will and Will I'll probably set up some time with you just to make sure that uh nothing in the proposal is uh or it's rather aligned with what um also how we've discussed storage so far, right? Um so I think that's basically it on the um storage side. on the networking
+Oved Ourfali: And actually, do you know, sorry for cutting you.
+Akshay Nadkarni: side.
+Oved Ourfali: Do you know if Zelton already started or is he waiting for your
+Akshay Nadkarni: I don't know if he's I don't think he started.
+Oved Ourfali: uh
+Akshay Nadkarni: I'm not at least seeing any activity on the Jira tickets uh that I'd create.
+Oved Ourfali: Okay.
+Akshay Nadkarni: So, I can connect with him and u uh see he he hasn't reached out or anything. So, I would assume he hasn't yet.
+ 
+ 
+00:02:02
+ 
+Akshay Nadkarni: Uh but yeah.
+Oved Ourfali: Okay.
+Akshay Nadkarni: Uh
+Oved Ourfali: So if you can like send him some update today so he can catch it tomorrow morning and then
+Akshay Nadkarni: okay.
+Oved Ourfali: let's see.
+Akshay Nadkarni: Okay.
+Oved Ourfali: Um okay thanks. Yeah you will start talking about the
+Akshay Nadkarni: We'll do. Yeah.
+Oved Ourfali: networking.
+Akshay Nadkarni: Uh so on the networking side uh mainly it's like the public IP management and um like the whole um epic as such I'm kind of dividing between myself uh Dakota and Sedat are also working on tickets as things kind of get done then I'm assigning more tickets to them. uh where things are at currently I think public IP pool is um almost getting ready
+Oved Ourfali: Mhm.
+Akshay Nadkarni: from a fulfillment service standpoint the backend like operator and AAP is in place currently uh so I've kind of moved on to uh public IP um where I'm tackling right now the fulfillment service side of things and um uh Dakota I think yesterday uh he's kind of winding down some of his existing tickets and so he'll start some work on the operator side but that's where the public uh IP management um work mainly sits yeah we are still targeted for the uh I think um when you and I spoke like we said May 1st we are still targeting
+ 
+ 
+00:03:16
+ 
+Oved Ourfali: Okay.
+Akshay Nadkarni: that day at least to get the implementation piece done like u with a demo so we'll see fingers crossed All
+Oved Ourfali: Awesome. And the Kota is actually treating you well.
+Dakota Crowder: Absolutely. 10 10 out of 10.
+Oved Ourfali: Okay,
+Akshay Nadkarni: right. Thank you.
+Oved Ourfali: awesome. Okay. Uh, thanks Aside. Um, Amea, any updates on the side?
+Ameya Sathe: Uh so okay so for with respect to the uh Windows VM thing uh what I achieve till now is running uh Windows 11 and Windows 2025 directly from open shift quad uh using PVC backed using data volume backed uh image image source. Now today when I looked up at the computer instance template I realized that the existing computer instance has a field called image uh image reference. Uh both of them uh by default both of them only support uh container based registry registry based uh images VM images and as well as it only supports uh what let me yeah uh it only supports image source that's registry source source type is registry and source reference as OC image reference.
+ 
+ 
+00:04:54
+ 
+Ameya Sathe: So then tomorrow I'm going to so till today I was trying to figure out do we have any centralized registry where I can where we have windows ISO. I did talk with the IT guy here. He said yeah you directly download it and upload it as a data volume. We do not give centralizer history in Windows oss like like on qu.io IO or something called like internally container registry is not kept. So yeah the next challenge is to like see what to do exactly like for compute instance. So to run the Windows demo VM I need to change like expand the source reference as the source type in the computer instance to support data volume.
+Oved Ourfali: Okay. Um, any help you need? Uh, anyone you're um, you know, you're talking with on this task? Like, is it Adrian or is it Alona? Just to see that you're on the right track. I think he's stuck.
+Akshay Nadkarni: Yeah, I think he's stuck.
+Oved Ourfali: Anyway, I'll follow offline. Just uh uh I don't know if you hear me.
+ 
+ 
+00:06:17
+ 
+Oved Ourfali: Just just make sure to talk to Adrian and Alona about that so they know what you have planned. But I'll reach out to SL. I'm not sure if he mesh is out. Crystal, so uh have you been working with uh uh Juan currently? Did you divide the work between the two of
+Crystal Chun: Oh. Um, we haven't talked about it yet.
+Oved Ourfali: you?
+Crystal Chun: Um, but we will. Uh, so I have a PR out for the organization, um, implementation that I'm still waiting for reviewers on. Um, if someone could take a look. And then for key cloak integration, I've just been um changing a little bit of the manifest and adding it trying to add it to the fulfillment service. But um of course it's kind of waiting for all the rest of the code to kind of go in so that I know like which environment variables and stuff to include. Um,
+Oved Ourfali: Cool.
+Crystal Chun: and then I had a user's API that was merged and I need to connect it to the key click API, but one and I will catch up
+ 
+ 
+00:07:31
+ 
+Oved Ourfali: So, so Juan, just a request,
+Crystal Chun: later.
+Oved Ourfali: other than catching up with Crystal and dividing the work, let's maybe try in a short cycle to have the both of you reviewing each other's code so that uh you won't be blocked on other folks. Uh, would that make sense?
+Crystal Chun: Yeah, that sounds good to me.
+Juan Hernández: Okay.
+Oved Ourfali: Cool. Thanks one. Thanks, Crystal. Uh, Dakota, let's move to you.
+Dakota Crowder: Yep. Um I've got some PRs up. There was some discussions I guess around the bug ticket um with Akasha yesterday and this week and Adrian as well, but I think we're pretty aligned at this point. Maybe a couple details to shake out, but um I'll be kind of resolving that hopefully today and getting some more eyes up. Uh then I also have a PR up for um some of the public IP work and as actually I indicated um should be kind of moving over to to some of the supporting some of the public IP um work here. So at least at least with the public IP stuff there's no known blockers and I can hopefully kind of keep that rolling.
+ 
+ 
+00:08:43
+ 
+Oved Ourfali: Sounds good. Thanks, Dakota. Uh, let's keep down and still out and is out and is out. Uh, um, okay Juan. I know that uh there's been some discussions I mean um on the GPU pass through how to to to model that I don't know where it stands
+Juan Hernández: and the GPU pass through.
+Oved Ourfali: um
+Juan Hernández: The only feedback that I was able to understand and action upon was the idea of configuring automatically the cube CRD to support the GPUs. So I submitted a pull request for that. I created a ticket for that. submitted a pull request for that and it's waiting for review. The rest of the feedback, my understanding was that Abishai was going to work on the idea of instance types and create an enhancement proposal for that. So, I didn't do anything other than
+Oved Ourfali: Okay. Okay. Um, let's follow up as needed. But yeah,
+Juan Hernández: that.
+Oved Ourfali: I mean, I guess we need to to look at it more from a higher level and see, okay, what would make more sense.
+ 
+ 
+00:09:55
+ 
+Oved Ourfali: Uh, catalog. I know currently it's on Michael right to to look at the current proposal and see whether he's
+Juan Hernández: Yes, the proposal has to be finalized.
+Oved Ourfali: uh
+Juan Hernández: To be honest, I think it doesn't need to be finalized. I would be perfectly happy to start working on it as is. But as the officially it has to be merch,
+Oved Ourfali: okay but let's use the opportunity
+Juan Hernández: I will not start to work on it as it is
+Oved Ourfali: for now to finalize things with like the work with crystal so that we can that
+Juan Hernández: merch.
+Oved Ourfali: uh cuz I know that uh the epic she's working on is currently marked as a dependency for a few others. So uh I think the best thing for you to do is to help her with that. Um okay, thank you. Uh Michael is not on the call. Out don't see him. Um,
+Trey West: Yeah. So, uh, worked on the demo for the OSAT Carbide integration last week.
+ 
+ 
+00:10:56
+ 
+Oved Ourfali: today
+Trey West: Um, so that's recorded. Probably sharing that on Monday with when the rest of the team is back. Um, I'm still working on just ironing out some kinks that I have with the integration. Um, also we merged the Netrris cluster as a service changes and I needed to rebase on it and a lot of stuff changed. So, I'm trying to uh get things back in working order. Um, so I'm hoping to have my PR published like at the end of the day tomorrow, but we'll see. I'm kind of at the mercy of the lab at the moment. So, yeah, that's it for me.
+Oved Ourfali: And who are the main reviewers for your uh for your work?
+Trey West: Uh, uh,
+Oved Ourfali: Is it
+Trey West: it it'll probably be it'll probably be Dan and um probably
+Oved Ourfali: one?
+Trey West: men maybe one.
+Oved Ourfali: Okay. Okay. Sounds good. Um the reason I'm asking about reviews for different folks I I did see that uh a lot of times people post asking for reviews.
+ 
+ 
+00:12:07
+ 
+Oved Ourfali: Sometimes they get reviews, sometimes they don't. So h try to try to even like uh I know this is a big group but to identify the the two three people that that are more closely related to your work and uh see how you can you know uh get reviews from them and on the other hand review their changes so that you know like working in smaller groups I would say I I've been working with Alona and Iran and others to to try and see Okay, should we divide the work between groups etc? Uh but for now as we are a big group let's try to identify this you know these mini groups that can help you push things forward rather than waiting endlessly for reviews. Um and not talking about neutral specifically but in general. Right. So that's uh um that's uh okay. Uh will
+Will Gordon: Yeah. Um I sorry I'm not looking at the Hash browns dragon right now, but I think I have like one remaining PR from something last week or two weeks ago.
+ 
+ 
+00:13:17
+ 
+Will Gordon: I know the OSAC CLI stuff got done, so that was good. Um I know Elad did a proposal for renaming fulfillment service to OSAC service. It tagged me on it. Working on the storage stuff. I'm not able to work on that. I don't know if someone else wants to pick that up. Um I can kind of help clarify on some of that stuff or whatnot.
+Oved Ourfali: Yeah,
+Will Gordon: Um and then yes.
+Oved Ourfali: it's not el this
+Will Gordon: Uh yes. And then so working on the um storage stuff is what I am working on. I need to assign myself and put that on the current sprint. So there's two cards out there now. the the fast storage specific one that Ron created and then there's also the um storage automation piece. I think that was right.
+Oved Ourfali: So those are not in the sprint, right? I see. Or is it the Oh,
+Will Gordon: No, they're not. So that's what I was saying.
+ 
+ 
+00:14:15
+ 
+Will Gordon: I need to assign myself and put those on Yeah.
+Oved Ourfali: yeah. in a minute. Okay.
+Will Gordon: put them on the current sprint.
+Oved Ourfali: Awesome. Awesome.
+Will Gordon: Um that's that's obviously my immediate focus and the plan for that is is primarily just kind of get the anible
+Oved Ourfali: Thanks.
+Will Gordon: pieces working and then get the other other anible playbooks to call the storage playbooks for provisioning um whatever storage we need.
+Oved Ourfali: Mhm.
+Will Gordon: And so you know current blocker on that is I just don't have a a vast appliance virtual appliance yet.
+Oved Ourfali: Yeah.
+Will Gordon: Um, but like I was mentioning earlier, I might just they have a cloud offering in AWS, so I might just spin that up and see what I can get working.
+Oved Ourfali: By the way, if you can add another so what I mentioned in one one of the calls we had on that like in the kick of c and I'm not sure that um everyone followed it completely is that uh so in parallel to the work we're doing in OSAC there was the work we did for the the project called enclave which is the one that doing bootstrap ing for uh for all of this.
+ 
+ 
+00:15:17
+ 
+Oved Ourfali: So uh the idea is to be able to use uh that in order to provision the entire OSAX stack. But one of the pieces we have there are storage plugins. So we created like ODF and LVMS as storage plugins over there. And uh and and once you figure out this uh enable pieces, it might make sense to also take a look at how do we create a storage plug-in for vest. uh it's not like 100% a priority I would say but uh I think that as you go into this this area anyhow it might be good to look at so um uh
+Will Gordon: Yeah, sounds good. And there there was a request from the folks that were driving the the vast
+Oved Ourfali: Yeah.
+Will Gordon: um partnership to kind of come up with a uh reference architecture
+Oved Ourfali: Mhm.
+Will Gordon: doc as well or like how to use vast and open shift. So like that may end up being part of the outputs.
+Oved Ourfali: Yeah. Fabian.
+Fabien Dupont: Um yeah I was wondering you mentioned enclave project um with
+ 
+ 
+00:16:24
+ 
+Oved Ourfali: Yeah.
+Fabien Dupont: plugins are the plugins for the enclave itself like a self creation or for are they plugins for the managed infrastructure? All
+Oved Ourfali: So it's kind of okay.
+Fabien Dupont: right.
+Oved Ourfali: So, so it can be a complete big topic but uh in general currently we have uh so the storage plugins for example are being used as both part of the so we're setting up basically a management cluster and a qu registry and grouping the images to it etc because the assumptions the assumption there is that you working in a disconnected environment. So the uh this uh this ODF plug-in for example is something that uh is both used by uh the infrastructure itself but it also be it's also being used as uh um as storage that will be used for the multi-tenency piece etc that eventually the uh the workloads will run on that storage um uh I assume that if customers will get quarter they will get quarter on that storage etc. So we started with LVMS and ODF for simplicity and also because it's kind of the in-house uh providers but we created a pluggable infrastructure to allow other storage vendors or other MSPs to create their own kind of plug-in that deploys uh their theirs.
+ 
+ 
+00:17:54
+ 
+Oved Ourfali: So in this case for vest storage uh the idea would be to create a plug-in that deploys it mirrors all the images deploys it on the management cluster and then you can use and then you can leverage it in order to run the workloads and you can leverage it in order to host quay and etc. Um so that's the idea behind it.
+Fabien Dupont: Okay. And is is Vast a general purpose storage provider or more oriented towards high performance? I do
+Will Gordon: their general purpose like they provide the storage management system layer. Um so they provide the experience around storage. They're not like you know a hard disk manufacturing. So it's just general purpose like you can provision storage and all other
+Fabien Dupont: Yeah, because there are so at GTC there they had a big booth and area where they say hey basically we are we're providing the storage layer for KV cache high performance computing and these kind of things. Um, so I think that was more their marketing message there. But basically they can do any kind of storage from uh storage for your qu registry up to super fast storage, full cache, high bandwidth networking, whatever for HPC like use case, right?
+ 
+ 
+00:19:28
+ 
+Oved Ourfali: Yeah. So I guess that uh so currently in enclave we took some simplification approach where you define a storage and we use it for everything. I do I do agree that perhaps the MSP would be interested to provide a few let's say tiers of uh uh like uh whether it's fast storage or slower storage whether it's used for these purposes or that purposes. So um uh I I see two two layers in here. First the actually getting the content in and the second is how you configure that. So uh I guess the first focus would be to to get the content in. So if like uh you're using veto storage to have make sure all the images are there so you can configure it and maybe let's say maybe in the first round you will configure that manually but then we'll see what makes sense what do we need to configure this as part of the installation etc. Uh so there is some way to go I guess with regards to that but I figure that if we if will sees okay I deploy the CSI drivers using this I need to take it from here I need to put it there I need to configure these small pieces we can include that as a as a as yet another plugin that you know uh would be a good thing to to include anyhow for internal purposes at start but you know eventually also to customers
+ 
+ 
+00:20:51
+ 
+Oved Ourfali: um
+Will Gordon: Yeah. One potentially stupid question.
+Fabien Dupont: Okay.
+Will Gordon: Do you know what ROM's focus is?
+Oved Ourfali: Yeah.
+Will Gordon: Like does does he want fast for VM as a service? Does he need it for a customer? I'm just very laser focused on fast. I just want to understand like the the um the first primary use case he has for
+Oved Ourfali: Um, so we're currently also looking into that. So to see I've been working with Rome and Alona and Abishai and we have also a meeting tomorrow to try to scope down not specifically on vest but in general the few use cases we want to tackle more during this and the next quarter. Uh so we'll probably discuss it there as well. I know that uh at least I heard that the kind of I I guess what I heard is resonates with what Fabian mentioned around HBC etc. But but I'm not sure whether that was uh uh the main
+Will Gordon: Yeah. Hey.
+Fabien Dupont: I think it was I think it was basically we were looking at NCP so Nvidia cloud
+ 
+ 
+00:21:48
+ 
+Oved Ourfali: intention.
+Fabien Dupont: partners and in on the storage front ODF is disqualified not performant enough uh but vast wa DDN provide fast storage and they have um certified integration with Nvidia stack. So we're looking at using them for KV cache for um model storage. Um another use cases where you it's basically leveraging their high tier storage options. So by by having vast in the picture, we're we're directly addressing the NCP use case and if we can do super fast storage, we can do slow storage as well for the use cases. So it's a it's the I think the door opener is NCP, Nvidia, but it it can then expand to more once we've got them in the picture.
+Will Gordon: Do we have a customer or someone that's using VAS? Stunning. It would just be good down.
+Fabien Dupont: So it's
+Will Gordon: Do we have a customer or someone that's using vast?
+Fabien Dupont: easier.
+Will Gordon: I think it would just be good to understand like how a customer is configuring their vast in terms of like how we should be integrating with it.
+ 
+ 
+00:23:12
+ 
+Fabien Dupont: Um I don't know if we have an an actual customer but we could we could dig into the
+Will Gordon: Okay. Yeah, that's fair.
+Fabien Dupont: vast and Nvidia reference architectures.
+Will Gordon: Okay. Yeah, there there's a few different like configuration options in terms of like how you organize your tenants, how you organize your VIP pools and stuff like that. I just want to make sure that like what we engineer for kind of the the first first pass the MVP, we just want to make sure that it it meets whatever use case it is that we have for it. But it sounds like we don't necessarily have a a specific architecture or organization we need to fit to.
+Fabien Dupont: So that one may actually help. We have a DGXO reference architecture with Nvidia. So I didn't read it to be transparent.
+Will Gordon: That's okay.
+Fabien Dupont: I just just found it.
+Will Gordon: I'll That's all right. I'll go through it.
+Fabien Dupont: But I mean this is a kind of doc that that could be a good starting point to understand the use case with NVIDIA which is probably one of the most difficult and then we can like narrow down the scope and make sure we have iterative approach on quick wins like short medium long-term things at least to uh occupy the field and say hey we earn it and we get something with fast in Nvidia so we can kind of
+ 
+ 
+00:24:33
+ 
+Will Gordon: We can call it AI.
+Fabien Dupont: say You're
+Will Gordon: Awesome. Thanks.
+Fabien Dupont: bear.
+Oved Ourfali: Okay. Anyone else has any anything to share to ask to mention?
+Akshay Nadkarni: So uh one question I had sorry did I interrupt something?
+Fabien Dupont: Oh.
+Akshay Nadkarni: Okay. Um I think when um in the slack when there was a mention of like the storage um Heidi from MOC was asking about like pure storage and some June deadline. Just wanted to make sure like are we involved with that or is that being handled like by the team? Just wanted to put it on the radar.
+Oved Ourfali: That's a yeah, that's a good question. I assume by the MOC team because we're not I mean I saw that Roman and Heidi kind of
+Akshay Nadkarni: Yeah.
+Oved Ourfali: discussed between the two of them and I didn't want to interrupt the uh but
+Akshay Nadkarni: Yeah. Yeah.
+Will Gordon: Yeah,
+Oved Ourfali: uh
+Will Gordon: like my understanding of the priority from ROM is like get vast working and part of that from the discussion that we just
+ 
+ 
+00:25:32
+ 
+Oved Ourfali: yeah
+Will Gordon: had in the other call was like you know having a um generalized anible interface um and then presumably the team would just reuse that and they would put the pure stuff behind it um or or we could do it or or something.
+Oved Ourfali: Yeah,
+Will Gordon: But yeah, I mean certainly my priority is is getting vast and getting this um you know this this
+Oved Ourfali: this I assume they will
+Will Gordon: generalized interface.
+Oved Ourfali: lead on me on that. Uh uh maybe based on what will do again. Uh so anyway, currently no action items on us on that other than the uh like generalization I would I would guess. Um also as I mentioned during the call uh like we it's true that currently and I just want you to put it at the back of your head. It's it's true that currently we're using a hosted control planes. That's what we started with. uh but as I'm looking at uh like the OSAC piece on one hand and enclave and trying to to merge those two uh I keep hearing that for proper sovereignity some customers will not be a fan of using hosted control planes etc. So uh when we design things let's put on the back of our head that it might be used for more use cases other than only hosted control planes.
+ 
+ 
+00:27:00
+ 
+Oved Ourfali: So not to build a solution that would be uh mapped only to that. Again it's true that that was our first deployment and uh um but but you know just try to think about it more broadly and say okay it won't be the only one.
+Will Gordon: like it would certainly be preferable if we can assume HCP
+Oved Ourfali: Um,
+Will Gordon: everywhere. Understanding not all customers want um you know their control plane potentially shared but we could look at still using an HCP architecture where the management cluster is isolated and dedicated for just that customer.
+Oved Ourfali: so yeah.
+Will Gordon: um a as opposed to having to to salt like to serve two different potentially you know very
+Oved Ourfali: Yeah,
+Will Gordon: different architectures.
+Oved Ourfali: I guess the and I'm not sure I am like the authority to to give this answer, but what I keep hearing on so serenity is that um um is that some again I'm not sure it applies completely with the uh the serenity requirements uh if you have like uh a shared control plane. So you can go with like other thing if that's what you implied like to separate it between tenants like you would all the clusters of this tenant will be uh on one hosted control places as compared to to other tenants etc. But again I'm not sure what exactly whether it's considered it's it's like the connected disconnected piece like currently we assume connected uh in OS and uh and my understanding is that in order for it to be really sovereign we need to have a
+ 
+ 
+00:28:46
+ 
+Oved Ourfali: disconnected environment with clear boundaries what can get in what can't get in etc. So, um that's that's that's why it's like and it depends who you ask. Some uh some folks, you know, say I mean at the end of the day, the fact we're calling in open sovereign AI cloud the sovereignity here might imply different restrictions and depends on what country you deploy depends on what you do. Uh on the other hand the customer might say okay I like this infrastructure on my end I'm fine with having a connected environment so I don't need all this you know disconnected overhead and there is some overhead with working on a disconnected environment uh okay and I I'd prefer to have like uh uh to using HCP and and using my resources more effectively than now going and doing something else. Um so I guess that's where some will take it more to the sovereign side and some might take it to the functional side like okay I need this environment I'm even managing it internally all of these are internal tenants I don't care about sovereignity I'm fine with it and that's fine as well.
+ 
+ 
+00:30:02
+ 
+Oved Ourfali: So I guess that that's the uh kind of tradeoff and again I'm far from being an expert on what's what are the compliance uh pieces around so what is considered sovereign and and what isn't uh but just based on different discussions I was at and things I heard uh again for example the project we've been working with IBM on the assumption is that these clusters are completely separated they're not using hosted I'm not saying that's the right thing to do. I'm just saying that's that's the decision made by them uh when working on this project with us. So I know if it answers the questions of like the but that's kind of um I do think we should continue with having a control plan but not assume that it will always be the case. So that's why we shouldn't uh uh make design decisions that blocks us from uh supporting other use cases as well. That's I guess the the main point. Um okay. Uh any anything else from anyone else wants to mention anything?
+Fabien Dupont: Um yeah, where do we stand with bare metal as a service?
+ 
+ 
+00:31:27
+ 
+Fabien Dupont: Um um Trey pointed me to to main's work and proposal.
+Oved Ourfali: Yes.
+Fabien Dupont: Um is that something that is early discussion uh already approved?
+Oved Ourfali: I think the proposal I'm not sure I think it's even m already or uh
+Fabien Dupont: What
+Oved Ourfali: pretty much approved. Um I know he's working on it. I don't know if it was discussed in the previous call before I left folks because I saw in the agenda something around the uh that was inventory uh piece but um but I know he's working on it. I think the enhancements should should be merged already.
+Fabien Dupont: Very
+Oved Ourfali: If not merged then it should be like very
+Fabien Dupont: close to being
+Oved Ourfali: Yeah.
+Trey West: Yeah, I see that they have the uh bare metal fulfillment operator project now under
+Fabien Dupont: merged.
+Trey West: OSAC. Um but yeah, I don't I don't know where everything is yet.
+Oved Ourfali: Hey, may you I don't hear you. Uh so Fabian uh do you have the enhancement uh
+Fabien Dupont: So yeah,
+Oved Ourfali: link
+ 
+ 
+00:32:55
+ 
+Fabien Dupont: I have the enhancement uh doc in in Google Docs and and I was wondering with the direct
+Oved Ourfali: so they should have one in GitHub as well by the way um because he started with a Google doc. Let me see if it's still open or not.
+Akshay Nadkarni: Yeah, I think I think there's a poll request u for bare metal fulfillment proposal in the enhancement proposals. I'll just send the link in chat here Fabian so you get it. Okay, I think put it there.
+Oved Ourfali: Yeah, I think it's this
+Akshay Nadkarni: So um yeah, that's right. And I think uh that's been approved but I'm not sure uh why it's not being
+Oved Ourfali: one.
+Akshay Nadkarni: merged yet but u yeah and I think there's they're working on it. Uh that's at least whatever we discussed. I think that's the update like the folks are working on it.
+Fabien Dupont: and so we're we're going with the operator model to
+Akshay Nadkarni: Yeah.
+Fabien Dupont: actually run workflows like there's a controller for a CRD and this controller is actually implementing the the workflow without any kind of workflow engine.
+ 
+ 
+00:34:06
+ 
+Fabien Dupont: So every controller does whatever they want or if there is some kind of standard workflow or pattern for the controller to actually do
+Akshay Nadkarni: So I think so two things I think your best source of truth here will be one the U enhancement proposal just take a look because I think that's what they're trying to u implement and second I think Um maybe reaching out to Min might be helpful so he'll give an idea of where things are at because I'm not on top of it. Um like so I I wouldn't be able to answer the question that you
+Fabien Dupont: Oh, it was more in general.
+Akshay Nadkarni: have.
+Fabien Dupont: That's the the general direction for any kind of new development in that instead of AAP for workflows, it is a controller that consumes the um and may call AAP but may not call AAP based on whatever provider exist like it was.
+Akshay Nadkarni: So we do we do have an OSAC operator as well, right? So there's always an operator component which finally ends up talking to AAP and I think they didn't want to make the bare metal piece part of the existing OSAC operator which is why they created their own bare metal operator is what I at least uh remember from some conversations during the meetings but I don't have the details about that but I'm assuming my assumption um uh would be that they have a separate operator similar to how the OSAC operator exists and they would also be using AAP in the back end to do things.
+ 
+ 
+00:35:45
+ 
+Akshay Nadkarni: Uh but there is an operator component involved uh uh with AAP.
+Trey West: Yeah. And looking at like their development plan,
+Fabien Dupont: Okay.
+Trey West: it looks like the last step is to include the workflow execution pieces for both the bare metal pool operator and host management operator. They never like definitively said what that workflow would be when they were discussing it before the design, but I'm assuming that's AAP. Um, but yeah, I guess men would know.
+Oved Ourfali: Hey, may I you had again we didn't hear you earlier. Do the something you want to add to ask. Okay, we don't hear you anyway. So, uh, let's do it offline. Um,
+Fabien Dupont: and so um and sorry for the questions that probably have already been answered. Um there's no intent to have some kind of general instance object that is either bare metal or VM depending on whatever the catalog is defining a little bit AWS, Azure, GCP where they define an instance type and then the back end is actually doing the implementation whether it's a VM or bare metal um that a clear um direction that we don't want to merge VM and bare metal as just a compute resource.
+ 
+ 
+00:37:33
+ 
+Oved Ourfali: I don't know to be honest if any discussion like that uh took place. I assume for now no but we still haven't defined what is an instance type what is like and some of the abstraction on top of that right and the catalog and um I don't have a good answer for
+Trey West: Yeah,
+Fabien Dupont: Okay.
+Trey West: I think that like maybe it would be good to discuss with Abashai when he's back next week since he's going to start working on the instance type enhancement proposal. He might have some more thoughts about it.
+Fabien Dupont: Okay. So, there's a meeting next week. It's a weekly meeting. Yes, it is.
+Oved Ourfali: this one. Yeah.
+Fabien Dupont: Yeah.
+Oved Ourfali: It's the first time you're here.
+Fabien Dupont: Yeah. First time I'm here.
+Oved Ourfali: Okay. Okay. Okay. So, welcome. Um, yeah, this one is a weekly one. Um, this is more like internal ecosystem engineering. We have other quotes that are with the also the research team.
+ 
+ 
+00:38:32
+ 
+Oved Ourfali: Uh I'll check what you were added to and what you have. I mean if you need to get added to other course we'll add you as well. Um but yeah
+Fabien Dupont: Yeah, basically Ram asked me to look at Ozac from an NCP perspective.
+Oved Ourfali: that's okay.
+Fabien Dupont: So NVR cloud partner um how can we build well where does
+Oved Ourfali: Mhm.
+Fabien Dupont: Osak fit?
+Oved Ourfali: Mhm.
+Fabien Dupont: Uh do we need extra providers like Carbide uh or any other can we also do a a version without carbide? Uh what would it take to do that? Like bare metal without carbide. Uh meaning that we also need to wire the networking and the storage and everything together. Um with probably extra and simple work in that case um so up to how do we provide how does an NCP provide a catalog which is the other end of the spectrum that okay I'm an NCP.
+Oved Ourfali: Mhm.
+Fabien Dupont: I've deployed the full redat stack. I know how to manage my b my hardware environment with Osak.
+ 
+ 
+00:39:44
+ 
+Fabien Dupont: How can I provide or what is the abstraction layer I have to build my my catalog and expose that to my customer?
+Oved Ourfali: Okay. So, so yeah, I mean I I I assume we should follow up with also with Aishai, but I have a meeting tomorrow with Rome also to discuss some priorities etc. I assume based on it take it from
+Fabien Dupont: Do you mind adding me to that meeting if
+Oved Ourfali: um
+Fabien Dupont: it's at least I will hear from Rome a little bit more information as well because he told me like look at from NCP point of view. Okay. I can do that. But now I need to learn oac. I need to bother people. Maybe I can get more information tomorrow.
+Oved Ourfali: Okay, sounds good.
+Fabien Dupont: Thank
+Oved Ourfali: I'll let you go.
+Fabien Dupont: you.
+Oved Ourfali: Okay, so uh I guess that's all for today unless anyone has anything. Um I'll catch you next week. Thanks everyone.
+Trey West: Everyone.
+Akshay Nadkarni: Thanks ahead. Bye.
+ 
+ 
+Transcription ended after 00:41:12
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

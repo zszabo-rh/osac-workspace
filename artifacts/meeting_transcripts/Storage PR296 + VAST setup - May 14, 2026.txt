@@ -1,0 +1,78 @@
+[PROCESSED 2026-05-15]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “Storage: PR#296 + VAST setup” May 14, 2026
+Date: Thu, 14 May 2026 21:02:09 +0000
+---
+Notes from “Storage: PR#296 + VAST setup”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 14, 2026, 11:00 PM CEST and may  
+contain errors.
+
+
+Summary
+Review of Vast Galaxy integration PR 296 and technical architectural  
+planning for future storage operator updates.
+
+
+Integration PR Review
+PR 296 defines the Vast Galaxy integration using vendored collections and  
+modular storage tiers. The implementation currently relies on environment  
+variables for configuration and just in time provisioning.
+
+Technical Alignment Discussions
+Participants confirmed the need to maintain protocol awareness for block  
+and NFS storage. The team noted potential overlap with other operator work  
+and planned necessary alignment.
+
+Future System Architecture
+The team decided to elevate tier definitions into Custom Resource  
+Definitions. This shift replaces temporary environment variable  
+configurations to enable global resource quota management.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Merge Operator PR: Coordinate with Zultan to ensure the  
+OSAC operator pull request is merged successfully.
+
+[Akshay Nadkarni] Sync Storage Workflow: Discuss the current tenant storage  
+class workflow with Zultan to determine if adjustments are required.
+
+[Akshay Nadkarni] Sync PRs: Coordinate with Zultan to ensure that the  
+current pull request and existing work are compatible. Verify that both  
+sets of changes integrate correctly.
+
+[The group] Elevate Storage Tiers: Elevate storage tiers from Ansible to  
+the OSAC operator and fulfillment service. Allow administrators to manage  
+tiers as Custom Resources.
+
+[The group] Implement Quota: Implement the global quota enhancement  
+proposal for managing compute, memory, and storage limits. Develop the  
+backend logic for reconciling quota requests within the OSAC operator.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

@@ -1,0 +1,343 @@
+[PROCESSED 2026-04-30]
+﻿📝 Notes
+ Apr 29, 2026
+OSAC ecosystem sync
+Invited Adrien Gentil Jason Kary Elad Tabak Akshay Nadkarni Avishay Traeger Eran Cohen Juan Hernández Michael Hrivnak Trey West Zoltan Szabo Dan Manor Ethan Kim Ofer Bochan Omer Vishlitzky Ameya Sathe Crystal Chun Dakota Crowder Ilya Skornyakov Ori Amizur Siddarth Royapally Fabien Dupont Elay Aharoni Liat Berkovich Alona Paz Oved Ourfali Will Gordon
+Attachments OSAC ecosystem sync
+Meeting records Transcript 
+
+
+
+
+Summary
+Teams finalized proxy deployment strategies and reviewed status updates for multiple API and integration feature developments.
+
+Proxy Deployment Strategy
+Participants determined that deploying proxies per namespace or per deployment instance is preferable to a global cluster-level resource. This approach avoids potential namespace configuration complexities.
+
+API and Integration Status
+Teams evaluated progress on DNS, storage, and organizational management APIs while identifying needs for improved resource testing. Infrastructure gaps regarding OpenStack and Netris emulation require further offline planning.
+
+
+
+
+Next steps
+* [Will Gordon] Check Hypershift Docs: Look for documentation regarding Hypershift connectivity service.
+* [Eran Cohen] Post PR: Share Ofer Bochans remaining pull request on Slack for approval attention.
+* [The group] Update Demo Date: Comment on the shared document with expected demo dates for assigned items.
+* [Eran Cohen] Revisit Generic API Epic: Consolidate generic public IP API work into 1 epic; confirm scope regarding CODN/Metal LB implementation.
+* [Dan Manor, Omer Vishlitzky] Discuss CAS CI Setup: Take offline the discussion regarding Cluster as a Service CI environment emulation and network steps collection.
+* [Omer Vishlitzky] Prepare CI Job Report: Check CI job status, success rate, and identify gaps requiring new environments or emulation.
+* [Omer Vishlitzky] Create Tickets: File tickets for identified CI gaps needing license, hardware, or environment resources.
+* [Trey West] Post Carbide PR: Share the open Carbide pull request on Slack if attention is needed for merging.
+* [Trey West, Dan Manor] Resolve Networking Issues: Discuss Cluster as a Service networking steps to resolve merge blockers for the Carbide PR.
+* [Akshay Nadkarni] Assist Yonyi: Help Yonyi start work on the network class for DPU after finishing the public IP implementation.
+* [Dan Manor] Coordinate DNS API Demo: Follow up regarding setup requirements to demo DNS API on Monday.
+* [Will Gordon] Secure Vast Access: Join the call with Vast on Monday, May 4th to obtain Vast on Cloud instance access.
+* [Elad Tabak] Check Host Requirements: Verify host environment needs for Faster API deployment setup.
+
+
+
+
+Details
+* Proxy Deployment and Naming Strategy: The discussion focused on how to deploy a proxy used as a "herd" or fulfillment service to connect to dedicated clusters without directly passing the CRD cluster. Ilya Skornyakov initially suggested deploying the proxy as a global cluster-level resource to fetch cube configs from other namespaces, but they acknowledged that this approach might be considered "ugly" if it requires name-spacing. Eran Cohen and Will Gordon both suggested that deploying the proxy per namespace or per deployment instance seems preferable, arguing that customers would likely not be happy with a global proxy (00:02:32).
+* V Status Reporting Update: Ofer Bochan is actively working on V status reporting and indicated that the feature is nearly complete, with only one remaining PR that needs approval from another person before it can be merged. Eran Cohen requested that Ofer Bochan post the PR on Slack to draw attention and facilitate the approval process (00:03:58).
+* Inventory and Bare Metal API: The team discussed the need for implementing an inventory solution, possibly using data from the bare metal API as a service, though this is considered a long-term goal. Dan Manor and Trey West need to review the related issues (inventory, discovery, power management) to determine their specific assignments and timelines. Eran Cohen plans to share a link to the relevant document in the chat, asking those whose names are listed without a demo date to comment on when they think they can deliver a demo (00:05:26).
+* DNS API Status: Dan Manor reported that the DNS API is fundamentally complete, including the implementation of Route 53 as the initial backend, which is designed to easily accommodate additional backends. Dan Manor plans to show the DNS API implementation on Monday, pending a follow-up conversation to confirm the timing (00:06:52).
+* Carbide Merge Status: The Carbide PR is currently open and has not yet been merged, pending final discussions about cluster as a service networking requirements. Trey West committed to coordinating with Dan Manor to finalize the necessary steps for merging the PR (00:08:18).
+* Vast Integration Status: Will Gordon reported that the test framework PR is up, and the Ansible code is written and functional against a mocked server, but they are currently awaiting access to the Vast on Cloud instance to test against actual storage (00:08:18) (00:11:02). Will Gordon is also pursuing the possibility of running the Vast OVA virtual image on a vSphere or Kubernetes host, which requires substantial resources. Fabien Dupont suggested using a Kubernetes instance with Cubert for the OVA import as a potential alternative to a VMware environment (00:09:47).
+* Faster API Completion: Elad Tabak reported that most of the Faster API work has been merged, but there are still outstanding tasks, including aligning the setup of defaults and completing the testing phase. Elad Tabak confirmed that they would need a host for deployment and setup and does not anticipate being ready for a demo next week (00:12:12).
+* Storage Tenant Onboarding Implementation: Zoltan Szabo confirmed that the storage tenant onboarding implementation is almost ready, with the code complete and PRs submitted, though the documentation is still missing and the code needs review (00:13:44). Zoltan Szabo indicated that the current target date for a demo, about a week and a half away, seems fine (00:15:13).
+* Public IP Generic API Consolidation: Akshay Nadkarni pointed out that there is a duplicate entry for the Public IP Generic API, and they suggested merging the related epics into one row (00:15:13). Eran Cohen agreed on the need for a single epic for the generic API implementation and emphasized that some implementation work should be done alongside the API definition to ensure its practical use (00:16:34).
+* Organization Management Demo Readiness: Crystal Chun reported that the organization management feature is in progress and nearly complete, with a strong likelihood of being ready for a demo on Monday (00:18:17).
+* Cluster as a Service (CAS) CI/VM Setup: Omer Vishlitzky reported that VIMAS has already been merged and they can demo how to run it on Monday. The CAS networking steps are not fully ready for merging because the current implementation uses a custom network steps collection that is not intended for long-term use (00:18:17). The team acknowledged the general need for a strategy to emulate OpenStack and Netris environments for end-to-end testing and committed to addressing this offline and creating necessary tickets for resources (00:19:43).
+* Windows VM Support Update: Ameya Sathe confirmed that the templates for supporting Windows VMs using OSAC have been created, but the API functionality needs to be thoroughly checked. Ameya Sathe aims to demo the feature in two weeks (00:21:56).
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 29, 2026
+OSAC ecosystem sync - Transcript
+00:00:00
+ 
+Ilya Skornyakov: CD the same way it talks to all of the other CRDs like compute instances and uh so on. Um but uh apparently it's not really possible. You cannot have uh multiple uh services like that in a cluster. So uh I wanted to make sure if it will be okay if we will have this proxy as a global cluster cluster level thing and uh it will fetch for example cube configs of the remote clusters from other name spaces because the workaround I have now is to deploy like namespace instance of the of the proxy with here name space API service definition but it's kind of ugly we have like console also and then some prefix
+Adrien Gentil: That's an issue for the dev cluster,
+Ilya Skornyakov: yeah
+Adrien Gentil: right?
+Eran Cohen: Stop it. Stop
+Adrien Gentil: It's not it's not an issue in a regular deployment where we have one stack
+Eran Cohen: it.
+Adrien Gentil: deployed.
+Ilya Skornyakov: if I assume that in a real deployment we will have a single cluster and a single hub then it shouldn't be a
+ 
+ 
+00:01:19
+ 
+Adrien Gentil: Yeah. So,
+Will Gordon: Sorry.
+Adrien Gentil: we need to find a
+Will Gordon: What's the use case for the What's the use case for the proxy? Is it like a reverse proxy to get into another cluster or something?
+Adrien Gentil: more
+Ilya Skornyakov: uh the use case is to act as a herd. So fulfillment service will not have to connect directly to the dedicated clusters cuz uh there is a dedicated cluster deployment option and in that case we have CRDs operator AP sitting on one cluster and the actual resources virtual machines are isolated in the other clusters and in order so that fulfillment will not have to connect to the dedicated cluster directly by passing the uh cluster with CRD uh proxy used as a
+Will Gordon: Okay. I I only ask cuz I know like the the Hypershift architecture um
+Ilya Skornyakov: workound.
+Will Gordon: in order for the Hypershift control plane to reach back into another cluster, they rely on uh a service called connectivity uh that they deploy. And I know that connectivity gets deployed per namespace, like per instance.
+ 
+ 
+00:02:32
+ 
+Will Gordon: Um, so I'm just not sure if that would work the same way, but they're basically using connectivity for that reverse proxy to get into the data plane from the the control plane side.
+Ilya Skornyakov: Is there a documentation something I can uh I can read?
+Will Gordon: There probably is. I'll I'll take a look at the at the Hypershift docs.
+Ilya Skornyakov: And I mean it's not that we have a problem that's uh unsolvable. So the setup works like I tested it directly. I have the open shift running on my laptop and the control stuff running in hypershift console works. The question is, do we want to name space it uh in the ugly
+Eran Cohen: I think so. Okay. I think we need one per deployment,
+Ilya Skornyakov: way?
+Eran Cohen: right? That's the that's what users are going to get. So, and even for the the the dev cluster like one is still going to work, right?
+Will Gordon: Yeah, I just can't imagine with something with so in its name that customers would be happy with like a a global proxy like that.
+ 
+ 
+00:03:58
+ 
+Ilya Skornyakov: because we have CRDs as well which are global right so it's not like a new thing that will be that will be global all right cool I think couple more days I'm not sure about Monday uh next will be ready for
+Eran Cohen: Okay. Even if it's like PR pending,
+Ilya Skornyakov: them.
+Eran Cohen: you can still demo it. Maybe doesn't have to be merged. Okay. Next on the agenda. So, V status reporting. I'll be shy an offer.
+Avishay Traeger: is working on it.
+Ofer Bochan: Yeah. Yes, I'm working on it. There is only one PR remain to approve and uh it should be over even this week if it it is approved by another
+Eran Cohen: Okay, cool.
+Ofer Bochan: person.
+Eran Cohen: So I would post a PR on black just so it can get attention
+Ofer Bochan: Sure. I am blessed.
+Eran Cohen: so I could Okay. Uh this is irrelevant and on boarding I don't think we're doing that for netric. So Dan and Trey um so about the inventory I had to drop during the last call while we're still at it.
+ 
+ 
+00:05:26
+ 
+Eran Cohen: Are we getting anything from the bare metal API to be used as inventory?
+Dan Manor: What bare metal API are you referring to?
+Eran Cohen: What Sue is working on?
+Dan Manor: Uh the bare metal as a service. Uh I think in the long run, yes, but in the short term it looks like it's going to to be we need to implement
+Eran Cohen: Yeah.
+Dan Manor: something not ideal but to have something soon.
+Eran Cohen: Okay. So, I see that you and Trey both are on inventory, no discovery, power management. Do you know what you're supposed to do there? Or this needs grooming.
+Dan Manor: I'm not sure what J is you're referring to. I need to have a look.
+Eran Cohen: Okay.
+Trey West: Same same here.
+Eran Cohen: So, first I'll put a link to the doc in the chat. I think everyone has comment access. So, if you see a line with your name in it, uh, and there's no demo date, so comment when you think it can be something you can demo. Um, I skip this.
+ 
+ 
+00:06:52
+ 
+Eran Cohen: I guess we already you demoed it. It's fine. Uh, DPU. So, we're getting Yonyi from uh DPJ like from uh brand team and actually maybe if you're available, if you're too busy, it's fine. But once you're done with the public IP, you can help him get started and working on the
+Akshay Nadkarni: Okay.
+Eran Cohen: a network class for DPU.
+Akshay Nadkarni: Okay. All right.
+Eran Cohen: Um this this is like for after next week
+Akshay Nadkarni: Sounds good. Okay.
+Eran Cohen: this one DNS API. So is this done or what's
+Dan Manor: Uh it's basically done.
+Eran Cohen: left?
+Dan Manor: Um you have DNS API and you have uh route 53 as the first back end but uh it is implemented in a way that you can add more back ends easily.
+Eran Cohen: Cool. Can Can you show it on Monday?
+Dan Manor: I hope so. Let's be in touch about it.
+Eran Cohen: Okay, I'll do it this way. Um, okay. Carbide. I think that's done, right?
+ 
+ 
+00:08:18
+ 
+Eran Cohen: Oh, wait. It's not done. We did the demo, but is it merged?
+Trey West: the PR is open. It's not merged yet. We're still talking about some cluster as a service networking stuff. I think we just got to sort that out before we merge it.
+Eran Cohen: Okay, if it needs attention, post on Slack. I mean, let's try to get it merged. But any case, demo is behind us. So, Trey, can you like join forces with Dan and see how you two
+Trey West: Yeah. Yeah, we can chat.
+Eran Cohen: handle
+Trey West: We'll chat about it.
+Eran Cohen: Um, next will how's it going fast?
+Will Gordon: Sorry, I find my mute button. Um, so I have a test framework PR that's that's up and running. I have the Anible code effectively written and running against a mocked server. Um, so I am waiting on a call with Vast on Monday, May 4th to get access to their Vast on cloud instance. Um, and I'm also chasing down a vSphere instance that I can try running their um, OVA virtual image, uh, which requires a crap ton of resources.
+ 
+ 
+00:09:47
+ 
+Eran Cohen: What? Why do we need image for what?
+Will Gordon: Uh so they're it's it's to basically emulate their their vast service. So they have an OVA image that can run their their vast VMS. Um or they have vast on cloud which runs on AWS. Unfortunately that can't just what?
+Eran Cohen: So you have two options.
+Will Gordon: Yeah.
+Eran Cohen: So those are two
+Will Gordon: Yeah. Yeah. And unfortunately, I can't use the AWS option because you need a license first,
+Eran Cohen: different
+Will Gordon: which they're going to apparently give me on
+Eran Cohen: Okay, got it.
+Will Gordon: Monday.
+Eran Cohen: So you
+Fabien Dupont: Can you run the OVA and cube? I thought that Cubert was supporting OVA import.
+Will Gordon: I I mean potentially it it's requiring 128 gigs of RAM uh terabyte disc. Uh Intel Honeywell I think is the the prerex like it's it's acidine. Um but if we have a host that I can try running that on I'd be happy to try it out.
+Fabien Dupont: So I'm I'm just saying that because might be easier to find a cube instance rather than the VMware
+ 
+ 
+00:11:02
+ 
+Will Gordon: Yeah,
+Fabien Dupont: environment.
+Will Gordon: I mean I'm I reached out to to someone.
+Eran Cohen: Yeah.
+Will Gordon: I forget who the heck it was that that ROM suggested I reach out to, but I reached out to someone. They have they have like a QE vSphere instance. Um Zach is the the contact I was working with who's in Namia. Uh he responded yesterday, no response today, but
+Fabien Dupont: Yeah, the the migration tool for virtualization team probably has a VMware environment because they were doing massive migrations from that VMware and I think they paid for that VMware license as well.
+Will Gordon: Yeah. But yeah, I mean I I effectively have it running. It's just not doing anything because it's just running against a mock server.
+Eran Cohen: Okay, so you got the anible sign working against the mock and you're working to get access to an actual glass storage.
+Will Gordon: Right. Exactly.
+Eran Cohen: Great.
+Will Gordon: And then for the demo like ideally I'd like to point it at, you know, bass on cloud to show that it actually provision storage and all that fun stuff.
+ 
+ 
+00:12:12
+ 
+Will Gordon: But yeah,
+Eran Cohen: So hopefully you'll have a date next week.
+Will Gordon: that's the plan.
+Eran Cohen: Um, okay. Faster API. I think it's mostly
+Elad Tabak: Yeah, most of the work is matched,
+Eran Cohen: merged.
+Elad Tabak: but there are still some uh leftovers that I need to complete. Um like aligning the way we set up the defaults um been talking about this with Adrian um and um Dakota and um the testing part is not completed too. So it's in progress. You got the shirt epic. This is this is a link to the epic if you want to that. Okay.
+Eran Cohen: Okay. And the demo date is fine.
+Elad Tabak: second.
+Eran Cohen: The demo date is okay. Can show it on
+Elad Tabak: Um, I don't think so.
+Eran Cohen: Monday.
+Elad Tabak: We need um I I need some um setup for the deployment. So, I I'm probably going to need a host, but I I I can update later. Probably not next week.
+Eran Cohen: Okay.
+ 
+ 
+00:13:44
+ 
+Eran Cohen: Right. a host then it's easy can can give you access you can
+Elad Tabak: It's Yeah,
+Eran Cohen: deploy
+Elad Tabak: I I might use one of the existing, but I I need to check.
+Eran Cohen: okay uh storage tenant on boarding open have you started looking into
+Zoltan Szabo: Uh yeah so actually it's in progress implementation is uh almost ready.
+Eran Cohen: Hey,
+Zoltan Szabo: So I I have the PRs there documentation is missing and and u yeah it's it's not merged. Uh what's what's the prerequisite for for the demo? So, so the feature should be fully ready merged and stuff or or it can be presented with the feature branch
+Eran Cohen: like if it's just like a couple of I don't know some tests or uh you want
+Zoltan Szabo: or
+Eran Cohen: to set the default straight like if it's just tiny fix up and still demo it but we don't want to demo stuff that are still vast big PRs open and might not get merged. So I guess currently it seems like a week and a half from now with the demo.
+ 
+ 
+00:15:13
+ 
+Eran Cohen: But if you want to push it then let's let's decide next week I guess like it's not it's not
+Zoltan Szabo: Yeah, that's not seems seems fine.
+Eran Cohen: for uh I see I think there was a plan I sorry I did not create this doc but I think there was a plan for Ilia to join Ilia once you're done with the console can you join Zolan or you have other things on your plate.
+Zoltan Szabo: Okay. Like I said, it's it's the documentation is missing and and the the code needs to be
+Eran Cohen: Ah, okay.
+Zoltan Szabo: reviewed.
+Eran Cohen: Okay. So, you're good. That is you don't need assistant.
+Zoltan Szabo: I I think it's it's good.
+Eran Cohen: Okay. Uh, public IP, generic API. I guess it's going to be the same
+Akshay Nadkarni: So I think yeah so I I did add a comment in two places. So this is like the one above actually is a dupe of this.
+Eran Cohen: as
+Akshay Nadkarni: So um I've added nodes for you and uh uh Alona to kind of maybe merge them into one row.
+ 
+ 
+00:16:34
+ 
+Akshay Nadkarni: So uh this this is this would be the same epic that uh Dakota and Sedat are working with me
+Eran Cohen: Yeah, I know. We we we need to like I guess it's me
+Akshay Nadkarni: on.
+Eran Cohen: but we should whenever we're adding like something generic API like I feel it's comfortable that we also add some implementation along the way just to make sure the generic API makes sense. Uh but anyways, it should be in one
+Akshay Nadkarni: Yeah,
+Eran Cohen: epic.
+Akshay Nadkarni: I mean I at least there's no like the epic that I I think you had created or Alona had created was specifically tied to the implementation that uses CODN and Metal LB, right?
+Eran Cohen: Yes. Okay. I'll get that back.
+Akshay Nadkarni: Sure.
+Eran Cohen: Okay, I'll move that out later. Great.
+Akshay Nadkarni: Sounds good.
+Eran Cohen: Crystal and
+Crystal Chun: Hey. Yeah. Um, so the org management is in progress, almost done. I think we're just missing a couple more things. Um, but I think we should be able to demo on Monday.
+ 
+ 
+00:18:17
+ 
+Eran Cohen: What? Cool.
+Crystal Chun: Sorry.
+Eran Cohen: You said cool. Great. Um I think the C item enhancement merged. So I think this is next on your plate after you're done with API.
+Elad Tabak: Yep.
+Eran Cohen: Okay. And see Omar who see Omar, do you have Omar is on the call?
+Omer Vishlitzky: Yes, I'm here.
+Eran Cohen: Okay. So, what's left or what's the
+Omer Vishlitzky: So, yeah. So, on Vimma, Vimas has already merged. Uh I can demo it on Monday. Um how to run it on your beaker or on your local for whoever is interested. uh for CAS. Um I can merge it now with a custom network steps collection, but I think we should probably wait for the network to be completed to be done. Uh instead of merging it with a custom uh steps, that's that's not going to be used uh in practice. Um and beyond that,
+Eran Cohen: We will have for this job.
+Omer Vishlitzky: sorry, I'm sorry.
+Eran Cohen: We have a net for like set up for the CI job.
+ 
+ 
+00:19:43
+ 
+Omer Vishlitzky: So it's not ready. So netric integration is not fully ready yet. So it's not So the CI job is not using uh net. Sorry. Did you say something?
+Eran Cohen: But how how will we get like the
+Omer Vishlitzky: So right now I'm using a custom step network steps collection but it's but again it's I'm
+Eran Cohen: setup?
+Omer Vishlitzky: just to test the API around it but I'm not I don't want to merge it because it's a custom step.
+Dan Manor: Yeah,
+Omer Vishlitzky: So
+Dan Manor: I think I think this is something that we need to address for CI and for generally testing end to end cluster as a service because you have different setups.
+Omer Vishlitzky: I'm
+Dan Manor: You need to be able to test end to end both openstack setup and netric setup
+Eran Cohen: a little
+Dan Manor: and we will have more things uh going forward.
+Eran Cohen: bit.
+Dan Manor: So we need a way to get an emulated net environment or an emulated uh OpenStack environment to use with the actual code not with the custom uh template.
+ 
+ 
+00:20:44
+ 
+Omer Vishlitzky: Yeah. Yeah. So, for now I'm waiting until the integration is complete,
+Dan Manor: Sure,
+Omer Vishlitzky: but I think I guess let's take it offline then maybe.
+Dan Manor: the integration is complete. The problem is emulating the environment. But yeah, sure. Let's take it on now.
+Omer Vishlitzky: Okay.
+Eran Cohen: Yeah.
+Omer Vishlitzky: Um, yeah, beyond that, I can demo the the VMS one on uh Monday.
+Eran Cohen: Okay. also maybe prepare like what what jobs we have what's their success rate what and maybe so if there's a gap like
+Omer Vishlitzky: Mhm.
+Eran Cohen: we need environments or emulation so let's create tickets and then we can ask for it's license hardware whatever
+Dan Manor: Yeah,
+Omer Vishlitzky: Thank you.
+Dan Manor: Netris specifically I have a ticket for it and uh I also asked in the last meeting with Netris uh that they provide us with the license. They said they need to take it uh offline to discuss uh but yeah we must have something from them.
+Eran Cohen: Thanks. Um so again and Crystal this is aboutization
+ 
+ 
+00:21:56
+ 
+Crystal Chun: Uh yeah, that hasn't been started.
+Eran Cohen: started. Okay I see not started and not started. Wait. So, is there anyone on the call that is wrapping up what they're working on and looking for a new task? Um or there's anyone that is working on something really important. Priority one I see and wasn't listed here.
+Ameya Sathe: Uh so what I see my epic of supporting Windows running Windows machine using OSAC is not tested here.
+Eran Cohen: I think it's because of the filter.
+Ameya Sathe: Uh,
+Eran Cohen: Let me see if I can
+Ameya Sathe: sorry. Iran, what did you
+Eran Cohen: that.
+Ameya Sathe: say?
+Eran Cohen: I think it's because it's filtering out different that are not top. I'll see.
+Ameya Sathe: Okay.
+Eran Cohen: So, do you have an update on the Windows VM
+Ameya Sathe: Oh yeah. So the templates have been create so templates have been created but the API and thing has need to be checked at sensible templates have been created but the API stuff needs to be checked at. So we're planning to demo next week. next to next week once I'm comfortable with this demo thing of
+Eran Cohen: Okay. So, day 11.
+Ameya Sathe: recording.
+Eran Cohen: Okay. Anyone else that want to demo something? Okay, that's it. Thanks everyone.
+Liat Berkovich: Thank you.
+Ofer Bochan: Thank you.
+Zoltan Szabo: Bye-bye.
+Ameya Sathe: Yep.
+Akshay Nadkarni: Thanks.
+Ameya Sathe: Thank you.
+Akshay Nadkarni: Bye.
+Ameya Sathe: Bye.
+Eran Cohen: Have a great day.
+ 
+ 
+Transcription ended after 00:24:13
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

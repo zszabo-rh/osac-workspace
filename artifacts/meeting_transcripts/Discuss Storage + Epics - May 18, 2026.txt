@@ -1,0 +1,69 @@
+[PROCESSED 2026-05-18]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “Discuss: Storage + Epics” May 18, 2026
+Date: Mon, 18 May 2026 14:40:57 +0000
+---
+Notes from “Discuss: Storage + Epics”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 18, 2026, 4:39 PM CEST and may  
+contain errors.
+
+
+Summary
+Storage alignment session refined tiering strategies and onboarding  
+workflows for upcoming infrastructure integration.
+
+
+Storage Interface and Tiering
+Participants defined block storage as the primary scope using generic tier  
+objects to abstract backend protocols. Infrastructure and cloud  
+administrator roles were clarified to distinguish backend setup from tier  
+management.
+
+Tenant Onboarding and Integration
+Teams finalized the decision to install storage classes during the tenant  
+onboarding process to avoid premature lazy loading optimization. Systems  
+will preserve existing storage classes while integrating new configurations.
+
+Roadmap and Future Scope
+The group acknowledged volume management remains outside the immediate  
+roadmap for future service use cases. Cluster as a Service requirements  
+necessitate pre-installed storage classes for successful deployment.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Present Volume Strategy: Present the topic of exposing  
+volumes as an independent service in the upcoming storage meeting to build  
+consensus on the necessity of this feature for clusters.
+
+[Akshay Nadkarni] Update Onboarding Documentation: Add details regarding  
+infrastructure and cloud admin roles for storage onboarding to the shared  
+meeting document.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

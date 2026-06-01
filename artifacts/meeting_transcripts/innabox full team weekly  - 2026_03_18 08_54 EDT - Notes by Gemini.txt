@@ -1,0 +1,153 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Mar 18, 2026
+innabox full team weekly 
+Invited Juan Hernández Rom Freiman Danni Shi Adrien Gentil Isaiah Stapleton Taj Salawu Jen Stacy Daniel Erez Thorsten Schwesig Michael Hrivnak Christopher Tate Heidi Dempsey Dylan Stewart Orran Krieger Surbhi Kanthed Alona Paz Lars Kellogg-Stedman Oved Ourfali Tzu-Mainn Chen Red Hat Research Program Calendar Jason Schlessman Nora Haxhidautiova Daitzman, Michael Ansari, Mohhamad Naved Quan Pham Weyl, Joachim Munakami, Milson Austin Jamias Meera Malhotra Trey West Nikolla, Kristi Elior Erez Elad Tabak Akshay Nadkarni Omri Hochman Eran Cohen Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Dmitry Tantsur Simone Ferlin-Reiter Marek Grac Jason Kary Bradford Nichols Maor Friedman Avishay Traeger
+Attachments innabox full team weekly  innabox - 2025  Notes - innabox full team weekly   
+Meeting records Transcript Recording 
+
+
+Summary
+Bare metal fulfillment updates proceeded toward a proof of concept with vector operations debated for network and image provisioning.
+
+Bare Metal Fulfillment Progress
+Broad agreement was reached on the direction of bare metal fulfillment, resolving a key sticking point from Monday. A proof-of-concept demo is planned for Monday before tasks are formalized and pull requests are submitted to merge fulfillment into OSAC.
+
+Vector Operations Debate
+The discussion focused on performing network operations as vector operations to improve speed by batching switch configurations for multiple machines. It was determined that supporting vector operations is an implementation problem and could be facilitated by introducing a network attachment resource listing multiple machines.
+
+Parallelized Operations Benefits
+High-performance computing environments often use vectors to preserve parallelism and efficiency, such as provisioning the same base image on 100 machines via a broadcast mechanism. Designing the interface to treat everything as a vector offers future flexibility, even if current tooling does not support parallelized provisioning models.
+
+
+Details
+* Bare Metal Fulfillment Update: Tzu-Mainn Chen reported that there is broad agreement across ecosystem engineering and rad research regarding the direction of bare metal fulfillment, including a resolved sticking point discussed on Monday. The updated document should reflect the agreed-upon direction, and a proof-of-concept demo is planned for Monday for ecosystem engineering and others. Following the demo, the team plans to break down tasks, get more formal, and submit pull requests to merge bare metal fulfillment into OSAC proper (00:00:00).
+* Vector Operations for Networking: Lars Kellogg-Stedman initiated a discussion regarding performing network operations as vector operations, particularly for switch configuration, to improve speed as cluster sizes increase. The goal is to batch changes so that a single configuration change on a switch affects multiple ports for a group of machines, rather than making individual configuration changes for each machine (00:01:34). The complexity is noted because the current network backend (OpenStack) does not support this operation (00:02:47).
+* Implementation vs. Architecture for Vector Operations: Lars Kellogg-Stedman, Min, and others discussed that the incoming request from the user is already for a group of machines, suggesting the ability to support vector operations is an implementation problem, not an architecture problem. They suggested introducing a network attachment resource that can list multiple machines rather than single ones to facilitate batch configuration changes (00:02:47). Naved Ansari raised a question about handling failures if one port fails during an operation on 10 ports, to which Lars Kellogg-Stedman suggested that the naive response is to prevent deployment, but smarter responses could involve marking the machine as faulty and allocating a new one (00:03:59).
+* Vector Operations in the Context of Cluster Management: Orran Krieger agreed that handling failures when performing a set of operations, especially in networking, requires careful, recoverable operations, such as decommissioning a cluster before commissioning a new one (00:05:10). They emphasized that high-performance computing (HPC) environments often deal with vectors to preserve parallelism and push it down the stack, which aligns with OSAC's bare metal goals and thinking about operations on vectors for things like allocating 40 machines (00:06:18). Lars Kellogg-Stedman questioned the application of vectorization beyond switch configuration, suggesting that machine allocation happens well in parallel (00:07:39).
+* Vector Operations for Provisioning and Images: Orran Krieger provided the example of provisioning the same base image on 100 machines using a push model via a broadcast mechanism, which can be far more efficient than 100 individual messages (00:08:46). Orran Krieger argued that if the interface is designed to treat everything as a vector, it allows future flexibility to replace parallel and serialized implementations with more efficient vector-based ones, even if the current tooling doesn't support it (00:09:57). Heidi Dempsey added that image choices for AI workloads might be handled by the researcher or another tool, such as Coldpress, not OSAC, but agreed that a parallelized interface is beneficial (00:11:24).
+* Existing Cluster Management Use Cases: Heidi Dempsey noted that current common use cases in research involve adding or deleting resources from an existing cluster, meaning the system cannot force everything to be parallel due to frequent, small iterations (00:11:24). Lars Kellogg-Stedman concluded that for their initial targets, such as OpenShift clusters, a parallelized provisioning model is not currently available (00:11:24). The meeting concluded after it was determined that no one else had topics to discuss (00:11:24).
+
+
+Suggested next steps
+* Tzu-Mainn Chen will do a demo of the bare mail fulfillment proof of concepts for ecosystem engineering and others on Monday.
+* The group will break down tests, get more formal, and submit pull requests to get the bare mail fulfillment merged into OSAC proper after the demo.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Mar 18, 2026
+innabox full team weekly  - Transcript
+00:00:00
+ 
+Tzu-Mainn Chen: Um I can I can start in here and correct me where I'm wrong or fill in the blanks. Okay. So um I think we have broad agreement across ecosystem engineering and rad research about the direction of bare mail fulfillment. Um the there is one last sticking point that um a bunch of us discussed on Monday that we seem to have resolved. So um the document that I started a couple weeks ago should now be up to date and reflect what I think we have agreed upon. Um we're hoping to do a demo um for ecosystem engineering and others um on Monday kind of just to show us like the proval concepts that we've been working on behind the scenes um while waiting for um while waiting for approval to happen. But after that we're hoping to break down tests and um and get like a little get a little more formal submit pull requests and all the like to actually get the bare mail fulfillment merged into into OSAC proper.
+Lars Kellogg-Stedman: And um I guess it's worth mentioning that we've got a bunch of folks working on things and are hoping to have some demos in the near future, but I'm not making any specific promises.
+ 
+ 
+00:01:34
+ 
+Lars Kellogg-Stedman: All right. Um if there are any questions, let me know. or someone's got other stuff they want to bring up today. Oh, or I guess actually um I wanted to mention the things that you've been talking about um around networking in particular. So Ron has been asking often about the ability to perform network operations um as vector operations. that is rather than doing a bunch of individual operations in parallel, is it possible to take in particular things like switch configuration um if you're if you're selecting a group of say 10 machines rather than making 10 individual configuration switches on a switch to get things connected to an appropriate network. Is there a way to um batch those changes so you can make a single configuration change to the switch that affects all 10 ports? Um, as the size of clusters grow grows, the uh speed savings from that can be significant because often the interaction with switches is one of the slowest parts of um the process in terms of the kind of latency from when you start interacting with it to when you're done.
+ 
+ 
+00:02:47
+ 
+Lars Kellogg-Stedman: And um Min and I talked about that uh ourselves a little bit yesterday. And um things are complicated by the fact that right now we have one network backend which is the OpenStack back end which simply doesn't support that operation. So um it hasn't been something we've really focused on before. But the uh the fact that the interaction with the end user with our API
+Orran Krieger: One,
+Lars Kellogg-Stedman: is ultimately through a bare metal pool request means that in some ways we're already set up to enable
+Orran Krieger: two.
+Lars Kellogg-Stedman: that kind of operation because what we receive from the user is a request for a group of machines um that we know we're going to be attaching to the same network. So what we think is that this is that what we think is that this means it's a implementation problem not an architecture problem. We think that we have all of the information we need in order to implement something that does those kinds of vector operations where possible. Um basically by we already have talked about needing to introduce a network attachment resource to identify the attachment between physical machines and networks.
+ 
+ 
+00:03:59
+ 
+Lars Kellogg-Stedman: And if we allow that to have a list of machines in it rather than single machines that puts all the information we need to do that kind of configuration where we need it so that we can consume it and make the changes. We haven't tried implementing this yet, but we think we are in pretty good shape. Nvette, I see a hand up
+Naved Ansari: Yeah,
+Lars Kellogg-Stedman: there.
+Naved Ansari: just thinking about not just implementation but let's say you operate on 10 ports on a single switch, one port fails. How would you handle that?
+Lars Kellogg-Stedman: We haven't gotten there yet. My gut instinct is that if if the operation fails, um you basically don't deploy anything, right? so that when you make the configuration changes, you validate that it's been completed. And if it hasn't been completed, you're basically stuck. So either someone has to come in and address it manually um or the user sees, hey, this isn't deploying because of a network failure. You can imagine a smarter response to that where maybe you decide, you know, okay, this we're going to mark this machine as bad and we're going to try allocating a new machine to solve it.
+ 
+ 
+00:05:10
+ 
+Lars Kellogg-Stedman: So maybe that kind of logic further down the road, but something like that. And in fact, we talked in general about how do we handle machine provisioning failures? If a machine doesn't turn on um or you know the provisioning doesn't actually finish correctly, how do we address those sorts of situations? And it was the similar answer there where the naive response is probably well you see things you see that things are blocked and we surface the information so that you could see that it's blocked because of some kind of a provisioning failure. But there are options for uh retry logic where you discard the faulty machine, mark it faulty somehow so that it doesn't get used elsewhere and um pick another machine to fulfill the request. Aron you have a hand up.
+Orran Krieger: Yeah, I I um yeah, I agree. I think that I think that from a from a correctness perspective, um it's the same like any other case where a set of you're doing a set of things and it fails. And in the especially when you're changing networking, this is very um this is you're either sort of taking things out of a cluster or putting things into a cluster.
+ 
+ 
+00:06:18
+ 
+Orran Krieger: And the point is, you know, you don't you you you do you have to you're never in a situation of atomically like it's always wrong to sort of take it out of the thing and put into something else in one shot because that's not a recoverable failure. So you have to in in other words, you sort of decommission a cluster, then you commission new cluster. So you're either going from a used state to a not state. Um so you have to be careful in the operations but it's but it but those incremental failures are tolerable.
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: What um I I think that the the it was a really fun conversation yesterday with Lara and Min where I mean Kubernetes is really designed to get parallelism back sometimes um and to um by doing things in in parallel but it's operations on individual things because they're containers or VMs. when you deal with hardware at scale um the things that we've always done in the HPC world do deal always deal with vectors and preserve the paralism and and push that parallelism as far down as possible so you can do a batch operation on a whole bunch of things right I think that um our combination of um of now we're doing bare metal in the midst of this thing and some of that bare metal we want it to go to scale and it might be used for HPC use cases as well means
+ 
+ 
+00:07:39
+ 
+Orran Krieger: that the more we could preserve that. So, thank you, Lars. I I really I think it's important that we're thinking about this as operations on vectors, not just for networking, but you know, allocate me 40 machines and do this, you know,
+Lars Kellogg-Stedman: Well,
+Orran Krieger: and I I and I think what Dan said the other day that the this um what is it called?
+Lars Kellogg-Stedman: so
+Orran Krieger: The Tetris thing was also dealing with groups of things. Um it's great that we're thinking that way.
+Lars Kellogg-Stedman: So, one of the things that Min and I talked about yesterday, Ron, is that your the idea of operating on vectors makes a lot of sense for the switch configuration uh situation where you are you have a bunch of things on one device that you want to do all at once because doing them um serially is going to be slow and doing them in parallel might not even be possible. But outside of that um we weren't sure that the idea really applies meaningfully anywhere else because if you're allocating say a bunch of machines that all happens in parallel and you want that to happen in parallel.
+ 
+ 
+00:08:46
+ 
+Lars Kellogg-Stedman: It's not like there's not an obvious vectorization of that part of the process. And so I guess I'm I'm asking if in your mind you think that there are other things that are that naturally
+Orran Krieger: Sure.
+Lars Kellogg-Stedman: have a vector operation aspect to
+Orran Krieger: Um I mean it might seem artificial to you but it is um but but it is a use case that we did
+Lars Kellogg-Stedman: it.
+Orran Krieger: before is that um if you look at the underlying um um network that we're using here whether it's Infiniband or Ethernet um there's actually a uh there is actually broadcast mechanism in some of this stuff and Ethernet certainly has that and so if I'm going to for example let's say if I'm provisioning the same base image on 100 machines, right? And I and I use a push model to provision the thing, right? Um the we've done it before where you broadcast that image and then you just resend just the failed things and it's one network packet for every chunk of the base image that we're sending to 100 machines versus 100 individual one-on-one messages.
+ 
+ 
+00:09:57
+ 
+Lars Kellogg-Stedman: I think that's true,
+Orran Krieger: Um,
+Lars Kellogg-Stedman: but I think in many cases we don't have that level of control over the provisioning process. Those are typically driven by you know existing
+Orran Krieger: Yeah. So,
+Lars Kellogg-Stedman: tooling.
+Orran Krieger: so I I what what I'm arguing to you is not that we can exploit that now or that we should exploit that now,
+Lars Kellogg-Stedman: Well,
+Orran Krieger: but if the interface to this layer does everything as a vector, that means that when the time if we can choose in the future to replace
+Lars Kellogg-Stedman: I
+Orran Krieger: the the parallel and and serialized thing into a into a a it gives us flexibility doing that. Whereas if the operation is do this do this do this do this then we can't right. So by putting the implementation we have under the vector interface we have the option of replacing that
+Lars Kellogg-Stedman: Okay. I guess I'm going to just hope that the same thing applies here that applies to the network side which is that um it turns out to be implementation not an architecture problem because we are you know the again the incoming request is I want a group of machines that match these uh particular criteria and you know that boot from this image and in theory we will have the option of doing other things with that information than we're doing right now.
+ 
+ 
+00:11:24
+ 
+Lars Kellogg-Stedman: If in the future there's some way of taking advantage of that, Heidi
+Heidi Dempsey: Um, I would also add in particular in our world with research at least that choices about things like images are likely to be handled by the researcher um for AI workloads and so that might be a cold press thing and not a OSAC thing anyway. So providing the parallelized interface parallel interface is good but the choice of when and where to
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: use it may end up being in that tool instead of
+Lars Kellogg-Stedman: Yeah. I mean, I think since our our first targets are things like open shift clusters,
+Orran Krieger: Okay.
+Heidi Dempsey: in
+Lars Kellogg-Stedman: we know that that kind of parallelized um provisioning model isn't really available to us. Um and that's fine.
+Orran Krieger: Yeah, I was I was just trying to give an example of something that was in my mind.
+Lars Kellogg-Stedman: Yeah. No, that makes sense.
+Heidi Dempsey: the future.
+Lars Kellogg-Stedman: Yeah. In the
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: future.
+Heidi Dempsey: 25 25 for you old people out there.
+Lars Kellogg-Stedman: All
+Heidi Dempsey: Um the other thing is um if
+Orran Krieger: Okay.
+Lars Kellogg-Stedman: right.
+Heidi Dempsey: we change the interfaces in OSAC. So it our our actual if you measure our use cases in terms of um you know our current usage which I understand is tiny and not necessarily representative.
+Lars Kellogg-Stedman: Sure.
+Heidi Dempsey: It's not actually the case that our common use case is create me a cluster. Our most common use case is add resources to my existing cluster or delete resources from my existing cluster. So we can't force everything to be parallel because there's frequent
+Lars Kellogg-Stedman: Right.
+Heidi Dempsey: you know small iterations that happen as use
+Lars Kellogg-Stedman: Right. Right.
+Heidi Dempsey: cases.
+Lars Kellogg-Stedman: Makes sense. All right, that's all um I've got. Does anyone else have something they want to bring up today? I am seeing no hands. That means this is a really short meeting. No complaints. All right.
+ 
+ 
+Transcription ended after 00:25:48
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

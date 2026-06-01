@@ -1,0 +1,452 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Mar 30, 2026
+MOC - Fulfillment working group
+Invited Juan Hernández Michael Hrivnak Adrien Gentil Lars Kellogg-Stedman Oved Ourfali Tzu-Mainn Chen Taj Salawu Thorsten Schwesig Jason Kary Nora Haxhidautiova Danni Shi Joachim Weyl Jason Schlessman Isaiah Stapleton Dylan Stewart Orran Krieger Austin Jamias Surbhi Kanthed Meera Malhotra Elior Erez Trey West Avishay Traeger Elad Tabak Eran Cohen Akshay Nadkarni knikolla@bu.edu Ygal Blum Piotr Kliczewski Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Siddarth Royapally Ilya Skornyakov Dakota Crowder Ori Amizur Alona Paz Dmitry Tantsur Christopher Tate Jen Stacy Simone Ferlin-Reiter Heidi Dempsey Marek Grac Maor Friedman
+Attachments MOC - Fulfillment working group 
+Meeting records Transcript Recording 
+
+
+Summary
+Cluster-as-a-service flow was demonstrated with Netris integration, bare metal operator structure preferences were discussed, and a major review of advanced AI coding agents and spec-driven workflows was conducted.
+
+Cluster-as-a-Service Demo
+A recorded demonstration of the cluster-as-a-service deployment with Netris and Metal LB was presented, showing the cluster creation and network topology via the Netris UI. Discussion confirmed the development of a unified networking API based on the Adrian enhancement to abstract various backends like Neutron and Netris.
+
+Bare Metal Operator Structure
+An update on bare metal work indicated 2 CRDs were submitted, with 1 already merged. The group agreed on a slight preference for splitting backend-specific host management into separate, optionally installable operators rather than maintaining a single monolithic operator.
+
+Review of AI Coding Agents
+A deep dive into advanced AI coding agents highlighted the utility of spec-driven workflows, the GSD workflow engine, and the Claude 3 Opus model for maintaining context in implementation. The team discussed the need to formalize AI development practices, including documenting repository policies in a cloud.MD file, and integrating project management into tool adoption.
+
+
+Details
+* Initial Agenda Check and Topics: The meeting began without a previously circulated agenda due to Alona's absence, but Michael Hrivnak confirmed that three items were on the agenda. Dan Manor announced two topics for discussion: a short demo of the cluster-as-a-service flow with Netris, and discussion on finalizing changes and integrating them into the OSAP repository, specifically addressing issues with making the repository configurable for end-users (00:00:00).
+* Demo of Cluster-as-a-Service Flow with Netris: Dan Manor presented a recorded demo of a completed cluster-as-a-service deployment, explaining that the operation was too long for a live demonstration. The setup included an SNO hosting cluster, with OSAC and its components deployed alongside Metal LB, which is currently required for the cluster-as-a-service implementation (00:01:55) (00:08:44). The demonstration showed a generic OCP hosted template that supports ESI, OpenStack Neutron, and Netris backend network classes, successfully creating a cluster with two nodes and available cluster operators (00:03:21).
+* Networking Topology and Netris Integration: The Netris UI was shown to illustrate the network topology, including the north-south fabric and servers for agents and the management cluster communicating via the data fabric using VPCs (00:05:24). Dan Manor explained that the server cluster is a wrapper for networking tasks, and that future implementation will split these functionalities among different network endpoints (subnet, NAT, etc.) as the network class is implemented (00:07:04). The Netris API is invoked automatically during the cluster fulfillment process, similar to the current OpenStack Neutron and DSI implementations (00:08:44).
+* Distinction Between Bare Metal and Networking Efforts: Lars Kellogg-Stedman clarified that the work being done by Austin, Danny, and Min focuses on bare metal hardware management (power control, provisioning, and allocation), and is distinct from the network configuration aspects that rely on components like Netris or Neutron, which Dan Manor presented (00:09:58). Tzu-Mainn Chen asked if all the networking work would eventually be placed behind a unified networking API (00:11:29).
+* Future Network API Development and Metal3 Overlap: Dan Manor confirmed ongoing work, possibly by Eran Cohen, to create a new API for networking based on the Adrian enhancement, with the next step being to fulfill each of the new network API endpoints. Eran Cohen noted that there might be overlap with the Metal3 team, as they are reportedly adding network capabilities, though probably not supporting the full range of backends, and a meeting was scheduled to discuss this overlap (00:11:29). Orran Krieger views their team's effort as the layer agnostic to implementation, which can connect to Netris, OpenStack networking, or other proprietary solutions, hoping Metal3 could serve as a fully open-source solution for network management (00:13:04).
+* Next Steps for Network Implementation: Tzu-Mainn Chen summarized the next priority for the networking process as getting the network API up and running with Neutron and Netris backends, presuming the current work gets merged, to make the flow cleaner. Lars Kellogg-Stedman then transitioned the discussion to the bare metal update (00:15:29).
+* Bare Metal Update and Operator Structure: Tzu-Mainn Chen provided an update on the bare metal work, stating that a pull request for two CRDs was submitted last week, with one already merged and the other awaiting re-review from Michael Hrivnak (00:15:29). They asked whether it is preferable to have separate operators for backend-specific host management (like OpenStack or Carbide) or to maintain a single monolithic operator. Michael Hrivnak and Lars Kellogg-Stedman both expressed a slight preference for splitting out the backend-specific host management into separate operators that could be installed optionally based on local infrastructure (00:16:18).
+* Discussion on AI Coding Agents and Workflows: Eran Cohen started the discussion on AI workflows, noting the significant improvement in AI coding agents, specifically mentioning using Cursor and the updated Claude (00:17:43). Eran Cohen highlighted the utility of the "get s*** done" (GSD) workflow engine for agentic development, which is spec-driven and focuses on executing the requested task without unnecessary deviations (00:19:22).
+* Key Features and Tools for AI Development: Eran Cohen highlighted new features such as the Claude 4.6 Opus model with a 1 million context window, which is useful for maintaining context during implementation (00:19:22). They mentioned using GSD for spec-driven development but noted that simply triggering 'plan mode' in Claude without GSD provides a good level of planning and verification (00:20:53). A key capability mentioned is the ability to use the frontier Claude 4.6 model without apparent budget limits (00:22:17).
+* Using Claude MD and Skills for Customization: The `cloud.MD` file in the repository root acts as a source of truth for Claude to understand how to operate in the repository (00:22:17). Eran Cohen uses "Skills," which are ways to harness Claude to perform tasks in a specific manner, with GSD being a set of such skills that simplify the process (00:23:38). Eran Cohen created plugins for handling external tools like Jira, GitHub, and Slack, which can be wrapped with a skill to automate complex, multi-step operations (e.g., fixing a bug, opening a ticket, running tests, and posting a PR) (00:24:54).
+* AI for Enhanced Workflow Automation and Quality: Eran Cohen demonstrated how Claude can record demos, upload them, and send emails, showing its high capability once skills are integrated. Working in a spec-driven workflow with GSD provides reliable results and facilitates a comprehensive planning phase, where the agent asks challenging questions to refine the task scope, which is particularly helpful for large, complex tasks like the networking stack (00:27:56) (00:39:06).
+* Benefits of Git Work Trees and Command Creation: Elad Tabak commented on the usefulness of Git work trees for mapping branches to different file system folders, which allows multiple agents or individuals to work in parallel on the same repository (00:31:08). Elad Tabak also demonstrated creating a custom `daily update` command for Claude to summarize their daily status into a file, which is then processed and posted to Slack via automation (00:32:37).
+* AI for Reviews and Process Standardization: Avishay Traeger shared their positive experience using Claude for an enhancement proposal review, where Claude fetched the necessary information, facilitated a back-and-forth discussion on concerns, and formalized the resulting comments for posting (00:35:23). There was a discussion about whether to formalize a standard way of working with AI tools, with Eran Cohen and others suggesting they should recommend a default flow, such as having a `cloud.MD` file that describes repository policies and structure (00:44:41).
+* The Debate on Standardization and Community Involvement: Orran Krieger suggested that AI development practices should be integrated into the project's repositories, not kept as individual efforts, and that the team needs to decide the extent of human involvement in each development step (00:40:14). Heidi Dempsey cautioned that any requirements must be open source and free, as OSAC is a community project. Orran Krieger agreed but emphasized the need for visibility into their internal AI practices and potentially supporting models for external, non-funded groups to ensure community members can use the same tools (00:42:36).
+* Project Management and AI Tool Adoption: Heidi Dempsey stressed the need to include project management as part of the discussion on AI tooling adoption, particularly for measuring results, as they still lack a unified project management approach for OSAC (00:46:00). Orran Krieger agreed, noting that documenting their architecture and standards in the repository is crucial for consistency and to enable these tools to function properly (00:47:53).
+* Call for Broader Adoption and Feedback: Oved Ourfali encouraged all participants to try out the shared tools, noting the industry trend toward agentic workflows, and emphasized that the process will be gradual, requiring shared opinions and feedback to evolve the toolset (00:49:52). Orran Krieger suggested adding examples and principles for using AI into the OpenShift repository documentation (00:51:29).
+* Finalizing Discussions and Next Steps: Dan Manor requested to continue the discussion regarding the configuration of OSAP on Slack, as time was running out. Orran Krieger asked Eran Cohen to review the open shell example for documenting AI use in repositories to inform their own version (00:51:29).
+
+
+Suggested next steps
+* Michael Hrivnak will re-review the pull request for the host CRD after Tzu-Mainn Chen addressed all comments.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Mar 30, 2026
+MOC - Fulfillment working group - Transcript
+00:00:00
+ 
+Lars Kellogg-Stedman: I don't have uh anything particular myself this morning. Um and I know with Alona out, I think we've been less good about getting an agenda together for this meeting um ahead of time. So, does anyone have something they want to bring up today?
+Eran Cohen: There's an
+Michael Hrivnak: There's three items on the agenda.
+Eran Cohen: agenda
+Lars Kellogg-Stedman: Oh, excellent.
+Michael Hrivnak: It's like
+Lars Kellogg-Stedman: Okay. Let's bring those up.
+Eran Cohen: then. Let's
+Lars Kellogg-Stedman: See what we got.
+Dan Manor: Hey.
+Eran Cohen: see.
+Dan Manor: So, I'm starting. Okay. One
+Lars Kellogg-Stedman: Yes.
+Dan Manor: second. So, there are actually two things I wanted to discuss today. Uh I mean one I want one is that I wanted to show a short demo of cluster as a service flow with netris. Um and the other one is basically about finalizing these changes and integrating it into OSAP repository. Um and to do that I mean we need well I mean we can discuss it after but basically I am having trouble coming up with a way to make this repository configurable for the user for the end user.
+ 
+ 
+00:01:55
+ 
+Dan Manor: So I think this is something that we will need to discuss. I don't know if in this meeting or or maybe other but yeah I also posted a message about it in the OSAC uh development work group I think on Slack. Um that's it. Anyone has something to say before I start?
+Lars Kellogg-Stedman: Go
+Dan Manor: Okay.
+Lars Kellogg-Stedman: ahead.
+Dan Manor: So there is no volume. I will just explain what I did. Um I tried to think how should I demo this operation because it's a long operation. Um so basically I just uh recorded some views uh at the end of the process and I will explain um yeah so it's it's a bit blurry at the start become better. Yeah. So we are studying with uh basically hosting cluster which is SNO because I was limited on resources um that's it basically I deployed OSAC and all of its components um alongside Metal LB and uh which I think I'm not sure is it is specified as a mandatory requirement for now but at least for the current implementation that is required for customer as a service.
+ 
+ 
+00:03:21
+ 
+Dan Manor: So it is also deployed. Um I also have a PR for installer to deploy it as well by the way. Um yeah I created this host class just the same FC430 name. Um yeah, we can see that it is generated using the CLI. Um yeah, so I just uh show the uh the cluster template basically um the cluster order manifest and without the pool secret. There is also a pool secret here. Um yeah, I created basically a generic uh OCP hosted template. Um and uh yeah, you can specify whatever OCP version you want. Um and that's it. Basically, it's supposed to serve both uh ESI and open stack neutron and uh Netris uh backend network classes and then I created it from it. I created a a cluster from it. This happened before. And now I show you that it is already completed the process. Yeah. So we have two nodes in this cluster that we created and uh we can see that all the cluster operators are available.
+ 
+ 
+00:05:24
+ 
+Dan Manor: Um yeah we can see that the console um which means that the ingress is working um and we can reach it from the public basically from a public endpoint and yeah this is Netris UI just showing you the basically the net topology. So we can see that we have this fabric which is the north south fabric and we have these servers that we can see here. It's a bit small but these are the two servers that I use for agents and this one is the server that is used for the management cluster. So they are communicating via the data fabric using VPCs. Um yes. So this is the topology. I'm currently disabled the uh east west topology above it because it is not relevant for now. So we can see uh that uh we created a server cluster. One is from the for the management cluster and one is for the hosted cluster and server cluster in is just a wrapper for uh basically doing a lot of networking stuff to make uh to make a cluster behave the way we want the networking to the cluster behave the way we want.
+ 
+ 
+00:07:04
+ 
+Dan Manor: um when we will implement it for the network class uh for each um in each of the new uh network endpoints the subnet and uh the NAT and the rest of them then we will split them we will not use a server cluster anymore we can see the VPCs the virtual networks We can see that the NAT addresses that were created during the process. Again, the bottom ones are the management cluster. This is assumed to be created before the process. Yeah, we can see the basically the IP address management again derived from the uh virtual network what was created. That's it. I hope it was clear
+Lars Kellogg-Stedman: I have. Sorry.
+Orran Krieger: Sorry,
+Lars Kellogg-Stedman: Go ahead,
+Dan Manor: enough.
+Lars Kellogg-Stedman: Aron.
+Orran Krieger: I I I was confused. This I thought this was supposed to be inside. So this was done in the automatically in cluster fulfillment. Dan, is that like this invoked the API of the Netrris stuff
+Dan Manor: Sorry, I didn't understand the
+Orran Krieger: like I I'm I'm confused what like what I I understand what the NetArt stuff is and
+ 
+ 
+00:08:44
+ 
+Dan Manor: question.
+Orran Krieger: I understand but where what was you invoked this and created those machine or instantiated those machines within the cluster fulfillment. I was just the connection into the first part I got. I I must have lost
+Dan Manor: Yeah. So I mean I I had I mean I was contemplating how to show this
+Orran Krieger: something.
+Dan Manor: demo because this is like a 30inut process. So eventually I decided just to show you the I mean show some views when the process is already done. This is why I already showed you the cluster in the fulfillment CLI which is already installed successfully. If this was the thing that confused
+Orran Krieger: Okay. So,
+Dan Manor: you
+Orran Krieger: so how does this shim into the cluster fulfillment service we already had? Do you did you because we went multiple backends to that. Netris is one of them,
+Dan Manor: exactly.
+Orran Krieger: right?
+Dan Manor: So it's it's it should be the same thing. Exactly. You just use the fulfillment CLI run it to create with an order manifest.
+ 
+ 
+00:09:58
+ 
+Dan Manor: Um same way as done currently with the the current implementation OpenStack Newton and DSI. Um and then the same sequence of of of operations happening and eventually my code is anible um is deployed and implementing basically two different ways um in the flow. One is the cluster infraction which we use different way in and one is the basically uh exposing the external access to the cluster which is also done differently in but the rest is the same.
+Orran Krieger: Okay. I is that I mean that's sort of what I thought Min was and and and
+Dan Manor: Blessings.
+Orran Krieger: and Austin team were doing was trying to define the common substrate to plug those in, but I'm probably just confused. Large, why don't you you can explain to me offline if I'm missing something fundamental here.
+Lars Kellogg-Stedman: Well, I'll just say that that Austin and Danny and what men are working on is primarily not about networking. It is about managing um bare metal hardware. So power control and provisioning and allocating uh machines to tenants and things like that and then it would rely on something like what Dan has presented here for you know to either interact with Netris or with Neutron to perform the network configuration aspects.
+ 
+ 
+00:11:29
+ 
+Lars Kellogg-Stedman: So that is distinct from what the bare metal team is working on.
+Orran Krieger: Okay,
+Tzu-Mainn Chen: Is there a point where all this work gets put behind the networking API?
+Orran Krieger: that
+Dan Manor: Yeah,
+Tzu-Mainn Chen: Um
+Dan Manor: there is an ongoing work. I think Iran is working on it, but maybe I'm wrong. um basically to create I mean I think it's already merged a new API for networking uh according to Adrian enhancement and then the next step will be to split this this I mean this monolithic flow to each of to to fulfill basically each of the different uh new network API endpoints
+Eran Cohen: It's true. Um, I can say that Dimmitri Tensor from the Metal Free team like he ped me today asking why are we building something very similar to Metal 3. Uh, and I guess there's a meeting tomorrow where he he mentioned that they're adding some network capabilities into Metal 3, but probably not going to support stuff that we do with Neutron. Um, so in any case, I guess there's a lot in common what they're doing and what
+ 
+ 
+00:13:04
+ 
+Lars Kellogg-Stedman: Do we have a meeting on the calendar to talk about bare metal with the metal cube team. Is that central?
+Oved Ourfali: That's the meeting tomorrow that I added you in the main to
+Lars Kellogg-Stedman: That is okay. Yeah, that's what I thought. So,
+Oved Ourfali: it.
+Lars Kellogg-Stedman: that would be a good time to, you know,
+Eran Cohen: What's
+Lars Kellogg-Stedman: maybe ask some of these questions and figure out what the overlap
+Orran Krieger: Yeah,
+Eran Cohen: that?
+Lars Kellogg-Stedman: is.
+Orran Krieger: I think conceptually at least I view them as doing a lot of the manipulation of of of installing things and stuff like that, but they aren't dealing with networking or if they are, they're doing their own networking um that they've incorporated the ironic networking stuff. And we're trying to do a layer of an interface that can talk to Netrus or to or to the um OpenStack networking or to um the stuff that that Nvidia is doing in their fully proprietary stuff where we can work with all these different imple so so we're trying to do we're the layer that's agnostic to the implementation as well as an implementation or a connection to each of the implementations is That makes
+ 
+ 
+00:14:15
+ 
+Eran Cohen: Yeah,
+Orran Krieger: sense.
+Eran Cohen: it does just that maybe we can because they're kind
+Lars Kellogg-Stedman: I Yeah.
+Eran Cohen: of doing that also like they have different vendors and they support different kind of how they control the bare metal. Um but I let's talk with them tomorrow and see
+Orran Krieger: I I would I would dearly love it if they solve our problem where they do the network management and so we they can be our fully open-source solution. That doesn't mean we're not going to still have to work with Netris when Natric is in a partner shop,
+Lars Kellogg-Stedman: I mean,
+Orran Krieger: but I would like to have a full open source solution that that a team supports inside
+Lars Kellogg-Stedman: so well,
+Orran Krieger: Red
+Lars Kellogg-Stedman: I think we'll hopefully we'll know more after tomorrow, but I mean,
+Orran Krieger: Hat.
+Lars Kellogg-Stedman: I think right right now they're primarily The metal cube stuff is primarily focused on bare metal control and not on networking. I don't know at all what their networking support is projected to look like. I think it's unlikely they will want to support the range of backends that we do, but um again hopefully we'll know more after tomorrow.
+ 
+ 
+00:15:29
+ 
+Tzu-Mainn Chen: Okay, so just to be uh for my own understanding, so the next steps for this entire process is uh presuming this stuff gets merged is the next priority to get the network API up and running with uh Neutron and Netris backends so that this can be a little cleaner. Okay, that makes sense to me.
+Lars Kellogg-Stedman: All right. Well, man, you're up next with bare metal update if you want to just keep talking.
+Tzu-Mainn Chen: Yeah. Okay. Uh yeah. So, um but just just an update. Um we uh so we last week we uh submitted a poll request for two CRDs, one of which been merged. Um the other one for host. Uh Michael, I think uh we're just waiting for uh for for a re-review from you. Um I think we addressed all your comments, but let us know if we haven't and then we can move forward from there.
+Michael Hrivnak: Great.
+Tzu-Mainn Chen: Okay.
+Michael Hrivnak: Well done.
+Tzu-Mainn Chen: Awesome. Thank you. Um, I guess the other question I had was that right now we have one single monolithic operator and it's been explained to me why is done that way and that makes sense.
+ 
+ 
+00:16:18
+ 
+Michael Hrivnak: Thanks.
+Tzu-Mainn Chen: I'm wondering if the host management operator for the the backend specific host management operator like there there'll be one for OpenStack presumably one for Carbide etc. Does it make sense for those to be separate operators or is the preference for everything to go into one big operator as well?
+Michael Hrivnak: It could go either way where you've got that kind of case where uh you're definitely only going to use one at a time that starts to lean more toward favoring separating them out.
+Tzu-Mainn Chen: Okay. Yeah, that that that would make sense.
+Michael Hrivnak: Uh
+Tzu-Mainn Chen: That would make sense to me as well.
+Lars Kellogg-Stedman: I mean, I have a I have a minor preference for having them split out as separate things that could be, you know, installed or not installed as the local infrastructure dictates.
+Tzu-Mainn Chen: Okay, that makes sense. Awesome. Thank you. That's all I had.
+Lars Kellogg-Stedman: All right. Well, if you wanted to talk about AI workflows, you're up
+Eran Cohen: Yeah. Um well to I'll start by saying I I regret not showing this like on Wednesday
+ 
+ 
+00:17:43
+ 
+Lars Kellogg-Stedman: next.
+Eran Cohen: when I actually had like a task and we had a very short meeting and I think it was like great opportunity to just live demo what working with cloud looks like. Um but maybe like okay I see like 15 16 people on on the call. So are people here not using any AI uh coding agent? Okay, if everyone is already using it, then I guess I can just jump through like the really I guess the cool things or the new stuff that are out there and I find very useful. Um so I can start with saying that I really like using cursor for uh some time and I tried cloud code in the past and it I I didn't feel the connection. It was very like strange just like asking for stuff and hoping that it will come out right on the other end and some of the times it just didn't and then it was very frustrating because I could just as well just write the code myself instead of wasting time on this thing. Um but I think it has changed significantly in the past few months and also I've in like a lot recommended so I gave it a try.
+ 
+ 
+00:19:22
+ 
+Eran Cohen: I was using uh some other workflow but a lot recommended uh trying out the get s*** done which is uh it's a workflow engine for agentic development that is it's specd driven but it's not a lot of b*******. It's just try to get the spec right to execute what you're asking for uh without hallucinating different things. Um so that was the disclaimer. Um I asked a lot to do some slideshow which in the past I would ask this from Gemini but currently I try to stay in the terminal and just talk to code club. Uh this is true for a lot of my Slack messages as well. It I'll show in a minute how you can do that.
+Lars Kellogg-Stedman: Yep.
+Eran Cohen: Um, I think you can see my screen. So, it's not a lot.
+Oved Ourfali: Yep.
+Eran Cohen: Okay. So, the cooler thing is one, there's like a new office with 1 million context window. Uh, which is super super great because then you can just like your context window never ends. And I guess when you want to get the implementation right, you need to build the context.
+ 
+ 
+00:20:53
+ 
+Eran Cohen: Like this is like the main thing you want to focus on because like you're not writing the code. You want to explain the code like what you want best and you want to make sure that the AI knows what you're aiming at. Uh so this is a really nice model. doesn't like I hardly ever make a mistake. Uh at least when you're working with uh spec driven development and the context window is super cool. Um, in the past, this is also great. Like you don't have to use uh like I mentioned GSD like you don't really have to use it. Like it's fine if you just trigger plan mode. Plan what you want to do. Cloud will ask you some stuff to verify before it's going. But if you want to plan and not just cloud to execute and do stuff for you, make sure you move to plan mode. I can show you how you do this stuff. Um, and I recommend just give it a try. I sent like the the email with instructions uh and some boilerplate uh git repo uh that that also handles some of the stuff that osc token optimization.
+ 
+ 
+00:22:17
+ 
+Eran Cohen: So luckily somehow uh I I'm not sure how but it seems that we do not have a limit like you can go and spend as much as you want. I'm not sure who's paying what are we paying what plan are we on but you can use the frontier like oo4.6 six as much as you want and seems that no one has an eye. It just it works. Um, okay. So, as I mentioned like for cloud and for other coding agents, uh, there's always like the the readme the agent MD the but like for cloud so it's cloud MD it's in the root of the repo and this is like the source proof. This is how cloud knows how to work and operate in the spec in the in this repo. And I posted a PR to some of them. Though for our or for my workflow, it's not really necessary because when I work in OSAC, I usually need a feature across different repos. And this is why when I send the email like I I lay down all the other repos as Git subm modules and the cloud MD and the architecture everything is on the outside.
+ 
+ 
+00:23:38
+ 
+Eran Cohen: Um it's like one layer up. Okay. So MCP I guess everyone knows of is exists for a year so it's pretty old by now. Um and skills is like the cool new kit. Uh, it's not that new anymore, I guess. But also biantthropic. It's a new way to, I don't know, harness or just tame Claude to act and do the things you wanted to do the way you wanted to do it and just teach him new skills. Um, so, so the main one that I currently use is the get s*** done, which is it's a set of skills and hooks and a lot of other features that cloud has. But this essentially just simplifies uh everything for you. like when you when I go into clot, I usually do like GSD progress and it will tell me where we're at, what we're doing, and what's the next thing I should be working on. Um, and as I said, it's a workflow. So, there's always like the next step is like, okay, now let's uh discuss the next phase.
+ 
+ 
+00:24:54
+ 
+Eran Cohen: Let's plan it. Let's execute it. Let's verify it. Let's summarize. It's so there's like a different slash command for each of the options I just mentioned. I did create a few plugins that along the way uh need to say so while working on the networking uh epic I try to formalize like okay how we can or what's the best approach that I find to work with coding agents and this is somewhat the results of that. So every time there was a thing that I wanted to do or I was doing multiple times and needed to write like two lines of do something in a specific way uh or had like a flow of task or operation that I'm doing after a couple of times you can just ask claude even like just remember that I wanted you to do it this way and then gets added to the cloud MD or if it's if it's like a set of commands that or a set of things you want you want to happen in a specific order like the way I fix bugs or the way I want because let's say sometimes there's something that you see like some minor bug while you're working on something else then you say okay open the jur ticket then write the fix write the test uh run the test check FMT uh post
+ 
+ 
+00:26:25
+ 
+Eran Cohen: the PR move the ticket to to in progress or in review stuff like that Uh so all of that is can be just a skill and then you can ask a lot tell it okay now you have a skill whenever I ask you to solve this bug that you have in your context and you do this. Um so same for for Jira GitHub Slack. So you can either do MC for interacting with some external uh how do you call it some external tools like uh if you want to interact with GitHub you want to post message to Slack. So you have two options. Either you have a CLI tool that can do it and then you just wrap it with a scale and then cloud knows how to operate that CLI tool or it just knows like let's say for GitHub I don't think I I didn't write a skill. It just cloud just know how to work with the GH uh tool and that's it. for Jira I had to write okay so Jira our endpoint is this and this is uh the project that we're in and for this project you want to focus on tickets with component OSAC stuff like that and then it's you don't need to tell it too many details when you're asking for it to grab your task from JL um or move them to in something.
+ 
+ 
+00:27:56
+ 
+Eran Cohen: Okay. Oh, okay. So, I think I asked it to record something in the past. I think I shared it. Let's see in the Slack channel, but I think it will. So, this is also something nice. You can just instead of recording a demo, you can ask cloud to record the demo. You can ask it to share it on to send you an email with the demo. It also this is like cloud recorded this um just how like you can work with the GSD plugin and it also uploaded uploaded the recording here. It sent me an email with this uh with this thing. So I want to say that once you plug in the different skills, it's very capable. It can do a lot of stuff. Um, and once you work in a specd driven workflow, then you I I I I won't say it's a guaranteed result, but it's fairly simple or fairly reliable that you get the result you asking you're you're after. And I guess this isn't showing like it's showing the Jira sync, which is something I added just cuz GSD doesn't like working with Jira, but I find it useful.
+ 
+ 
+00:29:29
+ 
+Eran Cohen: Um, this doesn't show that whenever you plan a phase or uh create a new milestone, then you get a bunch of questions thrown at you and it's like you're having a nice or a good senior developer working with you on this and asking all the good questions about how this is actually going to work. This is I guess the main difference between just asking cursor or claude without uh GSD like if if I would just ask cloud then maybe it will ask me two question and then it will just guess the rest of how this should work. Uh with GSD I get a very good spec out before I start writing code. Um I think there are a lot of other cool features uh that Elad is using. Um, not necessarily like uh work trees. I try to avoid that, but maybe if I find myself working on two different or too many different things that might collide, then I'll I might um think that's it. I want to say that everything I'm using is either like just in CLA or there's so just try it try it out get your cloud MD uh right whenever if you want to do it on your own that's I think it's probably best but if you want to get started with something pre-baked just use the template I I wrote but you can just start like plot on your working directory
+ 
+ 
+00:31:08
+ 
+Eran Cohen: slashinit. It will initialize everything and then just add skills as you go. Like you don't have to start with a full blown I don't know 20 skills that I'm using. Uh but if you do want to use the skills I'm using. They're all in this marketplace. Uh you just do plugin marketplace add this URL and then you can just go install them. Yeah. Any questions?
+Lars Kellogg-Stedman: Several folks have hands up. I think El is
+Elad Tabak: Uh I I just want to comment about the git work trees because I I find it very
+Lars Kellogg-Stedman: first.
+Eran Cohen: That's
+Elad Tabak: very useful and helpful. Um especially if you want to parallelize your work.
+Lars Kellogg-Stedman: Yeah.
+Elad Tabak: If you're using if you're used to work with g and you're constantly using multiple branches then g trees is just a way to map branches to different file system folders essentially helping multiple agents to work in parallel. So if you have you know multiple tasks that are not necessarily uh the same topic or in the same area but they are essentially on the same repo then you can just use git work trees and and give multiple sessions or multiple agents work on different work trees and and that is very helpful.
+ 
+ 
+00:32:37
+ 
+Elad Tabak: I was able to, you know, parallelize multiple tasks. Uh, obviously creating some cognitive cognitive load, but um, as long as you can keep track of it, it's it's it's very helpful.
+Lars Kellogg-Stedman: Yeah,
+Elad Tabak: And another thing,
+Lars Kellogg-Stedman: I will just add that if you haven't worked with git work trees before, they're useful not just for AI agents,
+Elad Tabak: yeah.
+Lars Kellogg-Stedman: but also for your own brain. If you want to do work and you're repeatedly trying to refer back to like the original branch that you forked from and and do comparisons and things like that, it can make your life a lot
+Elad Tabak: Yeah.
+Lars Kellogg-Stedman: easier.
+Elad Tabak: Yeah, I agree. And I wanted to also show something very nice that I had um hopefully you can see this. Can you see my terminal? Yeah. So, if if you want to use like creating a command,
+Lars Kellogg-Stedman: Yes.
+Elad Tabak: I I actually created like a daily update command. So it it's just a command that you can customize which in my case updates uh a daily status MD file that I keep track of and then during the session I can ask claude yeah just update my uh status I'm working on this I review this PR I'm working on that task whatever and then since it's all backed up uh using G uh on GitHub Um I also have um this nice summary.
+ 
+ 
+00:34:06
+ 
+Elad Tabak: I have like a task a service running on my laptop which captures this file and digest it to uh daily status uh using cloud minus p. It's essentially if you have a script you can actually embed a cloud command there with a custom prompt. So I asked Claude just summarize my daily status into this uh format and I also have like an automation that posted to Slack. So it's it's basically whatever you can automate cloud can do it for you. Um also what I did found like talking about uh claude MD and memory MD and skills if you have a repeating task or skill I find it much faster to ask cloud to create a script for that rather than capture it in a file because clot when it reads the file and and reads the skill it takes a lot of time to process and it also consumes a lot of tokens. I know we don't care about the budget here, but I mean it it does take sometimes even two minutes or five minutes for it to kind of get a hand of what it's supposed to do.
+ 
+ 
+00:35:23
+ 
+Elad Tabak: But if I know in advance that it's going to be something repeatable,
+Eran Cohen: All
+Elad Tabak: I can just ask claust for that and that would be much more helpful or faster um in the workflow. So my two cents
+Lars Kellogg-Stedman: Right. A I think you are
+Avishay Traeger: Yeah, I just wanted to share another thing that I did like beyond generating
+Lars Kellogg-Stedman: next.
+Eran Cohen: right.
+Avishay Traeger: code. Um, today I did a enhancement proposal review of a enhancement you with Claude. So, and it was great because Claude just fetched everything from GitHub and we had a discussion back and forth. I said, you know, these are my concerns and, you know, we had some back and forth and then it listed me like the the all the comments that we got to together and then I said post it and you know just put the comments on the right lines and I don't have to like you know it takes a lot of time to formulate just write it out in English so that it's understandable And this really like makes the process much easier.
+ 
+ 
+00:36:49
+ 
+Lars Kellogg-Stedman: All right. I have um I have a question. I'm you're using the GSD right now. Had you compared that to anything like spec kit or even like the cloud superpowers plugin which also gives that kind of um formal requirements gathering
+Eran Cohen: Yes. So, so to be honest,
+Lars Kellogg-Stedman: phase?
+Eran Cohen: I'm using both. I'm using superpowers for specific things and I'm using GSD because um I'm kind of like I tried it out and I liked it so I stuck with it. Um, I do like superpowers. It's about the same. It's just that I kind of customized uh these a bit and now I I just stay with it. But I know I asked Omar as well uh he's on the call to try superpowers.
+Lars Kellogg-Stedman: Okay,
+Eran Cohen: Um it's about the same I think in terms of experience.
+Lars Kellogg-Stedman: go ahead.
+Omer Vishlitzky: I feel like uh I I use superpower said in the beginning. I feel like if you just use plan mode, it gets you 90% of what those plugins give you.
+ 
+ 
+00:37:58
+ 
+Omer Vishlitzky: I like superpowers make it a little bit more a little bit easier to, you know, create skills on the fly. like it track like it sees you do stuff repeatedly so it suggests on its own to create a scale and stuff like that and it asks you kind of more questions but usually you can work with cloud without any of those and just use plan mode it gets you 90% of the the
+Eran Cohen: So I want to I want to my I have some something to
+Omer Vishlitzky: benefit
+Eran Cohen: add. So if it's very defined like you know what you're doing it's very clear like you need to do something very similar to something else then cloud will sort it out. But if there's like a lot of unknowns like if it's a big thing and it's a lot of like let's say the networking stack like there was nothing and we want I wanted to create like some network class factory with lots of different uh construct like subnet and security groups like I don't know how this will work in all those different repos and like how the data flows and what information you need for in each step.
+ 
+ 
+00:39:06
+ 
+Eran Cohen: Uh so in that I guess in that size of a task epic milestone like it really helped to have someone to just keep asking me so wait how will this how should this work how should this work what's what's the thing we're doing here and like so this is what I I really like that it felt like okay there's another person really like I guess those are the candidates that I like to interview because when I you ask them a question they come back with like five different question like okay what do you want to do in this case how should this work what do you prefer that I'll do in this scenario so this is what GSD is doing and I think plan mode in cloud isn't like it's not saying okay this in case this fail would you like me to add retry like it's not it's it's very comprehensive like before it goes and ship it it's it's mapping a lot of the scope
+Lars Kellogg-Stedman: Yeah, my my experience working with superpowers is that it generates better sets of questions than just using plan mode by itself and it will often be slightly more introspective and
+ 
+ 
+00:40:14
+ 
+Eran Cohen: Mhm.
+Lars Kellogg-Stedman: like catch things that otherwise you might have missed or you might have had to go back to previously. But um that has not been extensive
+Eran Cohen: Yeah. I
+Lars Kellogg-Stedman: testing. All right, we're on
+Orran Krieger: So, um, I've been talking with Josh Boys and others about sort of where Red has all goes because there's a lot of fragmentation. every team is doing its own thing and we're a relatively new project that's also you know working external um which is I I'm sort of really feel like we need to put this into our repos like I was looking at the open shell project from Nvidia and how they've got a whole description of how they're using things I added that to the list I I just feel like this should be a part of you know we should have poll requests about is this shouldn't be independent from our software. It shouldn't be just each of us doing our own thing. Um and also agreement on whether or not you know to what extent human is needed for which of the different steps seems like something we need to decide as a team.
+ 
+ 
+00:41:31
+ 
+Eran Cohen: Yeah,
+Orran Krieger: No.
+Eran Cohen: like I came up with this as proposed that this is what I'm I'm doing. This is how I work. But I I really think that I won't force anyone to you have to work in this way. But let's evaluate and come up with what works best for our group cuz it it does work better if like the knowledge is shared and it's part of the the codebase like currently I keep everything in this meta repo that is one layer up and there's a lot of architecture Heidi won't like it but road map about what I'm doing and the milestones and the tasks that I'm working on. Um, and I guess a lot of that can be shared. Go
+Lars Kellogg-Stedman: All right, Heidi, you have a hand up.
+Eran Cohen: ahead.
+Heidi Dempsey: Yeah. Um, just saying it's not our team. It's an open source project and we have to take care of that first. So, we can't require things that aren't open source and that aren't free.
+Orran Krieger: Yeah.
+ 
+ 
+00:42:36
+ 
+Orran Krieger: No,
+Heidi Dempsey: And that's what we're talking about.
+Orran Krieger: I I I think I Yeah, I I I I think I think we need to figure out how that plays here. But one thing is I think we should make it visible what we're doing. Absolut like for the Red Hatter side and and we can't require things, but maybe I I actually just had that I'm trying to remember that guy's name. Sorry, distinguished engineer was asking me about how can we support if we're working open source projects and we're doing this, how can we support and you talking about hosting um some models for um external non-funded groups to to do this stuff because yeah, it would be terrible if we're if we're the only ones that can do this and we're saying this is a broader community project and yet they can't use the same tools. So I think that's a really good point ID but but I do think we should be visible on what we're doing and have at least some level where we're saying this is what we found this is unacceptable practices if we sort of say no you can't do this we don't agree with that but this is a debate we should have as a broader
+ 
+ 
+00:43:40
+ 
+Lars Kellogg-Stedman: Right.
+Orran Krieger: community
+Lars Kellogg-Stedman: Although I think that it may be a little bit early to for us to get there. Um, I think that we'll have to have a little bit more experience with more than just, you know, a couple people working with some of this tooling so we can have a meaningful discussion about what people feel is working, what people feel is maybe going too far into the the AI development model or or what we should be doing that we haven't tried yet. But that's going to require, like I said, I think more people to spend time um working with these tools to have an opinion on that. Sorry, Avesa, you've got a hand up.
+Avishay Traeger: Yeah, I was just wondering I don't know if someone knows the answer or if this is something that nobody knows yet, but is this something that we want to formalize and say like everyone should work this way and then things will be better or is it more like you know I have my favorite ID, this person has their favorite ID, I like these plugins, I work this way and it's more of an individual
+ 
+ 
+00:44:41
+ 
+Eran Cohen: I think we can recommend like you're not going to force anyone like if someone insists on
+Avishay Traeger: thing.
+Eran Cohen: working in Vim without any assistant then it's fine like if that's what
+Avishay Traeger: No, I mean you work with GSD and I work with something
+Lars Kellogg-Stedman: You better believe it.
+Avishay Traeger: else.
+Lars Kellogg-Stedman: Fine.
+Eran Cohen: I think it's fine but like let's have something I think it's it will be best if we can align on something uh But like if there's someone that's used to its
+Lars Kellogg-Stedman: Yeah.
+Eran Cohen: own flow then it's also okay but there should be some default for any new new dev that joins that can just wait them okay go run cloud it already knows how we operate and it will do like before it will publish a PR for you because it it will use it to
+Avishay Traeger: Yeah.
+Lars Kellogg-Stedman: Yeah.
+Eran Cohen: publish a PR it will make sure that the tests are passing and you generated the proto Boss
+Lars Kellogg-Stedman: So the argument there is basically have a cloud.MD in everything that describes the repository structure and policies and things like that without requiring you know a specific set of plug plugins perhaps but something that says these are these are the things that must happen and this is how stuff is structured and this is what you need to do before opening a PR that kind of thing and that makes sense.
+ 
+ 
+00:46:00
+ 
+Avishay Traeger: Yeah,
+Orran Krieger: Yeah.
+Avishay Traeger: we should have that for sure.
+Orran Krieger: So,
+Lars Kellogg-Stedman: We've we've got some other hands up
+Eran Cohen: Yeah.
+Avishay Traeger: Regarding
+Orran Krieger: have you guys I first I think it' be interest
+Lars Kellogg-Stedman: here.
+Orran Krieger: Oh, sorry.
+Lars Kellogg-Stedman: Yeah,
+Orran Krieger: Somebody first.
+Lars Kellogg-Stedman: Heidi Heidi had a hand up before you were on.
+Heidi Dempsey: Yeah, I was just going to say like we've only talked about how to do this for the development part. If we're going to actually talk about this to the outside world, we should be also including the project management part, which I know we struggled over in the past, but we we do not have a unified project management approach here still. And so that should be part of how we do this because we're supposed to measure the the results, not just adopt the tools.
+Orran Krieger: Yeah, I think it's a I think that's a really good point. Um, so, so,
+Eran Cohen: I I want to ask
+Orran Krieger: um, Oh, wait, wait. I I I I think I got lost my spot because I was,
+ 
+ 
+00:46:52
+ 
+Eran Cohen: Heidi
+Orran Krieger: um, I agreed with Heidi. That that wasn't intended to be my spot.
+Heidi Dempsey: You never lose your
+Orran Krieger: Um,
+Eran Cohen: to ask about what Heidi said.
+Orran Krieger: so so
+Heidi Dempsey: spot.
+Eran Cohen: We need product management on how we adopt AI tools or we need to use this for product
+Orran Krieger: so
+Eran Cohen: management of OSAP.
+Heidi Dempsey: Oh, product management of OSAC.
+Eran Cohen: Okay, thank
+Heidi Dempsey: Yeah, because every project that we do in research at least is still somewhat different.
+Eran Cohen: you.
+Orran Krieger: yeah. Yeah. I I think I think having you know starting to publicize and have a roadmap of what we're doing you know is I mean we we there's if we expect more people to be working with us that's and having that integrated in this um and having even the feature requests and stuff like that the plan for it so I I I thought it was really interesting I was looking at this open shell um project where if you look get things done it's about having you know a set of skills that people found useful here.
+ 
+ 
+00:47:53
+ 
+Orran Krieger: This is um this is really documenting in the repository what is our architecture so that there can be validation against that architecture. There seems to be more elements there where it's tying it to the software artifact or the thing you're building and the principles and and things like that. So I I really it's it's intriguing to me like I feel like if we embrace this and put the right components in there, we can't force everybody. We shouldn't force everybody to do this, but at least it's it's documenting elements that become useful to these tools to um to create a consistent artifact or keep consistency. Um, and also I think we really need to document our standards. Like I I'm sorry, Erin. I I I like love a lot of what you showed, but I really I really I really am antagonistic to the idea that the engineer doesn't have to read the code before issuing the poll request.
+Eran Cohen: Oh, wait. So, I said that.
+Orran Krieger: What's that?
+Eran Cohen: I know I said it and it did happen.
+ 
+ 
+00:48:57
+ 
+Eran Cohen: Oh, once or twice, but I want to say this can happen. Okay. If I ask it to add some field to some str then yeah I'm not going to I'm going to be fine with it. If it's very easy and very low code then fine. I will not like usually if I post a PR I usually go through draft and I post it to I load
+Orran Krieger: you it was easy in local it should be a very fast review process I I but I I I really I mean it was
+Eran Cohen: it.
+Orran Krieger: like I like the one of the things look at that open shell thing they talked about their principles of what isn't not and you know what you stand behind I think we should decide that because if if we don't in common it's just
+Eran Cohen: Yeah,
+Orran Krieger: going to be totally inconsistent
+Eran Cohen: I I want to say I won't ask others to review code that I didn't bother to read. Um I think we're not there yet. At some point like and we're probably never going to get there because it's rude.
+ 
+ 
+00:49:52
+ 
+Eran Cohen: But hey, I think a lot of the code that is generated is not that like when I review code today, usually it's a lot bigger PRs than it used to be and you can skim through it. It's harder to like you're not going to focus on every I guess me as a reviewer is a lot I'm a lot easier to pass, but that's because I know there's a lot of code rabbit and other AI reviewers that went through this and found a lot of things that got addressed before I even took a look.
+Oved Ourfali: I think at the end of the day it would be a gradual process but we do see across the board in engineering DS to move to agentic workflows and that's why we're we're starting uh to look at the different projects we're involved in what can be done and how and again it's not going to happen in a day but uh what shared and stuff said and others might have their own tools they're using and their own processes uh I think it would be good to have as we have more people joining by the way and getting involved in the project to have more people use a similar set of tools share their opinions and have us evolve this set rather than not say okay this is what we're doing and that's it but come up with ideas add different commands have different things etc provide feedback uh so that we'll and these tools will evolve as you know as a whole because they will be better they will improve and we will improve with using them.
+ 
+ 
+00:51:29
+ 
+Oved Ourfali: Um, so I guess the ask is to try and okay, take a look at what uh was shared, see how can you add that with your day-to-day job. If you're not feeling comfortable with using it for one specific thing or another one and you prefer to do it differently, that's fine. But try it out. Share your feedback. Share your experience, etc. Um,
+Orran Krieger: I think we should share it in the repo.
+Oved Ourfali: it's I guess on the ask. Yeah.
+Orran Krieger: I think we should share some of this in the repo in the in in Open Shift repo like maybe an example of things and then start issuing pull requests for things that people find commonly useful that go into the core repo like so there's something just in a repo for examples that people should look at now and then start integrating things in um and in our documentation sort of say what our principles are and I really did like that open shell repo because they do a good job of documenting how they're using AI I um I don't know like even just having some examples like this of of other things where it's not just a separate set of tools but it's it's part of a project defining what what does it mean to use these things. Has anybody else looked at this open shell example I sent out?
+Lars Kellogg-Stedman: only this morning before this meeting. So, not long enough to have any feedback.
+Orran Krieger: Okay. Okay. Erin, since you've been involved in this,
+Lars Kellogg-Stedman: Oh.
+Orran Krieger: could you take a quick scan at that and then maybe we can have a feature request or pull on on what our version should
+Lars Kellogg-Stedman: Yeah, had a hand up for a while there.
+Orran Krieger: be?
+Lars Kellogg-Stedman: Did you want to get a word in? I guess not. All right. Does anyone have anything else they want to add?
+Dan Manor: I wanted to discuss about uh how configuring uh how to configure OSAP but I think it's too late for this. Um so we'll we can we can continue it on Slack. I posted a message. Thank you. Thank you.
+ 
+ 
+Transcription ended after 00:54:07
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

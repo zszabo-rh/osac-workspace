@@ -1,0 +1,65 @@
+[PROCESSED 2026-05-07]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC ecosystem sync” May 6, 2026
+Date: Wed, 06 May 2026 14:44:03 +0000
+---
+Notes from “OSAC ecosystem sync”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 6, 2026, 4:42 PM CEST and may contain  
+errors.
+
+
+Summary
+Meeting focused on resolving OSAC installer deployment challenges and  
+addressing integration testing gaps via new infrastructure.
+
+
+Deployment and Testing Challenges
+Deployment complexities arise from pinned version limitations in the main  
+branch. Local development environments remain insufficient due to rapid  
+OSAC installer updates.
+
+Addressing Integration Testing Gaps
+Untested component combinations create continuous integration failures.  
+Forcing rebases for pull requests was rejected due to excessive process  
+friction.
+
+Stable Integration Environment Implementation
+Adrien Gentil introduced a stable Single Node OpenShift cluster for  
+testing. Participants decided this manual environment will serve as the  
+primary integration platform for now.
+
+
+Suggested next steps
+
+
+
+[Adrien Gentil] Publish Overlay: Open a PR to publish the environment  
+overlay file.
+
+[Adrien Gentil] Update Documentation: Update the onboarding document with  
+environment access instructions.
+
+[The group] Share Issues: Ping Alona Paz or share development slowdown  
+issues on the channel.
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

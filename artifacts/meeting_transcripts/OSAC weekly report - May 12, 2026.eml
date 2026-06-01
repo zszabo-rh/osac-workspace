@@ -1,0 +1,88 @@
+[PROCESSED 2026-05-14]
+From: Alona Paz <alkaplan@redhat.com>
+To: Heim, Itamar <iheim@redhat.com>, Levy, Ohad <olevy@redhat.com>, Jeff Lo <jlo@redhat.com>, Scott Berens <sberens@redhat.com>, Stephen Cuppett <scuppett@redhat.com>, Orran Krieger <okrieger@redhat.com>, Steve Gordon <sgordon@redhat.com>, Ryan King <rking@redhat.com>, Mike Evans <mevans@redhat.com>, Tushar Katarki <tkatarki@redhat.com>
+Cc: rfreiman-all@redhat.com, Michael Hrivnak <mhrivnak@redhat.com>, Avishay Traeger <atraeger@redhat.com>, Liat Berkovich <lberkovi@redhat.com>, Trey West <trwest@redhat.com>, Hochman, Omri <ohochman@redhat.com>, Chuzhoy, Sasha <schuzhoy@redhat.com>, Kyle Baker <kybaker@redhat.com>, Andrea Hudson <ahudson@redhat.com>, Lucy Kerner <lkerner@redhat.com>, Vincent Caldeira <vcaldeir@redhat.com>, Liming Tsai <ltsai@redhat.com>, Chris Butler <chbutler@redhat.com>, Scott England-Sullivan <scottes@redhat.com>, Erwan Gallen <egallen@redhat.com>, Justin Hibbard <jhibbard@redhat.com>, Lars Kellogg-Stedman <lars@redhat.com>, Heidi Dempsey <hdempsey@redhat.com>, Tzu-Mainn Chen <tzumainn@redhat.com>, Isaiah Stapleton <istaplet@redhat.com>, Abigael Donahue <adonahue@redhat.com>, Ethan Kim <ekim@redhat.com>, Ronen Sde-Or <ronen@redhat.com>, Sachin Mullick <smullick@redhat.com>, Laura Franch <lfranchd@redhat.com>, Matt Carleton <mcarleto@redhat.com>, Thorsten Schwesig <tschwesi@redhat.com>, Darren Orzechowski <dorzecho@redhat.com>, Jeff Picozzi <jpicozzi@redhat.com>, Richa Srivastava <risrivas@redhat.com>, Bradford Nichols <bradnichols@redhat.com>, Karanbir Singh <kbsingh@redhat.com>, Piotr Kliczewski <pkliczew@redhat.com>, Chen Yosef <cyosef@redhat.com>, Ygal Blum <yblum@redhat.com>
+Subject: OSAC weekly report - May 12, 2026
+Date: Tue, 12 May 2026 15:21:47 +0300
+---
+*Executive SummaryThis week, OSAC continued to make strong progress across
+VMaaS, CaaS, and BMaaS, with five demos completed: the initial VMaaS flow
+through the UI, the CaaS API, Public IP support, CaaS with automatic agent
+provisioning, and VM status reporting from roles.Roadmap: details
+<https://docs.google.com/spreadsheets/d/11YIDvxTK940j4XgyainQO5yzA9a3ppVwy54oypo4eE0/edit?gid=552881355#gid=552881355>------------------------------This
+Week's Demos (May 11, 2026)VMaaSVM Status reporting from roles (Recording
+<https://drive.google.com/file/d/111xSwJU1GQYnkdHtJPH8AfqJ_AXbGonD/view>
+53:40 - 1:00:32) - Added granular reasons and messages to VM status
+conditions, making provisioning progress easier to understand without
+checking controller logs.- Follow-up Actions- Apply the same granular
+status reporting approach to CaaS and BMaaS.CaaSCaaS API (Recording
+<https://drive.google.com/file/d/111xSwJU1GQYnkdHtJPH8AfqJ_AXbGonD/view>
+0:40 - 5:30) - Introduced a cleaner CaaS API by moving common cluster
+configuration from template parameters into explicit ClusterSpec fields.-
+Added first-class fields for pull secret, SSH public key, release image,
+and network settings such as pod CIDR and service CIDR.- Added dedicated
+CLI flags for these fields, including file-based options for pull secret
+and SSH public key.- The pull secret is write-only and redacted in API
+responses.- The fulfillment service maps the new fields into the
+ClusterOrder CR for the provisioning flow.CaaS with automatic agents
+provisioning (Recording
+<https://drive.google.com/file/d/111xSwJU1GQYnkdHtJPH8AfqJ_AXbGonD/view>
+43:00 - 53:10) - Demonstrated CaaS using a file-based inventory and Metal³
+for bare metal provisioning.- Showed how an AAP playbook reads the
+inventory file and registers the servers as BareMetalHost resources.- The
+servers were booted with the assisted discovery ISO and appeared as agents
+for cluster installation.- A standard cluster template was then used to
+start the cluster installation, which progressed successfully.- Follow-up
+Actions- Add support for BCM and Carbide as inventory backends.- Integrate
+the flow with the BareMetal API, including BareMetalPool and
+HostLease.Cross-Cutting CapabilitiesPublic IP (Recording
+<https://drive.google.com/file/d/111xSwJU1GQYnkdHtJPH8AfqJ_AXbGonD/view>
+10:20 - 42:30) - Demonstrated the new Public IP management flow for
+associating on-demand public IPs with resources, starting with
+VM/ComputeInstance support. - Introduced two new resources: PublicIPPool
+and PublicIP.- Showed the main personas:- Cloud Provider Admin creates the
+PublicIPPool.- Tenant Admin allocates public IPs.- Tenant User attaches IPs
+to owned resources.- Demonstrated the Public IP lifecycle: Pending →
+Allocated → Attaching / Attached → back to Allocated after detach.- Showed
+creation of a public IP pool, allocation of a public IP, attachment to a
+demo VM, successful VM access through the public IP, detachment, and
+cleanup.- Current implementation uses MetalLB Layer 2 as the backend
+strategy.- Follow-up Actions - Replace the embedded ComputeInstance
+reference with a dedicated PublicIPAttachment resource.- Discuss whether
+Public IP attachment should be driven automatically from ComputeInstance
+creation.- Extend Public IP support to CaaS and BMaaS.UIInitial VMaaS flow
+(Recording
+<https://drive.google.com/file/d/1DZaT0UgdoYy1krIwJ5702i-Z4H8MGU6k/view?usp=drive_web>
+1:10 - 15:30) - Demonstrated the initial OSAC UI experience with three
+personas: Tenant User, Tenant Admin, and Cloud Provider Admin. - Focused on
+the Tenant User flow, including the dashboard, VM status overview,
+utilization trends, quotas, and recent activities.- Showed the My VMs page
+with table/card views, filtering, VM details, and available VM actions such
+as start, stop, restart, and clone.- Demonstrated VM creation flows.-
+Showed the templates page with filtering by operating system and workload.-
+The current UI is based on mocked data and not yet connected to the real
+backend.- Follow-up Actions - Integrate the UI with the real backend and
+live OSAC data.- Align UI terminology with backend concepts, including
+replacing Templates with Catalogs if
+agreed.------------------------------Upcoming Demos: - Optional dedicated
+VM clusters - running VMs on a separate cluster instead of the main
+management cluster.- Storage Tenant Onboarding - Provision per tenant
+storage class on tenant creation.- Windows VMs - Add a VM template for
+provisioning Windows-based virtual machines.- VAST Storage - Initial
+implementation to enable CaaS with VAST storage, without yet integrating
+with OSAC’s generic storage APIs.- Catalog Items - adds a user-facing layer
+above Ansible templates, allowing providers to expose multiple curated
+provisioning options that can reuse the same underlying Ansible role.- DPU
+network class - Add support for tenant network isolation using
+DPU/HBN-based networking.- Integration with BCM - Integrate with BCM as a
+server inventory backend.- Admin APIs -Add administrative APIs for role
+management, identity provider management, and project management.👉 Weekly
+Demo Schedule: View Schedule
+<https://docs.google.com/document/d/1V7uxuxJNyK2pkoaTQ3TJngnNp2ktvZzTAJMUESv0U4M/edit?tab=t.3nl8xrjatv13>------------------------------Blockers
+and Risks - Inventory system integration - Today, inventory is file-based.
+We need to add support for additional inventory systems, potentially
+including BCM.- DPU/HBN hardware availability -  Integrating CaaS with
+DPU/HBN is a high priority, but limited access to DPU hardware may slow
+development and validation.- Netris - A request for a Netris license is
+pending, so we can run Netris in our local environment and CI.Thanks,Alona.*
+
