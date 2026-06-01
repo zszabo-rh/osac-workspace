@@ -1,0 +1,357 @@
+[PROCESSED 2026-04-17]
+﻿📝 Notes
+Apr 13, 2026
+MOC - Fulfillment working group
+Invited Juan Hernández Michael Hrivnak Adrien Gentil Lars Kellogg-Stedman Oved Ourfali Tzu-Mainn Chen Taj Salawu Thorsten Schwesig Jason Kary Nora Haxhidautiova Danni Shi Joachim Weyl Jason Schlessman Isaiah Stapleton Dylan Stewart Orran Krieger Austin Jamias Surbhi Kanthed Meera Malhotra Elior Erez Trey West Avishay Traeger Elad Tabak Eran Cohen Akshay Nadkarni knikolla@bu.edu Ygal Blum Piotr Kliczewski Zoltan Szabo Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Siddarth Royapally Ilya Skornyakov Dakota Crowder Ori Amizur Will Gordon Omri Hochman Alexander Chuzhoy Alona Paz Dmitry Tantsur Christopher Tate Jen Stacy Simone Ferlin-Reiter Heidi Dempsey Marek Grac Maor Friedman Dan Manor
+Attachments MOC - Fulfillment working group
+Meeting records Transcript Recording 
+
+
+
+
+Summary
+Documentation strategy finalized via component-specific repository inclusion with bare metal fulfillment proposal approval and initial AI policy drafting.
+
+CLI and Documentation Strategy
+The group agreed to rename the fulfillment CLI to OSAC CLI for better branding and approved a documentation strategy mirroring the hypershift pattern. Component-specific documentation, like the OSAC operator, will reside within its repository while the docs monorepo aggregates content.
+
+Bare Metal Fulfillment Approval
+The updated proposal for bare metal fulfillment received approval and was prioritized for immediate merging to support MSA 2.0 implementation. This proposal included the decision to separate the bare metal fulfillment operator from the main OSAC operator for easier release management.
+
+Initial AI Policy Review
+A draft AI policy was presented emphasizing human responsibility for all contributions and the requirement for code to be open source and human-reviewable via PRs. The group agreed to finalize the policy within 24 hours and move it into a PR in the documentation repository as a high-level guidance document.
+
+
+
+
+Next steps
+* [Lars Kellogg-Stedman] Update Attendance: Update attendance status for next Monday absence.
+* [Will Gordon] Submit PR: Submit Pull Request to rename the fulfillment CLI to OSAC.
+* [Will Gordon] Develop Documentation: Work on CLI documentation residing next to the implementation as a proof point.
+* [Lars Kellogg-Stedman] Review Proposal: Review and approve the bare metal fulfillment updated proposal.
+* [Tzu-Mainn Chen] Rename Terminology: Rename the term host class to host type.
+* [Eran Cohen] Policy PR: Submit Pull Request for the AI policy document after the 24-hour comment resolution period.
+
+
+
+
+Details
+* Planned Absence and CLI Renaming: Lars Kellogg-Stedman announced they will be out next Monday. Will Gordon proposed renaming the `fulfillment CLI` to simply `OSAC CLI` or `OSAC` due to the length of the current name, which was met with consensus and deemed good branding (00:00:00). Will Gordon committed to submitting a pull request (PR) for this renaming (00:01:07).
+* Documentation Strategy Discussion: Will Gordon proposed a documentation strategy where documentation for specific components, such as `OSAC installer`, `OSAC operator`, `AAP`, and `fulfillment service`, would be located within their respective repositories, similar to the hypershift pattern (00:01:07). The existing docs monorepo would then aggregate and publish the documentation, which Michael Hrivnak and Avishay Traeger supported for maintaining the cohesiveness of the overall OSAC story and keeping technical documentation close to the code (00:03:19). Product documentation remains uncertain until a product path is decided, which will heavily influence the eventual publishing location (00:02:20).
+* Centralized vs. Component-Specific Documentation: The group agreed that the high-level architecture, overall API, and getting-started guides should remain centralized in the docs monorepo (00:03:19). However, component-specific or technical documentation, such as CRD references for the OSAC operator, should be generated in the component’s repo and aggregated, ensuring the documentation stays current with the code (00:04:19). Lars Kellogg-Stedman endorsed this approach, noting it prevents documentation from lagging behind code development (00:05:48).
+* Documentation Aggregation Mechanism: Will Gordon proposed using GitHub actions to trigger the docs monorepo to pull updates from component-specific repos upon a PR merge or via a scheduled timer (00:07:54). This mechanism would enable the docs repo to function as the aggregator, pulling and publishing the content to an online source like Netlify or Read the Docs (00:05:48) (00:08:56). Michael Hrivnak suggested that the CLI documentation could serve as the initial proof point for setting up this automation, with Avishay Traeger noting the need for both CLI reference materials and use case-based documentation (00:10:02).
+* Bare Metal Fulfillment Proposal: Tzu-Mainn Chen presented an updated proposal for bare metal fulfillment, indicating that Dimitri had reviewed and approved the overall philosophy and the bare metal host CRD. Tzu-Mainn Chen expressed urgency for merging this proposal to support MSA 2.0 implementation and requested any remaining major objections be raised soon. Lars Kellogg-Stedman planned to review and likely approve the proposal after lunch (00:11:56).
+* Separation of Bare Metal Fulfillment Operator: Tzu-Mainn Chen revisited the topic of separating the bare metal fulfillment operator from the main OSAC operator, suggesting this separation could be beneficial for release management and managing entwined code. Lars Kellogg-Stedman generally favored the separation, noting it simplifies development and deployment and is an easily revisitable decision (00:12:54). Michael Hrivnak agreed that the independent manageability of bare metal, which could be used outside of OSAC, justifies its separation from the OSAC operator (00:15:47).
+* Renaming of Host Class to Host Type: Tzu-Mainn Chen proposed renaming the concept of `host class` to `host type` to better align with existing terminology like instance type in the virtualization space. Under this proposal, `host type` would refer to the hardware categorization (e.g., H100), while the current host class concept would be reserved for the management backend (e.g., ironic or carbide), aligning well with terms like ingress class and storage class (00:17:04). This proposal received agreement from the participants (00:18:05).
+* AI Policy Discussion: Eran Cohen presented a draft AI policy, emphasizing that the human remains responsible for all contributions and that all code should be open source, pass testing, and be reviewable by humans through PRs. The policy, which received significant feedback, does not define the vision of the agentic development lifecycle but sets initial ground rules (00:19:08). Orran Krieger praised the policy as a good start, suggesting that the next step should involve documenting best practices for using AI in the repositories and evolving them collaboratively (00:20:33).
+* AI Policy Resolution and Submission: Heidi Dempsey noted that the policy needs to be moved out of the Google Doc and into a PR in the docs repository as a high-level policy document (00:21:26). Eran Cohen agreed to ask those with unresolved comments to finalize them within 24 hours, after which they would submit the current document as a PR (00:23:51). Lars Kellogg-Stedman confirmed they were happy with the policy as written (00:23:06).
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 13, 2026
+MOC - Fulfillment working group - Transcript
+00:00:00
+ 
+Lars Kellogg-Stedman: All right, we have uh about four things sitting here on the agenda right now. Um, and I just wanted to briefly open with it. I will be out next Monday, so I'll update my attendance, but uh don't expect me here then. So, uh, we have Mr. Gordon. Are you on the call?
+Will Gordon: Hey, I am good morning,
+Lars Kellogg-Stedman: Yes.
+Will Gordon: good afternoon.
+Lars Kellogg-Stedman: Good morning.
+Will Gordon: Um, so two things. The first one is mostly just pedantic stuff like fulfillment CLI feels like a lot to type. Um, just want to get kind of general consensus on what everyone thought about like just renaming it to like the OSAC CLI, just OSAC. Um,
+Lars Kellogg-Stedman: I think that sounds like a fantastic idea.
+Michael Hrivnak: I agree in particular uh I forget what was in the yeah just OSAC I think like we don't need the CLI to have even a suffix called
+Lars Kellogg-Stedman: Yeah.
+Will Gordon: Yeah. Yeah.
+Lars Kellogg-Stedman: And it's it's good branding.
+Will Gordon: Literally just OSAC.
+Michael Hrivnak: CLI
+ 
+ 
+00:01:07
+ 
+Will Gordon: Okay. Beautiful. I I will take that as consensus unless people want to go yell at me offline in Slack. Um but yes, I'll submit a PR for that. Cool. Uh the other thing was about kind of the documentation strategy. I don't know what kind of the larger strategy is for OSAC documentation, whether it'll eventually be on docs.read or whatnot. Um, if we wanted to also potentially look at like the hypershift pattern where they they just kind of deploy on netlefi with like a make with like a a make docs thing. Um, but one of the pieces is like especially with o not oi AI based work. Um, it's certainly easier to have the documentation colllocated with the repo that you're working on. So, essentially like we we currently have a a mono repo docs that just kind of hosts everything. Um, so what I'm proposing is basically like each subreo like OSAC installer, OSAC uh operator, AAP and fulfillment service would all have their own docs directories. Um, and then the docs monor repo would basically aggregate from all of that and publish it somewhere.
+ 
+ 
+00:02:20
+ 
+Will Gordon: Um, but that way like all the documentation would be in in the repo that it applies
+Lars Kellogg-Stedman: Michael, you have a hand up.
+Michael Hrivnak: Yeah. Okay. So, two questions in there. Um, in terms of product documentation, we don't have a product path yet. So, we don't know what product we're going to be a part of. So, we we definitely can't publish product documentation until that happens. And that that decision will heavily influence, I assume, what it looks like to put documentation. If we add OSAC capabilities to an existing Red Hat product, then we're going to follow mostly what their documentation does. If we created a new Red Hat product, we do that. But, you know, docs.red.com obviously is for the product side. So, we got we have a lot of things to decide before we can figure out what that plan will be. So, in the meantime, I like the focus on what are our upstream docs look like and can we do something better there. Um, and I like and appreciate the locality of like let's have the docs and the code close to each other.
+ 
+ 
+00:03:19
+ 
+Michael Hrivnak: I think there's probably still like there's definitely still some need for OSAC documentation about what is the greater architecture, how does the whole thing fit together, how's it intended to be used, what are the capabilities that are available. uh one place to maybe see the whole API al together um getting started like all that kind of stuff feels like it really should be in one focused place maybe then there is also an opportunity to have perhaps we say the technical more technical documentation um would be or could be in specific repos like VM as a service would be one place the installer like so be somewhere else and we aggregate some of that but I I think I'd I want to get into the details a little bit like see a more specific proposal of what what things would we keep centralized
+Will Gordon: Yeah.
+Michael Hrivnak: and what things would we want to move out.
+Will Gordon: Yeah. No, I agree. Like I think the the the docs monor repo would still be like the right place for kind of like the what is the cohesive OSAC story.
+ 
+ 
+00:04:19
+ 
+Will Gordon: Um, but then anything specific, you know, like you said, whether it's it's the API, you know, what do the the CRD references look like for like the OSAC operator, right? Like those would probably be generated in the OSAC operator uh repo and could be aggregated or or pulled into the monor repo.
+Michael Hrivnak: Yeah. And you know the CRDs are notably not userf facing.
+Will Gordon: Um,
+Michael Hrivnak: So that's an easy one to say, well that's architecture stuff, that's technical. So that's not userf facing stuff. That's implementation stuff.
+Lars Kellogg-Stedman: So Abasha, you've got a hand
+Avishay Traeger: Yeah, I think it was mostly covered by Michael,
+Lars Kellogg-Stedman: up.
+Avishay Traeger: but I think we need that centralized userfacing documentation which is probably its own repo and then you know things like operator AAP all that stuff which is not which is implementation details can be each in its own repo but that's just more for developers than users.
+Lars Kellogg-Stedman: I uh I do really like the idea of having the documentation about a thing living with the thing, not just from an AI perspective, but because that helps make sure that the documentation and the thing are in sync and avoids problems where like the docs are lagging behind several versions because people forgot they were there or just have been focusing on code development.
+ 
+ 
+00:05:48
+ 
+Lars Kellogg-Stedman: So having having those living together I think is great and I would love I mean certainly down the road we may have to make decisions about product not product are we the product is something else the product but having a publishing workflow that takes our docs um aggregates them adds highlevel uh stuff on top of that and makes them available somewhere online where you can say here are the docs go read them I think that would be uh great and we should do that whether That's Netlefi or read the docs or you know whatever. Oran, you've got a hand up. But you're
+Orran Krieger: Sorry.
+Lars Kellogg-Stedman: muted.
+Orran Krieger: I I I like what you said. I guess the question I have is in a sense it doesn't really make sense to have, you know, um feature requests as as a in its own in a global place. Or maybe it does, maybe it doesn't. I'm not sure. But doesn't it means that we should also be doing the the feature request? Like it sort of feels like you want documentation to flow from a um new feature request into something that automatically is part of the documentation.
+ 
+ 
+00:07:01
+ 
+Orran Krieger: And shouldn't we be making the same decision for that as for where the documentation ends up?
+Lars Kellogg-Stedman: I don't think so. know I don't know if anyone else has opinions on that but I think that
+Orran Krieger: Okay.
+Lars Kellogg-Stedman: um we want to have I think it makes sense to have a single place for feature requests to show up because um it's not necessarily clear when you say here is a new feature which component that's going to land in or whether it's going to be multiple ones. So having a single point of input for that I think makes a lot of sense. And you know like Michael was saying there is some documentation we need at at a high level that does cover kind of across the whole project but there is also some stuff that's going to be very um very specific to individual components of the project. And that's the stuff that should live with that component to make sure it doesn't get out of sync.
+Will Gordon: Yeah. I mean like concrete example is is I'm adding some new subcomands to the CLI, right?
+ 
+ 
+00:07:54
+ 
+Orran Krieger: Okay,
+Will Gordon: Like I would love to just put those put that all in one PR in one repo. Like hey, here's the CLI changes and here are the docs about those. Um like that that was really kind of what prompted this discussion.
+Michael Hrivnak: And then were you envisioning as you talked about um what do you say an aggregation like how would those changes then make their way into the documentation?
+Will Gordon: All right. So, like we would still use the docs repo and like that would be a great home for kind of what we talked about like the the overall thing like hey here's the full architecture of everything. It doesn't make sense for it to live in any one place so it lives in the docs repo. Um but you would literally have um there's several ways to do it. Uh we seem to rely pretty heavily on like GitHub actions. When you merge a PR, you can have one GitHub action trigger another one. So like we can actually literally trigger the docs repo and be like, hey, there new docs, come get them.
+ 
+ 
+00:08:56
+ 
+Will Gordon: Um we can just run something on a on a you know, GitHub action timer kind of thing. Uh like, hey, pull this up every once in a while every day. Um but that's kind of the idea like the docs repo would be the aggregator. would pull the stuff from all the different places and it would go and publish them in a fancy place. um what that trigger mechanism looks like. We can figure that out, but
+Michael Hrivnak: That sounds compelling.
+Heidi Dempsey: Doesn't have to be too fancy. We're still a a bear bear organization
+Will Gordon: Yeah, exactly. But I mean, I think it it at least makes it easier to move things around now at least um and kind of like you said, set up the bare bones, set up the skeleton um so it can start doing it. Um, I guess I'll take that also as a generally positive consensus then to experiment with this.
+Heidi Dempsey: the experiment but keep it all public.
+Will Gordon: Oh yeah, totally. As I said, they're all the public repos.
+ 
+ 
+00:10:02
+ 
+Michael Hrivnak: Yeah.
+Will Gordon: So yeah,
+Michael Hrivnak: Yeah.
+Will Gordon: reviews and all that fun stuff.
+Michael Hrivnak: I would think next step would be just Yeah.
+Will Gordon: Cool.
+Michael Hrivnak: kind of like the next level deeper of maybe like maybe the CLI is a good starting point, a proof point that's an easy uh one to understand. So maybe there's a whole CLI section of the documentation. I don't know that not sure that actually exists, but it probably should. And so maybe we delegate that whole thing to the CLI repo that you're also going to rename and set up some automation and see what that would look like to include that into the main repo or something like that. Whatever you decide, somehow coming back with uh the next steps in a little more detail would be
+Avishay Traeger: There's probably a CLI reference,
+Will Gordon: It's good.
+Michael Hrivnak: good.
+Avishay Traeger: but there should also be like documentation that users can more easily digest like I want to do this.
+Michael Hrivnak: Mhm.
+Avishay Traeger: Here's how to do it in the CLI.
+ 
+ 
+00:10:57
+ 
+Avishay Traeger: Maybe in the future, here's how to do it in the UI. More like use case based
+Michael Hrivnak: Yeah.
+Will Gordon: Yeah, absolutely. Cool,
+Michael Hrivnak: Yeah,
+Will Gordon: guys. Thank you.
+Michael Hrivnak: that that is the that's the that is the trickier part of how to interweave
+Will Gordon: I mean, yeah, I mean, you can kind of generalize it and just be like, you know, hey,
+Michael Hrivnak: those
+Will Gordon: here's the action that I want to define, you know, how do I do this this behavior? Um, and each repo could define it, whether it's the OSAC,
+Lars Kellogg-Stedman: Yeah.
+Will Gordon: the OSAC CLI, whether it's the OSAC UI, you know, it would define it and they would get aggregated into the same place. Um, but we can figure out those fancier workflows as we go. Cool. CLI documentation living next to the doc living next to the CLI implementation. I will work on that as kind of our proof point. Access.
+Lars Kellogg-Stedman: All right, sounds good. Min, you have some bare metal stuff up on the
+ 
+ 
+00:11:56
+ 
+Tzu-Mainn Chen: Uh yeah. Uh uh first up the bare metal fulfillment updated proposal.
+Lars Kellogg-Stedman: agenda.
+Tzu-Mainn Chen: Um large I address other comments. I'm just kind of wondering if there's any other holdups uh any objections that people want to express. Um obviously that Demetri did also look at it. I address his concerns and he did look at the bare metal host CRD as well. Um so generally it looked fine for what he would expect. So he seems to be fine with a with a overall with with the overall philosophy behind it. Um so I'm hoping we can get this merch sooner rather than later. Um because um we need this for um for the MSA 2.0. So uh yeah, there's there's a little bit of urgency here. Um so hopefully there's any major objections that can be expressed sooner rather than later.
+Lars Kellogg-Stedman: If I have not already approved it, I will take a look at it um probably after lunch and probably just approve it since I have given you a lot of comments already.
+ 
+ 
+00:12:54
+ 
+Tzu-Mainn Chen: Sounds good. Um, second thing, uh, what did I put there? Oh, right. Um, so the just want to revisit the topic of separating separating out the bare mail fulfillment operators from the main OSAC operator. Um, Michael did bring up the point like uh I think the last Wednesday that there was an idea that maybe bare mail fulfillment could be used outside of OSAC which would seem to me to be an argument to for having the bare mail fulfillment operator separate. Um, and I I guess um it feels like it might be useful um as we try and release this inc 2.0 know to have a SSA operator so that there's um so that the the code between like the bare mail the the bare mail development code isn't as entwined with I guess a OSAC operator code um because I know there's a lot of changes happening there so it feels like in terms of just managing releases it might be convenient for them to be separate um so I just wanted to see what people thought about
+Lars Kellogg-Stedman: I am generally in favor of that because I think that Um it's a distinct set of concerns that can be implemented separately.
+ 
+ 
+00:14:07
+ 
+Lars Kellogg-Stedman: Um I think that will simplify some aspects of working with it and deploying it and developing it. And I think that that's always a decision that is relatively easy to revisit. Also, if it, you know, down the road it turns out, oh, this should actually live with the main operator, then mostly that's a small change to get the code integrated.
+Michael Hrivnak: I think probably like we can look at the fulfillment service itself and how it implements a fulfillment API and how that maps directly to CRDs and then operators and probably will find that naturally the same way we aggregate stuff in the fulfillment service we would aggregate in an operator I would think But then like to your point there's stuff like bare metal well bare metal capabilities the bare metal fulfillment which is like the multi-tenant aspect on top of whatever other capabilities exist in open shift and so on um is still very much like our other VM as a service or cluster as a
+Lars Kellogg-Stedman: That's it.
+Michael Hrivnak: service like it's got we're adding that tenency layer so that maybe wouldn't be the first thing I would think of separating out but the piece that I am very interested in in ensuring even as separate is if we are going to create something that looks like a bare metal host but uses different tooling to get the job done or uses uh the same tooling in a different way in case of like okay maybe we're not going to package ironic the same or use it outside the cluster or whatever but you know what I mean like if we're g if we're talking about just a tool that manages
+ 
+ 
+00:15:47
+ 
+Michael Hrivnak: bare metal that we're utilizing that where that could be utilized by somebody who's not using OSAC at all but just wants manage bare metal stuff and even turn that in open clusters.
+Lars Kellogg-Stedman: Sure.
+Michael Hrivnak: That for sure uh ought to be independent.
+Lars Kellogg-Stedman: And I think that that may also increase our ability to integrate more closely with existing products for the are looking for bare metal services. Um I know that it would be really cool if we could have ACM call out to our stuff to manage bare metal for building clusters for example. Um, but I don't know what the odds are of
+Michael Hrivnak: Yeah.
+Lars Kellogg-Stedman: that.
+Michael Hrivnak: Or even like add some of the stuff that we need to ACM. Granted, there's lag time there and we need to manage life cycle and whatever. Uh but if that was the eventual home of some of this, that would be probably ideal.
+Lars Kellogg-Stedman: Min, are you
+Tzu-Mainn Chen: Yes, I feel like I am. Thank you. Um,
+Lars Kellogg-Stedman: answered?
+Tzu-Mainn Chen: and I guess a third uh topic I want to bring up was the possibility of renaming what we currently call host class to host type.
+ 
+ 
+00:17:04
+ 
+Tzu-Mainn Chen: Um, Lars brought up in the review of my Hampton proposal that I was using something called a host management class where like the natural wording would be host class um based on things like you know our terminology for number class and storage class. Um, I pointed out that HU was already in use and he said, well, maybe this would be a good time to rename that and I think he's I personally think he's kind of right. So, I just wanted to see what people thought about renaming host class to host host
+Michael Hrivnak: Could
+Tzu-Mainn Chen: type.
+Michael Hrivnak: you maybe just remind us like what what how would you define each of them in this
+Tzu-Mainn Chen: So um so uh the the host type would be like H100 or FC430 like a
+Michael Hrivnak: proposal?
+Tzu-Mainn Chen: categorization of of hardware that um that that you can select when when um when choosing uh bare metal hardware. Um a host class would more refer to kind of like the the management back end of it. Um, so like it might be ironic, it might be carbide, it might be uh open shift
+ 
+ 
+00:18:05
+ 
+Michael Hrivnak: host type definitely aligns well with instance type which is the parallel concept in the virtualization
+Tzu-Mainn Chen: host.
+Michael Hrivnak: world or like the cloud VM space. So that seems reasonable.
+Lars Kellogg-Stedman: Right. And and host class are aligns well with ingress class and storage class and network class.
+Michael Hrivnak: Yeah,
+Lars Kellogg-Stedman: That was the motivation.
+Michael Hrivnak: seems
+Lars Kellogg-Stedman: All right.
+Tzu-Mainn Chen: Okay,
+Michael Hrivnak: reasonable.
+Tzu-Mainn Chen: cool. Um, I will I will take that on then. Um, yeah, that's all I had, guys.
+Michael Hrivnak: Well, we're just stomping right through this agenda.
+Lars Kellogg-Stedman: And then all right it's
+Michael Hrivnak: I'm sure this next topic is going to be pretty quick, too, right? What is it?
+Lars Kellogg-Stedman: uh Iran Iran and the AI policy
+Eran Cohen: Hey. Uh, hey guys. So, I missed last week. Uh, but I I did go over the the notes
+Lars Kellogg-Stedman: Enough.
+Eran Cohen: and I I want to say that I started this just because I figured we want to get uh people to start using AI and start defining how we work with AI.
+ 
+ 
+00:19:08
+ 
+Eran Cohen: And it seems that we needed some policy. Uh so I created some something and got lots of feedback, way more feedback than I expected. I went through most of it and adjusted the doc. So essentially I want to say like it's a lot of words but essentially it's saying the human is still responsible for what we're doing. We send PRs that humans can review and should review. We rely on tests and everything should be open source and we're not blocking anyone from contributing to this project even though they're not using AI if they're not. That's what it's trying to say. It's not defining the vision of agentic development life cycle. It's not the examples or how we do it. just saying that that's what we plan to do and if it's all right then I'll be happy to just submit it to some some dog crepo and move on or
+Orran Krieger: I love what you did.
+Eran Cohen: on
+Orran Krieger: I think it's a really good start and I think starting with the policy first and the goals before before um any details of what we're doing is important so that we don't sort of set misunderstandings.
+ 
+ 
+00:20:33
+ 
+Orran Krieger: So that was great. I think that we should I mean one of the questions that I had is are we going to try to put what the way we're using AI in this these repos and I think we should you know making it as visit like doing everything out in the open of the ways we're using AI and and why we're doing it that way not just the why I think you've sort of done the why but but you know and and it'll keep changing I think we have to expect that but but getting it out there so we're all sharing and moving quickly by helping each other I think is a good thing for us to do.
+Eran Cohen: agree like it's going to change a lot I guess in the coming months.
+Orran Krieger: So, so right now you have the policy. The next stage is actually putting in some best practices and and then having a whole bunch of people pry this
+Eran Cohen: Yep.
+Orran Krieger: out and they say, "Yeah, I agree with those." And then we keep evolving it.
+ 
+ 
+00:21:26
+ 
+Orran Krieger: Is that idea? Does that make sense?
+Heidi Dempsey: Not in the same document though.
+Orran Krieger: No. No. Separate documents.
+Eran Cohen: Yeah,
+Orran Krieger: Yes,
+Heidi Dempsey: Yeah.
+Orran Krieger: I agree with that.
+Eran Cohen: document that was
+Heidi Dempsey: Yeah. So we we don't quite have a policy because the the comments are
+Eran Cohen: one.
+Heidi Dempsey: still going on. So the people who have raised comments need to mark them as resolved to be sure we have a
+Eran Cohen: Yeah. So I I'll put a link here and if you can just go and what'sever not resolved by
+Heidi Dempsey: policy. Yeah.
+Eran Cohen: the end of the day then I'll make another iteration on this and sort it
+Orran Krieger: Yeah. I mean, do you want to do this as a I mean, I I understand sort of there's a lot of motivation to do this as quickly as as as um
+Eran Cohen: out.
+Orran Krieger: a Google doc, but now that you've got to this point, do you want to just put it in as a feature request and actually so that we're using because I I sort of do like those
+ 
+ 
+00:22:12
+ 
+Eran Cohen: Okay.
+Heidi Dempsey: No, it's not a feature request to run.
+Orran Krieger: mechanisms.
+Heidi Dempsey: It's a policy. It needs to go in the repo.
+Michael Hrivnak: Pull request.
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: So it's probably into the docs probably into the docs repository as high
+Orran Krieger: Yeah. Yeah.
+Lars Kellogg-Stedman: level policy document.
+Orran Krieger: Yeah, I think
+Heidi Dempsey: Yeah.
+Lars Kellogg-Stedman: I I think that if there are unresolved comments that waiting a day for people to go in and
+Orran Krieger: okay.
+Lars Kellogg-Stedman: resolve them or decide that they no longer have, you know, anything to say is probably fine.
+Heidi Dempsey: Yeah. I mean, I think most people are pretty happy with it, but that's just like that's how we do this.
+Lars Kellogg-Stedman: I would just say around that I was I was really happy with the document too. My my biggest concerns were not with the document but what were were were comments from say non-developers in the sidelines. Um one thing I'm curious about um last I had looked at the
+Eran Cohen: Yeah.
+Lars Kellogg-Stedman: documentar had been out I think for a while and I was curious I I haven't looked at it this morning.
+ 
+ 
+00:23:06
+ 
+Lars Kellogg-Stedman: I was just curious if he's responded to some of the commentary there.
+Eran Cohen: Uh no,
+Lars Kellogg-Stedman: Okay.
+Eran Cohen: but he he has a lot of comments and I was on a call with it earlier. I think it main concern is that why are we dealing with policy instead of just go and do what
+Lars Kellogg-Stedman: Sure.
+Eran Cohen: we think we should be doing and worry about policy later. Um but okay, we have the policy now. Let's go do what we want to
+Lars Kellogg-Stedman: Yeah.
+Eran Cohen: do.
+Lars Kellogg-Stedman: I have I have no complaints about the policy as you wrote it. I thought it was sane and you
+Orran Krieger: You can blame me, Erin,
+Lars Kellogg-Stedman: know
+Orran Krieger: if there's any anything that I I really think the way you did it is great
+Eran Cohen: No, it's fine.
+Lars Kellogg-Stedman: Yeah.
+Eran Cohen: It's fine.
+Orran Krieger: and
+Eran Cohen: I think it's it's good to set the the ground rules then let's let's do it. Okay. So I got the answer I was looking for.
+ 
+ 
+00:23:51
+ 
+Heidi Dempsey: So, the the deadline, just to be clear, since we're in different time zones and stuff,
+Eran Cohen: Thanks.
+Heidi Dempsey: you want everyone who has outstanding comments to either resolve them or explain why they're not resolved by tomorrow at some particular time.
+Oved Ourfali: 8 a.m. Eastern time,
+Eran Cohen: Just just go and if you have a comment there is unresolved,
+Oved Ourfali: let's say.
+Eran Cohen: just put another comment on it or explain something uh further
+Heidi Dempsey: Sorry.
+Eran Cohen: because and then I guess In any case, it's going to be a PR on the Maybe I can just take it as is. Put it post a PR with this and then if there are still comments, we can go over it and get
+Heidi Dempsey: Well, I think it's reasonable for you to ask people to resolve the comments given that we think most people are happy with it.
+Eran Cohen: Okay. So,
+Heidi Dempsey: It's just if you don't give people deadlines,
+Eran Cohen: so yeah.
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: they never finish.
+Eran Cohen: Okay.
+Heidi Dempsey: Right.
+Eran Cohen: So you got 24 hours. After that it's going to be full question.
+Heidi Dempsey: Good.
+Eran Cohen: Thanks.
+Lars Kellogg-Stedman: All right, that is the last item on the agenda. Does anyone have anything else they want to bring up today while we are all here? I'm pausing a second so that when I say we can leave, Iron doesn't say, "Oh, one last thing. All right. Well, I guess that's it for today. I'll see everyone later.
+Eran Cohen: Bye, Yes.
+Lars Kellogg-Stedman: Enjoy your day.
+Oved Ourfali: Thank you. Bye-bye.
+ 
+ 
+Transcription ended after 00:25:46
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

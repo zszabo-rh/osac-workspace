@@ -1,0 +1,1121 @@
+[PROCESSED 2026-05-07]
+Delivered-To: zszabo@gapps.redhat.com
+Received: by 2002:a05:6638:aa0a:b0:5de:5fa7:30ed with SMTP id lo10csp575780jab;
+        Mon, 4 May 2026 11:05:13 -0700 (PDT)
+X-Forwarded-Encrypted: i=4; AFNElJ+qcrU05f/mjj7wzSwZvp39h4rOQfg5RsmOh7FWR+5kJfxxXfSI1EVOKbDQZMXCTxwclgpnJQ4=@gapps.redhat.com
+X-Received: by 2002:a05:6214:2aaf:b0:8ac:b1c5:a5e4 with SMTP id 6a1803df08f44-8b6658320d6mr123052156d6.1.1777917913533;
+        Mon, 04 May 2026 11:05:13 -0700 (PDT)
+Return-Path: <rfreiman-all+bncbcbn5yoh7iebbun74phqmgqe5ef24fq@redhat.com>
+Received: from us-smtp-inbound-delivery-1.mimecast.com (us-smtp-delivery-1.mimecast.com. [170.10.128.131])
+        by mx.google.com with ESMTPS id 6a1803df08f44-8b538457f8fsi154690946d6.97.2026.05.04.11.05.13
+        for <zszabo@gapps.redhat.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 May 2026 11:05:13 -0700 (PDT)
+Received-SPF: pass (google.com: domain of rfreiman-all+bncbcbn5yoh7iebbun74phqmgqe5ef24fq@redhat.com designates 209.85.219.69 as permitted sender) client-ip=209.85.219.69;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@redhat.com header.s=mimecast20190719 header.b=Kk8SAkJY;
+       dkim=pass header.i=@redhat.com header.s=google header.b=U74Lus1Q;
+       arc=fail (signature failed);
+       spf=pass (google.com: domain of rfreiman-all+bncbcbn5yoh7iebbun74phqmgqe5ef24fq@redhat.com designates 209.85.219.69 as permitted sender) smtp.mailfrom=rfreiman-all+bncbcbn5yoh7iebbun74phqmgqe5ef24fq@redhat.com;
+       dara=neutral header.i=@gapps.redhat.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777917913;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:list-id:list-help:list-post;
+	bh=DfX0XRHAYfAzJzg3wh7Ugk4zy6t9NJ/1MLqqAI5px5E=;
+	b=Kk8SAkJYNblhWxGZc4FIBO4nIs1AnC3lvGSSY6YnjGQVIaYLP9JMj/TEsvxQIrwK9bhiUd
+	5w7FUB9xuNdo7bbB6djJtfnHtpglZikl2/Il87GQPtf1W8okuA6XnY9dn6uvk9cf3VmLB3
+	Y2CcZRTfOotEPg0huGca6VH3oV4xl7c=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-21-LVsf8k3GPraK0GyqtxAc5Q-1; Mon,
+ 04 May 2026 14:05:10 -0400
+X-MC-Unique: LVsf8k3GPraK0GyqtxAc5Q-1
+X-Mimecast-MFC-AGG-ID: LVsf8k3GPraK0GyqtxAc5Q_1777917909
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D381A19560AD
+	for <zszabo@gapps.redhat.com>; Mon,  4 May 2026 18:05:09 +0000 (UTC)
+Received: by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix)
+	id CD48A1955F21; Mon,  4 May 2026 18:05:09 +0000 (UTC)
+Delivered-To: zszabo@redhat.com
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.33])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C67BF19560B6
+	for <zszabo@redhat.com>; Mon,  4 May 2026 18:05:09 +0000 (UTC)
+Received: from us-smtp-inbound-delivery-1.mimecast.com (us-smtp-delivery-1.mimecast.com [170.10.132.61])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 510B319560B5
+	for <zszabo@redhat.com>; Mon,  4 May 2026 18:05:09 +0000 (UTC)
+ARC-Message-Signature: i=3; a=rsa-sha256; c=relaxed/relaxed;
+	d=dkim.mimecast.com; s=201903; t=1777917908;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:list-id:list-help:list-post:dkim-signature;
+	bh=DfX0XRHAYfAzJzg3wh7Ugk4zy6t9NJ/1MLqqAI5px5E=;
+	b=KxL/Qec6LyFHzvOUDifTFZDno++DsfVJFG/L4KZmCKOcfpfRiteHHmOx7zidAQiGTbXqUt
+	Wb0vzPdoebuE4V91EdGTv4Tfo9L9+V614jUO8Gf22MFYZWNqAuWGluNtRrJJdgcmVJXC40
+	vvH8cy1f3owNC8ak/fryerciUOiX/d2cyqJtBdu3RrLare7CL1Fqa8MtH+0n7fnpggPV3X
+	hn69FKxYI0OIWXobJcPhAgbMtVjsIzLBNe16WVOzt3HjofaioiDEereo/f0pUrOiTnJPSo
+	iTUbD5FEBnm7ETliZfXP5SkidQVSiGMxcD1qnozotfXvUPIMkevPAbJs4Jv0LA==
+ARC-Seal: i=3; s=201903; d=dkim.mimecast.com; t=1777917908; a=rsa-sha256;
+	cv=pass;
+	b=SEoNk9+oTlCuHKZzRmYSHlYFIdfaOSzLizV59eRTNdMJZIZyFhUqtADA8Keog9c5oBm5Al
+	qB8bH/MtID472AM7G/+/T9Xpn0YsFQ1RTjcdWY46NzFWqsI8Uj1wRYUvrm3rcKVbNvrAzp
+	a4RwYJOK+HwIhq2WYJ1iu5ywGeRSul2BR4K5Sc7/ECUxjkkxZ8hGeTLlnvsRvhjWcZ6gK8
+	0sED0SiiKxXF6Y6vIClit8fJIm9svDE/u9uagLamOECyTiuK9G2vwlAFSIyRIA9KUhvC29
+	Ekaa0ffN5+vfK0h3XWp3WvzU6/b7eXDnuD9NexUzNpyh8AvNURM5MPBpmgsTPg==
+ARC-Authentication-Results: i=3;
+	relay.mimecast.com;
+	dkim=pass header.d=redhat.com header.s=google header.b=U74Lus1Q;
+	arc=pass ("google.com:s=arc-20240605:i=2");
+	dmarc=pass (policy=quarantine) header.from=redhat.com;
+	spf=pass (relay.mimecast.com: domain of rfreiman-all+bncbcbn5yoh7iebbun74phqmgqe5ef24fq@redhat.com designates 209.85.219.69 as permitted sender) smtp.mailfrom=rfreiman-all+bncbcbn5yoh7iebbun74phqmgqe5ef24fq@redhat.com
+Authentication-Results: relay.mimecast.com;
+	dkim=pass header.d=redhat.com header.s=google header.b=U74Lus1Q;
+	arc=pass ("google.com:s=arc-20240605:i=2");
+	dmarc=pass (policy=quarantine) header.from=redhat.com;
+	spf=pass (relay.mimecast.com: domain of rfreiman-all+bncbcbn5yoh7iebbun74phqmgqe5ef24fq@redhat.com designates 209.85.219.69 as permitted sender) smtp.mailfrom=rfreiman-all+bncbcbn5yoh7iebbun74phqmgqe5ef24fq@redhat.com
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-138-XCVMQF7eNxe54mL2pXy1WA-1; Mon, 04 May 2026 14:05:06 -0400
+X-MC-Unique: XCVMQF7eNxe54mL2pXy1WA-1
+X-Mimecast-MFC-AGG-ID: XCVMQF7eNxe54mL2pXy1WA_1777917906
+Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-8b5f089a5c3sf85539786d6.3
+        for <zszabo@redhat.com>; Mon, 04 May 2026 11:05:06 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1777917906; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=lNn4rLp5rxR82XHskIxVvazPkHWHPNb8R8hnGepHf/wQhqfhI8llscxbsnK7IvktrR
+         p5hLQMkHWDUTbw3GX47GkUtcIb6QRRs5wqQa9/zmp1Uj6/HJzZUHmZz/DZCILEa5J/P/
+         YvCWfcaiZWWTQRMvyKRbFPxqSopQKZI6ce0SikzBbYb0lxeFFfNoi3FA2R6kEw5n/Nb6
+         xxfqkaYgk//uuc7h8yo3MPYI5V6z+CVPjm/Bgig3N4JloUvbcmJ40gy3fdU4V5Ca4sJa
+         cBjyqBQ8zun1xNOJ0SPPiupxKD8IC4A+DX2zvYKQIxJCoLtWd2HpRk3zhJIk6GeMm8NT
+         gYDg==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=list-archive:list-help:list-post:list-id:mailing-list:precedence
+         :reply-to:cc:to:subject:message-id:date:from:mime-version
+         :delivered-to:dkim-signature;
+        bh=DfX0XRHAYfAzJzg3wh7Ugk4zy6t9NJ/1MLqqAI5px5E=;
+        fh=pm1LkRlDvJjVImKwXmYB7+QYHuubGQn/Ccz1j+u49vk=;
+        b=c4z7zSILfhFbK99T1IiGu+WRvmi1e+VEm1MlNxs+s4b3NNOAXBo0gK0t/tEWJjZ9tW
+         9ukujZxzUAsJBRpm8ifaLQ4KBZNI0UzgFT4FR/nEPyRCy0kjefDiHYEevkD1AV+aRBAK
+         n7vg8nRjyoH5BtwiuVRo038zZeWEy/p5sn/im7/enPcUv13e8572xIc4WI4JX59JEEuV
+         n2BdsFN0bU108HfNyLEfrGdq6ML65OhPucwCqNvmgaoxq/EBqjanMulq1jathONigodi
+         TiW504iSP1Uph6YmOPM4OBDSRxDy9pUyJ4aeBiEo8bC5F+jKZQe3NvWYB2BytMLqPU6g
+         N57w==;
+        darn=redhat.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@redhat.com header.s=mimecast20190719 header.b="H7mH/nKi";
+       dkim=pass header.i=@redhat.com header.s=mimecast20190719 header.b=fshlcKri;
+       spf=pass (google.com: domain of alkaplan@redhat.com designates 209.85.218.70 as permitted sender) smtp.mailfrom=alkaplan@redhat.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1777917906; x=1778522706; darn=redhat.com;
+        h=list-archive:list-help:list-post:list-id:mailing-list:precedence
+         :reply-to:x-original-authentication-results:x-original-sender:cc:to
+         :subject:message-id:date:from:mime-version:delivered-to:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DfX0XRHAYfAzJzg3wh7Ugk4zy6t9NJ/1MLqqAI5px5E=;
+        b=U74Lus1QVO4Bk/WkUmjDrIAyFWXRfAGp/+c8eX2dFkPlHSlEipVUg1k3IaKCZ5x3mw
+         9bt6KvW+7eWoZHPyyhyPbWlDB6ydyEjfmEp3E94gfIHU3DyngA35essZbBQKpLyHLrLx
+         pwCtgwRsezdBIAk/z2MymIBywJZqn/DUJLa6wQYqVz1xebiD8zmk61yDwvk1Wt0SKk/P
+         7X5YoI/0QIMGqLvWIjl6ETAKM/Cr0JWuX72n8HQ0XYYeo6qHPmQNRdQa1Z6QluKwzQO0
+         I4BqOeYc7L0z+V+Gd0pNx5RCRIP5QiBlv0nLQVkPDzUCyiTSRPnBSNXiUh7JllcUr0rB
+         pSmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777917906; x=1778522706;
+        h=list-archive:list-help:list-post:x-spam-checked-in-group:list-id
+         :mailing-list:precedence:reply-to:x-original-authentication-results
+         :x-original-sender:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:delivered-to:x-beenthere:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DfX0XRHAYfAzJzg3wh7Ugk4zy6t9NJ/1MLqqAI5px5E=;
+        b=rVt+7THPFsexUxfS8Y4L5QHwQd6teZwwrijzEMEU+1iSWF2Lq86FPoIDuwUOLvyYs4
+         m3V4W3KVYML0yqApPEAwkKvu8MoN/AueXCuzg8MwSNHcWswYbKmB6WzY1OHzbynCaUdZ
+         Ff+YXBNwOKY0Na1Pq5XxGCCpRcDPcDi8ncGLcVGK2Ta+AnE4tCa9uUOKL3asDcz8OD1M
+         +ozwwTEDEEvNKFPF0ZREeTfNhNzyBGJ0N0LoRjD0brWuSF3+tIjZcshyQKKVTqfGSw7L
+         FdA5vD7Qs9CKALectNQFkmV6Vm3e4lecFe+r4zh2HvaEgvrw9PLpCblguesrDmvI3yjv
+         yT3A==
+X-Forwarded-Encrypted: i=2; AFNElJ+leCGlWid7z3JP0h4J4gYRynynBAX3OlMfDdG0p6M4NkOUiD+Y1DdGOX7Q3/eMmiif3ew3LfY=@redhat.com
+X-Gm-Message-State: AOJu0YzG3zoIs9I6CvGru1N2d+NxiFpc5PGV1Zt/T5ojvwctVppQOWvr
+	TfHiEO1/mmm2oK+n7NaZ1ieEcA2mv8Qzj7uuh0LF0k4h1jODXp1I6eaig23I8cZ3v0goYw==
+X-Received: by 2002:ad4:5ae4:0:b0:8ac:b14d:fbe5 with SMTP id 6a1803df08f44-8b665f01477mr181089936d6.13.1777917905418;
+        Mon, 04 May 2026 11:05:05 -0700 (PDT)
+X-BeenThere: rfreiman-all@redhat.com; h="AUV6zMNiEZQZORO02YC3tq0dHUaVM5n2IYJQLRjNtLYTYZ6A8g=="
+Received: by 2002:a05:6214:d64:b0:89c:4454:b4e6 with SMTP id
+ 6a1803df08f44-8b3fc72cfd4ls127964116d6.2.-pod-prod-02-us; Mon, 04 May 2026
+ 11:05:04 -0700 (PDT)
+X-Forwarded-Encrypted: i=2; AFNElJ/H+vTOM2yTJT6VoflowJsHwjYG4sC6eyDOzi/2AWxxpy8O9WFEf2I+KPSoMCUDcvXhmaEmbQtMZhBeJS4=@gapps.redhat.com
+X-Received: by 2002:a05:6214:1cc9:b0:8a5:104b:e361 with SMTP id 6a1803df08f44-8b668d11765mr184626696d6.50.1777917904610;
+        Mon, 04 May 2026 11:05:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777917904; cv=none;
+        d=google.com; s=arc-20240605;
+        b=AlhtMMRBne0LPdZ4dj8wQ0sD4d9SV2PBGaBwBu9j0LLrg1HngO73iLTFpQBEZgzFNU
+         JHPOLrrwBErrfd9548wDbH3+H2aLAAievjwexhX3ML31z6hK1Hh3VpNw+w+gbnUKuvgr
+         Mf6IpNVi9LTpCSvCRGRUz0Q0T6UmuQtjaAEq8w9Nxu3eA/0iynQCHhdQhldq9U0MnRLH
+         5Hz3HQ8zgxrlbVu6rSHQavHaqGXeN4MBnJs4Kc5MSbofIx9PErV9dTcaPjMrzqhyy8v5
+         UD5AT1FBT+a4zDnOw8wLcBdpgF95gXXJVO7LGf00CV26DUF/FCZau6UHTUJHwPHlfO3z
+         EOIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature
+         :delivered-to:dkim-signature;
+        bh=DfX0XRHAYfAzJzg3wh7Ugk4zy6t9NJ/1MLqqAI5px5E=;
+        fh=qzY+YtbYr+07KEKRKl34sp0/z6e9ouvwB/nOBu8qK5c=;
+        b=MEMXkabXb09s4U16aiJinHwyOg8AbBJbcGJHUL2RLBMehQ3esytiN+5pEBMURNa48Q
+         uP5TvkcFXegxmAi6ZBCmrgZKcj8m/HfSBFM6seISwLdAxuTPhJVGyfav+DXVaM/WoSJ+
+         rLqWb3lgfepoQ3fwhtNukzY7BToYwfYQHEWaIq8I9HaecsezOJkXC2UVe+vRk9BrTJZh
+         ywFp4k7lB5Ek9gfHdkEmHhAvlUhJrxSq8zd9TyAVuFwsh9QhEeAmYmPqUKERuOEESM4L
+         Fj57kxASGvjAe9gfPF/nXvGmoxF23N6h7tOJ3l7Y8jNDtdiiaCaIf9ggRi1SQpaL6DiP
+         kiYg==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@redhat.com header.s=mimecast20190719 header.b="H7mH/nKi";
+       dkim=pass header.i=@redhat.com header.s=mimecast20190719 header.b=fshlcKri;
+       spf=pass (google.com: domain of alkaplan@redhat.com designates 209.85.218.70 as permitted sender) smtp.mailfrom=alkaplan@redhat.com
+Received: from us-smtp-inbound-delivery-1.mimecast.com (us-smtp-inbound-delivery-1.mimecast.com. [170.10.132.61])
+        by mx.google.com with ESMTPS id 6a1803df08f44-8b53c3cd42dsi153687666d6.333.2026.05.04.11.05.04
+        for <rfreiman-all@gapps.redhat.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 May 2026 11:05:04 -0700 (PDT)
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-32-cplxv8FANeu9AkfyLN5isQ-1; Mon,
+ 04 May 2026 14:05:02 -0400
+X-MC-Unique: cplxv8FANeu9AkfyLN5isQ-1
+X-Mimecast-MFC-AGG-ID: cplxv8FANeu9AkfyLN5isQ_1777917902
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 00F3D1956053
+	for <rfreiman-all@gapps.redhat.com>; Mon,  4 May 2026 18:05:02 +0000 (UTC)
+Received: by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix)
+	id EFAEE1800660; Mon,  4 May 2026 18:05:01 +0000 (UTC)
+Delivered-To: rfreiman-all@redhat.com
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.33])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EABA8180034F
+	for <rfreiman-all@redhat.com>; Mon,  4 May 2026 18:05:01 +0000 (UTC)
+Received: from us-smtp-inbound-delivery-1.mimecast.com (us-smtp-inbound-delivery-1.mimecast.com [170.10.128.131])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 41041195609E
+	for <rfreiman-all@redhat.com>; Mon,  4 May 2026 18:05:01 +0000 (UTC)
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-59-gmJHG5kxPGebFdLYkinpXQ-1; Mon, 04 May 2026 14:04:59 -0400
+X-MC-Unique: gmJHG5kxPGebFdLYkinpXQ-1
+X-Mimecast-MFC-AGG-ID: gmJHG5kxPGebFdLYkinpXQ_1777917898
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-bc25e6bc754so13885266b.3
+        for <rfreiman-all@redhat.com>; Mon, 04 May 2026 11:04:58 -0700 (PDT)
+X-Gm-Gg: AeBDievSDTtRI7fHRxI78mLpiPNwC5eaSgmRvVnYlKvkXhR7Pc3EczpXag9dk3dV9tW
+	o8YQvK12p886/1y2hpOggoKk4CvWJ6uMiw/2LrphtSwR/MQtAk49UJvPom4PANuf/xCSxTj2yKR
+	q4NrdGsRCfzta/k1UUV6leemIMC13+ncND/aKhKhUHWaAomKNPnhQEpRz7PyD1rlSNPsy5dSeVH
+	ajMUKJHtxDM7g==
+X-Received: by 2002:a17:907:3d51:b0:b9f:18e6:5bc6 with SMTP id a640c23a62f3a-bbff9b29a25mr237729966b.2.1777917887075;
+        Mon, 04 May 2026 11:04:47 -0700 (PDT)
+X-Received: by 2002:a17:907:3d51:b0:b9f:18e6:5bc6 with SMTP id
+ a640c23a62f3a-bbff9b29a25mr237727066b.2.1777917886255; Mon, 04 May 2026
+ 11:04:46 -0700 (PDT)
+MIME-Version: 1.0
+From: Alona Paz <alkaplan@redhat.com>
+Date: Mon, 4 May 2026 21:04:34 +0300
+X-Gm-Features: AVHnY4IfPkLc_h0pVG0TigvAhObscq3Y6uhdJC0yVm6caYFkmShWj5cUEQcbi8E
+Message-ID: <CAJOMPaeKHyzYyc9UGuM3d532GW_S93fYj15B9Vci0_DrAmR-Hg@mail.gmail.com>
+Subject: OSAC weekly report - May 4, 2026
+To: "Heim, Itamar" <iheim@redhat.com>, "Levy, Ohad" <olevy@redhat.com>, Jeff Lo <jlo@redhat.com>, 
+	Scott Berens <sberens@redhat.com>, Stephen Cuppett <scuppett@redhat.com>, 
+	Orran Krieger <okrieger@redhat.com>, Steve Gordon <sgordon@redhat.com>, Ryan King <rking@redhat.com>, 
+	Mike Evans <mevans@redhat.com>, Tushar Katarki <tkatarki@redhat.com>
+Cc: rfreiman-all@redhat.com, Michael Hrivnak <mhrivnak@redhat.com>, 
+	Avishay Traeger <atraeger@redhat.com>, Liat Berkovich <lberkovi@redhat.com>, Trey West <trwest@redhat.com>, 
+	"Hochman, Omri" <ohochman@redhat.com>, "Chuzhoy, Sasha" <schuzhoy@redhat.com>, 
+	Kyle Baker <kybaker@redhat.com>, Andrea Hudson <ahudson@redhat.com>, 
+	Lucy Kerner <lkerner@redhat.com>, Vincent Caldeira <vcaldeir@redhat.com>, Liming Tsai <ltsai@redhat.com>, 
+	Chris Butler <chbutler@redhat.com>, Scott England-Sullivan <scottes@redhat.com>, 
+	Erwan Gallen <egallen@redhat.com>, Justin Hibbard <jhibbard@redhat.com>, 
+	Lars Kellogg-Stedman <lars@redhat.com>, Heidi Dempsey <hdempsey@redhat.com>, 
+	Tzu-Mainn Chen <tzumainn@redhat.com>, Isaiah Stapleton <istaplet@redhat.com>, 
+	Abigael Donahue <adonahue@redhat.com>, Ethan Kim <ekim@redhat.com>, Ronen Sde-Or <ronen@redhat.com>, 
+	Sachin Mullick <smullick@redhat.com>, Laura Franch <lfranchd@redhat.com>, 
+	Matt Carleton <mcarleto@redhat.com>, Thorsten Schwesig <tschwesi@redhat.com>, 
+	Darren Orzechowski <dorzecho@redhat.com>, Jeff Picozzi <jpicozzi@redhat.com>, 
+	Richa Srivastava <risrivas@redhat.com>, Bradford Nichols <bradnichols@redhat.com>, 
+	Karanbir Singh <kbsingh@redhat.com>, Piotr Kliczewski <pkliczew@redhat.com>
+X-Mimecast-MFC-PROC-ID: mDoxM8FoIWogRszIVIm84iWCWFf8tD6BmcTrRZTfoNw_1777917898
+X-Mimecast-Originator: redhat.com
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Original-Sender: alkaplan@redhat.com
+X-Original-Authentication-Results: mx.google.com;       dkim=pass
+ header.i=@redhat.com header.s=mimecast20190719 header.b="H7mH/nKi";
+       dkim=pass header.i=@redhat.com header.s=mimecast20190719
+ header.b=fshlcKri;       spf=pass (google.com: domain of alkaplan@redhat.com
+ designates 209.85.218.70 as permitted sender) smtp.mailfrom=alkaplan@redhat.com
+Reply-To: rfreiman-all@redhat.com
+Precedence: list
+Mailing-list: list rfreiman-all@redhat.com; contact rfreiman-all+owners@redhat.com
+List-ID: <rfreiman-all.redhat.com>
+X-Spam-Checked-In-Group: rfreiman-all@redhat.com
+X-Google-Group-Id: 718034577121
+List-Post: <https://groups.google.com/a/redhat.com/group/rfreiman-all/post>, <mailto:rfreiman-all@redhat.com>
+List-Help: <https://support.google.com/a/redhat.com/bin/topic.py?topic=25838>, <mailto:rfreiman-all+help@redhat.com>
+List-Archive: <https://groups.google.com/a/redhat.com/group/rfreiman-all/>
+X-Mimecast-Spam-Score: 3
+X-Mimecast-MFC-PROC-ID: D9shTIOwZJJfp2HlM6GjaX-6MDnXVA9zBvYVn_eYa0s_1777917906
+Content-Type: multipart/alternative; boundary="0000000000000cebe2065101c4af"
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+
+--0000000000000cebe2065101c4af
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Executive Summary
+
+This week marks significant progress across all three pillars of OSAC: VMaa=
+S,
+CaaS, and BMaaS. We successfully completed four demos, covering multi-tenan=
+cy
+foundations, the DNS API, the initial CaaS integration with BMaaS, and CI
+foundations.
+
+Roadmap: details
+<https://docs.google.com/spreadsheets/d/11YIDvxTK940j4XgyainQO5yzA9a3ppVwy5=
+4oypo4eE0/edit?gid=3D552881355#gid=3D552881355>
+
+------------------------------
+
+This Week's Demos (May 4, 2026)VMaaS
+
+VMaaS End-to-End Tests (Recording
+<https://drive.google.com/file/d/15mjAtnJVCmt-412i2VAUbVB1PMjmsekw/view>
+47:20 - 1:00:32)
+
+   -
+
+   Demonstrated a comprehensive test suite covering the full VM lifecycle.
+   -
+
+   Currently runs against the OSAC installer repository.
+   -
+
+   Provides a foundation for continuous integration, quality assurance, and
+   regression detection.
+   -
+
+   Dedicated skills were created to support writing new E2E tests and
+   debugging test failures effectively.
+   -
+
+   Follow-up Actions
+   -
+
+      Integrate presubmit jobs across all OSAC repositories.
+      -
+
+      Run all VMaaS tests in a single shared cluster/job to reduce resource
+      consumption.
+      -
+
+      Investigate options to reduce cluster creation time, such as golden
+      images or cluster claims.
+      -
+
+      Introducing CaaS tests.
+
+CaaS
+
+CaaS Integrated with Basic BMaaS (Recording
+<https://drive.google.com/file/d/15mjAtnJVCmt-412i2VAUbVB1PMjmsekw/view>
+3:30 - 27:05)
+
+   -
+
+   Demonstrated an initial CaaS workflow backed by Bare Metal as a Service.
+   -
+
+   Showed how the OSAC CLI triggers cluster creation, including bare metal
+   pool and network setup.
+   -
+
+   Demonstrated how matching hosts are selected, fulfilled, and mapped to
+   cluster agents.
+   -
+
+   Showed host power management through the OpenStack operator, with
+   support for additional backend operators planned.
+   -
+
+   Covered cleanup and error handling for host leases.
+   -
+
+   Follow-up Actions
+   -
+
+      Add support for bare metal pool profiles - reusable definitions that
+      describe which setup or cleanup actions should run when bare metal
+      resources are created or released.
+      -
+
+      Move network setup and host attachment logic into profiles, instead
+      of keeping it only in the CaaS workflow.
+      -
+
+      Evaluate improvements to agent selection and assignment.
+
+Cross-Cutting Capabilities
+
+DNS API (Recording
+<https://drive.google.com/file/d/15mjAtnJVCmt-412i2VAUbVB1PMjmsekw/view>
+27:15 - 34:35)
+
+   -
+
+   Demonstrated a generic DNS API, initially focused on CaaS.
+   -
+
+   Showed creation of required cluster DNS records, including external API,
+   internal API, and ingress records.
+   -
+
+   Replaced hard-coded Route 53 logic with an extensible dispatcher and
+   backend driver model.
+   -
+
+   Implemented Route 53 as the first backend.
+   -
+
+   Follow-up Actions
+   -
+
+      Add support for additional DNS backends.
+      -
+
+      Expand DNS API usage across VMaaS workflows.
+
+Organization Multi-Tenancy (Recording
+<https://drive.google.com/file/d/15mjAtnJVCmt-412i2VAUbVB1PMjmsekw/view>
+34:40 - 47:10)
+
+   -
+
+   Demonstrated the initial multi-tenancy flow using Keycloak for
+   authentication and authorization.
+
+
+   -
+
+   Showed how an OSAC organization can be created and managed through the
+   OSAC CLI.
+   -
+
+   Explained that each organization currently maps to a Keycloak realm.
+   -
+
+   Showed creation of a break-glass account for emergency access if the
+   identity provider connection fails.
+   -
+
+   Follow-up Actions
+   -
+
+      Move from Keycloak realms to Keycloak organizations.
+      -
+
+      Define roles for tenant admins, tenant users, and provider admins.
+      -
+
+      Add APIs for role management and RBAC.
+      -
+
+      Allow break-glass password changes through OSAC.
+      -
+
+      Add support for multiple projects under the same organization/tenant.
+
+------------------------------
+
+Upcoming Demos:
+
+   -
+
+   UI for VMaaS - initial UI for VMaaS.
+   -
+
+   Optional dedicated VM clusters - running VMs on a separate cluster
+   instead of the main management cluster.
+   -
+
+   VM Public IP - Virtual machines with public IP addresses via CUDN +
+   MetalLB
+   -
+
+   VM Status Reporting - Improved status reports include the specific steps
+   executed within Ansible roles.
+   -
+
+   Cluster API - Demo of an extended cluster configuration API that
+   introduces defined attributes, moving beyond the current minimal model t=
+hat
+   only supports templates and template parameters.
+   -
+
+   VAST Storage - Initial implementation to enable CaaS with VAST storage,
+   without yet integrating with OSAC=E2=80=99s generic storage APIs.
+   -
+
+   Storage Tenant Onboarding - Provision per tenant storage class on tenant
+   creation
+   -
+
+   CaaS auto provisioning - Periodic inventory sync and agent creation.
+   -
+
+   Catalog Items - adds a user-facing layer above Ansible templates,
+   allowing providers to expose multiple curated provisioning options that =
+can
+   reuse the same underlying Ansible role.
+
+
+=F0=9F=91=89 Weekly Demo Schedule: View Schedule
+<https://docs.google.com/document/d/1V7uxuxJNyK2pkoaTQ3TJngnNp2ktvZzTAJMUES=
+v0U4M/edit?tab=3Dt.3nl8xrjatv13>
+
+------------------------------
+
+Blockers and Risks
+
+   -
+
+   Inventory system integration - Today, inventory is file-based. We need
+   to add support for additional inventory systems, potentially including B=
+CM.
+   -
+
+   DPU/HBN hardware availability -  Integrating CaaS with DPU/HBN is a high
+   priority, but limited access to DPU hardware may slow development and
+   validation.
+
+
+Thanks,
+Alona.
+
+--0000000000000cebe2065101c4af
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><h2 dir=3D"ltr" style=3D"line-height:1.38;margin-top:18pt;=
+margin-bottom:6pt" id=3D"gmail-docs-internal-guid-703d0969-7fff-d9aa-0f7e-0=
+bb1e89f7f86"><span style=3D"font-size:16pt;font-family:Arial,sans-serif;col=
+or:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:norma=
+l;font-variant:normal;text-decoration:none;vertical-align:baseline;white-sp=
+ace:pre-wrap">Executive Summary</span></h2><p dir=3D"ltr" style=3D"line-hei=
+ght:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;fo=
+nt-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;fo=
+nt-weight:400;font-style:normal;font-variant:normal;text-decoration:none;ve=
+rtical-align:baseline;white-space:pre-wrap">This week marks significant pro=
+gress across all three pillars of OSAC: </span><span style=3D"font-size:11p=
+t;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparen=
+t;font-weight:700;font-style:normal;font-variant:normal;text-decoration:non=
+e;vertical-align:baseline;white-space:pre-wrap">VMaaS, CaaS, and BMaaS</spa=
+n><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,=
+0);background-color:transparent;font-weight:400;font-style:normal;font-vari=
+ant:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wra=
+p">. We successfully completed </span><span style=3D"font-size:11pt;font-fa=
+mily:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-we=
+ight:700;font-style:normal;font-variant:normal;text-decoration:none;vertica=
+l-align:baseline;white-space:pre-wrap">four demos</span><span style=3D"font=
+-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:t=
+ransparent;font-weight:400;font-style:normal;font-variant:normal;text-decor=
+ation:none;vertical-align:baseline;white-space:pre-wrap">, covering </span>=
+<span style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0)=
+;background-color:transparent;font-weight:700;font-style:normal;font-varian=
+t:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wrap"=
+>multi-tenancy foundations, the DNS API, the initial CaaS integration with =
+BMaaS, and CI foundations</span><span style=3D"font-size:11pt;font-family:A=
+rial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:4=
+00;font-style:normal;font-variant:normal;text-decoration:none;vertical-alig=
+n:baseline;white-space:pre-wrap">.</span></p><br><p dir=3D"ltr" style=3D"li=
+ne-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:1=
+1pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpar=
+ent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:n=
+one;vertical-align:baseline;white-space:pre-wrap">Roadmap:</span><span styl=
+e=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backgroun=
+d-color:transparent;font-weight:400;font-style:normal;font-variant:normal;t=
+ext-decoration:none;vertical-align:baseline;white-space:pre-wrap"> </span><=
+a href=3D"https://docs.google.com/spreadsheets/d/11YIDvxTK940j4XgyainQO5yzA=
+9a3ppVwy54oypo4eE0/edit?gid=3D552881355#gid=3D552881355" style=3D"text-deco=
+ration:none"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;col=
+or:rgb(17,85,204);background-color:transparent;font-weight:400;font-style:n=
+ormal;font-variant:normal;text-decoration:underline;vertical-align:baseline=
+;white-space:pre-wrap">details</span></a></p><p dir=3D"ltr" style=3D"line-h=
+eight:1.38;margin-top:0pt;margin-bottom:0pt"></p><hr><p></p><h2 dir=3D"ltr"=
+ style=3D"line-height:1.38;margin-top:18pt;margin-bottom:6pt"><span style=
+=3D"font-size:16pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background=
+-color:transparent;font-weight:400;font-style:normal;font-variant:normal;te=
+xt-decoration:none;vertical-align:baseline;white-space:pre-wrap">This Week&=
+#39;s Demos (May 4, 2026)</span></h2><h3 dir=3D"ltr" style=3D"line-height:1=
+.38;margin-top:16pt;margin-bottom:4pt"><span style=3D"font-size:14pt;font-f=
+amily:Arial,sans-serif;color:rgb(67,67,67);background-color:transparent;fon=
+t-weight:400;font-style:normal;font-variant:normal;text-decoration:none;ver=
+tical-align:baseline;white-space:pre-wrap">VMaaS</span></h3><br><p dir=3D"l=
+tr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=
+=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background=
+-color:transparent;font-weight:700;font-style:normal;font-variant:normal;te=
+xt-decoration:none;vertical-align:baseline;white-space:pre-wrap">VMaaS End-=
+to-End Tests</span><span style=3D"font-size:11pt;font-family:Arial,sans-ser=
+if;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-style=
+:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;wh=
+ite-space:pre-wrap"> (</span><a href=3D"https://drive.google.com/file/d/15m=
+jAtnJVCmt-412i2VAUbVB1PMjmsekw/view" style=3D"text-decoration:none"><span s=
+tyle=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(17,85,204);ba=
+ckground-color:transparent;font-weight:400;font-style:normal;font-variant:n=
+ormal;text-decoration:underline;vertical-align:baseline;white-space:pre-wra=
+p">Recording</span></a><span style=3D"font-size:11pt;font-family:Arial,sans=
+-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-s=
+tyle:normal;font-variant:normal;text-decoration:none;vertical-align:baselin=
+e;white-space:pre-wrap"> 47:20 - 1:00:32)</span></p><ul style=3D"margin-top=
+:0px;margin-bottom:0px"><li dir=3D"ltr" style=3D"list-style-type:disc;font-=
+size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:tr=
+ansparent;font-weight:400;font-style:normal;font-variant:normal;text-decora=
+tion:none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"=
+line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><s=
+pan style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);b=
+ackground-color:transparent;font-weight:400;font-style:normal;font-variant:=
+normal;text-decoration:none;vertical-align:baseline;white-space:pre-wrap">D=
+emonstrated a comprehensive test suite covering the full VM lifecycle.</spa=
+n></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;fon=
+t-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;fon=
+t-weight:400;font-style:normal;font-variant:normal;text-decoration:none;ver=
+tical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1=
+.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"=
+font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-col=
+or:transparent;font-weight:400;font-style:normal;font-variant:normal;text-d=
+ecoration:none;vertical-align:baseline;white-space:pre-wrap">Currently runs=
+ against the OSAC installer repository.</span></p></li><li dir=3D"ltr" styl=
+e=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color=
+:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:normal;=
+font-variant:normal;text-decoration:none;vertical-align:baseline;white-spac=
+e:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-botto=
+m:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-family:Aria=
+l,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;=
+font-style:normal;font-variant:normal;text-decoration:none;vertical-align:b=
+aseline;white-space:pre-wrap">Provides a foundation for continuous integrat=
+ion, quality assurance, and regression detection.</span></p></li><li dir=3D=
+"ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-s=
+erif;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-sty=
+le:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;=
+white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;ma=
+rgin-bottom:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-f=
+amily:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-w=
+eight:400;font-style:normal;font-variant:normal;text-decoration:none;vertic=
+al-align:baseline;white-space:pre-wrap">Dedicated skills were created to su=
+pport writing new E2E tests and debugging test failures effectively.</span>=
+</p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-=
+family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-=
+weight:400;font-style:normal;font-variant:normal;text-decoration:none;verti=
+cal-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.3=
+8;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"fo=
+nt-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color=
+:transparent;font-weight:700;font-style:normal;font-variant:normal;text-dec=
+oration:none;vertical-align:baseline;white-space:pre-wrap">Follow-up Action=
+s</span></p></li><ul style=3D"margin-top:0px;margin-bottom:0px"><li dir=3D"=
+ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-se=
+rif;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-styl=
+e:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;w=
+hite-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;mar=
+gin-bottom:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-fa=
+mily:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-we=
+ight:400;font-style:normal;font-variant:normal;text-decoration:none;vertica=
+l-align:baseline;white-space:pre-wrap">Integrate presubmit jobs across all =
+OSAC repositories.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:=
+disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backgroun=
+d-color:transparent;font-weight:400;font-style:normal;font-variant:normal;t=
+ext-decoration:none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr"=
+ style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presen=
+tation"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rg=
+b(0,0,0);background-color:transparent;font-weight:400;font-style:normal;fon=
+t-variant:normal;text-decoration:none;vertical-align:baseline;white-space:p=
+re-wrap">Run all VMaaS tests in a single shared cluster/job to reduce resou=
+rce consumption.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:di=
+sc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-=
+color:transparent;font-weight:400;font-style:normal;font-variant:normal;tex=
+t-decoration:none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" s=
+tyle=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presenta=
+tion"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(=
+0,0,0);background-color:transparent;font-weight:400;font-style:normal;font-=
+variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre=
+-wrap">Investigate options to reduce cluster creation time, such as golden =
+images or cluster claims.</span></p></li><li dir=3D"ltr" style=3D"list-styl=
+e-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);ba=
+ckground-color:transparent;font-weight:400;font-style:normal;font-variant:n=
+ormal;text-decoration:none;vertical-align:baseline;white-space:pre"><p dir=
+=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=
+=3D"presentation"><span style=3D"font-size:11pt;font-family:Arial,sans-seri=
+f;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:=
+normal;font-variant:normal;text-decoration:none;vertical-align:baseline;whi=
+te-space:pre-wrap">Introducing CaaS tests.</span></p></li></ul></ul><h3 dir=
+=3D"ltr" style=3D"line-height:1.38;margin-top:16pt;margin-bottom:4pt"><span=
+ style=3D"font-size:14pt;font-family:Arial,sans-serif;color:rgb(67,67,67);b=
+ackground-color:transparent;font-weight:400;font-style:normal;font-variant:=
+normal;text-decoration:none;vertical-align:baseline;white-space:pre-wrap">C=
+aaS</span></h3><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;marg=
+in-bottom:0pt"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;c=
+olor:rgb(0,0,0);background-color:transparent;font-weight:700;font-style:nor=
+mal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-=
+space:pre-wrap">CaaS Integrated with Basic BMaaS</span><span style=3D"font-=
+size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:tr=
+ansparent;font-weight:400;font-style:normal;font-variant:normal;text-decora=
+tion:none;vertical-align:baseline;white-space:pre-wrap"> (</span><a href=3D=
+"https://drive.google.com/file/d/15mjAtnJVCmt-412i2VAUbVB1PMjmsekw/view" st=
+yle=3D"text-decoration:none"><span style=3D"font-size:11pt;font-family:Aria=
+l,sans-serif;color:rgb(17,85,204);background-color:transparent;font-weight:=
+400;font-style:normal;font-variant:normal;text-decoration:underline;vertica=
+l-align:baseline;white-space:pre-wrap">Recording</span></a><span style=3D"f=
+ont-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-colo=
+r:transparent;font-weight:400;font-style:normal;font-variant:normal;text-de=
+coration:none;vertical-align:baseline;white-space:pre-wrap"> 3:30 - 27:05)<=
+/span></p><ul style=3D"margin-top:0px;margin-bottom:0px"><li dir=3D"ltr" st=
+yle=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;col=
+or:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:norma=
+l;font-variant:normal;text-decoration:none;vertical-align:baseline;white-sp=
+ace:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bot=
+tom:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-family:Ar=
+ial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:40=
+0;font-style:normal;font-variant:normal;text-decoration:none;vertical-align=
+:baseline;white-space:pre-wrap">Demonstrated an initial CaaS workflow backe=
+d by Bare Metal as a Service.</span></p></li><li dir=3D"ltr" style=3D"list-=
+style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0=
+);background-color:transparent;font-weight:400;font-style:normal;font-varia=
+nt:normal;text-decoration:none;vertical-align:baseline;white-space:pre"><p =
+dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" rol=
+e=3D"presentation"><span style=3D"font-size:11pt;font-family:Arial,sans-ser=
+if;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-style=
+:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;wh=
+ite-space:pre-wrap">Showed how the OSAC CLI triggers cluster creation, incl=
+uding bare metal pool and network setup.</span></p></li><li dir=3D"ltr" sty=
+le=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;colo=
+r:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:normal=
+;font-variant:normal;text-decoration:none;vertical-align:baseline;white-spa=
+ce:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bott=
+om:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-family:Ari=
+al,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400=
+;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:=
+baseline;white-space:pre-wrap">Demonstrated how matching hosts are selected=
+, fulfilled, and mapped to cluster agents.</span></p></li><li dir=3D"ltr" s=
+tyle=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;co=
+lor:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:norm=
+al;font-variant:normal;text-decoration:none;vertical-align:baseline;white-s=
+pace:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bo=
+ttom:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-family:A=
+rial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:4=
+00;font-style:normal;font-variant:normal;text-decoration:none;vertical-alig=
+n:baseline;white-space:pre-wrap">Showed host power management through the O=
+penStack operator, with support for additional backend operators planned.</=
+span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;=
+font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;=
+font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;=
+vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-heigh=
+t:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=
+=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background=
+-color:transparent;font-weight:400;font-style:normal;font-variant:normal;te=
+xt-decoration:none;vertical-align:baseline;white-space:pre-wrap">Covered cl=
+eanup and error handling for host leases.</span></p></li><li dir=3D"ltr" st=
+yle=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;col=
+or:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:norma=
+l;font-variant:normal;text-decoration:none;vertical-align:baseline;white-sp=
+ace:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bot=
+tom:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-family:Ar=
+ial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:70=
+0;font-style:normal;font-variant:normal;text-decoration:none;vertical-align=
+:baseline;white-space:pre-wrap">Follow-up Actions</span></p></li><ul style=
+=3D"margin-top:0px;margin-bottom:0px"><li dir=3D"ltr" style=3D"list-style-t=
+ype:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backg=
+round-color:transparent;font-weight:400;font-style:normal;font-variant:norm=
+al;text-decoration:none;vertical-align:baseline;white-space:pre"><p dir=3D"=
+ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"pr=
+esentation"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;colo=
+r:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:normal=
+;font-variant:normal;text-decoration:none;vertical-align:baseline;white-spa=
+ce:pre-wrap">Add support for bare metal pool profiles - reusable definition=
+s that describe which setup or cleanup actions should run when bare metal r=
+esources are created or released.</span></p></li><li dir=3D"ltr" style=3D"l=
+ist-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0=
+,0,0);background-color:transparent;font-weight:400;font-style:normal;font-v=
+ariant:normal;text-decoration:none;vertical-align:baseline;white-space:pre"=
+><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"=
+ role=3D"presentation"><span style=3D"font-size:11pt;font-family:Arial,sans=
+-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-s=
+tyle:normal;font-variant:normal;text-decoration:none;vertical-align:baselin=
+e;white-space:pre-wrap">Move network setup and host attachment logic into p=
+rofiles, instead of keeping it only in the CaaS workflow.</span></p></li><l=
+i dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:Aria=
+l,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;=
+font-style:normal;font-variant:normal;text-decoration:none;vertical-align:b=
+aseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-to=
+p:0pt;margin-bottom:12pt" role=3D"presentation"><span style=3D"font-size:11=
+pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpare=
+nt;font-weight:400;font-style:normal;font-variant:normal;text-decoration:no=
+ne;vertical-align:baseline;white-space:pre-wrap">Evaluate improvements to a=
+gent selection and assignment.</span></p></li></ul></ul><h3 dir=3D"ltr" sty=
+le=3D"line-height:1.38;margin-top:16pt;margin-bottom:4pt"><span style=3D"fo=
+nt-size:14pt;font-family:Arial,sans-serif;color:rgb(67,67,67);background-co=
+lor:transparent;font-weight:400;font-style:normal;font-variant:normal;text-=
+decoration:none;vertical-align:baseline;white-space:pre-wrap">Cross-Cutting=
+ Capabilities</span></h3><p dir=3D"ltr" style=3D"line-height:1.38;margin-to=
+p:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:Arial,sa=
+ns-serif;color:rgb(0,0,0);background-color:transparent;font-weight:700;font=
+-style:normal;font-variant:normal;text-decoration:none;vertical-align:basel=
+ine;white-space:pre-wrap">DNS API</span><span style=3D"font-size:11pt;font-=
+family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-=
+weight:400;font-style:normal;font-variant:normal;text-decoration:none;verti=
+cal-align:baseline;white-space:pre-wrap"> (</span><a href=3D"https://drive.=
+google.com/file/d/15mjAtnJVCmt-412i2VAUbVB1PMjmsekw/view" style=3D"text-dec=
+oration:none"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;co=
+lor:rgb(17,85,204);background-color:transparent;font-weight:400;font-style:=
+normal;font-variant:normal;text-decoration:underline;vertical-align:baselin=
+e;white-space:pre-wrap">Recording</span></a><span style=3D"font-size:11pt;f=
+ont-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;f=
+ont-weight:400;font-style:normal;font-variant:normal;text-decoration:none;v=
+ertical-align:baseline;white-space:pre-wrap"> 27:15 - 34:35)</span></p><ul =
+style=3D"margin-top:0px;margin-bottom:0px"><li dir=3D"ltr" style=3D"list-st=
+yle-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);=
+background-color:transparent;font-weight:400;font-style:normal;font-variant=
+:normal;text-decoration:none;vertical-align:baseline;white-space:pre"><p di=
+r=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=
+=3D"presentation"><span style=3D"font-size:11pt;font-family:Arial,sans-seri=
+f;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:=
+normal;font-variant:normal;text-decoration:none;vertical-align:baseline;whi=
+te-space:pre-wrap">Demonstrated a generic DNS API, initially focused on Caa=
+S.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:1=
+1pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpar=
+ent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:n=
+one;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-h=
+eight:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span st=
+yle=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backgro=
+und-color:transparent;font-weight:400;font-style:normal;font-variant:normal=
+;text-decoration:none;vertical-align:baseline;white-space:pre-wrap">Showed =
+creation of required cluster DNS records, including external API, internal =
+API, and ingress records.</span></p></li><li dir=3D"ltr" style=3D"list-styl=
+e-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);ba=
+ckground-color:transparent;font-weight:400;font-style:normal;font-variant:n=
+ormal;text-decoration:none;vertical-align:baseline;white-space:pre"><p dir=
+=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=
+=3D"presentation"><span style=3D"font-size:11pt;font-family:Arial,sans-seri=
+f;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:=
+normal;font-variant:normal;text-decoration:none;vertical-align:baseline;whi=
+te-space:pre-wrap">Replaced hard-coded Route 53 logic with an extensible di=
+spatcher and backend driver model.</span></p></li><li dir=3D"ltr" style=3D"=
+list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(=
+0,0,0);background-color:transparent;font-weight:400;font-style:normal;font-=
+variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre=
+"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt=
+" role=3D"presentation"><span style=3D"font-size:11pt;font-family:Arial,san=
+s-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-=
+style:normal;font-variant:normal;text-decoration:none;vertical-align:baseli=
+ne;white-space:pre-wrap">Implemented Route 53 as the first backend.</span><=
+/p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-f=
+amily:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-w=
+eight:400;font-style:normal;font-variant:normal;text-decoration:none;vertic=
+al-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38=
+;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"fon=
+t-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:=
+transparent;font-weight:700;font-style:normal;font-variant:normal;text-deco=
+ration:none;vertical-align:baseline;white-space:pre-wrap">Follow-up Actions=
+</span></p></li><ul style=3D"margin-top:0px;margin-bottom:0px"><li dir=3D"l=
+tr" style=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-ser=
+if;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-style=
+:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;wh=
+ite-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;marg=
+in-bottom:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-fam=
+ily:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-wei=
+ght:400;font-style:normal;font-variant:normal;text-decoration:none;vertical=
+-align:baseline;white-space:pre-wrap">Add support for additional DNS backen=
+ds.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:=
+11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpa=
+rent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:=
+none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-=
+height:1.38;margin-top:0pt;margin-bottom:12pt" role=3D"presentation"><span =
+style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backg=
+round-color:transparent;font-weight:400;font-style:normal;font-variant:norm=
+al;text-decoration:none;vertical-align:baseline;white-space:pre-wrap">Expan=
+d DNS API usage across VMaaS workflows.</span></p></li></ul></ul><p dir=3D"=
+ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span styl=
+e=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backgroun=
+d-color:transparent;font-weight:700;font-style:normal;font-variant:normal;t=
+ext-decoration:none;vertical-align:baseline;white-space:pre-wrap">Organizat=
+ion Multi-Tenancy</span><span style=3D"font-size:11pt;font-family:Arial,san=
+s-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-=
+style:normal;font-variant:normal;text-decoration:none;vertical-align:baseli=
+ne;white-space:pre-wrap"> (</span><a href=3D"https://drive.google.com/file/=
+d/15mjAtnJVCmt-412i2VAUbVB1PMjmsekw/view" style=3D"text-decoration:none"><s=
+pan style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(17,85,20=
+4);background-color:transparent;font-weight:400;font-style:normal;font-vari=
+ant:normal;text-decoration:underline;vertical-align:baseline;white-space:pr=
+e-wrap">Recording</span></a><span style=3D"font-size:11pt;font-family:Arial=
+,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;f=
+ont-style:normal;font-variant:normal;text-decoration:none;vertical-align:ba=
+seline;white-space:pre-wrap"> 34:40 - 47:10)</span></p><ul style=3D"margin-=
+top:0px;margin-bottom:0px"><li dir=3D"ltr" style=3D"list-style-type:disc;fo=
+nt-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color=
+:transparent;font-weight:400;font-style:normal;font-variant:normal;text-dec=
+oration:none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=
+=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation=
+"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,=
+0);background-color:transparent;font-weight:400;font-style:normal;font-vari=
+ant:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wra=
+p">Demonstrated the initial multi-tenancy flow using Keycloak for authentic=
+ation and authorization.</span></p></li></ul><ul style=3D"margin-top:0px;ma=
+rgin-bottom:0px"><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11=
+pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpare=
+nt;font-weight:400;font-style:normal;font-variant:normal;text-decoration:no=
+ne;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-he=
+ight:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span sty=
+le=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backgrou=
+nd-color:transparent;font-weight:400;font-style:normal;font-variant:normal;=
+text-decoration:none;vertical-align:baseline;white-space:pre-wrap">Showed h=
+ow an OSAC organization can be created and managed through the OSAC CLI.</s=
+pan></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;f=
+ont-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;f=
+ont-weight:400;font-style:normal;font-variant:normal;text-decoration:none;v=
+ertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height=
+:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=
+=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background=
+-color:transparent;font-weight:400;font-style:normal;font-variant:normal;te=
+xt-decoration:none;vertical-align:baseline;white-space:pre-wrap">Explained =
+that each organization currently maps to a Keycloak realm.</span></p></li><=
+li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:Ari=
+al,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400=
+;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:=
+baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-t=
+op:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"font-size:11=
+pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpare=
+nt;font-weight:400;font-style:normal;font-variant:normal;text-decoration:no=
+ne;vertical-align:baseline;white-space:pre-wrap">Showed creation of a break=
+-glass account for emergency access if the identity provider connection fai=
+ls.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:=
+11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpa=
+rent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:=
+none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-=
+height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span s=
+tyle=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backgr=
+ound-color:transparent;font-weight:700;font-style:normal;font-variant:norma=
+l;text-decoration:none;vertical-align:baseline;white-space:pre-wrap">Follow=
+-up Actions</span></p></li><ul style=3D"margin-top:0px;margin-bottom:0px"><=
+li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:Ari=
+al,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400=
+;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:=
+baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-t=
+op:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"font-size:11=
+pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpare=
+nt;font-weight:400;font-style:normal;font-variant:normal;text-decoration:no=
+ne;vertical-align:baseline;white-space:pre-wrap">Move from Keycloak realms =
+to Keycloak organizations.</span></p></li><li dir=3D"ltr" style=3D"list-sty=
+le-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);b=
+ackground-color:transparent;font-weight:400;font-style:normal;font-variant:=
+normal;text-decoration:none;vertical-align:baseline;white-space:pre"><p dir=
+=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=
+=3D"presentation"><span style=3D"font-size:11pt;font-family:Arial,sans-seri=
+f;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:=
+normal;font-variant:normal;text-decoration:none;vertical-align:baseline;whi=
+te-space:pre-wrap">Define roles for tenant admins, tenant users, and provid=
+er admins.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;fon=
+t-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:=
+transparent;font-weight:400;font-style:normal;font-variant:normal;text-deco=
+ration:none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=
+=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation=
+"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,=
+0);background-color:transparent;font-weight:400;font-style:normal;font-vari=
+ant:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wra=
+p">Add APIs for role management and RBAC.</span></p></li><li dir=3D"ltr" st=
+yle=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;col=
+or:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:norma=
+l;font-variant:normal;text-decoration:none;vertical-align:baseline;white-sp=
+ace:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bot=
+tom:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-family:Ar=
+ial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:40=
+0;font-style:normal;font-variant:normal;text-decoration:none;vertical-align=
+:baseline;white-space:pre-wrap">Allow break-glass password changes through =
+OSAC.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-siz=
+e:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:trans=
+parent;font-weight:400;font-style:normal;font-variant:normal;text-decoratio=
+n:none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"lin=
+e-height:1.38;margin-top:0pt;margin-bottom:12pt" role=3D"presentation"><spa=
+n style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);bac=
+kground-color:transparent;font-weight:400;font-style:normal;font-variant:no=
+rmal;text-decoration:none;vertical-align:baseline;white-space:pre-wrap">Add=
+ support for multiple projects under the same organization/tenant.</span></=
+p></li></ul></ul><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;ma=
+rgin-bottom:0pt"></p><hr><p></p><h3 dir=3D"ltr" style=3D"line-height:1.38;m=
+argin-top:16pt;margin-bottom:4pt"><span style=3D"font-size:14pt;font-family=
+:Arial,sans-serif;color:rgb(67,67,67);background-color:transparent;font-wei=
+ght:400;font-style:normal;font-variant:normal;text-decoration:none;vertical=
+-align:baseline;white-space:pre-wrap">Upcoming Demos:</span></h3><ul style=
+=3D"margin-top:0px;margin-bottom:0px"><li dir=3D"ltr" style=3D"list-style-t=
+ype:disc;font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backg=
+round-color:transparent;font-weight:700;font-style:normal;font-variant:norm=
+al;text-decoration:none;vertical-align:baseline;white-space:pre"><p dir=3D"=
+ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"pr=
+esentation"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;colo=
+r:rgb(0,0,0);background-color:transparent;font-weight:700;font-style:normal=
+;font-variant:normal;text-decoration:none;vertical-align:baseline;white-spa=
+ce:pre-wrap">UI for VMaaS - </span><span style=3D"font-size:11pt;font-famil=
+y:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weigh=
+t:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-a=
+lign:baseline;white-space:pre-wrap">initial UI for VMaaS.</span></p></li><l=
+i dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:Aria=
+l,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:700;=
+font-style:normal;font-variant:normal;text-decoration:none;vertical-align:b=
+aseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-to=
+p:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"font-size:11p=
+t;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparen=
+t;font-weight:700;font-style:normal;font-variant:normal;text-decoration:non=
+e;vertical-align:baseline;white-space:pre-wrap">Optional dedicated VM clust=
+ers </span><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color=
+:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:normal;=
+font-variant:normal;text-decoration:none;vertical-align:baseline;white-spac=
+e:pre-wrap">- running VMs on a separate cluster instead of the main managem=
+ent cluster.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;f=
+ont-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-colo=
+r:transparent;font-weight:400;font-style:normal;font-variant:normal;text-de=
+coration:none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=
+=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation=
+"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,=
+0);background-color:transparent;font-weight:700;font-style:normal;font-vari=
+ant:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wra=
+p">VM Public IP</span><span style=3D"font-size:11pt;font-family:Arial,sans-=
+serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;font-st=
+yle:normal;font-variant:normal;text-decoration:none;vertical-align:baseline=
+;white-space:pre-wrap"> - Virtual machines with public IP addresses via CUD=
+N + MetalLB</span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;fo=
+nt-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color=
+:transparent;font-weight:400;font-style:normal;font-variant:normal;text-dec=
+oration:none;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=
+=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation=
+"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,=
+0);background-color:transparent;font-weight:700;font-style:normal;font-vari=
+ant:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wra=
+p">VM Status Reporting</span><span style=3D"font-size:11pt;font-family:Aria=
+l,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;=
+font-style:normal;font-variant:normal;text-decoration:none;vertical-align:b=
+aseline;white-space:pre-wrap"> - Improved status reports include the specif=
+ic steps executed within Ansible roles.</span></p></li><li dir=3D"ltr" styl=
+e=3D"list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color=
+:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:normal;=
+font-variant:normal;text-decoration:none;vertical-align:baseline;white-spac=
+e:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-botto=
+m:0pt" role=3D"presentation"><span style=3D"font-size:11pt;font-family:Aria=
+l,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:700;=
+font-style:normal;font-variant:normal;text-decoration:none;vertical-align:b=
+aseline;white-space:pre-wrap">Cluster API</span><span style=3D"font-size:11=
+pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpare=
+nt;font-weight:400;font-style:normal;font-variant:normal;text-decoration:no=
+ne;vertical-align:baseline;white-space:pre-wrap"> - Demo of an extended clu=
+ster configuration API that introduces defined attributes, moving beyond th=
+e current minimal model that only supports templates and template parameter=
+s.</span></p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:1=
+1pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpar=
+ent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:n=
+one;vertical-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-h=
+eight:1.38;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span st=
+yle=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);backgro=
+und-color:transparent;font-weight:700;font-style:normal;font-variant:normal=
+;text-decoration:none;vertical-align:baseline;white-space:pre-wrap">VAST St=
+orage</span><span style=3D"font-size:11pt;font-family:Arial,sans-serif;colo=
+r:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:normal=
+;font-variant:normal;text-decoration:none;vertical-align:baseline;white-spa=
+ce:pre-wrap"> - Initial implementation to enable CaaS with VAST storage, wi=
+thout yet integrating with OSAC=E2=80=99s generic storage APIs.</span></p><=
+/li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-famil=
+y:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weigh=
+t:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-a=
+lign:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;mar=
+gin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"font-si=
+ze:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:tran=
+sparent;font-weight:700;font-style:normal;font-variant:normal;text-decorati=
+on:none;vertical-align:baseline;white-space:pre-wrap">Storage Tenant Onboar=
+ding</span><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color=
+:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:normal;=
+font-variant:normal;text-decoration:none;vertical-align:baseline;white-spac=
+e:pre-wrap"> - Provision per tenant storage class on tenant creation</span>=
+</p></li><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-=
+family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-=
+weight:400;font-style:normal;font-variant:normal;text-decoration:none;verti=
+cal-align:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.3=
+8;margin-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"fo=
+nt-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color=
+:transparent;font-weight:700;font-style:normal;font-variant:normal;text-dec=
+oration:none;vertical-align:baseline;white-space:pre-wrap">CaaS auto provis=
+ioning </span><span style=3D"font-size:11pt;font-family:Arial,sans-serif;co=
+lor:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:norm=
+al;font-variant:normal;text-decoration:none;vertical-align:baseline;white-s=
+pace:pre-wrap">- Periodic inventory sync and agent creation.</span></p></li=
+><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:A=
+rial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:4=
+00;font-style:normal;font-variant:normal;text-decoration:none;vertical-alig=
+n:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin=
+-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"font-size:=
+11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transpa=
+rent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:=
+none;vertical-align:baseline;white-space:pre-wrap">Catalog Items</span><spa=
+n style=3D"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);bac=
+kground-color:transparent;font-weight:400;font-style:normal;font-variant:no=
+rmal;text-decoration:none;vertical-align:baseline;white-space:pre-wrap"> - =
+adds a user-facing layer above Ansible templates, allowing providers to exp=
+ose multiple curated provisioning options that can reuse the same underlyin=
+g Ansible role.</span></p></li></ul><br><p dir=3D"ltr" style=3D"line-height=
+:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-=
+family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-=
+weight:400;font-style:normal;font-variant:normal;text-decoration:none;verti=
+cal-align:baseline;white-space:pre-wrap">=F0=9F=91=89 </span><span style=3D=
+"font-size:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-co=
+lor:transparent;font-weight:700;font-style:normal;font-variant:normal;text-=
+decoration:none;vertical-align:baseline;white-space:pre-wrap">Weekly Demo S=
+chedule: </span><a href=3D"https://docs.google.com/document/d/1V7uxuxJNyK2p=
+koaTQ3TJngnNp2ktvZzTAJMUESv0U4M/edit?tab=3Dt.3nl8xrjatv13" style=3D"text-de=
+coration:none"><span style=3D"font-size:11pt;font-family:Arial,sans-serif;c=
+olor:rgb(17,85,204);background-color:transparent;font-weight:400;font-style=
+:normal;font-variant:normal;text-decoration:underline;vertical-align:baseli=
+ne;white-space:pre-wrap">View Schedule</span></a></p><br><p dir=3D"ltr" sty=
+le=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"></p><hr><p></p><h2=
+ dir=3D"ltr" style=3D"line-height:1.38;margin-top:18pt;margin-bottom:6pt"><=
+span style=3D"font-size:16pt;font-family:Arial,sans-serif;color:rgb(0,0,0);=
+background-color:transparent;font-weight:400;font-style:normal;font-variant=
+:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wrap">=
+Blockers and Risks</span></h2><ul style=3D"margin-top:0px;margin-bottom:0px=
+"><li dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:=
+Arial,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:=
+400;font-style:normal;font-variant:normal;text-decoration:none;vertical-ali=
+gn:baseline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margi=
+n-top:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"font-size=
+:11pt;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transp=
+arent;font-weight:700;font-style:normal;font-variant:normal;text-decoration=
+:none;vertical-align:baseline;white-space:pre-wrap">Inventory system integr=
+ation -</span><span style=3D"font-size:11pt;font-family:Arial,sans-serif;co=
+lor:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:norm=
+al;font-variant:normal;text-decoration:none;vertical-align:baseline;white-s=
+pace:pre-wrap"> Today, inventory is file-based. We need to add support for =
+additional inventory systems, potentially including BCM.</span></p></li><li=
+ dir=3D"ltr" style=3D"list-style-type:disc;font-size:11pt;font-family:Arial=
+,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:400;f=
+ont-style:normal;font-variant:normal;text-decoration:none;vertical-align:ba=
+seline;white-space:pre"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top=
+:0pt;margin-bottom:0pt" role=3D"presentation"><span style=3D"font-size:11pt=
+;font-family:Arial,sans-serif;color:rgb(0,0,0);background-color:transparent=
+;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none=
+;vertical-align:baseline;white-space:pre-wrap">DPU/HBN hardware availabilit=
+y - </span><span style=3D"font-size:11pt;font-family:Arial,sans-serif;color=
+:rgb(0,0,0);background-color:transparent;font-weight:400;font-style:normal;=
+font-variant:normal;text-decoration:none;vertical-align:baseline;white-spac=
+e:pre-wrap">=C2=A0Integrating CaaS with DPU/HBN is a high priority, but lim=
+ited access to DPU hardware may slow development and validation.</span></p>=
+</li></ul><div><br></div><div>Thanks,</div><div>Alona.</div><br></div>
+
+--0000000000000cebe2065101c4af--
+

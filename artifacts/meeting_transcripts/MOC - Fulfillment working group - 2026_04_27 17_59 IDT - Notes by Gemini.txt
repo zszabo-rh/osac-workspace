@@ -1,0 +1,658 @@
+[PROCESSED 2026-04-28]
+﻿📝 Notes
+Apr 27, 2026
+MOC - Fulfillment working group
+Invited Juan Hernández Adrien Gentil Alona Paz Lars Kellogg-Stedman Oved Ourfali Tzu-Mainn Chen Taj Salawu Thorsten Schwesig Jason Kary Nora Haxhidautiova Danni Shi Joachim Weyl Jason Schlessman Isaiah Stapleton Dylan Stewart Orran Krieger Austin Jamias Surbhi Kanthed Meera Malhotra Elior Erez Trey West Avishay Traeger Elad Tabak Eran Cohen Akshay Nadkarni knikolla@bu.edu Ygal Blum Piotr Kliczewski Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Siddarth Royapally Ilya Skornyakov Dakota Crowder Ori Amizur Will Gordon Omri Hochman Alexander Chuzhoy Elay Aharoni Liat Gamliel Rom Freiman Michael Hrivnak Dmitry Tantsur Christopher Tate Jen Stacy Simone Ferlin-Reiter Heidi Dempsey Marek Grac Maor Friedman
+Attachments MOC - Fulfillment working group
+Meeting records Transcript Recording Recording 2 
+
+
+
+
+Summary
+Quotas and metering direction discussed OpenMeter implementation with a reliable event source required for billing accuracy and Carbide integration demonstrated cluster lifecycle.
+
+Quotas and Metering Direction
+The team debated OpenMeter versus Red Hat cost management as the preferred solution for quotas and metering, noting that the existing event source for billing is unreliable. A reliable event source is needed, possibly requiring a cursor implementation, as billing should be based on reservation or utilization but requires accurate usage tracking.
+
+Cluster as a Service Workflow
+Discussion centered on completing the Cluster as a Service workflow by automating the bare metal server registration via a live ISO to create assistant installer agents for a hot server pool. The current process relies on a manual Ansible playbook, and integration with the OSAC installer and Enclave is required for host configuration.
+
+Carbide and Networking Demos
+A demo showcased the Carbide/Nico cluster creation and deletion flow, utilizing VPCs and instance types, though the current implementation is specific to an NVIDIA setup and has multi-tenancy constraints. A separate demo confirmed VM virtual networking isolation by successfully restricting connectivity between VMs in different security groups and virtual networks.
+
+
+
+
+Next steps
+* [The group] Review Proposal: Review the enhancement proposal document drafted by Avishay Traeger concerning image management epics.
+* [The group] Define Installer Scope: Determine current existing features in the OSAC installer, identify missing elements, and decide which functionality should be added to the installer or Enclave.
+* [Dan Manor] Review Automation Data: Review information about server management automation being done by the bare metal team, specifically focusing on what needs to be shared.
+
+
+
+
+Details
+* Quotas and Metering Direction: Discussion began regarding the direction for implementing quotas and metering, with an existing document suggesting OpenMeter as an implementation choice for metering, while noting Red Hat is also advancing their on-prem cost management solution to include billing. A decision is needed to choose between OpenMeter or the Red Hat cost management system, as the chosen direction will define necessary infrastructure for quotas and events (00:04:55). It was highlighted that metering and quotas are tightly coupled, as usage tracking (metering) is necessary to enforce quotas (00:12:54).[a][b][c]
+* Event Source for Billing: A key topic was the need for an event source, as the MOC currently bases billing on event information rather than metrics interfaces like Prometheus (00:01:31). There is already a gRPC streaming service endpoint for events in the fulfillment service that publishes changes in the API, though this implementation is unreliable since it uses PostgreSQL listen and notify, meaning events are missed if the client is not present when they are generated (00:02:58). To support robust billing systems, a more reliable solution, such as implementing a cursor for reconnection, is required (00:04:02).
+* Metrics-Based vs. Event-Based Metering: There is a distinction between metrics-based and event-based metering; OpenMeter uses events, while the Red Hat cost management approach uses metrics. The choice impacts the accuracy and source of truth for quotas, suggesting a unified approach is needed to define requirements for events and quotas (00:04:55). Lars Kellogg-Stedman raised that OpenMeter could be a data source for an organization's pre-existing billing logic, making appropriate third-party integration endpoints necessary (00:06:10).
+* Billing Based on Reservation vs. Utilization: The discussion clarified that billing can be based on resource reservation (e.g., quotas) or utilization (e.g., CPU usage) (00:07:22). Reservation-based billing, such as for storage, makes sense because a reservation prevents others from using the resource, but VM quotas might not prevent others unless the entire quota is consumed (00:08:42). The final decision rests on whether the system should bill based on resource consumption or reservation (00:09:42).
+* Event Persistence and Auditing: The possibility of using a live event endpoint with resumability was discussed, which would allow external systems to handle long-term event persistence outside of OSAC (00:10:37). However, Will Gordon argued that a cloud provider, such as OSAC, should be expected to persist billing information long-term for the CSP admin, making the proposal for short-term persistence "crazy talk". This led to questions about how closely OSAC should be tied to billing, acknowledging it is a difficult decision without a current customer (00:11:53).
+* Image Management Update: Avishay Traeger provided an update on image management, noting that several epics and an enhancement proposal have been opened and reviewed. The goal is to move beyond the current assumption—where an admin uploads an image to a registry and references it in Ansible—to allow API access for uploading images, referencing them, and saving VMs to an image for backup purposes (00:13:49).
+* Completing Cluster as a Service Workflow: Dan Manor introduced the discussion on completing the Cluster as a Service workflow from the infra admin’s perspective to ensure a fully automated end-to-end flow (00:15:32). The flow requires deploying VMs with a live ISO to create assistant installer agents for a hot pool of servers, which is necessary because Cluster as a Service currently relies on pre-requisite steps like configuring a network backend (OpenStack or Netris) and registering servers (00:16:41).
+* Automation of Bare Metal Server Registration: The process of booting servers with the discovery ISO is automated on the OpenStack side using an existing Ansible playbook to register servers as agents, though this is not yet exposed via a command-line tool (00:17:56). There is currently no automated hardware monitoring system to eject degraded servers from the hot pool, although that is a goal (00:18:54). Oved Ourfali suggested that the Cluster as a Service flow needs to integrate with the OSAC installer and Enclave, which handles management cluster provisioning and host configuration (00:20:06).
+* Bare Metal Host Inventory and Agents: The current architecture assumes an external inventory for bare metal as a service, and hosts are pre-provisioned and labeled as agents to be queried as free hosts (00:25:22). Cluster as a Service works with these agents, and the agents are registered using a separate workflow, currently a manual playbook, with future plans to automate it (00:26:23). The single source of truth for these agents is the external inventory, which is associated with ACM through a playbook that labels the agents for proper identification (00:27:20).
+* Carbide/Nico Integration Demo (Cluster Creation): Trey West demonstrated the OSAC integration with Carbide, which has been renamed Nico. The cluster creation flow leverages the concept of VPCs for tenant separation and instance types (equivalent to OSAC's host classes) for hardware definition, but unlike ESI, agents are registered at fulfillment time, not pre-registered (00:30:29). External access is handled by Metal LB and BGP due to networking constraints in Carbide (00:32:52).
+* Carbide/Nico Integration Demo (Deletion and Considerations): The deletion flow reverses creation, tearing down the hosted cluster, cleaning up external access and agents, and optionally deleting the VPCs and prefixes if they were created during the process (00:32:52). High-importance considerations include the current implementation being specific to an NVIDIA setup, potential conflicts between OSAC and Nico multi-tenancy, and missing API capabilities that prevent pre-registering agents due to VPC constraints (00:34:06).
+* Carbide/Nico Integration Demo (Configuration and Scaling): The demo showed the use of a custom cluster template specifying host classes, which map to Nico instance types, and parameters for VPC management (00:37:34). The backend creates the requested instances and a VPC prefix, which is a required component for IP block management (00:41:52). The demo also confirmed that scaling up and down is handled by provisioning and terminating instances on the backend, with BGP peers created for new nodes (00:45:59).
+* Carbide/Nico Networking Details: The nodes in the installed cluster receive their IPs via DHCP from Carbide, which includes IP management, DHCP, and DNS capabilities for the underlay network, using VXLAN for the overlay. Trey West was unsure about the underlying physical architecture (e.g., spine leaf) or how it relates to potential static networking requirements observed in other backends like Netris (00:47:57).
+* VM Virtual Networking and Security Groups Demo: Adrien Gentil provided a recorded demo focusing on VM creation within isolated virtual networks and subnets, and the usage of security groups. The demo showed a virtual network being created with a specific network class and CIDR, followed by a subnet creation (00:51:41). Security groups were used to initially deny all ingress and later patched to open port 80, enabling connectivity between a bastion host and a web server in the same virtual network (00:52:56).
+* Virtual Network Isolation Demonstration: The final part of Adrien Gentil's demo showed that when a third VM was created in a separate, new virtual network, it was completely isolated from the first two VMs, proving the network isolation functionality within the same tenant (00:56:03). The inability to route multiple subnets within the same virtual network is a current implementation limitation awaiting a future OpenShift networking improvement (00:52:56).
+* Discussion of Demo Subnet Configuration: Adrien Gentil presented a console view of a machine booting, confirming that the machine uses a different subnet (220.210.200) from the one previously expected. Eran Cohen suggested that a better demonstration might have involved showing machines on the same subnet that were unable to communicate, but Adrien Gentil confirmed that the current setup was not hosted (00:57:27).
+* Upcoming Demonstration Availability: Oved Ourfali inquired about another planned demonstration, but Adrien Gentil explained they did not have time to record it. The necessary infrastructure was not available due to issues with CN from the previous weekend (00:57:27).
+* Schedule for Remaining Discussion Items: Oved Ourfali introduced the two remaining discussion items and asked if attendees could stay on the call for a few more minutes. Lars Kellogg-Stedman suggested either setting a hard time limit for the remaining items or punting the discussion to the next meeting on Wednesday or Monday (00:57:27).
+* Meeting Conclusion and Next Steps: Oved Ourfali concluded the current meeting due to time constraints, noting that they had just one minute left. They thanked everyone for joining and for the demonstrations, suggesting that further discussions should continue offline, with the next scheduled meeting being on Wednesday (00:57:27).
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 27, 2026
+MOC - Fulfillment working group - Transcript
+00:00:00
+ 
+Oved Ourfali: Okay. Uh so looking at the agenda items we have for today, uh I guess let's start with those and then move to the demos. So Abishai, first two items are on you. Uh get started.
+Avishay Traeger: Yeah. Um, the first one I was hoping Michael would be on. Um, basically we were we started talking about quotas and then Michael rightfully said that we should also discuss metering in the same context. and he wrote a document and a direction to look at open meter as the implementation that does the metering. On the other hand, there's also some Red Hat effort in the same space um where there's a team that took the cost management SAS and is running it now on prem and there's work being done to extend that into billing and whatever other um things we need. So, I was just wondering like if there's an update, if we know which direction we want to go in,
+ 
+ 
+00:01:31
+ 
+Lars Kellogg-Stedman: I I don't have an answer to that question, but I do have some questions related to metering and billing and quotas.
+Avishay Traeger: um, go for it. Maybe someone can answer.
+Lars Kellogg-Stedman: Sure. So, one of the questions that um Min and I were talking about last week was whether we need as part of this to be talking about um an event source for what we're doing because typically like I think the way that the MOC is doing their billing right now is they're relying on event information rather than on data presented through some kind of a metrics interface like Prometheus. or something and should we be offering an event endpoint so that you can um subscribe to that and know you know when a VM is created when it's deleted when a cluster is created when it's scaled when it's deleted um that sort of thing and what the implications are there for you know how we've how our code is structured I am a huge fan of MQTT will um that would be awesome I think there are some questions about where data would originate and um things like that because there are some separations between um who knows about tenency and who knows when things are created.
+ 
+ 
+00:02:58
+ 
+Lars Kellogg-Stedman: Um Juan, you've got a hand up
+Juan Hernández: Yeah,
+Lars Kellogg-Stedman: there.
+Juan Hernández: I just wanted to say that we already have in the GIC server of the fulfillment service an endpoint for events which works exactly as you described. When anything changes in the API, it uh publishes events. It doesn't use any any key win system or any other thing.
+Lars Kellogg-Stedman: Right.
+Juan Hernández: It's just a G gc streaming service where you can subscribe to those events and receive them.
+Lars Kellogg-Stedman: Right. I think
+Juan Hernández: It's unrelable in the sense that uh it's been implemented using the
+Lars Kellogg-Stedman: that
+Juan Hernández: posgress listen and notify which means that if you are not present when the
+Lars Kellogg-Stedman: Yeah.
+Juan Hernández: event is generated you will never receive it.
+Lars Kellogg-Stedman: Right.
+Juan Hernández: But uh
+Lars Kellogg-Stedman: And I think that for something that people want to build a billing system on, we would need to solve that problem. We need some kind of like a cursor or something so that you can reconnect and people want to build financial business logic on top.
+ 
+ 
+00:04:02
+ 
+Lars Kellogg-Stedman: And I also there are situations in which
+Oved Ourfali: And now you cut. I don't know if it's only for me or also for the rest.
+Avishay Traeger: Yeah, you're a bit sappy.
+Lars Kellogg-Stedman: Uh,
+Oved Ourfali: Yeah,
+Lars Kellogg-Stedman: let's see here if I switch to the mic on the computer instead of the mic in my
+Oved Ourfali: actually now it works well.
+Lars Kellogg-Stedman: headphone.
+Oved Ourfali: I don't know what was maybe you were talking slower. I don't know.
+Lars Kellogg-Stedman: All right. I'm not going to change anything then. What I was saying is that we need a way of um providing more robust events than the current implementation if people are going to build like um billing tools on top of the event stream. Um but go ahead one.
+Juan Hernández: Note that actually sorry to cut I just wanted to say that at some
+Lars Kellogg-Stedman: No, go
+Juan Hernández: point we thought and talk about using Kafka for those and we
+Lars Kellogg-Stedman: ahead.
+Juan Hernández: decided to not do it.
+Lars Kellogg-Stedman: Right.
+Juan Hernández: Uh and reason was
+ 
+ 
+00:04:55
+ 
+Lars Kellogg-Stedman: And I think we may need to rethink that or whether and whether or not Kafka is the right solution. I don't know. Um Avesa, you've got a hand up
+Avishay Traeger: So, we're going to need events regardless,
+Lars Kellogg-Stedman: there.
+Avishay Traeger: right? And you know, just like AWS has Cloudatch and you know,
+Lars Kellogg-Stedman: Mhm.
+Avishay Traeger: you need you need to know what's going on in the cloud.
+Lars Kellogg-Stedman: Yeah.
+Avishay Traeger: uh specifically for this open meter works based on events but the onrem cost management thing works on metrics so like we really should choose because the direction really has a big impact also if we're doing something like open meter then I think it might be more reasonable to query that for usage info for quotas is like tell me what's being used right now. Whereas maybe if it's metrics based it might be less accurate and we'll need a different source of truth for quotas. Like we need we kind of just need to choose one and then that will kind of define a lot of stuff like events, quotas and so
+ 
+ 
+00:06:10
+ 
+Lars Kellogg-Stedman: Sorry.
+Avishay Traeger: on.
+Lars Kellogg-Stedman: When you say we need to choose one, we need to choose one.
+Avishay Traeger: open meter or the Red Hat's cost management
+Lars Kellogg-Stedman: Which?
+Avishay Traeger: thing or something like we need to choose a direction for metering which will have implications on quotas, events and other
+Lars Kellogg-Stedman: So I I'm not familiar with open meter.
+Avishay Traeger: things.
+Lars Kellogg-Stedman: Is it meant to be a data source that then an organization would connect up their own billing logic to or is actually supposed to provide like a billing solution?
+Avishay Traeger: As far as I know,
+Lars Kellogg-Stedman: Okay. Um my assumption is that in some cases people will want to connect up their own billing logic to pre-existing systems to what we've got. So we'll need to be able to provide one or more data sources that they can use to do that in addition to you know which presumably would be the same things that would feed into something like open meter or red hat cost management. But I think that we do need to make sure that we provide appropriate endpoints for kind of third party integration into this kind of thing.
+ 
+ 
+00:07:22
+ 
+Avishay Traeger: I
+Oved Ourfali: as I would say it by the way I mean so and we've been discussing it a lot
+Lars Kellogg-Stedman: Okay.
+Avishay Traeger: agree.
+Oved Ourfali: uh you can decide to build based on resource consumption you can do it also based on quarter right I mean you can say this tenant is entitled to create I mean and I know I'm uh oversimplifying it but this tenant can create 30 VMs of this specific instance type exactly right prepay or postpay and then that's what this tenant is entitled to you can uh then query the quota and see how much of that was consumed so far uh
+Avishay Traeger: Everything.
+Oved Ourfali: and someone else might say okay I'm going to look at uh I'm using the qu mechanism in order to have some upper limit but I'm looking at resource consumption like how many nodes are being used what's the CPU utilization whatever and I'm billing uh uh based on that I'm I assume that uh and large I think events are needed anyhow but I I wouldn't rely on those for um billing purposes just for for the reason that um I'm not sure eventually these events will have all the different uh information that's needed in to build it.
+ 
+ 
+00:08:42
+ 
+Oved Ourfali: I mean,
+Lars Kellogg-Stedman: Well,
+Oved Ourfali: so we need to first understand what exactly we need to build.
+Lars Kellogg-Stedman: that's that's that's that's that is a technical that's a technical problem. That is not a that is not something that's intrinsic to events as a data source.
+Oved Ourfali: Yeah.
+Lars Kellogg-Stedman: Um and so you you were talking about um basically billing based on reservation versus based billing based on utilization.
+Oved Ourfali: Yeah.
+Lars Kellogg-Stedman: And in my mind at least
+Oved Ourfali: Reservation kind of aligns with the events at the end of the day because if you have a
+Lars Kellogg-Stedman: well so so in in my mind those those there are different resources
+Oved Ourfali: quarter
+Avishay Traeger: Beautiful.
+Lars Kellogg-Stedman: can you can track different resources in different ways. So for example with if you're talking about storage if you've got a reservation for x amount of storage then in some sense that is preventing other people from using that same storage. So it makes sense to bill based on that reservation. But if you've got a reservation if you've got like a kod of 30 VMs that's not necessarily preventing somebody from creating their own virtual machines unless you actually consume the entire CRO.
+ 
+ 
+00:09:42
+ 
+Lars Kellogg-Stedman: that is it's it's conceptually a little bit different than something like a storage quota if you've got a a hard reservation on that space and I guess that's more of a business logic issue and providing the appropriate data that someone can use to to to bill on that but I think that those do fall into different categories in some ways
+Oved Ourfali: Yeah.
+Avishay Traeger: Don't open this one.
+Oved Ourfali: Yeah. I think we need to decide what are we building on eventually. I think water uh does allow you some upper limits. Someone might decide if he's building based on that or not uh or based on the resource consumption which which goes to the metering side. It's true that events to some extent are like uh you can say events is more like the
+Lars Kellogg-Stedman: Uh-huh.
+Oved Ourfali: resource consumption but to some extent is also it depends on on whether you're billing on uh okay you have quota for 30 VMs you're paying for 30 VMs or whether you're paying only on what's reserved the event should eventually align with what's reserved because once you create a VM it's reserved for
+ 
+ 
+00:10:37
+ 
+Lars Kellogg-Stedman: Sure.
+Oved Ourfali: you now etc.
+Lars Kellogg-Stedman: I have a question for Will.
+Oved Ourfali: Uh
+Lars Kellogg-Stedman: Sorry, I have a question for Will from your your comment there. Um, so in my mind, audit an audit log is basically a collection of auditing events that sure you can persist those, but also you may want to be able to subscribe to that live. Is that a bit your thinking or are you thinking that they are distinct things?
+Will Gordon: No, they can they could end up being the same thing. And whether we subscribe to the events to store them in an audit log or vice versa, we store it in audit log and then admit it as an event. Um,
+Lars Kellogg-Stedman: This one of one of my thoughts and you can tell me if this is crazy was that if we provide an event endpoint with some kind of resumability that we only need to persist things for relatively short periods of time and so we don't need to worry from a technical side about long-term preservation of events. And that becomes a business issue where if you decide that you need to persist them for whatever reason, you can hook up something that subscribes to that and persists it yourself outside of OSAC and you know the storage and retention policy and all that is your problem and not our problem.
+ 
+ 
+00:11:53
+ 
+Lars Kellogg-Stedman: Is that a reasonable perspective to take or is that crazy talk?
+Will Gordon: That feels like crazy talk only because if if we're taking the perspective of um OSAC is the cloud provider like I would reasonably expect a cloud provider
+Lars Kellogg-Stedman: Okay.
+Will Gordon: to um be able to persist billing information longterm as opposed to making it an issue of the the the CSP admin, right? Like the the business having to persist it versus us being able to
+Lars Kellogg-Stedman: Okay.
+Will Gordon: provide the endpoint,
+Lars Kellogg-Stedman: There's there's always been some question about how closely we actually want to be tied to billing and how much of we want to consider that, you know, kind of the CSP problem,
+Will Gordon: right?
+Lars Kellogg-Stedman: but okay.
+Will Gordon: I know it it's difficult in terms of where you want to be prescriptive versus where you want to add the the value add user experience.
+Lars Kellogg-Stedman: Yeah,
+Will Gordon: So yeah, it's it's a difficult thing to answer especially without having a a customer yet. There we go.
+Lars Kellogg-Stedman: sure. Okay. Um, OID wants to move on.
+ 
+ 
+00:12:54
+ 
+Lars Kellogg-Stedman: Go ahead, OD.
+Oved Ourfali: Yeah. Yeah. I just think that uh we probably need also Michael. Uh I I I I think we agree that we need the events anyhow. We currently have one mechanism that we might need to to improve. But let's understand what do we want to do in the first round of whether we want to split metering and qua whether we want to start with qua or start with mirroring or move with both in parallel. uh all for the different reasons. Um
+Will Gordon: Yeah, personally I feel like one without the other is difficult.
+Oved Ourfali: uh
+Will Gordon: Um, you know,
+Oved Ourfali: yeah I mean quarter
+Will Gordon: how do how do you enforce quota without something tracking the usage aka metering?
+Lars Kellogg-Stedman: Absolutely.
+Oved Ourfali: can can track the usage as well for reservation right so but yeah but let's
+Lars Kellogg-Stedman: I think we need both.
+Oved Ourfali: uh uh let's image management I know it's also my Michael kind of
+Avishay Traeger: um I don't no just I don't want to I don't know if one need to
+ 
+ 
+00:13:49
+ 
+Oved Ourfali: Michael
+Avishay Traeger: go into all the details just like FYI more well I opened a bunch of epics image management is one of them and I put up a enhancement proposal for it. Uh Adrian already reviewed. Thank you. Um, and it it's I guess most of you know like today we assume that some admin uploads an image to a registry and then references that in Anible and this would allow API uh access to you know upload an image, reference that image um save a VM to an image uh which is important for backing up uh VMs. Um so please just if you have any inclination any anything to say on this topic please review and u we'll address it. What's up?
+Oved Ourfali: The link is in the agenda as well. Uh if you want to take a look.
+Lars Kellogg-Stedman: Okay.
+Oved Ourfali: Um okay, done. Next.
+Dan Manor: Yeah. So I think uh the the item is about discussing how can we complete the cluster as a service workflow from the perspective of of name for admin.
+ 
+ 
+00:15:32
+ 
+Dan Manor: Um which means how can we make something that basically deploys um all the VMs with the live ISO to create the the agents the assistant installer agents so we can have a hot pool. Um and this is what I discussed with Rome and Alona in the past few days. Um so we we figure out the best place to open it is here. I know
+Oved Ourfali: that is for like um so the incentive here is
+Dan Manor: that
+Oved Ourfali: to for demo purposes for CI purposes for
+Dan Manor: I think the incentive is is to have a complete cast story um for all perspectives. We have it for the tenant perspective. We want to have it also for the infra admin to have a full flow which is automated. Um this is the the end goal as far as I understand.
+Oved Ourfali: But the assumption you take in this end to end flow is what exists and what doesn't. I guess that's
+Dan Manor: So I mean as far as I understand we have the enclave that is taking that takes care of the installation of OSAC and all
+ 
+ 
+00:16:41
+ 
+Oved Ourfali: my
+Dan Manor: the other related components right um and then
+Oved Ourfali: not yet but
+Dan Manor: yeah but we'll we'll take care of it um and then for example for VM as a service as far as I understand this is enough right I mean VM as a service is good to go you don't need to configure anything else or maybe I'm wrong I don't know but this is at least what I understand for clusters the service we need to configure a network back end at the moment which is open stack or um netric um which means and I'm not familiar with how it's done on open stack side but on side you need to register the servers um you need to have some pre prerequisite steps uh to configure all the objects in uh you we have an assumption in cast that it's going to stay this way again as far as I understand is that we're going to use a hot pool of system installer agents and someone need to boot all the servers with the discovery ISO at first place and if it's a lot of servers then it's becoming uh a hardship to do manually.
+ 
+ 
+00:17:56
+ 
+Lars Kellogg-Stedman: Well, I mean that process is automated the booting the servers with the discovery
+Dan Manor: So
+Lars Kellogg-Stedman: ISO.
+Dan Manor: how it is
+Lars Kellogg-Stedman: So at least on the OpenStack side um we can just provide a list of
+Dan Manor: automated?
+Lars Kellogg-Stedman: servers into an anible playbook and say go and take care of registering these all as agents. there's uh the playbook already exists. I don't think we have that exposed through like a command line tool at this point yet. Um and automating that is is part of the bare metal work that's going on too, at least on the the bare metal
+Dan Manor: Mhm.
+Lars Kellogg-Stedman: side.
+Dan Manor: But we don't have anything that is actually doing the work when something changes, right? Extra server is added or server is degraded. I mean, you don't have like a chrome job or something to run in the background and make the adjustments. I was not familiar with this playbook anyway. But
+Lars Kellogg-Stedman: So Min has stuck a link in check there in in chat there that is is relevant to some of this.
+ 
+ 
+00:18:54
+ 
+Dan Manor: uh
+Lars Kellogg-Stedman: So we don't currently have anything that is doing for example hardware monitoring um and uh ejecting servers from the pool if they are you know logging errors or something like that. That's a goal that we have. Um but that that part is not automated yet.
+Oved Ourfali: I think then we need to understand what the the scope is because I I can share a little bit about the work we did in Enclave in order to um to provision the environment but I I think eventually those would need to connect like that there is currently an installer for OSAC I don't know what's the current status of it and what's being deployed what doesn't get deployed with the installer uh but the assumption of the inst installer is currently that ACM already exists. A uh I think it deploys AP but I'm not sure maybe it only configures it. Uh so I think we need to understand that piece as well. Um uh Enclave today allows you to provision basically from
+Lars Kellogg-Stedman: Hello.
+Oved Ourfali: scratch the management cluster itself.
+ 
+ 
+00:20:06
+ 
+Oved Ourfali: It also allows you to configure the nodes you want to add uh and boot those. So maybe similar to what Lash was mentioning uh but but anyhow that can be done as a second step for the the hosts that are going to be used in cast use case etc or VM as a service whatever so uh so we need to to put to understand so what what I think we should do is try to understand what exists currently in the installer what doesn't exist what makes sense to add to to that installer what makes sense to add to enclave enclave eventually will deploy OSAC pieces as uh plugins and and there are folks from the enclave side um that that I asked to take a look like John and Deor and etc. So we need to try to connect together. That's what I'm saying. But uh but let's start with understanding what exists today in the installer uh in OSAC.
+Dan Manor: So when CL is using the
+Oved Ourfali: Um enclave today
+Dan Manor: installer,
+Oved Ourfali: today doesn't today doesn't do anything with OSAC.
+ 
+ 
+00:21:06
+ 
+Dan Manor: but
+Oved Ourfali: Today it it sets up ACM. It boots machines. It uh it's also it boots machines with the ISO in order to provision the management cluster. boots machines from ISO in order to register them as as agents to be used. Um it does a lot of it assumes this connected so it does a lot of mirroring of content in so there are a lot of things to do basically to get you to the point where you have a management cluster running and you can start deploying oac. So enclave currently handles that part like the part before you even have host active
+Dan Manor: So,
+Will Gordon: The bootstrap.
+Dan Manor: so,
+Oved Ourfali: load.
+Dan Manor: so you you mentioned that it it does boot servers with the discover Let's
+Oved Ourfali: It allows you to do that. It allows you to do that. Yes. But currently it doesn't work with hosted control planes at all.
+Dan Manor: go.
+Oved Ourfali: So it boots those as machines you can use uh for clusters.
+ 
+ 
+00:22:00
+ 
+Oved Ourfali: I'm trying to say there are things it allows you to do that we might decide for OSAC we want to use or not use or we want to only uh bootstrap the management cluster and continue from there and running the OSC installer from there uh so
+Dan Manor: Yeah.
+Oved Ourfali: so that's why I ask you what the scope is what is the incentive because then we try to understand how exactly that should evolve
+Dan Manor: Yeah. Uh so OSC installer at the moment is it deploys all the oscet parts and as well as the prerequisites that you need if you want. It's optional.
+Oved Ourfali: Mhm.
+Dan Manor: Um and it configures the uh AAP operator for the purpose of the of the user how it wants.
+Oved Ourfali: Mhm.
+Dan Manor: Um I think what Alona and Rome mentioned that what they wanted from this item is basically that we come up together or at least discuss how should it be handled. I know that bural as a service are doing several stuff that are related with uh uh server management um for the purpose of of bur service and for the purpose of cluster as a service um and I know it's an ongoing work and they basically want to see a way that this process could be uh fully automated.
+ 
+ 
+00:23:20
+ 
+Oved Ourfali: Mhm.
+Dan Manor: I need to have a look at what uh what to send basically,
+Oved Ourfali: Yeah. And also I'm interested in seeing okay is ESI being deployed currently in the OSAC installer or not or I think
+Dan Manor: but
+Oved Ourfali: it assumes currently that's it's deployed already right uh
+Lars Kellogg-Stedman: Right. And I think I think that's always going to be true.
+Oved Ourfali: like
+Dan Manor: I
+Lars Kellogg-Stedman: Um because we do support or are building support for multiple bare metal backends. And I think the assumption is always going to be that you've got something set up in your environment where you're deploying
+Oved Ourfali: yeah
+Lars Kellogg-Stedman: OSAC.
+Oved Ourfali: so I'm not sure I mean maybe we will want the installer whether it's the osc installer or ankle to set this up for this piece of for you as well. Right. So,
+Dan Manor: At the at the moment the installer is is having you can choose what network class you are working
+Lars Kellogg-Stedman: Okay.
+Oved Ourfali: um
+Dan Manor: with but the default is ESTI.
+ 
+ 
+00:24:10
+ 
+Dan Manor: I'm actually just going to merge a PR about it soon. Uh but uh yeah.
+Oved Ourfali: just just before we proceed to the ones raised their hand, how how much time do we need for the demos today, folks? Uh Adrian, yours should take the first one 15 to 20
+Adrien Gentil: maybe 15 to 20 minutes I think.
+Oved Ourfali: minutes and I think today's one is also like 20 minutes,
+Trey West: probably.
+Oved Ourfali: right?
+Trey West: Yeah. 15 20 minutes.
+Oved Ourfali: So should we should we pause and move to that? I I don't know. Uh I think we
+Eran Cohen: I think we wanted to discuss like this the the metal we wanted to discuss
+Oved Ourfali: already
+Eran Cohen: the the bare metal host inventory and how it works. I think like we can share the demos on Slack or we want to show them live.
+Oved Ourfali: didn't see the point on bare metal in the agenda. So what is
+Eran Cohen: was it's what D discussing like
+Oved Ourfali: it?
+Dan Manor: Yeah, I think Yeah.
+ 
+ 
+00:25:22
+ 
+Oved Ourfali: Okay. You
+Eran Cohen: essentially what I I would like to understand is like how is the inventory
+Oved Ourfali: mean
+Eran Cohen: like where is the inventory for the parameal host like I get okay we have a job that can convert parameal servers into agents but like is this like one off in the installer I give it some YAML and then I get those agents or there's more to it.
+Oved Ourfali: in the enclave side at least.
+Tzu-Mainn Chen: Sure.
+Oved Ourfali: It's a one of
+Eran Cohen: No, no, no. Not on claim. On
+Lars Kellogg-Stedman: men, do you want to address
+Oved Ourfali: uh
+Eran Cohen: claim
+Tzu-Mainn Chen: Yeah. No. So right now in bare mail as a service we assume we assume there's an external inventory and if
+Lars Kellogg-Stedman: that?
+Tzu-Mainn Chen: if um if we want to select agents then what needs to happen is that the the hosts in the external inventory that are pre-provisioned as agents have to be labeled in such a way um so that um they can be queried as like free hosts that are also agents and then when bare
+ 
+ 
+00:26:23
+ 
+Oved Ourfali: Thank
+Tzu-Mainn Chen: metal as a service when um when when the request comes in for like for example for like agents for
+Oved Ourfali: you.
+Tzu-Mainn Chen: a cluster Then it will query for those hosts that are pre-provisioned as the agents lab and then you know assign them to the bare metal pool and then cluster as a service will be able to identify which agent resources it can actually have been assigned to it and it can use in this
+Eran Cohen: Okay.
+Tzu-Mainn Chen: cluster.
+Eran Cohen: So, cluster service just work with agents. That's that's what it cares about.
+Tzu-Mainn Chen: Yes,
+Eran Cohen: It doesn't care about terminals. And how and now like today if we want to get those agents then it's
+Tzu-Mainn Chen: exactly.
+Eran Cohen: something we need to ask the installer to
+Tzu-Mainn Chen: It it would be like a it would be like a separate workflow like it's something that right now in um in
+Eran Cohen: do.
+Tzu-Mainn Chen: hypershift one we run is a we use a playbook that I linked in order to create those agents manually. The idea is to eventually eventually uh automate it, but that's something that's a little further away.
+ 
+ 
+00:27:20
+ 
+Tzu-Mainn Chen: Um, as large
+Eran Cohen: Okay, got it. Thanks. Okay, I'm
+Tzu-Mainn Chen: mentioned
+Oved Ourfali: So basically the single source of truth is ACM right I mean eventually you add those agents you're using an
+Eran Cohen: good.
+Oved Ourfali: external inventory but you put these agents and you rely on the ones that are uh registered in ACM
+Tzu-Mainn Chen: I would say the single source of truth is actually the external inventory and that's and that's where we get the that's that's how we derive the information of like which agent resources are assigned to a
+Lars Kellogg-Stedman: Yeah.
+Tzu-Mainn Chen: bare metal
+Dan Manor: I think that the question is
+Oved Ourfali: Yeah, but eventually when you look at the um when
+Tzu-Mainn Chen: cluster.
+Lars Kellogg-Stedman: Heat.
+Oved Ourfali: you look at the O the OSAX ST currently works with the inventory let's say that's in ACM So you you have something that registers it as an agent, but then the OSX tech is using this agent from ACM rather than
+Tzu-Mainn Chen: When you say the OSAC stack, do do you mean like the cluster as a service
+ 
+ 
+00:28:25
+ 
+Oved Ourfali: Yes.
+Tzu-Mainn Chen: or Yeah.
+Oved Ourfali: Faster as a service as a service.
+Tzu-Mainn Chen: So clust cluster cluster as a service will request bare mail resources which will come from the external bare metal inventory and once that's inside assigned it can identify which agents are associated with those bare metal hosts and and and and and mark them appropriately and then go on from
+Oved Ourfali: So this inventory uh basically what I'm asking is how automated is
+Tzu-Mainn Chen: there.
+Oved Ourfali: this connection between the ACM and the inventory because currently it's uh because you mentioned you you know it's there you're booting it maybe through some
+Tzu-Mainn Chen: Oh, I see. So um the so the so the so the so the playbook I I linked um it
+Oved Ourfali: script.
+Tzu-Mainn Chen: will it will create that association basically it will label the agents um um so that they can be identified so they can be associated with like the external host inventory and I think the idea is that you know the next step so currently we're working on like the tenant part of cluster as a service of like um of
+ 
+ 
+00:29:26
+ 
+Oved Ourfali: Mhm.
+Tzu-Mainn Chen: like unifying that under bare mail as under bare mail as a service but eventually we also want to unify that um that agent creation playbook so that it becomes easier for you know uh different backends to
+Oved Ourfali: And if some uh host is being deleted from the inventory,
+Tzu-Mainn Chen: use
+Oved Ourfali: you deleted them. What you want to do is to delete it from ACM as well.
+Tzu-Mainn Chen: that's that's what we would want to do.
+Oved Ourfali: Okay. Okay. Okay. Uh I assume that it requires some followup. Uh but uh maybe Dan, you got a few pointers you can start with. Um I suggest we do move we do move to one of the demos at least. So um um I have to start with Adrian's or Tre. Maybe let's start with yours because uh we had to skip it last week and try if you
+Trey West: Sure.
+Oved Ourfali: can to shorten it so we get to Yeah.
+Trey West: Yeah, I'll go as quick as I can. Uh, it's pre-recorded at
+ 
+ 
+00:30:29
+ 
+Oved Ourfali: And I'm fine with staying over. I don't know if the the other folks are so that we'll be able
+Trey West: least.
+Oved Ourfali: to Okay, go ahead.
+Trey West: All right. So uh this demo is just going to go over the OSAC uh carbide integration work I've been doing just as a prerequisite. So carbide has been renamed again to Nico. So anytime you see Niko that's just like interchangeable with carbide
+Lars Kellogg-Stedman: Isn't that like the third time?
+Trey West: and it might not be the last so who knows.
+Lars Kellogg-Stedman: Okay.
+Trey West: All right so uh first I'll go over like the cluster creation flow um just to give a little bit of background. So um what's actually going to happen in the Nico flow is uh we have a notion of VPCs and VPC prefixes. Um so you can think of a VPC as like a top level construct and then the VPC prefixes associated with it. VPCs are what separate tenants from one another. So um in our flow I guess the the common approach would be to create a VPC per cluster that's being requested.
+ 
+ 
+00:31:48
+ 
+Trey West: That way that we're keeping that way we're keeping separation between all of the clusters antenna clusters. Um and then also we have this notion of something called an instance type which is a an object in Carbide. This is like basically the equivalent of what a host class is in OSAC. So it's just like explaining this this type of hardware like whether it be a GPU or a certain combination of CPU and memory resources. Similar to how we do with ESI there's agent discovery and labeling. Uh the only difference is that with Carbide we don't pre-register the agents we register register them at fulfillment time. So when a tenant requests a cluster, the instances are created and then register. They're not pre-registered. Um that's just like a limitation in the API, but I'll go over that a little bit in a few minutes. Then we have hosted cluster and o creation, which is common to all the cluster as a service stuff. And external access. Um external access is a little bit different.
+ 
+ 
+00:32:52
+ 
+Trey West: So uh the main thing being we we leverage metal LB and BGP to do the uh ingress uh access for the hosted clusters. Um and I'll I'll explain that a little bit more in a few. All right, fast forward here. I also go deletion uh more or less same as creation in reverse order. So uh host of cluster deletion external access cleanup agent detachment we use agents kind of ephemerally with carbide. So what will happen is whenever the cluster is deleted the agent will also be deleted and then the instance will be cleaned up on the back end and then after that depending on if we created the VPC and prefix we will also clean those resources up as well. We can also use like existing VPCs and prefixes in those cases we won't clean them up. And then lastly, there's just like some config map resources that are sh saved on the management cluster to keep everything in order and uh those are cleaned up whenever we delete clusters. All right, so just a few comments before we start some considerations.
+ 
+ 
+00:34:06
+ 
+Trey West: These are like high importance in my mind. Uh first all the development work that I've been doing for this is kind of specific to a certain implementation that we received from Nvidia. Um what I mean by that is like we need to do network isolation through VPCs. External access is done through BGP advertisements and peering. Um they're also using a forge proxy. So what we have now works with that. in the future like we may want to recommend customers use a different type of implementation and we would need to come back and like revise what we have to match that. Um I think it's a discussion that we can have with like a broader team. Uh also the multi-tenency portion. So we obviously have multi-tenency through OSAC. uh Nico has his own way of providing multi-tenency but today like the two of them can't exactly work together based off like differences in the two. So I guess we need to understand if we should modify one or both so that they can work together or just rely on one.
+ 
+ 
+00:35:13
+ 
+Trey West: Uh right now we're just relying on multi-tenency through OSAC. Um, and then lastly, some missing API capabilities. So, um, like I was saying, we don't pre-register agents like we do in ESI. We have to create the instance at fulfillment time. Um, this is because you can't move an instance from one VPC to another like after it's already been created. It has to be created on the VPC you want it to live on. So, I can't create that network isolation when I have a pre-existing instance. And we basically lose any, you know, uh, I guess performance gains if we pre-register it, pre-register them, delete them, and then recreate them. And it just makes more sense to create them at fulfillment time. All right. Then lastly, there's just some low considerations. Skford a little bit. um uh environmental credentials and secret management. There are a lot of secrets and like API endpoints and stuff that you need to set up. Today we're just doing it through like the fulfillment uh the cluster fulfillment IG config map that might be able to be improved in the future.
+ 
+ 
+00:36:28
+ 
+Trey West: Um but I guess that's something that we all need to uh discuss and figure out. And then the lastly is the state storage. There is a lot of different tracking of like which IPs are assigned to which clusters and which VPCs have been created, which VPC prefixes have been created. All that is like stored in config maps on the management cluster. I think in the long term this will be solved by hopefully creating a network class for Nico. Um and then all of it can be handled there rather than just like you know in a config map on a on a cluster.
+Lars Kellogg-Stedman: Trey, quick question for you. Does Nico handle all of its own networking or does it rely on something like Metris to do
+Trey West: Yeah, it I think you can do both.
+Lars Kellogg-Stedman: that?
+Trey West: The only way that I have worked with it is it handles its own networking.
+Lars Kellogg-Stedman: Okay.
+Trey West: But I think I think you could have an implementation where um you could you could offload the network pieces to Netris.
+ 
+ 
+00:37:34
+ 
+Lars Kellogg-Stedman: Interesting.
+Trey West: All right.
+Lars Kellogg-Stedman: Okay.
+Trey West: Now we'll get into the demo. Um yeah, don't we don't care about this. Okay. Um so first I'll show the management cluster. This is where OSAC's running. So for my scenario I'm creating a tenant and um saving some information about my tenant there. Uh namely like the BGP information. So um that will be retrieved from the tenant CR. I did create a cluster template for uh the carbide backend. specifically. This might change, but for the sake of this demo, I created a a separate template. Okay, so this is the first thing. So, as I said, host classes, they map to an actual instance type on the Nico backend. In this environment, this is the instance type that we're interested in. So um when I define my cluster template I'm basically saying you know give me two of this host class which on the back end will map directly to um an instance type that carbide knows about.
+ 
+ 
+00:38:54
+ 
+Trey West: These are like uh GB200 nodes. Uh the other thing is there's a few additional parameters that were added for uh cluster templates for carbide. First uh we have like VPC ID. So you pass in a VPC ID if you want to use an existing VPC. If you don't pass one in, it'll just create a new VPC for you. Uh same thing with VPC prefix. You can either use existing one or have it create one for you on the relevant VPC. Um, also up at the top IP block ID. This is like a required parameter. This is what is needed to uh create a VPC prefix. Uh, basically you get like a a large block of IPs and when you specify that block, it'll give you like a sub a subset of it for your um VPC prefix. And then at the very bottom we have a SSH keyroup ID. That's just like a a um optional uh field that can be used to actually get SSH access into your instances through the serial serial over LAN interface.
+ 
+ 
+00:40:13
+ 
+Trey West: Go forward a little bit. All right. And then I'm just going to show here the back end of carbide. So as you can see uh like I said this instance type correlates to something on the carbide back end. So we see that it resolves to this instance type. It's got like four Infiniban interfaces uh couple of DPUs and four GB200 GPUs. So next I'll create a host class which is just basically saying uh this is uh a valid host class that can be um resolved on the back and then this is an example of a cluster manifest that I'm going to create. Um, so for this I'm I'm using an existing VPC, but I'm going to have it create a new VPC prefix for me. This is just like a limit limitation of this demo environment, but uh I'm also like adding the relevant host class and uh SSH key group that works
+Oved Ourfali: But the template doesn't already specify the size the note sets or you need
+Trey West: for for mine.
+ 
+ 
+00:41:52
+ 
+Trey West: It doesn't because I Well,
+Oved Ourfali: to
+Trey West: I think it I think it will. I just added it here as like a just a an additional but by by default I think
+Oved Ourfali: Okay. Yeah. Just th
+Trey West: it would just take it from the template. All right. So I went ahead and created the cluster. It's now on a progressing state. Looking at the back end, you can see that it created the VPC prefix for me. Uh, so just like to touch a little bit more. Like I said, there's an IP block. By default, we're just requesting like a slash28 network from it. Um, that's like a config, a global config um for the the uh OSAG deployment. Um, so it's just giving me a slash28 from like a I think it's a slash26 IP block. And then you can also see the uh backend is creating the two instances that I requested that match the instance type that I want. And you can see that both instances are on the VPC prefix that we created.
+ 
+ 
+00:43:22
+ 
+Trey West: So eventually the cluster becomes ready in which we can get a Q config. So my two nodes are ready. Uh one thing that I didn't show because it's sort of an implementation detail. Um but when the cluster becomes ready, we also set up like metal lb and uh a BGP well IP address pool a BGP advertisement and BGP peering. Uh the reason that we need to use BGP and we can't just use like uh layer 2 advertisements is because with the networking setup in Carbide, the nodes are only accessible via uniccast traffic. So like even though they're on the same network, they don't receive broadcast traffic for that network. Um so any any of the routing for the ingress needs to be advertised over BGP to the gateway of the uh the network. So we set up two BGP we set up a BGP pier for each worker on the cluster. And then here I'm just uh running a test workload just to prove that the ingress is healthy. And it looks
+Oved Ourfali: Sorry, one question.
+ 
+ 
+00:44:57
+ 
+Oved Ourfali: If uh if there were already I mean let's say you created a cluster then you destroyed
+Trey West: fine.
+Oved Ourfali: it uh uh will you then reuse the agent? So I mean maybe the question is when you create a cluster it only asks for nodes in case there aren't any nodes in the pool already or is it like always going to
+Trey West: it will always create new instances. Um, so like when you request a cluster, it'll create the new instances. When you delete the cluster, it'll delete those instances because like based on the API today, it doesn't make sense for us to pre-register the instances because we can't move them between VPCs. So like we can't get the network
+Oved Ourfali: Yeah. So we clear everything.
+Trey West: isolation.
+Oved Ourfali: So if if you destroy a cluster then you remove this completely and assume they will be
+Trey West: Yeah. Yep.
+Oved Ourfali: okay.
+Trey West: And I I'll show that too.
+Oved Ourfali: Central.
+Trey West: All right. So first I'm going to show a scale up.
+ 
+ 
+00:45:59
+ 
+Trey West: So I come in and edit my cluster and modify the node set from two to three. then come back to the Nico back end, view my instances. So you can see now I have a third instance that's being provisioned. So once it's ready, I log back into the hosted cluster. You can see my third node registered. Also on the back end, it'll create like a BGP pier for this node so that it can be um the ingress can be reached. And then my last uh test would just be the scale down. So same as before on the back end you see that well you see that the nodes are gone but then on the back end I also show that the um instance that we just created is now terminating. Yeah. So that instance we set up is now being deleted from the back end. And then more or less uh for the cluster deletion it'll be the same. So uh we delete the cluster and then looking on the back end you see that all of our instances are terminating.
+ 
+ 
+00:47:57
+ 
+Trey West: and external access is torn down and everything. So, uh, no records for the ingress or the API bips anywhere. So, that's it.
+Oved Ourfali: Great demo. Dan, you had a question.
+Dan Manor: Yeah, I just wanted to ask how do you handle the networking? I mean how do the nodes of the installed cluster get their IPs? It's DCP from carbide
+Trey West: Yeah, the the actual instances that are running are getting DHCP from Carbide.
+Dan Manor: or
+Trey West: Carbide has like a IP management system and it has DHCP and DNS like capabilities for the underlay network and then the overlay network is VXLAN.
+Dan Manor: so carbide is actually managing the whole part of the I don't know I mean I know much about cover but if it's a spine leaf architecture so
+Trey West: Um,
+Dan Manor: so
+Trey West: I'm not sure about that.
+Lars Kellogg-Stedman: I mean that's more a question about physical infrastructure isn't
+Dan Manor: okay yeah but I mean the the
+Lars Kellogg-Stedman: it
+Dan Manor: the thing that what I experienced with Netris is that if you want to utilize such environments where the underlays is like spine leaf then you have to create static networking on the nodes because you need to basically create bonds and such um non-standard network topologies.
+ 
+ 
+00:49:28
+ 
+Dan Manor: So I was wondering how it works in carbide
+Trey West: Yeah, it's a good question. I don't know if I have the answer completely,
+Dan Manor: but
+Trey West: but in carbide, there's a notion of uh there there's a notion of the rest portion and a notion of the core portion. And that might kind of answer your question. Um, basically like the core is what runs on the site level and you have a rest that like lives above those. So you can like work across multiple sites. Um, but as far as the networking goes, I'm not super um I I don't know entirely how the underlying technology works.
+Oved Ourfali: Any other question for toy? I do know we have more demos and also more points on the agenda. So, um I don't know if you folks can stay. Um Adrian, do you want to start with the
+Adrien Gentil: Yeah, I can
+Oved Ourfali: I'll stop and I forgot to stop and start the recording earlier for the other demo, but at least let me do this now.
+ 
+ 
+Session ended after 00:50:39
+ 
+00:50:48
+ 
+Oved Ourfali: And it's also the coldening.
+Adrien Gentil: Okay, right there. Then I start. Okay, so that's a follow up of my failed demo last week. So now it's recorded. uh it will work a bit better. Uh we'll just go through the creation of VMs uh inside virtual networks and subnet. I will show I will demonstrate the the usage of the uh security groups and then I will show you that uh the VMs that we are creating in the first virtual network are completely isolated from the other from another VM in another uh virtual network.
+Lars Kellogg-Stedman: Adrian,
+Adrien Gentil: So let's start.
+Lars Kellogg-Stedman: could you make your make your font a couple thousand times larger?
+Adrien Gentil: I'm not sure.
+Lars Kellogg-Stedman: No. Okay,
+Adrien Gentil: Can I can I uh
+Lars Kellogg-Stedman: that's all right.
+Oved Ourfali: Now it's smaller.
+Adrien Gentil: Yeah.
+Lars Kellogg-Stedman: That That's all right. Just go ahead. I'll
+Adrien Gentil: Okay. Okay. Okay. First uh so we want to create a virtual network.
+ 
+ 
+00:51:41
+ 
+Lars Kellogg-Stedman: manage.
+Adrien Gentil: So to create a virtual network we we need a network class. So I have in my setup I have a bunch of network classes. So we will choose the first one I think which is just creating uh VMs inside uh a CUDN. So they will be completely isolated uh from the from the from the cluster. Uh then first thing we do is to create a virtual network. So here you can see that uh maybe no I cannot uh here you see that we create the virtual network uh and we select the network class that we saw just before and then we choose a cider. So then it's being created. I will speed up a bit. Okay, we have the we have a network. we have our virtual network. Now uh we create a subnet inside that virtual network. So same we have a kind of manifest where we specify the virtual network we want to use and uh decide that we want to use for that subnet.
+ 
+ 
+00:52:56
+ 
+Adrien Gentil: So that subnet is smaller than the one that we declare inside the virtual network. So at the moment we have only the coodider but the cudn implementation that means that we cannot create several sunet inside the virtual network. They won't be routed together. uh that's a limitation that we have for the moment. There is an improvement that is coming later uh on open shift networking side. So we have the the sunet that is created. Now we create uh a security group and in that security group we just for that test. So we deny all the ingresses because later so I will speed up a bit if I can. Okay. So later we are creating two v two VMs now. So one web server uh and one bastion host. So the web server will spawn engine. So here we we pass the setup of engineix through the user data. Um so we basically we want to use uh a template. So we have a default template that creates a virtual machine basic one uh using cube v uh we specify an image to so the image is I don't why why it's not here but it's it's federa two cores 4 gigs of memor of memory uh 20 gigs for the for the boot disk uh one strategy so we want it running so if you want to shut down the the the virtual machine we put we can put it Here we specify in which subnet we want to which subnet we want to use which
+ 
+ 
+00:54:41
+ 
+Adrien Gentil: security group we want to associate. So both both of the ones that we created just before. Uh and then here we have some uh customized custom parameters that you have that are that are related to this par to this template. So which expose ports um to the outside but it won't work in in that in that setup. So I won't expand on that. And here we are creating a bastion host. Uh so it's about the same setup except that here we are creating a user and with a with a password for the sake of that demo. So here we speed up a bit. Okay. Once it's created. Okay. We everything is connected and here just so we we go on the bastion host uh we login with the with the credential that we set up in the cloud in it and then we'll try to curl uh the other machine the the web server and we see that it will fail. So yeah, it's not responding. Uh now we we will patch the security group.
+ 
+ 
+00:56:03
+ 
+Adrien Gentil: So we will just open the port 80 in that invoice. So we are so we'll be able to access it. Um so it will take some time for uh mible to reconcile the the states. So I will speed up again. Um okay. So after some time we get uh we get access from the bastion to the to the web server. So now that is done uh we create a new virtual network. Uh we will create a new subnet as well and a VM. So I will speed up two. Okay. And now that VM will be since that VM will be in in completely another uh virtual network than the other two VMs. Uh you will see that we won't be able to connect on the web server as we did before. Again speed up.
+Oved Ourfali: It's basically a different tenant.
+Adrien Gentil: It's a u in that case it's in the same tenant you have two virtual networks and those
+Oved Ourfali: Mhm. Okay.
+Adrien Gentil: two virtual networks are completely isolated from each other.
+ 
+ 
+00:57:27
+ 
+Oved Ourfali: Okay.
+Adrien Gentil: So here you see the console we see the boot that it's still booting and then after some time we can get access to the machine and do our work.
+Eran Cohen: Hey, is it the same sub
+Adrien Gentil: No, no. It's a It's a It's a different subet.
+Eran Cohen: though?
+Adrien Gentil: This one is on uh 220 uh two 10 uh two 200. Sorry. So, it's not the I didn't use the same subnet for for the for that
+Eran Cohen: Okay. like like it's good,
+Adrien Gentil: one.
+Eran Cohen: but I think like yeah, maybe a better demo would be like to show it's the same subnet, but they can't really talk to each other because
+Adrien Gentil: Yeah. Yeah, because it's not hosted.
+Eran Cohen: virtual
+Adrien Gentil: But yeah,
+Eran Cohen: and you're in time.
+Adrien Gentil: I'm in time. Okay, perfect.
+Oved Ourfali: But you have another demo, right?
+Adrien Gentil: Uh yeah, but that one I didn't have time to to record it.
+Oved Ourfali: Okay.
+Adrien Gentil: Uh because I need more infrastructure and we had issues with CN last
+Oved Ourfali: Okay.
+Adrien Gentil: weekend.
+Oved Ourfali: Um, we do have two items to discuss. Do folks are folks. Okay with the remaining on the call for a few more
+Lars Kellogg-Stedman: Um,
+Eran Cohen: We can't
+Oved Ourfali: minutes.
+Lars Kellogg-Stedman: can we set a hard Yeah,
+Eran Cohen: res
+Lars Kellogg-Stedman: I was going to say if we can't can we either set a a hard time to finish up or let's just punt that to Wednesday's meeting or next Monday, whichever you prefer.
+Oved Ourfali: Okay, we can discuss
+Eran Cohen: one second.
+Oved Ourfali: this.
+Adrien Gentil: Oops.
+Oved Ourfali: Okay, so our time is now.
+Lars Kellogg-Stedman: Okay.
+Oved Ourfali: Uh yeah, I missed it now. Now it's uh just 1 minute. So again, thanks all for the for joining. Thanks for the great demos and let's continue discussing stuff offline. Um and we'll catch you on Wednesday.
+Eran Cohen: Bye guys.
+Oved Ourfali: Thanks everyone.
+Lars Kellogg-Stedman: All right.
+Avishay Traeger: Right.
+Adrien Gentil: Bye-bye.
+ 
+ 
+Transcription ended after 00:59:31
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.
+[a]@alkaplan@redhat.com @oourfali@redhat.com @mhrivnak@redhat.com why are we prioritizing those discussions rather than converge on the urgent topics first?
+[b]The agenda was open and this topic was added. I think most P1 items we do have convergence on (keep me honest @alkaplan@redhat.com @mh
+?), and this specific topic is hanging for a while. It is P2 which I assume we will also work on (I don't think everyone will be on P1s).
+[c]Also, I expect people to discuss some topics on smaller forums. Not everything requires the entire group. In here there was a lot of input from others during the call, though.

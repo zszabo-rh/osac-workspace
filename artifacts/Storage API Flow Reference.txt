@@ -1,0 +1,375 @@
+﻿Storage API Flow Reference
+Three-resource model: StorageProvider (integration) + StorageClass (shared catalog) + StorageQuota (per-tenant allocation). Provider-agnostic -- adding a storage backend is a PR to osac-aap, not a platform change.
+
+
+________________
+
+
+The Resource Chain
++-----------------------+         K8s Secret (admin creds)
+|   StorageProvider     |------>  [passthrough -- never in PostgreSQL]
++-----------------------+
+| implementation_strategy  <-- e.g. "vast", "pure"; validated against
+|                       |     published provider types; immutable
+| endpoint              |  <-- storage backend API URL (HTTPS-only)
+| region                |  <-- immutable (concrete deployment location;
+|                       |     StorageClass/StorageQuota inherit implicitly)
+| provider_config       |  <-- validated against published type's config_schema
+| capabilities          |  <-- copied from published type metadata
+| credential_secret_ref |  <-- K8s Secret name (not the credential)
+| status: PENDING -> READY -> FAILED
++-----------------------+
+         ^
+         | storage_provider (immutable, by ID)
+         |
++-----------------------+
+|   StorageClass[a][b]        |  <-- SHARED catalog (like NetworkClass)
++-----------------------+      DB-only, no hub CRD
+| storage_provider      |---> StorageProvider.id
+| tier                  |  <-- e.g. "fast", "standard"
+| protocol              |  <-- "nfs" or "block"
+| status: READY or FAILED (synchronous, PENDING not observable)
++-----------------------+     NO implementation_strategy (resolved[c][d][e]
+                              from StorageProvider when needed),
+                              NO quota, NO per-tenant fields
+         ^
+         | storage_class (immutable, by ID)
+         |
++-----------------------+
+|   StorageQuota        |  <-- PER-TENANT allocation (like VirtualNetwork)
++-----------------------+      hub CRD, three-controller lifecycle
+| storage_class         |---> StorageClass.id
+| hard_limit_gib        |  <-- OPTIONAL (absent = unlimited/pay-go)
+| soft_limit_gib        |  <-- OPTIONAL (warning threshold)
+| status: PENDING -> READY -> FAILED
++-----------------------+
+         ^
+         | IMPLICIT -- consumers never reference StorageQuota
+         | system resolves it from (tenant, StorageClass)
+         |
++----------------+       +----------------------------------+
+| ComputeInstance |       | ClusterOrder                     |
+| (VMaaS)        |       | (CaaS -- HyperShift Agent)       |
++----------------+       +----------------------------------+
+| disk.storage_  |       | ClusterNodeSet.storage_class     |
+|   class -------+---->  StorageClass (shared catalog)
++----------------+       | ClusterSpec.workload_             |
+                         |   storage_classes -----> StorageClass(es)
+                         +----------------------------------+
+
+Consumers reference StorageClass (the catalog item). The system checks StorageQuota implicitly -- if no StorageQuota exists for (tenant, StorageClass), the request is rejected. Capacity is enforced only when hard_limit_gib is set. StorageQuota becomes the assignment model, where a tenant is assigned access to a given StorageClass.
+
+
+Deletion cascade (each level blocks on references, 409 Conflict):
+
+
+StorageProvider <- StorageClass(es) <- StorageQuota(s) <- Consumer(s)
+
+Delete consumers first, then StorageQuotas, then StorageClasses, then StorageProvider.
+
+
+________________
+
+
+Who Does What[f][g]
+Cloud Admin
+* Provisions the integration layer with the storage vendor (admin-level credentials that's capable of managing sub-resources, i.e., tenants)
+   * credentials
+   * API endpoint
+   * tenant access (e.g., VAST VIP pool organization)
+* Defines storage capabilities (fast storage, NFS, replicated, QoS, etc)
+* Defines/applies optional soft/hard storage quota limits per-tenant
+* Exposes all or a subset of storage capabilities to an individual org
+
+
+Tenant Admin / User
+* Requests storage based on the desired capability (able to view "assigned" storage capabilities)
+* Can view, track, and alert (stretch goal?) on storage utilization
+
+
+Storage Provider Vendor -- writes an Ansible role in osac-aap with meta/osac.yaml. Zero touchpoints with OSAC core code.
+
+
+________________
+
+
+Flows
+0. Vendor[h][i] Registers a Provider Type
+Vendor creates Ansible role in osac-aap with meta/osac.yaml declaring template_type: storage_provider, implementation_strategy, capabilities, and config_schema. After merge, publish_templates (every 30 min) discovers it and publishes to fulfillment-service. Cloud admin can now create StorageProviders of this type. No code changes to fulfillment-service, osac-operator, or osac-installer.
+1. Cloud Admin Integrates a Storage Provider
+osac create storageprovider \
+  --name prod-storage --type vast \
+  --endpoint https://storage-mgmt.example.com \
+  --credential <api-token> --region us-east-1
+
+Fulfillment-service validates implementation_strategy against published types, validates provider_config against the type's config_schema, creates K8s Secret on hub (passthrough -- credential in memory only, never in PostgreSQL), stores Secret name in StorageProvider. Projects hub CRD. Operator triggers AAP connectivity check (dispatched via implementation_strategy). Status -> READY or FAILED.
+2. Cloud Admin Creates a StorageClass (Shared Catalog)
+osac create storageclass \
+  --name fast-nfs --storage-provider prod-storage \
+  --tier fast --protocol nfs
+
+Fulfillment-service validates StorageProvider is READY, tier/protocol match capabilities. DB-only (no hub CRD -- like NetworkClass). Status -> READY (synchronous -- PENDING is proto zero value, not externally observable). No storage backend resources created. Visible to all tenants via public API.
+3. Cloud Admin Allocates Storage to a Tenant (StorageQuota)
+# Capacity-bounded:
+osac create storagequota --name acme-fast \
+  --storage-class fast-nfs --quota-gib 1024 \
+  --tenant acme
+
+
+# Or pay-go (unlimited):
+osac create storagequota --name acme-fast \
+  --storage-class fast-nfs \
+  --tenant acme
+
+Per-tenant. Same StorageClass can be allocated to multiple tenants with different limits. Follows VirtualNetwork pattern (three-controller lifecycle, hub CRD). Status -> READY (async -- PENDING is observable until operator validates).
+4. VMaaS Consumption (ComputeInstance)
+Tenant creates ComputeInstance with boot_disk.storage_class: "fast-nfs"
+  |
+  v  System checks: does tenant have a StorageQuota for "fast-nfs"?
+  |  Yes -> check capacity (if limits set) -> resolve chain:
+  |  StorageClass -> StorageProvider -> implementation_strategy
+  |
+  v  Operator triggers AAP job   <--- external provider call
+  |  (dispatched via implementation_strategy)
+  |
+  v  Ansible role provisions backend resources + K8s Secret +
+  |  K8s StorageClass (labeled per EP #26) on target cluster
+  |
+  v  DataVolume -> PVC -> K8s StorageClass -> CSI driver -> backend
+     ComputeInstance condition: StorageProvisioned = True
+
+VMs run on a target cluster (via getTargetClient() / multicluster-runtime). CSI driver + K8s StorageClass must exist on that target cluster.
+5. CaaS Consumption (ClusterOrder) -- Two Layers
+CaaS uses HyperShift with platform.type: Agent. Worker nodes from hardware-inventory namespace (likely bare-metal, could be agent-registered VMs).
+
+
+Layer 1 -- Host storage: ClusterNodeSet.storage_class -> Ansible configures storage on the physical hosts (NFS mounts, block devices). Infrastructure-level, not a K8s StorageClass.
+
+
+Layer 2 -- In-cluster workload storage: ClusterSpec.workload_storage_classes -> Ansible deploys CSI operator + K8s StorageClass inside tenant cluster. Tenant workloads create PVCs against it. Idempotent on retry.
+
+
+Both layers check StorageQuota implicitly for the tenant.
+
+
+________________
+
+
+Provider-Agnostic Design
+OSAC core has zero provider-specific knowledge. The implementation_strategy string is the only dispatch point -- routes AAP jobs to the correct Ansible role. Provider types are discovered from meta/osac.yaml in osac-aap and published via the existing publish_templates pipeline.
+
+
+The Provider Contract defines the interface: inputs (StorageClass spec + StorageProvider instance + consumer spec as extra_vars), outputs (storage_class_name, secret_name, provisioner_name), idempotency, and teardown obligations.
+
+
+________________
+
+
+Volume Tracking and Quota Enforcement
+StorageVolume is a proposed tracking resource -- OSAC could create one per provisioned allocation (one per consumer-disk or per-PVC). It records what was provisioned, how much, and for whom. The open question how it gets updated (to reflect actual usage) and where quota is enforced (to prevent over-allocation).
+
+
++-----------------------+
+|   StorageVolume       |  <-- OSAC tracking resource (always created)
++-----------------------+
+| consumer_ref          |---> ComputeInstance.id or ClusterOrder.id
+| storage_quota_ref     |---> StorageQuota.id
+| size_gib              |  <-- requested/provisioned size
+| actual_usage_gib      |  <-- updated by the chosen mechanism below
+| backend_id            |  <-- opaque provider-side identifier
+| status                |  <-- PROVISIONING -> ACTIVE -> DELETING
++-----------------------+
+
+
+Tenant admin:  osac list storagevolumes
+               -> sees all volumes in their tenant
+               -> sum(size_gib) vs StorageQuota.hard_limit_gib = usage
+
+The options below differ in two dimensions:
+
+
+1. Update mechanism -- how does actual_usage_gib stay current?
+2. Enforcement point -- where does quota rejection happen?
+
+
+________________
+
+
+Option A: Custom CSI Driver Wrapper
+A single generic OSAC CSI proxy wraps any provider's native CSI driver (one proxy, not one per provider -- provider-specific parameters pass through opaquely since CSI is a standard gRPC interface). On every CreateVolume / DeleteVolume / ExpandVolume call, the wrapper:
+
+
+1. Enforces StorageQuota (reject if over hard_limit_gib)
+2. Proxies the call to the provider's real CSI driver
+3. Updates the StorageVolume resource in fulfillment-service
+
+
+PVC create on [Target]
+    |
+    v
+OSAC CSI Driver (wrapper)
+    |
+    +---> 1. Query fulfillment-service:
+    |        sum(StorageVolume.size_gib where quota=X) + request <= hard_limit_gib?
+    |        NO  -> reject PVC (FailedScheduling)
+    |        YES -> continue
+    |
+    +---> 2. Proxy to provider's native CSI driver
+    |        (VAST CSI, NetApp Trident, etc.)
+    |        |
+    |        v
+    |        Backend provisions volume
+    |
+    +---> 3. POST /storagevolumes to fulfillment-service
+    |        (creates or updates StorageVolume record)
+    |
+    v
+PVC bound, StorageVolume tracked, quota enforced
+
+Update mechanism: Synchronous -- CSI wrapper updates StorageVolume on every provision/delete/expand call. No drift.
+
+
+Enforcement point: CSI layer -- quota checked before provisioning. Rejection surfaces as a PVC scheduling failure.
+
+
+Pro: immediate consistency, single enforcement point, quota checked before any backend resources are created, works for all PVC-based consumption (VMaaS DataVolumes, CaaS Layer 2 workload PVCs). CSI is a standard gRPC interface -- one generic proxy wraps all providers (not one per provider). Provider-specific parameters pass through opaquely. 
+Con: the proxy has both a controller component (centralized, easy) and a node plugin DaemonSet (every node on every target cluster). The node plugin must run on every node because volumes created through the proxy are associated with the proxy's driver name, so kubelet routes NodeStageVolume/NodePublishVolume to it. This means: node-level socket forwarding to real drivers, capability intersection negotiation, cascading health dependency, and passthrough for new CSI RPCs (snapshots, volume groups). Adds latency to PVC provisioning. CaaS Layer 1 (host storage) is not PVC-based so this doesn't cover it. Bugs in the proxy can block all storage provisioning cluster-wide.
+
+
+________________
+
+
+Option B: Validating Admission Webhook
+A webhook intercepts PVC create/expand requests on target clusters. It enforces StorageQuota and updates StorageVolume, but never touches the provider's CSI driver -- the native driver handles provisioning unmodified.
+
+
+PVC create on [Target]
+    |
+    v
+K8s API Server -> ValidatingAdmissionWebhook (OSAC)
+    |
+    +---> 1. Match PVC's storageClassName to OSAC-labeled K8s StorageClass
+    |        Not OSAC-managed -> ALLOW (skip)
+    |
+    +---> 2. Query fulfillment-service:
+    |        sum(StorageVolume.size_gib where quota=X) + request <= hard_limit_gib?
+    |        NO  -> DENY PVC
+    |        YES -> continue
+    |
+    +---> 3. POST /storagevolumes to fulfillment-service
+    |        (creates StorageVolume record, status=PROVISIONING)
+    |
+    +---> 4. ALLOW PVC
+    |
+    v
+Provider's native CSI driver provisions volume (untouched)
+    |
+    v
+A new PVC controller watches PVC status -> updates StorageVolume status to ACTIVE
+
+Update mechanism: Webhook creates StorageVolume on PVC admission. Operator watches PVC status events to update StorageVolume lifecycle (PROVISIONING -> ACTIVE -> DELETING). Size changes via PVC expand trigger the webhook again.
+
+
+Enforcement point: Admission control -- quota checked before PVC is persisted. Provider CSI driver never sees rejected requests.
+
+
+Pro: provider CSI drivers are untouched (no wrapper maintenance), quota enforced before provisioning, works for all PVC-based consumption, webhook is a simpler component than a CSI driver, EP #26 labels provide the matching mechanism. 
+Con: webhook must be deployed on every target cluster (multi-cluster operational burden), webhook-to-fulfillment-service latency is in the PVC admission path, webhook failure mode matters (fail-open lets unquota'd PVCs through, fail-closed blocks all storage), CaaS Layer 1 (host storage) is still not covered.
+
+
+Race window: Two concurrent PVC creates can both pass the quota check before either's StorageVolume is committed. Mitigations:
+
+
+* Reservation pattern: webhook creates a StorageVolume with status=RESERVED (consuming quota) before checking quota, then deletes on rejection. Serialized via DB unique constraint or SELECT ... FOR UPDATE on the StorageQuota row.
+* Optimistic locking: quota check and StorageVolume insert in a single DB transaction with a version/counter on StorageQuota. Second concurrent write fails, webhook retries or rejects. Either approach reduces the window to a DB transaction boundary rather than the full webhook round-trip.
+
+
+________________
+
+
+Option C: Eventual Consistency via Provider Reconciliation
+No inline enforcement. OSAC defines StorageQuota and uses Ansible to reconcile quota limits into the provider's native quota system. The provider enforces quota natively. A periodic reconciler polls the provider API to update StorageVolume records with actual usage.
+
+
+Consumer triggers provisioning
+    |
+    v
+Ansible role provisions backend resources
+    |
+    +---> Reconciles StorageQuota.hard_limit_gib into provider's
+    |     native quota system (e.g. VAST quota policy, NetApp quota)
+    |
+    +---> Creates StorageVolume in fulfillment-service
+          (size_gib from requested spec, status=PROVISIONING)
+
+
+                                    ... time passes ...
+
+
+Operator (periodic reconciler)
+    |
+    +---> Polls provider API for actual usage per tenant/quota
+    |     (dispatched via implementation_strategy)
+    |
+    +---> Updates StorageVolume.actual_usage_gib
+    |     Updates StorageVolume.status (ACTIVE, DELETING)
+    |     Updates StorageQuota.status.consumed_gib
+    |
+    +---> Detects orphaned volumes (provider-side but no OSAC record)
+    |     Detects ghost records (OSAC record but gone from provider)
+    |
+    v
+StorageVolume and StorageQuota reflect provider reality
+(stale by poll interval -- 1-5 min typical)
+
+
+Quota enforcement:
+    Provider-native -- provider rejects allocations that exceed
+    the quota OSAC reconciled in. OSAC is the source of truth for
+    the limit; the provider is the enforcement point.
+
+Update mechanism: Eventual -- periodic polling of provider API updates StorageVolume records. Poll interval determines staleness.
+
+
+Enforcement point: Provider-native. Ansible reconciles OSAC's StorageQuota limits into the provider's own quota system. The provider rejects over-limit allocations at the backend level.
+
+
+Pro: no inline components on target clusters (no webhook, no CSI wrapper), provider-native quota enforcement is battle-tested, covers ALL consumption paths including CaaS Layer 1 host storage (provider doesn't care how the volume was requested), provider is the single source of truth for actual usage, simplest operational footprint on the OSAC side. 
+Con: eventually consistent (StorageVolume records lag by poll interval), Provider Contract must include a usage-query entrypoint and a quota-set entrypoint (not all backends may expose these), quota enforcement semantics vary by provider (some reject, some warn, some throttle), OSAC has no inline rejection mechanism -- a tenant could briefly exceed quota between reconciliation cycles if the provider's enforcement is soft.
+
+
+________________
+
+
+Comparison
+                    | Option A          | Option B          | Option C
+                    | CSI Wrapper       | Admission Webhook | Provider Reconcile
+--------------------+-------------------+-------------------+-------------------
+Enforcement point   | CSI layer         | K8s admission     | Provider-native
+Enforcement timing  | Synchronous       | Synchronous       | Eventual
+Update mechanism    | CSI callbacks     | Webhook + watch   | Periodic poll
+Provider CSI        | Wrapped           | Untouched         | Untouched
+Target cluster      | CSI proxy         | Webhook           | Nothing
+  component needed  | (one, universal   | (one, universal)  | (none)
+                    |  but DaemonSet    |                   |
+                    |  on every node)   |                   |
+CaaS Layer 1        | No                | No                | Yes
+  (host storage)    |                   |                   |
+Provider Contract   | CSI endpoint/     | None (EP #26      | usage-query +
+  additions         |  socket path      |   labels only)    |   quota-set
+Race window         | None (CSI is      | Solvable (DB tx   | Yes (poll
+                    |   serialized)     |   serialization)  |   interval)
+Failure blast       | High (blocks all  | Medium (fail-open | Low (quota drift
+  radius            |   provisioning)   |   or fail-closed) |   until next poll)
+
+[a]I think it's confusing to use this name, since it's already a well-known k8s API, and one that we'll be using of course.
+1 total reaction
+Lars Kellogg-Stedman reacted with 👍 at 2026-04-21 13:33 PM
+[b]Naming is hard 😏 Honestly, I went back and forth on several iterations to come up with a better name ¯\_(ツ)_/¯ Maybe StorageDefinition, StorageCatalog, StorageTemplate...any preferences?
+[c]In addition to Michael's comment, this doesn't really seem to behave like typical "<something>Class" values in Kubernetes (like StorageClass or IngressClass, which identify the *type* of provider, but aren't linked to a *specific instance* of a provider.
+[d]It's not intended to be a K8s resource, only an OSAC definition. It _does_ get referenced by the implementation resource (the ComputeInstance or ClusterSpec define the StorageX that they'll be using). And the StorageX is a _type_ or _config_ of the StorageProvider
+[e]No, I understand that. But the naming convention suggests a certain behavior that I'm not sure is accurate.
+[f]It would help to add a version of this that doesn't use these new API names, but just talks about a user story and who is trying to accomplish which parts of it.
+[g]I think I kinda sketched it out API-less, if that helps visualize
+[h]storage vendor?
+[i]So, this is a bit _aspirational_ that storage providers would be _so_ excited to work with us the they'll submit their own osac-aap PRs to expose themselves as an available and supported StorageProvider type 😅

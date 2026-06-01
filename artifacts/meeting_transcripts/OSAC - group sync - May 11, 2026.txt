@@ -1,0 +1,89 @@
+[PROCESSED 2026-05-12]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - group sync” May 11, 2026
+Date: Mon, 11 May 2026 16:16:55 +0000
+---
+Notes from “OSAC - group sync”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 11, 2026, 6:15 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting discussions focused on Cluster as a Service and Public IP  
+management APIs and feature demonstrations.
+
+
+Cluster API and Provisioning
+Demonstrations highlighted Cluster as a Service API advancements including  
+new specification fields for pull secrets and SSH keys. Provisioning  
+processes now utilize the Cluster Order custom resource for Ansible  
+Automation tasks.
+
+Public IP Management Architecture
+Public IP management introduces pools and resource objects to handle  
+dynamic address allocation for compute instances. Implementation utilizes  
+Metal LB Layer 2 strategies and will transition to dedicated attachment  
+resources.
+
+Environment and UI Updates
+Teams addressed development environment permission issues while updating  
+virtual machine status labels to ready. Developers finalized status  
+condition modifications and verified configuration change events within the  
+fulfillment service.
+
+
+Suggested next steps
+
+
+
+[Dan Manor] Investigate Permissions: Investigate specific Route 53  
+permissions failure. Have a look at DNS configuration changes.
+
+[Dan Manor] Validate Permissions: Ensure editing permissions solves  
+environment issues. Verify cluster creation works before PTO.
+
+[Dan Manor] Update Status: Update the group when the permissions issue is  
+resolved.
+
+[Elad Tabak] Rerun Cluster: Try running Cluster as a Service again. Verify  
+no extra issues prevent operation.
+
+[The group] Implement Attachment: Create Public IP Attachment resource.  
+Remove compute instance reference from Public IP resource.
+
+[The group] Implement OneShot: Implement the one-shot attach functionality  
+for Public IP creation.
+
+[The group] Expose Public IP: Get rid of public IP annotation management.  
+Expose public IP in the compute instance CR.
+
+[The group] Add E2E Tests: Add E2E test support for the new public IP  
+feature.
+
+[Dan Manor] Update Demo: Add scale up and scale down functionality to the  
+demo video.
+
+[Ofer Bochan, Zultan H] Present Demo: Present VM status reporting from ROS  
+demo on Wednesday.
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

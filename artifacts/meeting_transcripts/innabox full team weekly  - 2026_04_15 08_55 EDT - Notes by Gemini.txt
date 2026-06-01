@@ -1,0 +1,286 @@
+[PROCESSED 2026-04-17]
+﻿📝 Notes
+Apr 15, 2026
+innabox full team weekly 
+Invited Juan Hernández Rom Freiman Danni Shi Adrien Gentil Isaiah Stapleton Taj Salawu Daniel Erez Thorsten Schwesig Michael Hrivnak Christopher Tate Heidi Dempsey Dylan Stewart Orran Krieger Surbhi Kanthed Lars Kellogg-Stedman Oved Ourfali Tzu-Mainn Chen Red Hat Research Program Calendar Jason Schlessman Nora Haxhidautiova Michael Daitzman naved001@bu.edu Quan Pham joachimw@bu.edu mmunakami@g.harvard.edu Austin Jamias Meera Malhotra Trey West knikolla@bu.edu Avishay Traeger Elior Erez Elad Tabak Akshay Nadkarni Omri Hochman Eran Cohen Zoltan Szabo Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Jen Stacy Alona Paz Dmitry Tantsur Simone Ferlin-Reiter Marek Grac Jason Kary Bradford Nichols Maor Friedman Dan Manor
+Attachments innabox full team weekly  innabox - 2025  Notes - innabox full team weekly  
+Meeting records Transcript Recording 
+
+
+
+
+Summary
+Meeting discussions standardized AI tool development and addressed organizational workflows and naming conventions.
+
+Standardizing AI Development
+Consolidating fragmented workflows into a unified workspace improves tool usage and documentation. Teams will default to using agent development skills for all future code.
+
+Streamlining Access and Reviews
+Granting organization-wide write access simplifies the onboarding process for new members. Developers agreed to staff pull request reviews for new bare metal operators.
+
+Service Renaming Decision
+The fulfillment service will be renamed to the OSAC service to ensure clearer brand messaging and reduced technical confusion.
+
+
+
+
+Next steps
+* [Eran Cohen] Fix Workspace: Drop git submodules from new workspace repository. Implement cloning script for relevant OSAC repositories.
+* [Someone in Boston-Enclave-2n294] Update Permissions: Modify the config repository configuration. Grant blanket write access to all organization members.
+* [Someone in Boston-Enclave-2n294] Document Access: Update onboarding documentation materials. Reflect new blanket organization member access process.
+* [Someone in Boston-Enclave-2n294] Add Reviewers: Add Eran and Adrian to the bare metal pull request reviewer list.
+* [Elad Tabak] Track Renaming: Open tracking mechanism for renaming fulfillment service to Ozak service. Align related CRS and endpoints.
+
+
+
+
+Details
+* Standardizing AI-Driven Development Tools: The team discussed the need for standardizing AI coding tools and best practices, as many team members are currently using different methods and inventing workflows independently. Eran Cohen proposed creating a dedicated workspace or repository to consolidate best practices, tooling, and skills, suggesting that a one-level-up repository using all OSAC projects as Git submodules would be the best location (00:03:44). This workspace should include a workflow engine, such as GSD (Get S*** Done), to provide specific skills for tasks like bug fixes, bug reporting, and creating epics from enhancements (00:05:08).
+* Workspace Repository Implementation: There was a discussion about the technical setup of the proposed workspace repository, specifically regarding the use of Git submodules. Someone in Boston-Enclave-2n294 suggested that submodules, which pin to specific commits and do not track the upstream repository automatically, are unsuitable for tracking changes and should be replaced. Instead, the workspace repository should include a script that clones the relevant OSAC repositories to ensure users always have a current version of the code, a structure that would also be useful for setting up a general development environment (00:09:45).
+* Skill Development and Usage: The team clarified that a "skill" consists of a markdown file, documentation links, and executable scripts, often utilizing a command-line interface for complex tasks like integrating with Jira or managing the life cycle of a task. Eran Cohen encouraged everyone to try out the existing skills, fix them, and make improvements, confirming that the new workspace is the appropriate place to start sharing and developing these tools (00:08:34). Rom Freiman suggested that the general guideline should be for everyone to default to using these agent development skills, making non-agent code writing the non-default option (00:11:59).
+* Streamlining GitHub Onboarding Permissions: Akshay Nadkarni raised a concern that new team members are frequently required to add themselves to multiple specific repositories, such as OSAC installer, in addition to the standard GitHub config (00:11:59). Someone in Boston-Enclave-2n294 explained that if members are added to the fulfillment working group team, they should automatically have right access to all repositories and proposed updating the default permissions so that all organization members have blanket right access to all organization repositories (00:13:13). Someone in Boston-Enclave-2n294 committed to making the necessary changes to the config repository and updating the onboarding documentation to reflect this single-step process (00:14:15).
+* Bare Metal Pull Request Reviewers: The discussion shifted to staffing pull request reviews for the new bare metal fulfillment code and operators. Someone in Boston-Enclave-2n294 asked if anyone from ecosystem engineering was interested in being added to the list of reviewers for bare metal-related topics, and both Eran Cohen and Adrian confirmed their interest in being added (00:14:15).
+* Service and Component Renaming Proposal: Elad Tabak suggested a follow-up to a previous idea about renaming the CLI, proposing that the "fulfillment service" should be renamed to the "OSAC service" for clearer brand messaging and less confusion. The consensus was that renaming things now is easier than doing so later, and Elad Tabak agreed to track the change and align related components like CRs and endpoints (00:15:24).
+* Metering Document Update: someone in Boston-Liskov-2n372 provided a brief update on the metering document, noting that they are working on a 2.0 response to the document Michael shared in Google Docs . They expect to share this updated response by the end of the current week .
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 15, 2026
+innabox full team weekly  - Transcript
+00:00:00
+ 
+Eran Cohen: Hey guys,
+Akshay Nadkarni: Hi.
+Eran Cohen: this is the first time I see Oron at the office. You're on
+Akshay Nadkarni: We can't hear you. We can't hear you. Is it just me or can others hear
+Boston-Enclave-2n294: Yeah, you're muted there. No,
+Akshay Nadkarni: them?
+Boston-Enclave-2n294: sorry. We were actually I don't know why we were muted, but we were It's actually funny because um this is the only time that you've probably
+Akshay Nadkarni: All right.
+Boston-Enclave-2n294: seen Minn and I at the office, too, because normally when we have these meetings or days when we're not here. I'm almost always in the office.
+Eran Cohen: Nova, you were sitting next to each other,
+Boston-Enclave-2n294: This is
+Eran Cohen: I think, in the last time I saw
+Boston-Enclave-2n294: really really I I I come into the office in the summer when I can bike in. I hate I hate sort of traffic to the office. So, I'll be in this. What about public transit to the office? It's terrible. Is it? How long does it take? Um, the problem is that there's a train.
+ 
+ 
+00:01:44
+ 
+Boston-Enclave-2n294: Okay. But I have to I have to get to that train and it's 20 minutes to get there's no easy way to get to the train from my house. Is there a bus to the train or there's no bus near your house? Like when I lived in Somerville, we were in that kind of situation where like the nearest tea stop was Porter Porter Square and there was no good way to get there except by walking. And then the one time I went to the train, it was um it was 100 degrees. It was just really except I took the train in this morning because I wanted to read my book. I I wish I could do that. What book were you reading? Um the latest Dresden Files. Oh, I I Which is funny because it's been such a long time.
+Boston-Liskov-2n372: So, so you guys, you're supposed to be in Liskoff. That's where we
+Boston-Enclave-2n294: Oh, yeah. We are actually. Are we? What do I scheduled that room?
+Boston-Liskov-2n372: are.
+Boston-Enclave-2n294: I forgot. Yeah. You see, we're never here for the meeting, so who knew?
+ 
+ 
+00:02:29
+ 
+Boston-Enclave-2n294: That's why Oh, no one's here because we were like, "Oh, we were just confused." Okay, I
+Boston-Liskov-2n372: It doesn't really matter,
+Boston-Enclave-2n294: see.
+Boston-Liskov-2n372: but that's why we're not sitting with you. It's not cuz you're smelly.
+Boston-Enclave-2n294: Hi, Heidi.
+Boston-Liskov-2n372: Amen.
+Boston-Enclave-2n294: But your folks know that's not stating that we're not smelly. Just that's not the reason why you're not saying this.
+Boston-Liskov-2n372: survey. We can't hear you.
+Surbhi Kanthed: No, sorry. I'm not seeing anything.
+Boston-Liskov-2n372: Oh,
+Boston-Enclave-2n294: Well, that explains why we couldn't hear you.
+Boston-Liskov-2n372: okay.
+Boston-Enclave-2n294: All right, I'm going to go ahead and uh turn on recording here. Do we get What are these buttons up here? I think we're good. Yes. All right. So, we have uh I think three things on the agenda today. Um, Aron, you wanted to talk about standardizing our AIdriven development tools.
+Eran Cohen: Yes. Okay. So, I'll I'll go first, I guess. Um, okay. So,
+Boston-Enclave-2n294: Yes.
+Eran Cohen: I guess a few weeks back, I shared some talk about how I work with Claude and the OSAC project.
+ 
+ 
+00:03:44
+ 
+Eran Cohen: Uh, got some good feedback. uh you wanted to have an AI policy that includes everyone so there's a PR for that but I guess since then not a lot changed and like some are using it some are doing their own thing and guess most of us are using AI coding agents and tools but everyone
+Boston-Liskov-2n372: Therefore,
+Eran Cohen: needs to invent the wheel for themselves and figure out which workflow they want to work with and try it different stuff and then you know I talk to people everyone are trying stuff um and I guess it's great but and some of us just use either cloud or as native and doesn't really have all the customization and tooling that make it work better. So I thought that we should have a workspace or some someplace where we put all those best practices and all the stuff that we invented uh and we can add and improve there. And this can be where we put all the AI tooling. And I find that the best place for it at least for me is like uh one level up repo that use all the OSAC uh projects
+ 
+ 
+00:05:08
+ 
+Boston-Enclave-2n294: Yep.
+Eran Cohen: as get subm modules and then because usually when you work on a feature or you want to create an epic or whatever you're going to do in OSAC 95% of the time it's going to involve multiple repos. So we do have cloud MB and I guess other AI uh specific MD files and skills in the fulfillment service and I guess going to have one in the OC operator but still it's good to have everything one level up. I want to add that I think we should have some workflow like engine in there. I I'm using GSD. I know other also like it. I don't mind putting superpowers in there as well but I want to have few skills that that we do like uh bug fix or bug report or like the stuff
+Boston-Liskov-2n372: Okay.
+Eran Cohen: that we do and the way we do it so that when someone want to start implementing an enhancement it can just use a skill to go and create an epic from that or when you want to start working on a task it it knows what where to look for where to do what and you already have all
+ 
+ 
+00:06:15
+ 
+Boston-Enclave-2n294: So,
+Eran Cohen: those skills inside your workspace. Feedback,
+Boston-Enclave-2n294: that all sounds like a good idea to me.
+Eran Cohen: please.
+Boston-Enclave-2n294: But do you So, is your is your proposal to create a kind of a new repository to contain all of this stuff
+Eran Cohen: Yes,
+Boston-Enclave-2n294: and
+Eran Cohen: I I DM'd you. I think I already have some basic default we can start with and let's evolve from there.
+Boston-Enclave-2n294: So, and I just just question I'm not is that there's this part of me that I feel we should have a bunch of stuff quite specific to our project and then I was looking at that get works done thing that you had which has a lot of skills that are broader. Get s*** done. Get s*** done. Sorry. Um I mean do we do do we want to take something like
+Eran Cohen: Yeah.
+Boston-Enclave-2n294: that? Is your thinking to fork it and then have something specific to us that we evolve or is it your idea to um it's to use it and then start building up our own skills and things like that.
+ 
+ 
+00:07:22
+ 
+Eran Cohen: Yes.
+Boston-Enclave-2n294: Things like get things like GSD and superpowers are plugins to Claude that we we wouldn't necessarily fork and modify ourselves. who would take advantage of what they've already done and then we would build up our own library of skills for Claude but but but external facing.
+Boston-Liskov-2n372: Is this internal or external?
+Boston-Enclave-2n294: Yeah. But but if we if we build up our own do are those like are those instead of theirs or is it would they sort of
+Rom Freiman: Let's go look at the name name
+Eran Cohen: Wait,
+Boston-Enclave-2n294: say
+Eran Cohen: I can share about that. Wait, I can share about that.
+Rom Freiman: spaces.
+Eran Cohen: So I also created it's not for us it's for ecosystem or in general a marketplace with skills and plugins where you can put skills you can put hooks you can put whatever agents in there and so we can definitely share different skills we develop over there but I think for OSAC it's easy because we don't really need to put it out there it's enough if it's on the workspace repo like when you whenever you install a skill you can choose if you want it for the user or just for that specific project.
+ 
+ 
+00:08:34
+ 
+Eran Cohen: So we can just develop and put skills on the workspace and then whatever whenever you clone the the workspace then you just get all the skills native if you start code on on that workspace.
+Kristi Nikolla: What comprises a skill?
+Boston-Enclave-2n294: I have a question.
+Kristi Nikolla: Is it just markdown files? Is there also code that gets written as part of it?
+Eran Cohen: Yeah. So it's a couple of things. It's a markdown. That's the basic one. And then it can contain links to like documentation like more
+Boston-Liskov-2n372: Awesome.
+Eran Cohen: docs and scripts that it can execute. And usually a skill like a valuable skill is using some CLI like we have a skill for Jira.
+Boston-Enclave-2n294: Okay.
+Eran Cohen: We have a couple. We have one that can take a spec or enhancement proposal and make it turn it into an epic with tasks. We have another one for doing a life cycle on a on a specific task and go implement test verify post a PR. So those skills exist I use them but I would like everyone to try them out then fix them make them make them better bring something else and I think if we can start sharing and I think this workspace is the place where we can start sharing
+ 
+ 
+00:09:45
+ 
+Boston-Enclave-2n294: Mhm.
+Eran Cohen: those top
+Boston-Enclave-2n294: Ron, I have a question for you. So, I think in general, this is a great idea. Having the workspace repository with all of this stuff in it makes a lot of sense. the way you've currently got it set up. The repository is a collection of subm modules and I think that that might be a bad
+Eran Cohen: Yes.
+Boston-Enclave-2n294: idea especially for bringing people on because the problem is the subm modules are pinned to some specific commit.
+Eran Cohen: Okay.
+Boston-Enclave-2n294: They're not they don't track automatically the upstream repository unless they're explicitly updated. So that means a lot of churn on the repository just to update commits if we follow that model. So what I would what I would suggest is having the workspace repository not have all those subm
+Eran Cohen: So
+Boston-Enclave-2n294: modules in it but maybe instead have a script that you can run that will clone things into that directory after you've picked up the workspace repository so that you have a current version of the repository
+Eran Cohen: heat.
+Boston-Enclave-2n294: that's not pinned at a commit this way it would be as a subm module.
+ 
+ 
+00:10:57
+ 
+Eran Cohen: Uh, that's good. But I think I sorted that one out, but I think it's currently pointing to main instead of a specific
+Boston-Enclave-2n294: But it doesn't point to main.
+Eran Cohen: commit.
+Boston-Enclave-2n294: A subm module always points to a specific commit. It never updates unless you explicitly commit to the parent repository. So whenever someone clones that repository, they will get subm modules pointing at whatever specific commit they were pointing at when you committed it.
+Eran Cohen: Okay. So, I'll sort out the subm
+Boston-Enclave-2n294: Yeah. So, I would just drop the sub modules and just have like a script there that will clone all of
+Eran Cohen: modules.
+Boston-Enclave-2n294: the um relevant OSAC repositories and so set up the workspace the way that it should
+Kristi Nikolla: I mean this seems useful in by itself to also set a development environment.
+Boston-Enclave-2n294: look.
+Kristi Nikolla: It's not just for AI workloads. Um so I think that set of of of scripts would be very useful in and of
+Boston-Enclave-2n294: Yeah.
+Kristi Nikolla: itself.
+Boston-Enclave-2n294: Yeah. Yeah. Subm modules are basically they're great as a readonly point in time snapshot.
+ 
+ 
+00:11:59
+ 
+Boston-Enclave-2n294: So if they're like a dependency of something and you want to make sure that it doesn't change under you unexpectedly and break things, but they're less good as um a tool for tracking changes.
+Eran Cohen: Okay.
+Boston-Enclave-2n294: All right. Do we have anything else on uh development life cycles here or shall we move on?
+Rom Freiman: Yeah,
+Kristi Nikolla: So
+Eran Cohen: All right.
+Rom Freiman: I think as a general guideline I would expect everyone default to those skills, right? Like we should default to whatever agent development process whatever we call it and uh the non-default is to write code,
+Boston-Enclave-2n294: Yeah, I I
+Rom Freiman: right?
+Boston-Enclave-2n294: think
+Rom Freiman: It will evolve over time and it will change over time
+Boston-Enclave-2n294: Yeah, I think that's reasonable. All right, Ash, you wanted to talk about onboarding.
+Akshay Nadkarni: Yeah, I think um this is more a question but um it came up in Slack uh and I've included a link um when people onboard they usually add themselves to GitHub config but then um more recently even folks had to add themselves
+Boston-Enclave-2n294: Yep.
+Akshay Nadkarni: to OSAC installer and to some of the other repos
+ 
+ 
+00:13:13
+ 
+Boston-Enclave-2n294: They should never have to add themselves to specific repositories.
+Akshay Nadkarni: and
+Boston-Enclave-2n294: if they add to the fulfillment working group team that by
+Akshay Nadkarni: Okay.
+Boston-Enclave-2n294: default has right access to all of the repositories.
+Akshay Nadkarni: Okay. And then
+Boston-Enclave-2n294: So we can we can update the documentation there because when this was written we had more teams
+Akshay Nadkarni: Yeah.
+Boston-Enclave-2n294: active and so it made sense to require that. But we could very easily just redo the default permissions so that all members have access to all repositories.
+Eran Cohen: access they get. I think it's the approved that that's why we're
+Akshay Nadkarni: and
+Boston-Enclave-2n294: approval.
+Eran Cohen: adding.
+Boston-Enclave-2n294: I think approval is driven by right access to the repository.
+Akshay Nadkarni: review.
+Boston-Enclave-2n294: And that's what I mean.
+Eran Cohen: All right.
+Boston-Enclave-2n294: We could update the default permissions so that all all members of the organization have right access to all organization repositories and then adding yourself as a member is the only step you would ever
+Akshay Nadkarni: Okay. So, Lars,
+Boston-Enclave-2n294: need.
+Akshay Nadkarni: like is that something that u is written somewhere or can you at least capture it?
+ 
+ 
+00:14:15
+ 
+Akshay Nadkarni: I don't know. So we can include it in the onboarding
+Boston-Enclave-2n294: Sure.
+Akshay Nadkarni: document.
+Boston-Enclave-2n294: Um there are two two places I'd like to put it that the the the config repository itself should have some of the documentation in it and we should update the onboarding material also to at least point to that or
+Akshay Nadkarni: Okay.
+Boston-Enclave-2n294: refer to that. So and and I so I will make the changes to the config repository so that um we just grant blanket access to organization members and I will update the documentation in both places.
+Akshay Nadkarni: Sounds good. Thank you so much.
+Boston-Enclave-2n294: No problem. All right. Um, next on the list is bare metal pull request reviews. Do you want to Oh, right. So um we're g we're getting ramped up on like our bare metal fulfillment uh code coding um creating new operators and we are submitting poll requests and I was just curious if there's anyone from ecosystem engineering who maybe wants to who wants to be added to the list of reviewers um if they if they are so inclined if you're interested in bare metal related topics or in how this stuff works and got a thumbs up there Iron is that is that a yes you'd like to be added okay We got a couple there.
+ 
+ 
+00:15:24
+ 
+Boston-Enclave-2n294: Okay. Uh Ron and Adrian, I saw I saw that. Yeah.
+Eran Cohen: Yes.
+Boston-Enclave-2n294: Okay, cool.
+Boston-Liskov-2n372: Yeah.
+Boston-Enclave-2n294: Thank you. Is that all on that topic, man? That's all it. All right. Um I think so.
+Boston-Liskov-2n372: Is it finally going to happen?
+Boston-Enclave-2n294: Uh Ela,
+Boston-Liskov-2n372: Y
+Boston-Enclave-2n294: you wanted to talk about renaming things.
+Elad Tabak: Yeah, it's actually following up on uh Will's uh idea about renaming the CLI which makes sense I think uh which made me think about why do we need to call the service the fulfillment service why not Ozak service and if we are about to change that are we also want to align the CRS the endpoints um any thoughts ideas.
+Boston-Enclave-2n294: I think that renaming things now is always going to be easier than renaming things later. I think I think generally the idea of just of of using the OSAC naming across the board probably makes sense. Um it's probably less confusing and better better brand messaging.
+Boston-Liskov-2n372: Yes.
+Elad Tabak: I I agree. Um, okay. I I'll take it from there and uh open way to track it. Thank you.
+Boston-Enclave-2n294: Okay.
+Eran Cohen: Thanks.
+Boston-Enclave-2n294: All right.
+Eran Cohen: So
+Boston-Enclave-2n294: That's everything that we have on the agenda. Um, does anyone have anything else they want to bring up that was not there?
+Thorsten Schwesig: Hey, what
+Boston-Liskov-2n372: I I have one update.
+Boston-Enclave-2n294: Go for it, Heidi.
+Boston-Liskov-2n372: Um we're working on the um
+Thorsten Schwesig: you
+Boston-Liskov-2n372: the for lack of a better term the 2.0 no um response for the metering doc that Michael shared in Google that's not in the repo yet.
+Boston-Enclave-2n294: Mhm.
+Boston-Liskov-2n372: So um we expect to share that the end of this
+Boston-Enclave-2n294: Okay.
+Boston-Liskov-2n372: week.
+Boston-Enclave-2n294: Great. All right. Well, then we are done for today. See you folks. Um I will not see you folks on Monday, but everyone else will presumably. I'll be out on Monday.
+Thorsten Schwesig: You need
+Boston-Enclave-2n294: All right. See you.
+Eran Cohen: My Guys,
+Ofer Bochan: Cheers.
+ 
+ 
+Transcription ended after 00:28:12
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

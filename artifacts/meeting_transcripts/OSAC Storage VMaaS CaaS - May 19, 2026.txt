@@ -1,0 +1,79 @@
+[PROCESSED 2026-05-20]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Storage (for VMaaS and CaaS)” May 19, 2026
+Date: Tue, 19 May 2026 14:11:29 +0000
+---
+Notes from “OSAC Storage (for VMaaS and CaaS)”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 19, 2026, 4:09 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting focused on OSAC storage proxy architecture, tenant onboarding  
+strategies, and establishing ETCD volume requirements.
+
+
+Storage Proxy and Lifecycle
+The group explored a CSI proxy model for volume management and defined 3  
+storage lifecycle phases for onboarding and resource creation.
+
+Tenant Onboarding and Templating
+Participants agreed to use templating for tenant storage classes and  
+established that a single pool per tenant model works for the initial phase.
+
+ETCD Storage and Redundancy
+Consensus was reached that 3 ETCD instances with dedicated volumes are  
+required to ensure cluster functionality and reliable performance.
+
+
+Suggested next steps
+
+
+
+[Avishay Traeger] Perform Proof of Concept: Validate the functionality of  
+the CSI proxy approach for volume provisioning.
+
+[The group] Evaluate Vendor Observability: Investigate existing storage  
+vendor observability features to determine if they meet requirements before  
+developing custom global views.
+
+[Akshay Nadkarni] Update Tenant Onboarding Epic: Incorporate logic for  
+tenant storage class templating and multi tenancy support into the existing  
+OSAC 56 epic.
+
+[Akshay Nadkarni] Contact Stakeholders: Reach out to individuals regarding  
+open questions on epics.
+
+[Lars Kellogg-Stedman] Analyze Storage Requirements: Evaluate etcd storage  
+requirements to determine if one storage class is sufficient. Identify  
+necessary hosting hardware capabilities to support these requirements.
+
+[The group] Finalize Provisioning Requirements: Incorporate the mandatory  
+initial storage configuration requirement into cluster provisioning  
+workflows for the upcoming June release.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

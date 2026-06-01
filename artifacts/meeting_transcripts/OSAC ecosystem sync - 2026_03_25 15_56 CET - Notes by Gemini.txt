@@ -1,0 +1,270 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Mar 25, 2026
+OSAC ecosystem sync
+Invited Adrien Gentil Jason Kary Elad Tabak Akshay Nadkarni Avishay Traeger Eran Cohen Juan Hernández Michael Hrivnak Oved Ourfali Trey West Zoltan Szabo Dan Manor Ethan Kim Ofer Bochan Omer Vishlitzky Ameya Sathe Crystal Chun Alona Paz
+Attachments OSAC ecosystem sync 
+Meeting records Transcript 
+
+
+Summary
+Networking implementation completed with security group logic pending, validation and refactoring continued, and key proposals advanced for storage and access.
+
+Networking and Security Implementation
+Basic networking implementation is mostly complete and functioning across private and public APIs. The focus is shifting to implementing security group logic using Ansible templates and formalizing a generic AI development workflow.
+
+Storage and Access Proposals
+Work on tenant storage classes progressed with detection logic for duplicate classes, and an enhancement proposal is planned for storage tiers to structure various implementation scenarios. The quota proposal remains open after core concepts were challenged, requiring further resolution.
+
+Integration and Infrastructure Updates
+Ansible content refactoring was completed and merged into OSAC templates and OSAC AAP, with code nearing re-review after addressing comments. CI work advanced, with the installer now converting existing OpenShift clusters into hubs and creating remote clusters, which will be integrated into Prow for BMAS and CAS testing.
+
+
+Details
+* Basic Networking Implementation and Security Groups: Eran Cohen reported that the basic networking is mostly complete, with everything functioning in the private API, and the public API and network attachment on the computer instance appear to be working. They identified and merged a bug fix and plan to start implementing the security group logic to network policy within the Ansible templates. Eran Cohen also mentioned starting work on formalizing a generic AI development workflow and plans to send an email with a demo later today (00:00:00).
+* Network Validation and Review Tasks: Adrien Gentil has been focusing on reviews and is currently working on the Network Cloud Partner (NCP) network validation for Nvidia. This involves integrating and writing a validation suite that aligns with the existing networking API. Adrien Gentil also mentioned pushing a zip bundle to GitLab for code generation that needs testing (00:01:48).
+* Tenant Storage Classes and Storage Tiers: Akshay Nadkarni is primarily working on management 23404, which is related to tenant storage classes (00:01:48). Progress includes detection logic for duplicate storage classes, and they plan to update the pull requests (PRs) today after incorporating feedback. Regarding 23498 (storage tiers), Akshay Nadkarni plans to write an enhancement proposal to outline the structure and gather feedback before implementation due to the various scenarios involved, such as defining tiers at the tenant or cluster admin level (00:03:14).
+* Ancible Refactoring and Re-review: Avishay Traeger completed the refactoring of all Ansible content and merged the pull request into OSAC templates. They then vendored this change into OSAC AAP, where they had to rebase and are currently in the process of getting everything working again. The updated code is almost ready for re-review, having addressed all previous comments (00:04:24).
+* DNS API Enhancement and Metrics Integration: Dan Manor completed an enhancement proposal for the DNS API that has been reviewed. They are also integrating metrics into cluster as a service, though they encountered difficulties deploying OSAC with all components in a network address translation (NAT) environment, primarily due to component conflicts and insufficient storage/memory (00:05:47). They hope to record an end-to-end demo of the cluster creation process to present at the next meeting (00:07:10).
+* Repository Merging and Cleanup: Juan Hernández reported that the task of merging repositories is mostly done, but they are still waiting for a review on the PR submitted long ago to clean up the OpenShift CI. They confirmed that the task cannot be closed until the CI cleanup is complete. They also submitted a minor PR to the OSAC templates repository to add GPU pass-through support to VM creation, which is also awaiting review (00:09:57).
+* Catalog Implementation and Template Inheritance: Juan Hernández is working on implementing a catalog and submitted a pull request for an alternative enhancement proposal based on adding inheritance support to templates. This would allow users to create new templates by extending existing ones and modifying or removing parameters. Both the enhancement proposal and its accompanying implementation are awaiting review (00:10:58).
+* CI and Test Infrastructure Development: Omer Vishlitzky is mainly focused on CI work, having merged several PRs in the installer and test infra. The installer is now capable of converting an existing OpenShift cluster into a hub and creating a remote cluster in VM terms. The next objective is to integrate this capability into Prow and initiate tests for BMAS and CAS (00:10:58).
+* GPU Pass-Through and Carbite Integration: Trey West has been focused on getting VM with GPU pass-through functioning in the NVIDIA lab, which involves troubleshooting issues on both the Red Hat Enterprise Linux (RHEL) and Container Native Virtualization (CNV) sides. They are working with RHEL and CNV developers and have set up comparison environments (00:12:22). Regarding Carbite integration, Trey West successfully tested external access after receiving information to enable Border Gateway Protocol (BGP) to work with Metal Load Balancer (Metal LB) for the API, and they still need to test the ingress component (00:13:45).
+* Quota Proposal and Serial Access Status: Zoltan Szabo reported that the quota proposal remains a priority and they had hoped to close it today, but core concepts were challenged by Michael, leaving some open questions. Regarding serial access, the main PR is merged, but they have not closed the task because two minor PRs related to documentation are still open (00:13:45). They will post on Slack to facilitate the merging of the remaining PRs (00:15:02).
+* Authentication and Authorization: Crystal Chun is beginning work on the authentication and authorization piece. Their current focus is on creating the organizations API and establishing the necessary wiring to integrate it with KeyCloak to create the realms (00:15:02).
+* OSAC AP Repository Configuration: Dan Manor raised a question about how to make the OSAC AP repository configurable, specifically how users choose and integrate pluggable backends like network and DNS (00:16:18). Eran Cohen explained that network class work similarly to templates; once a YAML file appears in the relevant directory, it automatically registers the network class to the fulfillment service (00:17:45). Users are expected to select the desired network class when creating a virtual network, which is viewed as a tenant admin or tenant onboarding operation rather than an end-user operation (00:18:56).
+
+
+Suggested next steps
+* Eran Cohen will send an email later today detailing the generic AI development workflow.
+* Akshay Nadkarni will update the PRs today regarding the detection logic for duplicate storage classes based on feedback from Adrian.
+* Akshay Nadkarni will connect with Eran Cohen tomorrow to see what else needs attention.
+* Dan Manor will record an end-to-end demo of cluster creation from order until cluster delivery and present it on Monday's meeting.
+* Eran Cohen will start implementing the security group implementation to network policy in the anible templates.
+* Akshay Nadkarni will write an enhancement proposal detailing the structure for storage tiers for storage class (U 23 498) to gather views before implementation.
+* Omer Vishlitzky will create the relevant tests for CAS and BMAS integration into Prow.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Mar 25, 2026
+OSAC ecosystem sync - Transcript
+00:00:00
+ 
+Eran Cohen: Can you Can you guys see my screen? Yeah, I think you can. Cool. Um, okay. So, I think we'll just do it as we used to. just go in this order and say what you're working on and what we need help with, what you're trying to do. Um, so I think I got most of the basic networking in everything works in the private API. I added the public API and uh and And the network attachment on the computer instance uh seems to work. Did find the bug. I think it got merged yesterday. And I want to start implementing like the security group implementation to network policy in the anible uh templates. I think that's all that's left as we have it in the API and we have it in the in the back end. Um once I have that I guess actually I'm going to talk and see how we implement the rest of the f the rest of the things we have on the enhancement proposal. Um, oh, and I start working or trying to formalize how I work in like a genic AI development workflow.
+ 
+ 
+00:01:48
+ 
+Eran Cohen: So hopefully I can like I shared the a demo yesterday and hopefully I can send an email later today with like how I do it. That's it for me. Adrian
+Adrien Gentil: Yeah. Um so again I did a lot of reviews I think last week uh and uh at the moment I'm working at uh uh doing some NCP network validation for Nvidia cloud partner I think uh so I'm trying to integrate the yeah to to to write the validation suit that that Nvidia is providing and trying to fit that with our networking API. Okay, so I just started and uh yeah um did some some code generation but I need to check if it works. Uh and also I yeah it was just a zip bundle so I pushed that to GitLab because I don't think it's public. Uh and then we'll see how it goes.
+Eran Cohen: I'm
+Akshay Nadkarni: Yep. So, uh I'm mostly working on uh management 23404 which is tied to the tenants storage
+Eran Cohen: sorry.
+Akshay Nadkarni: classes and um what was done right now is like we have a tenant storage class and the shared storage class.
+ 
+ 
+00:03:14
+ 
+Akshay Nadkarni: Uh right now in PRs are the detection logic for duplicate storage classes and I did get some feedback from Adrian. So I'm um uh working on that and I'll update the PRs today. Regarding U 23 498 which is the storage tiers for storage class. Um there are different scenarios to consider there like what if a tenant has different storage tiers or what if the cloud provider admin wants to define storage tiers at the cluster level. So before jumping into the implementation, um I'll probably want to get a few views from people. So I'll write like an enhancement proposal and at least say okay this is what the structure will look like and put it out there. Um and based on the reviews then I can move towards implementation. So that is the uh one piece that is kind of remaining as far as far as storage class is concerned. And the one on the left uh was more about the end to end tests and I know there's been some work going on on the E2 test in Fra by uh Omare.
+ 
+ 
+00:04:24
+ 
+Akshay Nadkarni: So I don't know if that's ready or not but that was the only other ticket that was remaining there. So mostly I think uh my focus will be putting up uh updating the PRs for the detection of duplicate storage classes and putting out an enhancement proposal and then based on when I get feedback I can continue. So in the uh meantime I'll connect also with you Ian tomorrow and then see what else uh is there. So yeah that that's basically it.
+Eran Cohen: What
+Avishay Traeger: Yep.
+Eran Cohen: is
+Avishay Traeger: So with the refactoring uh all the anible so I merged I think yesterday
+Eran Cohen: heat?
+Avishay Traeger: the pull request into OSAC templates. Now I vendored that into OSAC AAP. I got everything working again. Then I had to rebase. Now I'm getting everything working again. Um, just a big change. So, it's a pain, but I'm almost done and it'll be up for re-review. And obviously, I addressed all the the comments on the poll request. So, thank you everyone who did a review whether it was a real review or AI generated.
+ 
+ 
+00:05:47
+ 
+Oved Ourfali: Thanks all the agents and all the all the people,
+Eran Cohen: Okay.
+Avishay Traeger: Thank you to Adrian and Claude and everyone else.
+Oved Ourfali: you
+Adrien Gentil: Now you have cut rabbit. Now, now we are kabit.
+Eran Cohen: Then
+Dan Manor: Hey, so uh yeah, so I'm working on the basically I wrote an enhancement for the DNS API um proposal that I made on Slack um then I followed with an enhancement which is basically been reviewed um by several people. So this is one thing and the other thing is basically integrating metrics into cluster as a service. So my test worked. I had hard time managing to deploy OSAC with all its components in a net environment. Um not sure why. Um basically you need to really find the right uh exactly the right commits from each of the components that work with each other. And some sometimes there are conflicts. Um so yeah and then I had my environment was not sufficient in terms of storage and memory. So I tried to deploy highly available cluster but then it didn't work also in environment.
+ 
+ 
+00:07:10
+ 
+Dan Manor: Anyway, so I hope I will manage to uh record a demo end to end then from the moment you create the cluster order until the moment you get basically the cluster. Um and then I will present it on Monday's meeting hopefully.
+Eran Cohen: And
+Adrien Gentil: He's got you.
+Eran Cohen: okay,
+Adrien Gentil: Not here.
+Eran Cohen: Jason, thanks
+Oved Ourfali: Yeah, I guess this task is uh I think um Clay, didn't you take this one on you back then
+Eran Cohen: I think Juan did in some of
+Oved Ourfali: or
+Eran Cohen: it.
+Trey West: Yeah, I think this task might be
+Oved Ourfali: I mean Yeah,
+Trey West: done.
+Juan Hernández: I I didn't do I didn't do any of that.
+Oved Ourfali: that's what I think as well.
+Eran Cohen: Oh.
+Juan Hernández: That was about deciding how to to me the repos. So that decision was made not by me. I implemented it in the other task that I have assigned it to
+Eran Cohen: Okay.
+Juan Hernández: me.
+Eran Cohen: So, let's just see what we have. Hopeful. Okay.
+ 
+ 
+00:08:30
+ 
+Eran Cohen: There's nothing here.
+Oved Ourfali: Okay, let's uh I think we move it to done. Isn't it the case? I don't
+Eran Cohen: I think there there was a question about Osaka and Osak template.
+Oved Ourfali: know.
+Eran Cohen: Maybe someone here can answer it like I guess cuz one is a collection and the other one is our our rule book. But maybe
+Adrien Gentil: What?
+Eran Cohen: so the only Okay,
+Adrien Gentil: What?
+Eran Cohen: maybe it was too slow or too fast for you to see. But in this task, Alona asked a question about OSAC AAP and OSAC templates like if we can unite them.
+Adrien Gentil: with the workflow that we have that Aisha did. I think we can unify that because we will have our base template and then if people want to to override or set books they will do it in another report. So it would make sense I
+Eran Cohen: Okay.
+Adrien Gentil: think.
+Eran Cohen: Okay. So, let's maybe just I don't see anything else that we can do. So, I'll just rename this, retitle this to unite those two.
+ 
+ 
+00:09:57
+ 
+Eran Cohen: And I think we can close it. Come on.
+Juan Hernández: So I have several things pending. One is the the merge of the repos. It's mostly done. It's missing the cleanup of the Open Shift CI. I submitted a P request for that long time ago. Still waiting for review.
+Eran Cohen: Wait. So I can close this
+Juan Hernández: No, you can't.
+Eran Cohen: one.
+Juan Hernández: It's missing that task clean up of the CI.
+Eran Cohen: Okay.
+Juan Hernández: So it's not uh complete.
+Eran Cohen: I think this is okay.
+Juan Hernández: And that is not complete. The other one is the epic so and also be complete.
+Eran Cohen: Okay.
+Juan Hernández: I also have been working on adding GPU pass through support to the to the creation of VMs. I submitted a pull request for the cloud kit for the OSAC templates repo is also waiting for review. It's a minor change just to add the PCI pass through support. And the third thing I am working on is the implementing a catalog.
+ 
+ 
+00:10:58
+ 
+Juan Hernández: I submitted a pull request for an alternative um enhancement proposal which is based on the creating adding support for inheritance to templates. So users will be able to create the current templates that we have extending existing ones and adding or removing parameters to them. for both the enhancement request and the enhancement proposal and implementation. I also wrote implementation although the proposal is not yet merged but both are waiting for review.
+Eran Cohen: Okay. Oh no.
+Omer Vishlitzky: Hey. Uh, so I'm working on the CI mainly. Uh, so merge a couple PRs in the installer and in the test infra. Uh, basically to get the installer uh, into a state where it can uh, convert an an existing open shift cluster to a hub and another script that creates a remote cluster or a target cluster in in VMS terms. And the next step is to integrate it into Prow and then start with BMAS and CAS uh tests.
+Eran Cohen: Okay.
+Omer Vishlitzky: That's it in mind.
+Eran Cohen: But it doesn't show like on the like you you don't do you have
+ 
+ 
+00:12:22
+ 
+Omer Vishlitzky: Sorry
+Eran Cohen: tasks for that cuz there's just like create a nightly job.
+Omer Vishlitzky: for task for the for the uh cast and
+Eran Cohen: Yeah.
+Omer Vishlitzky: beas.
+Eran Cohen: For for what you're actually doing now.
+Omer Vishlitzky: Um sorry I'll create more I'll create the the relevant tests.
+Eran Cohen: Okay.
+Trey West: So, uh, this past week or so I've been mainly working on getting VM with GPU pass through working in the NVIDIA lab. Uh, there's a lot of going back and forth on this. So, uh, we kind of started with CNV trying to get it to work, but turns out that there's also issues just on the rail side. So, um, I've set up a couple environments, a rail 10 environment and a CNV environment side by side, just trying to compare and go through with some of the rail and CMV developers on that. Um, I think we're making some progress, but still trying to work through it and figure out what exactly is going on. So, um, continuing to work over there. And then on the carbide integration side, uh I did get to test out some external access stuff last week, uh I think I mentioned that we need BGP to work with Metal LB in that environment.
+ 
+ 
+00:13:45
+ 
+Trey West: Um so the admins did give me some info to use and I saw it working um at least for the API. I need to test out the ingress part as well. Um and then I think we can start moving forward. But that's it for me.
+Eran Cohen: Nice. Okay, we don't have to on the call. All done.
+Zoltan Szabo: Yeah, for for me still the quarter proposal is a big thing and the other stuff are just filler. So get occupied all the time. Uh for the proposal uh I I actually hope to to close it sometime today but uh because uh most of the people already approved it. But then came Michael uh you know guns blazing in the saloon. So yeah, he challenged a few core concepts and uh there are some open questions we need to
+Eran Cohen: Yeah, cool.
+Zoltan Szabo: close.
+Eran Cohen: Just I didn't catch what's the status of the serial access.
+Zoltan Szabo: Uh yeah, for I haven't mentioned that uh the main main PR is is merged for that.
+ 
+ 
+00:15:02
+ 
+Zoltan Szabo: Um I I just didn't close it because there are other two minor PRs open documentation and stuff like that. So uh actually it's it's finished but
+Eran Cohen: Okay. Okay. So, just post on on Slack and let's get those merge so we can close
+Zoltan Szabo: uh
+Eran Cohen: this.
+Zoltan Szabo: Yep.
+Eran Cohen: Okay. Anyone else?
+Crystal Chun: Hey. Um,
+Dan Manor: Yeah.
+Crystal Chun: go
+Dan Manor: No, no. Go ahead.
+Eran Cohen: Oh,
+Dan Manor: Go ahead.
+Crystal Chun: ahead.
+Eran Cohen: Crystal, you're not here, but I know you're working on the quotas. You want to
+Crystal Chun: Hi. Yeah. Um,
+Eran Cohen: go?
+Crystal Chun: so I just added my task to the sprint. Um, but it's not showing up on the dashboard, so maybe I need to change something else.
+Eran Cohen: I need to refresh
+Crystal Chun: But I sent it in the chat.
+Eran Cohen: probably.
+Crystal Chun: Um, well, I'm working on the uh authentication authorization piece and I'm kind of just getting started. So, right now I'm just creating the organizations API and I'll probably create the wiring for it to integrate into KeyCloak um and create the realms for that.
+ 
+ 
+00:16:18
+ 
+Eran Cohen: Okay, there.
+Dan Manor: Yeah. Uh if Crystal is done, I just wanted to basically to consult with you. Um cuz now a lot of parts in cluster as a service flow are hardcoded. Um now we're going to have network is basically pluggable back end and DNS going to be a pluggable back end also. How do we intend to make it uh I mean how how do we intend to make OSA a repository configurable? I mean how do we configure it because it's not like a component that you deploy and you can just specify envir and then the deployment behaves in certain way. Do we expect the user to fork the repository and change default variables
+Eran Cohen: Oh wait,
+Dan Manor: or
+Eran Cohen: I think Abishai has the answer about like the actual implementation like what code runs and I'm not sure if you're asking also if how they get to choose the implementation.
+Dan Manor: Sorry, not sure I
+Eran Cohen: So,
+Dan Manor: understood
+Eran Cohen: are you asking about how they get their anible playbook code into our setup or how they choose which implementation they want to
+ 
+ 
+00:17:45
+ 
+Dan Manor: both basically.
+Eran Cohen: use?
+Dan Manor: I mean they both eventually they both end up with how do we configure Osaka AP repository as a user that's going to use it.
+Eran Cohen: So I'll be
+Dan Manor: I mean not just but not just as as as cluster templates
+Eran Cohen: fine.
+Dan Manor: that like now when I'm introducing netric as a network class how do I allow it in osak basically for the user to deploy
+Eran Cohen: Oh, so wait. Okay, I can say that if you get your code into the git repo that it's pulling from. Okay, we do have a concept of like auto registration of template and like the network class work in the same way. It's sort of a template. So once you have some YAML file uh showing up in the relevant directory, it's just going to post that network class like register it to the fulfillment service.
+Dan Manor: No.
+Eran Cohen: So of
+Dan Manor: Yeah.
+Eran Cohen: that
+Dan Manor: What I mean is it's I mean it's not it doesn't make sense for me that user every user that wants to create I mean there are there are three stages here right?
+ 
+ 
+00:18:56
+ 
+Dan Manor: There are there is the user that deploys OSA for the end users right? So every time an end user creates a cluster order I don't think that this end user should specify network class right this is something that is true for all the deployment I mean for the all the clusters in the deployment for example uh yeah maybe it's not something that we should delay everyone in right now
+Eran Cohen: Well, I I agree,
+Dan Manor: Um
+Eran Cohen: but I assume like there's going to be one and that's just going to be the one you use.
+Dan Manor: okay.
+Eran Cohen: Um,
+Dan Manor: So for now we just hardcode default values in the unible groups and then we'll see
+Eran Cohen: No, no. I think like there's going to be one per deployment, but there can be different ones. So it's not it's not hardcoded like currently what we what you get is let's say there are few there's like three network classes implementation in the anible each of them get registers and when you go and create a virtual network and subnet like essentially the virtual network everything else just uh comes from that but on the virtual network you need to say which network class you wanted to is for
+ 
+ 
+00:20:21
+ 
+Dan Manor: So, so you exposed it in the external API for the end users.
+Eran Cohen: the end user when they create a virtual network which I guess isn't like a regular tenant uh operation probably like tenant admin I think it's
+Oved Ourfali: like tenant on boarding more like that or is it like a after on boarding?
+Eran Cohen: after like whenever you want to create your new VPC let's call it you need to say okay which kind of network class this VPC is
+Dan Manor: Okay. I I think I I'm probably missing some clarification on which part is take place in this in this product. I mean what exactly?
+Eran Cohen: Okay, let's
+Dan Manor: Yeah. Yeah.
+Eran Cohen: talk.
+Dan Manor: Okay.
+Eran Cohen: Okay. anyone anything? Okay. Um I can update that starting next week. I think in one week from now there's going to be a shutdown at the Israeli site for almost two weeks. Um so hopefully we can make it uh through that two weeks and but we still have one more week of getting task done.
+ 
+ 
+Transcription ended after 00:22:10
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

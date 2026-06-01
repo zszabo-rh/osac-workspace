@@ -1,0 +1,284 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Mar 11, 2026
+OSAC ecosystem sync
+Invited Adrien Gentil Jason Kary Elad Tabak Alona Paz Akshay Nadkarni Eran Cohen Juan Hernández Michael Hrivnak Oved Ourfali Trey West Zoltan Szabo Dan Manor Ethan Kim Ofer Bochan Omer Vishlitzky Avishay Traeger
+Attachments OSAC ecosystem sync 
+Meeting records Transcript 
+
+
+Summary
+Controller preferences focused on per resource reconcilers with repository merging cleanup, Slurm proposal review, and documentation updates for MSPs.
+
+Controller Per Resource Consensus
+The group decided to start with 1 controller per resource, as most resources are implemented via AAP provisioner and share caches. Demoting a resource to a sub-resource within another reconcile loop will be considered if necessary later.
+
+Flight Network Class and Subnets
+Adding the ability to use the flight network class was proposed as a new epic due to its scope as a new network class. The team will follow up on bridging newly created subnets into the compute instance API.
+
+Repository Merging and CI
+Repository merging work is nearing completion with only continuous integration cleanup awaiting review. Subsequent work on VM with GPU is paused, and the team will consult about using MLC machines with GPUs.
+
+
+Details
+* Controller Per Resource Discussion: The group discussed the preference for starting with a controller per resource in the project, acknowledging that most resources on the OSC side are similarly implemented by calling the AAP provisioner. They agreed that having a reconciler per resource is lightweight and uses shared caches and watching mechanisms, reducing concerns about adding new controllers within the same process (00:01:09). They also decided that if a resource later appears to be a clear sub-resource that does not require its own controller, they can consider demoting it and integrating it into another resource's reconcile loop.
+* Flight Network Class and Subnet Bridging: Eran Cohen raised a task related to adding the ability to use the flight network class, suggesting it should be its own epic due to its scope as a whole new network class (MGMT23267) (00:01:09). The discussion shifted to bridging the newly created subnets into the compute instance API, as currently, subnets are created for a namespace, but the compute instance is created on the tenant namespace. They will follow up on the specific pattern to generate the namespace name using the subnet ID and review Adrien Gentil's proposal regarding a binding component between the subnet and the object using it (00:02:13).
+* Repository Merging and GPU Workstation Status: Juan Hernández reported that they have been trying to finish the work to merge the repositories, with only cleaning up the continuous integration (CI) remaining, for which a pull request is awaiting review. Their subsequent work on virtual machines (VMs) with GPU utilizing the NVIDIA partner ecosystem lab is currently paused because they were unable to make it work and were asked not to create more machines there. Alona Paz suggested that they try using the MLC machines since they have GPUs, and they agreed to consult with Rome about using the MLC environment (00:04:14).
+* Slurm Proposal and Post-Installation Formalization: Michael Hrivnak brought up the need for formalization on how to install services into a cluster after it is ready in the context of Cluster as a Service, specifically mentioning the Slurm proposal (00:05:37). Trey West clarified that their prior work involved installing GPU and network operators and applying basic configurations post-installation, mainly involving applying Kubernetes YAML (00:06:47). Michael Hrivnak recommended that Trey West review the Slurm proposal, which was placed in the agenda for a previous meeting, to assist with the formalization process (00:07:44).
+* Future Topics and Meeting Logistics: Michael Hrivnak suggested that the team should soon dig more into storage as a topic. Due to an increase in participants, Alona Paz indicated that they may add 15 more minutes to the next meeting (00:07:44).
+* Onboarding and Carbide Integration: Omer Vishlitzky reported that they are still onboarding, reviewing documents, and expect to start looking at the implementation of the repository next week, suggesting they will sync with Trey West, who previously worked on the CI. Trey West mentioned they opened an initial enhancement proposal for the Carbide integration, aiming for parity with ESI in this first iteration (00:08:56). A future iteration will focus on adding Carbide as a backend for bare metal fulfillment once it is fully implemented (00:09:48).
+* Documentation and Feature Status: Zoltan Szabo reported that a feature is under review and noted they added technical details to the documentation, which Michael Hrivnak clarified is appropriate since the intended users are cloud providers or Managed Service Providers (MSPs) who need to understand deployment and operation (00:11:00). Zoltan Szabo is also working on the quota service, and they were reminded to add the enhancement proposal as a task under a ticket rather than directly as an epic on the board. Akshay Nadkarni confirmed that the feature is scheduled for April 8, and they will aim to complete the end-to-end implementation by March 25th to be ahead of the feature freeze (00:12:00).
+
+
+Suggested next steps
+* Alona Paz will add 15 more minutes to the next meeting due to the increasing number of attendees.
+* Eran Cohen will take a look at the proposal where Adrien Gentil suggested a binding component between the subnet and the object using the subnet. - https://github.com/osac-project/enhancement-proposals/tree/main/enhancements/networking#integration-computeinstance
+* Trey West will read the slurm proposal.
+* Omer Vishlitzky will be in sync with Trey West, who previously worked on the CI.
+* Juan Hernández will try using the C machines and the MLC environment for working on VMs with GPU, and Alona Paz will consult with Rome about this.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Mar 11, 2026
+OSAC ecosystem sync - Transcript
+00:00:00
+ 
+Eran Cohen: that most of them on the OSC side are doing the same thing. They're just grabbing it, maybe checking a thing or two and then just call the AAP provisioner. Um I don't know like I think for the two that I implemented like I thought that okay it's okay but I don't know if there's like going to be a lot more maybe you should rethink
+Michael Hrivnak: I think I think it's a it's a good point to raise. I think by default I would say for sure let's start with a controller per resource and then if we see um an opportunity where one of like some of these resources are clearly sub
+Eran Cohen: Okay.
+Michael Hrivnak: resources in some like have a relationship where they're not really a primary resource and don't need their own controller and logic maybe then we demote somehow and make it part of some other resources. reconcile loop. Um, but other than that, I think as long as we're doing, you know, reasonable shared code kind of practices and
+Eran Cohen: Yeah,
+Michael Hrivnak: like
+Eran Cohen: I think it is it is sure like the all the provisioning is in the AP code.
+ 
+ 
+00:01:09
+ 
+Michael Hrivnak: yeah,
+Eran Cohen: Um,
+Michael Hrivnak: yeah.
+Eran Cohen: yeah, I agree.
+Michael Hrivnak: And like in terms of the the controller itself,
+Eran Cohen: Let's see.
+Michael Hrivnak: it's very lightweight to have another reconciler. It's basically just another go routine. All the the caches are all shared, the watching is all shared. So there's really not a whole lot to worry about in terms of adding new controllers within the same process.
+Eran Cohen: Okay, fair enough. And the one task on the bottom left here, I think that should be its own epic. Like it sounds like add the ability to use your flight,
+Michael Hrivnak: All
+Eran Cohen: but I think that's a whole new network class that we bought uh MGMT23267.
+Alona Paz: Mhm. This one.
+Eran Cohen: the the one on the bottom here bottom left that
+Alona Paz: This this this ah okay flight
+Eran Cohen: one. This one that's like an epic.
+Alona Paz: okay let's start with
+Eran Cohen: I think that's a couple of days. Um
+Alona Paz: having first day the UC and then we'll continue with the VR
+ 
+ 
+00:02:13
+ 
+Eran Cohen: yeah.
+Alona Paz: flight
+Eran Cohen: Okay. So hopefully tomorrow we will have this and then there I I need like to do a
+Alona Paz: Mhm.
+Eran Cohen: followup for like bridging this into compute instance because now we can just create subnets and they will they will create a CDN for some name space but still the compute instance is getting created on the on the tenant name space which I don't know um need to see if we want it on the in the computer in API I guess so but let's let's talk after it's all
+Adrien Gentil: I think
+Alona Paz: Canot you use the same pattern to create the name to generate the name space
+Adrien Gentil: so.
+Alona Paz: Okay.
+Eran Cohen: I generate the namespace name by the subnet ID um because I think
+Michael Hrivnak: right.
+Eran Cohen: that's the that's the link we have like each subnet is going to be a CDN for a specific place and then like this is how the
+Alona Paz: Mhm.
+Eran Cohen: mapping works in my mind I guess
+Alona Paz: Mhm.
+Michael Hrivnak: Iran, I'm just sorry I lost a few words in there.
+ 
+ 
+00:03:21
+ 
+Eran Cohen: Um,
+Michael Hrivnak: You were raising a question about whether something should be in the compute instance API. What was that?
+Eran Cohen: yes,
+Michael Hrivnak: Ah,
+Eran Cohen: the subnet.
+Michael Hrivnak: okay. Yeah, yeah, yeah.
+Eran Cohen: So,
+Michael Hrivnak: Okay.
+Eran Cohen: I like I I was hoping I can start without, but I don't know how. Like I was hoping I could just tweak like the
+Alona Paz: But I think Adrian suggested on the proposal some binding component between uh the
+Eran Cohen: name
+Adrien Gentil: Yeah.
+Alona Paz: subnet and the object that is using the
+Adrien Gentil: Okay.
+Alona Paz: subnet.
+Adrien Gentil: I think it was there. Yeah,
+Eran Cohen: I'll take a look.
+Adrien Gentil: there was the network
+Alona Paz: We have four more minutes. So let's take it offline.
+Eran Cohen: Okay.
+Alona Paz: Uh but I think it was there like it has to be there because there should be a way to
+Eran Cohen: Yeah,
+Adrien Gentil: attachment.
+Michael Hrivnak: Yeah.
+Alona Paz: connect.
+Eran Cohen: that's
+Michael Hrivnak: Yes.
+Alona Paz: Uh and it should not be for comput instance also for clusters and bare metals instances.
+ 
+ 
+00:04:14
+ 
+Alona Paz: Okay. Uh anything else? Uh thank you. Uh,
+Eran Cohen: Yep.
+Alona Paz: Juan.
+Juan Hernández: I've been trying to finish the work to merge the repos. The only remaining thing is cleaning up the CI. I submitted a pull request for that. It's waiting for review.
+Alona Paz: Uh perfect. And then you will start working on GPU. Uh right on VMs with the GPU on the Nvidia
+Juan Hernández: Yeah, that that's that's not here. I tried to tried to find out how to do that in the Nvidia
+Alona Paz: lab.
+Juan Hernández: partner ecosystem lab and um I wasn't able to make it work that that's suspected and I was asked to not create more machines there so I post that work for now I can't progress on
+Alona Paz: Ah, okay. If you can just like you ah it's here. Okay. It's just I guess missing the sprint. H maybe you can use them C machines because they have GPUs and Oran really suggest us to use the MLC environment and even the MLC engineers.
+ 
+ 
+00:05:37
+ 
+Juan Hernández: Okay. So, I can try that.
+Alona Paz: Uh I think I let's consult with with Rome about it.
+Juan Hernández: Okay. No,
+Alona Paz: Uh thank you because like we really need VMs with GPU because I think
+Juan Hernández: nothing
+Alona Paz: that's our very uh main story here. So we need to make sure VMs are working with GPUs. Okay. H anything else one? Thank you Michael. Anything you want to
+Michael Hrivnak: Um yeah, sorry I missed the meeting earlier uh this morning.
+Alona Paz: share?
+Michael Hrivnak: Uh Idomar is here and wanted a briefing on all this stuff. So good news is we're getting a lot of attention. Um uh there's so there's the slurm thing. I don't know if much discussion actually happened in the meeting about the slurm proposal. Uh I need to go see what updates Swatty actually pushed there a while ago. But I think the bottom line is there we need to figure out what's the right way to express generally with in the context of cluster as a service.
+ 
+ 
+00:06:47
+ 
+Michael Hrivnak: How can we then install stuff into that cluster when it's done and when it's ready. We probably just need some formalization on that. If anybody's done some thinking on that or has an opinion or wants to think about that follow up on it.
+Alona Paz: But do we have those post install things on the template? No. How we install
+Michael Hrivnak: Yeah.
+Alona Paz: operators
+Michael Hrivnak: Um, is that uh is there anything missing from that that would prevent slurm the slurm use case from
+Alona Paz: today?
+Michael Hrivnak: using it?
+Alona Paz: I think you are the most experienced with it. You installed the
+Trey West: Yeah, I guess I would I guess I would need to know what specifically you want to do
+Alona Paz: operators.
+Trey West: post installation. I mean, my PC stuff that I did was more or less like insawing some like GPU operators, network operators and applying like some basic configuration.
+Michael Hrivnak: Yeah.
+Trey West: Um,
+Michael Hrivnak: Yeah.
+Trey West: so I saw that work.
+Michael Hrivnak: Assuming apply Kubernetes AML is the main thing.
+ 
+ 
+00:07:44
+ 
+Michael Hrivnak: Um so okay, maybe we already have and uh if you've not seen or reviewed the slurm proposal, that might be helpful if you got a few minutes to go read that.
+Trey West: Okay, sounds good.
+Alona Paz: If you can share it on the OAC channel or it's already
+Michael Hrivnak: Um, don't know. I put it in it's in the agenda for the meeting that was two hours ago.
+Alona Paz: Ah yes they discussed it but like not I don't think there is a reduction item.
+Michael Hrivnak: Yeah. Okay.
+Alona Paz: Uh okay. Thank you. Anything else?
+Michael Hrivnak: Uh just other than that we probably should dig more into storage as a topic soon. Um so likewise if anybody has thinking on that uh or wants to become a storage expert let's talk about it.
+Alona Paz: Perfect. And uh we are getting a lot of people. So maybe I will add 15 more minutes uh to the next meeting. Uh welcome.
+Eran Cohen: They skipped like five people that wasn't here
+Alona Paz: Yes, it's even people.
+ 
+ 
+00:08:56
+ 
+Alona Paz: I even skipped people. Uh oh,
+Eran Cohen: and
+Omer Vishlitzky: Hey.
+Alona Paz: we are we are in impur.
+Omer Vishlitzky: Um um so I'm still on boarding.
+Alona Paz: Yes.
+Omer Vishlitzky: I didn't even start to look at the at the implementation of the of the repo. Um going over the documents probably start next week with that.
+Alona Paz: Mhm. Uh perfect. Thanks.
+Omer Vishlitzky: Of
+Alona Paz: And just been sync with Trey that worked on the CI previously. Uh,
+Omer Vishlitzky: course.
+Alona Paz: welcome. Uh,
+Omer Vishlitzky: Thank you.
+Alona Paz: Trey
+Trey West: Yeah. So I uh I opened an initial enhancement proposal for the carbide integration. So um if you have a chance, please go take a look at it. Uh more or less I think the goal for this is just to get more or less parody with ESI. Um so just take a look at that enhancement. There are a few open questions I have. uh for example like external access um deciding
+ 
+ 
+00:09:48
+ 
+Eran Cohen: So
+Trey West: tenants tenant information um so like right now I'm trying to look into the external access part um just trying to test out doing a uh deployment with metal lb um I'm not sure if anyone else has any experience with stuff like that
+Eran Cohen: anyone
+Trey West: but uh that's my first step but if you have any insight feel free to share
+Alona Paz: Perfect. And uh we have a meeting tomorrow. I'm not sure you're there. If not, I will add you with Michael Lars and Zoom in
+Trey West: Yep,
+Alona Paz: about his proposal of uh what you what you discussed on
+Trey West: I'm there.
+Alona Paz: Friday of his proposal of uh how to do this API for the inventories. Uh you're on the meeting for tomorrow.
+Trey West: Yes. Yeah. So, I've I've kind of been in contact with men and Lars on that.
+Alona Paz: Okay.
+Trey West: I think so. That's kind of why I said this first iteration is just getting par with ESI.
+Alona Paz: Yes.
+Trey West: Um I think in a future iteration it'll be actually adding carbide as a backend for the bare metal fulfillment um once it's
+ 
+ 
+00:11:00
+ 
+Alona Paz: Yes, makes sense.
+Trey West: implemented.
+Alona Paz: So, just make it work for now with what we have and then we'll use the official APIs.
+Trey West: Yep.
+Alona Paz: Perfect. Thank you.
+Trey West: Exactly.
+Alona Paz: Uh, whoever needs to drop, feel free to drop. Sorry, we're over time. Zan
+Zoltan Szabo: Um yeah uh so so basically uh this this feature is in review and I hope hopefully it can be very soon at least uh I think all the questions were added. Oh yeah. Uh by the way uh Michael you mentioned that the docs prop is for for users mainly right? So um maybe I have added too much technical details to the documentation I have put
+Michael Hrivnak: I I haven't seen it yet,
+Zoltan Szabo: there.
+Michael Hrivnak: but uh I I guess I should clarify the cloud users. So like the cloud provider or MSP I expect will be the one using that documentation to deploy this
+Zoltan Szabo: Oh okay.
+Michael Hrivnak: thing, operate it. They need to understand what network plumbing do they need to facilitate like all that kind of stuff.
+ 
+ 
+00:12:00
+ 
+Michael Hrivnak: So technical is good.
+Zoltan Szabo: All right. Okay. Then I don't need to split it. Um basically that's so and and um for some reason the the quota ticket is
+Alona Paz: Okay.
+Zoltan Szabo: not here. The quarter service I'm also working on that maybe is
+Alona Paz: Mhm. Just make sure it has just add the
+Zoltan Szabo: not
+Alona Paz: ticket. Never add epics to the to the board.
+Zoltan Szabo: Yeah. Okay.
+Alona Paz: Just add a ticket and uh yeah I add a task
+Zoltan Szabo: Mhm.
+Alona Paz: to the epic task a lot of task how however you want to split the work and
+Zoltan Szabo: All right.
+Alona Paz: uh assign it put all suck as the component and uh assign it to the
+Zoltan Szabo: Currently
+Alona Paz: sprint.
+Zoltan Szabo: I'm just working on proposal propos.
+Alona Paz: So add a task create enhancement proposal and do this on the task.
+Zoltan Szabo: Yeah.
+Alona Paz: Uh so we will see it here. Uh okay.
+Zoltan Szabo: Sure.
+Alona Paz: And they see that actually wrote that the future is on April 8. So we should be okay with
+Akshay Nadkarni: Yeah. Yeah.
+Alona Paz: times.
+Akshay Nadkarni: And I mean OD mentioned that it would be good to get it a week or two before their feature freeze.
+Alona Paz: Yes.
+Akshay Nadkarni: So yeah, so I'll try to get it done by like March 25th or something at least end to end.
+Alona Paz: Like
+Akshay Nadkarni: But I'll keep you guys posted in any case. So yeah,
+Alona Paz: perfect. Okay. Thank you. Sorry for the over time.
+Akshay Nadkarni: sounds good. Thank you. Thanks, Alona. Bye.
+Trey West: until.
+Akshay Nadkarni: Yeah.
+ 
+ 
+Transcription ended after 00:13:44
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.
