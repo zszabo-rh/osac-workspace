@@ -1,0 +1,89 @@
+[PROCESSED 2026-06-02]
+warning: unknown output format 'text'; falling back to json (valid options: json, table, yaml, csv)
+Using keyring backend: keyring
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - Working Groups” May 27, 2026
+Date: Wed, 27 May 2026 14:59:34 +0000
+---
+Notes from “OSAC - Working Groups”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 27, 2026, 4:57 PM CEST and may  
+contain errors.
+
+
+Summary
+The project implemented a team restructuring via working groups and an  
+Agentic Software Development Life Cycle strategy.
+
+
+Team Restructuring and Roles
+The team adopted a working group structure to improve scalability and  
+onboarding. Defined leadership roles now include Lead, Manager, Architect,  
+and Product Manager for clear project accountability.
+
+AI Strategy and Milestones
+Engineering goals shifted to an Agentic Software Development Life Cycle  
+model to increase efficiency. Milestone 1 planning remains in progress with  
+a target completion of late June.
+
+Compliance and Project Transparency
+Leadership prioritized establishing a formal compliance strategy to ensure  
+project credibility. A document will clarify the relationship between  
+internal working groups and the public project structure.
+
+
+Suggested next steps
+
+
+
+[The group] Share Recording: Share the meeting recording with any  
+colleagues who should have been present but were missed during the meeting  
+invite process.
+
+[The group] Review Assignments: Review the spreadsheet containing the full  
+list of people assigned to each working group and their associated  
+responsibilities.
+
+[Working group leads] Kickoff Meetings: Schedule and initiate kickoff  
+meetings for the newly defined working groups to discuss current progress,  
+brainstorm objectives, and align on tasks.
+
+[Orran Krieger] Clarify Project Structure: Develop a draft document  
+clarifying the relationship between internal Red Hat working groups and the  
+public open source project structure for team review.
+
+[The group] Adopt AI Skills: Explore existing skills within the OSAC  
+workspace, experiment with new workflows, and suggest additional skills to  
+improve developer efficiency.
+
+[Eran Cohen] Build Agentic Harness: Complete the development of a custom  
+harness for agentic SDLC and integrate it into the OSAC workspace.
+
+[The group] Implement AI Strategy: Consult with Iran and other team members  
+to incorporate artificial intelligence into the software development life  
+cycle.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

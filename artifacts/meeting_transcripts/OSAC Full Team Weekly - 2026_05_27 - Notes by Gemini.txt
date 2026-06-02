@@ -1,0 +1,88 @@
+[PROCESSED 2026-06-02]
+warning: unknown output format 'text'; falling back to json (valid options: json, table, yaml, csv)
+Using keyring backend: keyring
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Full Team Weekly” May 27, 2026
+Date: Wed, 27 May 2026 14:11:03 +0000
+---
+Notes from “OSAC Full Team Weekly”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 27, 2026, 4:08 PM CEST and may  
+contain errors.
+
+
+Summary
+The project meeting covered Jira workflow updates and bare metal  
+fulfillment demonstrations for cluster deployment workflows.
+
+
+Jira and Workflow Updates
+The project Jira structure was updated to include 3 release milestones and  
+a new Request for Feature ticket type. Teams established that features  
+represent tangible deliveries while epics serve as containers for related  
+tasks.
+
+Bare Metal Fulfillment Progress
+The team introduced profile-based bare metal management using Ansible  
+playbooks for provisioning and deprovisioning host states. This automation  
+enables the creation of pools that specify network and template parameters  
+dynamically.
+
+UI and Catalog Demos
+Demonstrations showcased catalog items for flexible cluster scaling and a  
+new web wizard for automated Enclave environment bootstrapping. The  
+decision was made to open a Jira ticket to add the Request for Feature type.
+
+
+Suggested next steps
+
+
+
+[Alona Paz] Add Jira Ticket Type: Create a new ticket type for feature  
+requests within the project space.
+
+[Research Group] Add Research Tasks: Add all relevant research tasks into  
+the project Jira to provide a clear view of the work.
+
+[Liat Gamliel] Update Documentation: Include information regarding Enclave  
+and the installer in the official project documentation.
+
+[Tzu-Mainn Chen] Merge Pull Requests: Finalize and merge the outstanding  
+pull requests for cluster as a service and agent provisioning workflows.
+
+[The group] Improve Installer: Update the installer to improve  
+accessibility and ease of consumption for all users.
+
+[The group] Plan Management Operator: Create a plan for the generic host  
+management operator and define subsequent steps.
+
+[Unassigned] Update Architecture Document: Revise the architecture  
+documentation to ensure consistency with the current project plans.
+
+[The group] Post questions: Use the Slack channel to ask any remaining  
+questions regarding the demo or presented topics.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+
