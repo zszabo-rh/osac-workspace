@@ -1,0 +1,932 @@
+[PROCESSED 2026-06-02]
+﻿Agenda
+Jun 8, 2026
+* Demos
+   * Core
+      * Admin APIs -Add administrative APIs for role management, identity provider management, and project management.[a][b]
+   * Network
+      * Public IPs - network attachments
+
+
+
+
+Jun 1, 2026
+* Demos
+   * [Elior Erez] OSAC Installer - Move to Helm based installer (TBD)[c][d]
+   * Integration with BCM[e] (8 min) - slides
+
+
+
+
+
+
+May 18, 2026
+* CI status update
+* Demos[f]
+   * Core
+      * [Crystal] Move to keycloak organizations (5 mins)
+         * OSAC Multi-Tenancy: Auth/Authz, Keycloak Organization
+         * switch-to-org.mov
+   * VMaaS
+      * [Ilya] Dedicated VM cluster (~10 min)
+      * [Ameya] Windows VM (10 min)
+   * CaaS
+      * Storage
+         * Vast (Show CaaS with Vast (without using storage API)
+         * vast-on-osac-DEMO.mp4 (4 min)
+   * UI - fulfillment service integration with the UI on the tenant flow (5 min)
+
+
+May 11, 2026
+* [Adrien] Private API is for Cloud Admin [context]
+* Demos
+   * [Elad Tabak] CaaS API (5 min)
+   * [Akshay] Public IP (demo / slides) (20 mins) 
+   * [Ofer] VM status reporting from roles (5 min)
+   * [Dan] CaaS with automatic agents provisioning (slides) (20 min)
+   * [Zoltan[g]] Storage tenant on boarding (5 min)
+   *    * [Elay[h]] UI progress
+May 4, 2026
+* [Alona] jira project
+* [avishay] VM image management approach
+* [avishay] Any updates on metering?
+* [Eran] Keeping osac-installer up to date - https://github.com/osac-project/osac-installer/pull/90
+* [Eran] Deleting resources with children (MGMT-24179)
+   1. Block at the API level (check that there are no child resources)
+   2. Block at the operator level (check that there are no child resources)
+   3. Block at the API level + --cascade flag
+   4. K8s ownerReferences + foreground delete
+
+
+* Demos
+   1. VMaaS
+      * none
+   2. BMaaS & CaaS
+      * CaaS integrated with very basic BMaaS
+         * OpenStack inventory, selecting hosts pre-provisioned as agents
+         * No network isolation
+         * No workflows run
+         * No exposure in the fulfillment service
+         * Link to demo
+      * Host Management Operator (OpenStack)
+         * Power management
+         * Link to demo
+   3. Generic
+      * DNS API - 10 min
+      * Org Multi tenancy[i][j][k][l][m]
+         * First step, organization CRUD: organizations-demo.mov [slides OSAC Multi-Tenancy: Auth/Authz]
+      * VMaaS e2e tests - 15min
+   4. UI
+      * Initial VMaaS flow - 5 min (Wednesday)
+
+
+Apr 27, 2026
+* [avishay] Metering and quotas - initial doc by Michael - is this the direction?
+   * research additions/ideas/needs Academic/Research OSAC metering
+* [avishay] VM image management epic and enhancement proposal
+* [Dan] Discuss what can be done to show e2e caas story infra admins
+* [Eran] https://github.com/osac-project/osac-workspace
+* [Adrien] Create an integration environment for UI, and demos, where?
+* Demos
+   * [Adrien[n][o]] Showing again VMaaS: https://asciinema.org/a/2NDZocgOAn1vfhjY 
+   * [Trey[p]] Carbide demo
+   * [Adrien[q][r]] dedicated cluster demo 
+
+
+Apr 20, 2026
+* OSAC roadmap - OSAC Roadmap 
+* Storage
+   * Is anybody leading CaaS storage? Lars?
+* Unblock pending tasks -
+   * Catalog items - need to decide between https://github.com/osac-project/enhancement-proposals/pull/30
+and https://github.com/osac-project/enhancement-proposals/pull/17
+   * VM console doc - https://github.com/osac-project/docs/pull/22
+   * DNS: https://github.com/osac-project/enhancement-proposals/pull/29
+   * Demos
+   * CaaS using Carbide (demo)
+   * VMaaS demo[s]
+   * VM GPU passthrough demo ~ 8 min
+   * OSAC VM GPU passthrough demo.mp4
+   * https://github.com/osac-project/osac-aap/pull/232
+
+
+Apr 13, 2026
+
+
+   * [wgordon] fulfillment-cli -> osac CLI renaming proposal
+   * Primary reasons: remembrance, ease of typing, documentation
+   * AI: Sounds like general consensus is positive, PR to rename CLI[t]
+   * [wgordon] Documentation strategy
+   * Is there a plan for docs to be consumed by docs.redhat.com?[u]
+   * Do we/should we follow the HyperShift strategy of having our open source documentation be published independently (https://hypershift-docs.netlify.app/) 
+   * Thoughts on breaking up the docs monorepo, and colocating all of the docs in their respective repos. The existing docs repo then becomes an aggregator and publisher. This also helps with AI workflows, helping keep the agents focused on single-repo changes
+   * AI: Positive agreement to move forward with a "proof of concept" with CLI documentation living next to the CLI implementation[v]
+   * [tzumainn] bare metal fulfillment
+   * Any additional issues regarding the updated bare metal fulfillment proposal?
+   * Let me ask about separate operators one more time
+   * Rename HostClass to HostType?
+   * [Eran Cohen] AI-Assisted Development Policy for OSAC
+
+
+Apr 6, 2026
+   * Brief discussion of AI policy document
+   * 
+
+Mar 30, 2026
+   * [Dan Manor] Short CaaS with Netris demo
+   * Bare Metal Fulfillment update
+   * [Eran Cohen] Working with Claude Code on OSAC
+   * Policy doc: here
+   * Do we also want best practices… in repo? - ok[w]
+   * 
+
+
+
+Mar 23, 2026
+   * [Avishay Traeger] NotebookLM with customer meetings/requirements?
+   * [Avishay Traeger] Using only agentic flows - MGMT-23143
+   * Bare Metal Fulfillment
+   * Quick demo
+   * Implementation plan discussion
+   * [Oved] Coderabbit
+
+
+Mar 16, 2026
+   * Quota enhancement - https://github.com/osac-project/enhancement-proposals/pull/28
+   * Carbide enhancement - https://github.com/osac-project/enhancement-proposals/pull/27 
+   * Introduction session for the wide audience
+   * Inventory abstraction and host management abstraction split into tasks-  https://docs.google.com/document/d/10PfgFWqxLI2Elu1vxGJpdu1RJIqHKIgsEHCptv6LNUE/edit?tab=t.0#heading=h.4e9kyak3d5a8
+   * PRs waiting for a review
+   * reorganize the Ansible: 
+   * https://github.com/osac-project/osac-aap/pull/220 - Eran and Lars
+   * Networking: 
+   * https://github.com/osac-project/osac-aap/pull/216
+   * https://github.com/osac-project/osac-operator/pull/138
+   * https://github.com/osac-project/osac-templates/pull/11
+
+
+Mar 2, 2026
+   * Dan Manor - present netris integration (slides)
+
+
+
+
+Feb 23, 2026
+   * Tzu-Mainn Chen Discuss bare metal fulfillment plans
+
+
+Feb 16, 2026
+   * Change #innabox-wg-fulfillment channel name - #wg-osac-eng
+   * Move to monorepo - consider merging 4 fulfillment repos - api, service, common, cli
+   * Adrien Gentil Move to multicluster-runtime for osac-operator: https://github.com/osac-project/osac-operator/pull/103 - approved
+   * Adrien GentilMove forward with network API enhancement: https://github.com/osac-project/enhancement-proposals/pull/19
+   * Tzu-Mainn Chen Discuss generic bare metal fulfillment proposal: https://github.com/osac-project/enhancement-proposals/pull/25
+   * Discuss caas networking
+   * Review - 
+   * 2 approvals is enough for enhancement. It’s the author responsibility to choose 2 reviewers.
+   * Networking API - https://github.com/osac-project/enhancement-proposals/pull/19 
+   * Updated the Region and AZ enhancement - https://github.com/osac-project/enhancement-proposals/pull/20
+   * The PR defining the public Networking API is ready to merge, but I ratherwait for the enhancement to merge first-  https://github.com/osac-project/fulfillment-api/pull/60
+Demos Plan
+OSAC Roadmap
+
+
+
+
+May 18, 2026
+   * Generic
+   * Move to keyclaok organizations
+   * Admin APIs -Add administrative APIs for role management, identity provider management, and project management.
+   * VMaaS
+   * Windows VM
+   * CaaS
+   * Storage
+   * Vast (Show CaaS with Vast (without using storage API)[x]
+May 13, 2026
+   * VMaaS
+   * Dedicated VM cluster
+   * Storage
+   * On Boarding
+May 11, 2026
+   * VMaaS
+   * Public IP for CUDN network class
+   * VM status reporting from roles
+   * CaaS
+   * API
+   * CaaS with automatic agents provisioning
+May 6, 2026
+   * UI
+   * Initial VMaaS flow
+May 4, 2026
+   * VMaaS
+   * NCP networking validation
+   * VM Status Reporting from Ansible roles
+   * BMaaS & CaaS
+   * CaaS integrated with very basic BMaaS
+   * OpenStack inventory, selecting hosts pre-provisioned as agents[y][z][aa][ab][ac]
+   * No network isolation
+   * No workflows run
+   * No exposure in the fulfillment service
+   * Host Management Operator (OpenStack)
+   * Power management
+   * Generic
+   * DNS API
+   * Org tenancy
+   * VMaaS e2e tests
+
+
+
+
+Apr 27, 2026
+   * CaaS
+   * Cluster generic API
+   * Show basic flow with Carbide
+   * Apr 20, 2026
+   * VMaaS
+   * Create/Remove/Stop/Restart a VM
+   * CloudInit
+   * VM networking
+   * Create a Virtual Network
+   * Show isolation between VMs in different Virtual network
+   * Show connectivity between VMs in the same network (same subnet)[ad]
+   * Create a Subnet
+   * CUDN Network Class
+   * Security Group
+   * Storage
+   * Tenant Storage class
+   * Status & Conditions
+   * VM yaml overriding
+   * GPU Passthrough - OSAC VM GPU passthrough demo.mp4-
+   * CaaS
+   * CaaS with Netris
+   * Show basic flow without integrating with OSAC Networking API - recording (entire meeting), video
+   * CaaS with Carbide
+   * Show basic flow without integrating with OSAC Networking API
+(Moved to 22.4) - demo
+
+
+Tab 1
+
+
+Purpose
+Delve deeper into technical questions around bare metal fulfillment[ae][af][ag][ah].[ai][aj]
+Context
+Today in the MOC, we use ESI[ak][al] for bare metal fulfillment capabilities. ESI is simply OpenStack (primarily Ironic, Neutron, and Keystone) configured for Ironic multi-tenancy and Neutron ML2-Ansible networking. Using the OpenStack CLI allows for the following:
+   * Administrators can lease nodes to tenant projects, giving them exclusive access
+   * Tenants can configure node networking with public and private Neutron networks
+   * Tenants can control node power state
+   * Tenants can access a node’s serial console
+The MOC requires all of these features in the Cloud-in-a-Box solution. Currently, we are unaware of any alternative to ESI that provides them; as a result, in the short-term we are planning on continuing to use ESI for bare metal fulfillment.
+This decision has consequences for cluster fulfillment as well, since we would like the bare metal resources that ACM uses to be retrieved from the same source as that used for bare metal fulfillment; ACM is effectively another tenant project of ESI. This places constraints on the choice between using ACM BareMetalHosts versus Agents: the former requires BMC access, and we do not wish to expose direct access; at best we would stand up a BMC proxy. In order to avoid this added infrastructure requirement, we have currently decided to use Agents[am][an].
+Members
+Lead(s) 
+Lars Kellogg-Stedman
+Alona Paz
+Members
+Lars Kellogg-Stedman
+Tzu-Mainn Chen
+Juan Hernandez
+Oved Ourfali
+Michael Hrivnak
+Alona Paz
+Adrien Gentil
+Advisor
+Dmitry Tantsur (for anything Metal3-related)
+Julia Krieger
+Jonathan Appavoo 
+PjM
+Jen Stacy
+Meeting Details 
+Day/Time tbd 
+Action Items
+Dates refer to meeting when action items were generated
+
+
+   * February 27th, 2025
+   * Lars: initial pass at workflow document
+   * Juan: beginning of Fulfillment Service API document
+   * Michael: investigate existing RH technologies
+   * Mainn: write up request for Metal3 serial console feature
+   * Finalize members
+   * Determine leads
+   * Add other members/advisors
+   * PM support?
+   * Set up regular meeting (Heidi - needs to be meeting more than once a week)
+API MVP
+These are the details that a user should be prompted for prior to creating a cluster[ao].
+
+
+   * OpenShift version
+   * Cluster name
+   * Instance type
+   * Node count
+   * Identity Provider
+
+
+This video showcases the info that ROSA collects: How to deploy a Red Hat OpenShift Service on AWS (ROSA) cluster
+Agendas and Notes
+Jan 19, 2026
+Avishay Traeger - Discuss API definition and possibly auth/org enhancement proposal
+
+
+Jan 12, 2026
+
+
+Juan Hernández - ~30min - Review of the pluggable inventory sources enhancement
+   * https://github.com/innabox/enhancement-proposals/pull/12
+
+
+Nov 17, 2025
+
+
+CANCELLED
+
+
+Nov 3, 2025
+Juan Hernández - Demo of the multi-tenancy feature:
+   * Fulfillment service tenancy demo.mp4
+
+
+Sep 8, 2025
+Juan Hernández - Discussion about customization of ownership logic.
+   * https://github.com/innabox/fulfillment-service/pull/90
+Juan Hernández - Can we proceed with the changes to replace custom authentication/authorization with Authorino?
+   * https://github.com/innabox/fulfillment-service/pull/89
+   * Already merged
+Juan Hernández- Helm chart for fulfillment service?
+   * https://github.com/innabox/fulfillment-service/pull/95
+Juan Hernández- New "fulfillment-sdk-go" project?
+
+
+Jul 9, 2025
+Adrien Gentil
+10:11 AM
+https://github.com/innabox/cloudkit-aap/issues/76
+Lars Kellogg-Stedman
+10:17 AM
+https://github.com/innabox/issues/issues/162
+https://github.com/innabox/issues/issues/159
+https://github.com/innabox/issues/issues/150
+Lars Kellogg-Stedman
+10:36 AM
+https://esi.readthedocs.io/en/latest/
+Alona Paz
+10:37 AM
+https://docs.google.com/document/d/19CRePUssOe7pcXyC9tmZGavNyikHXtXXshDCovXLPqg/edit?tab=t.0
+https://docs.google.com/document/d/1D1R2eaXjOxQaHw7WW6nBDnXH2d9KkVB1qWQGfckz4RY/edit?tab=t.0
+Alona Paz
+10:40 AM
+https://source.redhat.com/groups/public/openshift/openshift_blog/building_a_custom_ai_advisor_from_slack_history
+
+May 7, 2025
+Apr 28, 2025
+Apr 14, 2025
+   * Michael’s proposalInventory Usage
+   * Lars’s proposal: https://gist.github.com/larsks/0e9b13390f66ce01d7885664971b8941
+   * Cluster order fulfillment sequence.svg 
+Apr 11, 2025
+   * Coderabbit - let’s quickly decide here
+   * POC3 task list
+   * Scope
+   * Motivation - enhancing the cluster day1 and day2 operations, adding network isolation and dynamically adding and removing nodes. This also lays the foundation for leveraging this functionality in bare-metal fulfillment use-cases
+   * Demo goals (all API driven)
+   * Cluster provisioning
+   * The user will create a cluster and we will make sure all nodes in the cluster are on an isolated layer 2 network
+   * The backend pieces should be designed to fit for both cluster and node use-cases
+   * Agents will be selected automatically rather than manually, based on instance-type concept - should be part of the cluster template definition
+   * Template will consist of
+   * Number of nodes - this is a parameter of the template
+   * Instance type - this is a constant for templates and cannot be changed
+   * Already exists in ESI and that is just an identifier
+   * The user will just see about a template what he saw in POC1 - name, desc, available params
+   * The nodes will already be registered as agents in ACM, ahead of the demo, like in POC1
+   * Cluster teardown
+   * Same as POC1 but with the following changes
+   * Deallocating the network the nodes were in
+   * Moving nodes to a default layer 2 network
+   * Add nodes to a cluster
+   * The user increases the node number template parameter for this cluster
+   * Agents will be selected automatically
+   * The nodes will be added to the layer 2 network and added to the cluster
+   * Remove nodes from a cluster
+   * The user decreases the node number template parameter for this cluster
+   * Worker nodes will be selected automatically
+   * Moving nodes to a default layer 2 network
+
+
+   * Design discussion
+
+
+Apr 10, 2025
+   * Initial design - Cluster order fulfillment sequence.svg[ap][aq]
+   * Open questions[ar][as][at]
+   * Is only the intial BareMetal fulfillment service a goal for POC 3?[au] Do we need to integrate it with the ClusterOrder fulfillment?
+   * What attributes should the template contain for POC 3? Would the number of nodes be enough? Or also GPU requirements should be added (it complicates the implementation)?
+   * Should we let the user choose the network/VLAN he is joining to? Or is it enough to let the ESI assign an arbitrary free VLAN?[av]
+   * Should we allow the user to select the network where the nodes will be connected? Initial impression is that it shouldn't at least not for POC3, but it may be useful to just provide a mechanism to specify a network name to help with other use cases.
+   * Should the host pool order playbooks create "agents" for the selected hosts? It would probably be better to not do that, so that we can in the future use the same playbooks for bare metal hosts, without an OpenShift cluster. So agent creation of agents will instead be part of the cluster order playbook.[aw]
+   * Should the host pool order playbook allocate the nodes and assign them to a network, or only assign them to a network? Looks like the ESI API will force us to allocate[ax][ay][az][ba][bb][bc] the nodes.
+   * We shouldn't say "VLAN" here, as the concept managed by ES is networks, not VLANs.
+   * Is ESI able to allocate a network automatically? Or do we need to enumerate networks and select one that is unused?[bd][be]
+   * Initial design diagram:
+   * Cluster order fulfillment sequence.svg
+Apr 9, 2025
+POC3
+   * What should we include
+   * Integrating with ESI as a bare-metal service, and integrating with it, keeping in mind we will want to use another solution in the medium/long term
+   * ESI node tenancy
+   * ESI allowing to connect nodes to specific[bf] vlans
+   * ESI switch configuration
+   * Add/remove nodes from an existing cluster[bg][bh]
+   * S/M/L templates[bi][bj]
+   * Stretch goal?
+   * Installing OpenShift AI
+   * What we won’t include
+   * This PoC will focus on re-factoring the Fulfillment Service to separate out the Fulfillment Service, Cluster Service, and Bare Metal Service.
+   * Integration with IBM storage, if available in the MOC.[bk][bl]
+   * Allow the user to select storage options that are automatically provisioned through IBM storage, instead of the local node storage in use for PoCs 1 and 2. 
+   * Displaying estimated monthly MOC storage charges for the user’s selection as part of this functionality is highly desirable.
+   * Enable RoCE (RDMA over Converged Ethernet for GPUs)[bm][bn]
+Apr 2, 2025
+   * AAP
+   * To differentiate create and delete:
+   * 2 webhooks = 2 rulebooks = 2 pods
+   * 1 webhook, different payload
+   * We have the information about the path
+   * Use same webhook host with different paths to differentiate delete vs create
+   * ManagedCluster CR, is it required?
+   * Let’s drop it from the template for now to avoid skew vs. standard behavior
+   * agents to get labeled with the cluster name
+   * “cloudkit.openshift.io/cluster-name” ?
+   * “cloudkit.openshift.io/clusterorder”
+   * kube-apiserver behind a LB is good enough default?
+   * What to use pull-secret, ssh public key, and base domain?
+   * Default to arbitrary pull secret, create ssh key for demo use
+   * Controller
+   * Template parameters
+   * Blob of JSON
+   * Template ids
+   * Identifiers not uuids
+   * Updating conditions/tracking status
+   * Should we just watch a single namespace?
+   * Yes, for now. Set via environment variable in deployment manifest.
+   * State of entire workflow
+   * Fulfillment service
+   * Fulfillments service has template names, but these are fakes – not backed by playbooks or anything right now
+   * User gets name, id, description of template
+   * UI could show these values, available parameters, etc
+   * API for submitting cluster order
+   * Only save template id
+   * Name is currently generated from id in fulfillment api
+   * Mar 31, 2025
+   * AAP webhook payload:
+   * ClusterOrder
+   * Service account credentials:
+   * Short lived token passed though the webhook
+   * AnsibleCredential CR
+   * https://console.apps.hypershift1.nerc.mghpcc.org/k8s/ns/fulfillment-aap/operators.coreos.com~v1alpha1~ClusterServiceVersion/aap-operator.v2.5.0-0.1742434756/tower.ansible.com~v1alpha1~AnsibleCredential/~new 
+   * => let’s create an admin user at first
+Mar 26, 2025
+   * AAP configuration
+   * (from last meeting) Can we use Ansible to enumerate available templates (and names/descriptions/etc)?
+   * EDA just handles events, it cannot respond to request: https://ansible.readthedocs.io/projects/rulebook/en/latest/actions.html 
+   * Is it acceptable that I (Adrien) use my credentials to register AAP on our cluster?
+   * Yes, it’s ok
+   * I propose to configure AAP by hand at first in order to be able to iterate on the playbooks and rulebook. The config automation will take some time to do, and we don’t need it at first because we have one management cluster.
+   * Ok, with that approach, will destroy the AAP instance once we have an automation
+Mar 24, 2025
+   * Controller (and syncing controller + API definitions)
+   * And resource ownership?
+   * ClusterOrder is created in a namespace
+   * Controller creates namespace, serviceaccount, RBAC
+   * Then notifies ansible to create resources
+   * Templates – ansible roles in a github repository?
+   * Can we use Ansible to enumerate available templates (and names/descriptions/etc)?
+   * Bare metal questions
+   * Big pool of hardware? Or partitioned between management clusters?
+   * Discussion of hot-pool model for each management cluster
+   * Architecture model: 1 management cluster to start with, manages data-center scoped resources as well as client clusters. Add additional management clusters as necessary to handle more client clusters.
+   * Lars/Mainn to write up an ESI workflow examplehttps://github.com/orgs/innabox/projects
+March 17, 2025
+   * Metal3 feature requests
+   * https://docs.google.com/document/d/14l9IQqR9tTyumN2PZS6DGVs_uQTRNRbiMeIW6SA4W1Q/edit?tab=t.0
+   * Some points of discussion
+   * Sounds like we only want Serial Console support; multi-tenancy and networking capabilities are not things we want/need in Metal3
+   * Michael suggests that serial console access is handled through a new resource, with an associated URL that “just works” without added authentication
+   * Rename hypershift-cluster-config repo to hub-cluster-config
+   * Secrets
+   * MOC has vault instance, but may be better to setup our own in demo environment
+   * Event implementation discussion
+   * Juan proposed low-level events created through database triggers
+   * Kafka message bus
+   * Events are created whenever there’s a database change, no matter how
+   * Triggers detect change, and put it into a temporary changes table
+   * Something else periodically checks the temporary changes table, and converts a change into an event (deleting the row from the table)
+   * Some discomfort over the level of logic required in the database
+   * Probably not enough resource churn to cause database I/O issues (but maybe?)
+   * Michael suggests it may be better to limit the use of additional components and simply use standard webhooks
+   * Does this tie us too tightly to a database implementation? Is that a problem?
+   * For a series of POCs, may be better to go with simple solution and later develop the more complicated solution if/when needed
+March 13, 2025
+   * Demo cluster is now configured
+   * https://github.com/innabox/hypershift-cluster-config
+   * cluster-scope has bulk of configuration
+   * Kubernetes service account for authentication
+March 12, 2025
+   * How will we deploy things
+   * Dev work - just create a namespace 
+March 10, 2025
+   * Demo 1 Observability
+   * What level of observability do we want to demonstrate?
+   * (Not for Demo 1)
+   * Does the fulfillment API need observability, or does it check directly with the ACM API to check for status/readiness/etc. (Thor)
+   * “Nothing we are working on will rely on observability”
+   * Don’t want to introduce unnecessary dependencies
+   * Observability will be end user/data center admin facing
+   * Showback and billing, etc
+   * Long term idea for observability?: (Thor)
+   * One connection to fulfillment API for starting up and tearing down
+   * Probably not
+   * One connection to UI for during user uses cluster (workloads, etc)
+   * Providing data center administrator information about utilization
+   * Fulfillment API will have metrics and information that flows into Observability, not the other way around
+   * Not using the existing one, but replicating it to a new instance
+   * Not fine grain, but multi cluster level admin view
+   * Admin Only
+   * Create MultiClusterHub and MultiClusterObservability resources
+   * Add object storage
+   * MinIO? Something else?
+   * Data from hosted clusters automatically flow into ACM
+   * Only visible to admins
+   * AI metrics a bit hard to surface using default dashboard; Observability team has custom Grafana dashboards that could maybe be added?
+   * NO AI metrics in Demo 1
+   * User Admin needs to be checked/configured to send metrics
+   * Tenant cluster does not need configurations when staying in default ACM Hub Observability
+   * Multi-Tenant
+   * Requires use of Keycloak
+   * Not for Demo 1
+   * Allows demonstration of fine-grained metrics access
+   * What other configuration would be needed?
+   * UI / Fulfillment Service Integration
+   * Do we want the UI or Fulfillment Service to integrate with Observability to do things like evaluate the state of the cluster?
+   * Might be a bit early for this?
+   * Same IDP for fulfillment and user clusters
+   * Demo 1 Keycloak
+   * https://keycloak.apps.obs.nerc.mghpcc.org/admin/master/console/
+   * From the Chat:
+   * Christopher Tate
+11:21 AM
+Keycloak is clearly defined here: 
+https://docs.google.com/document/d/1w0NtnhomKv4r_xRzKn_mIe8GLglPlhApOPFPCBOqMHM/edit?tab=t.0#heading=h.7ku0tpgl9om8
+   * Christopher Tate
+11:27 AM
+https://keycloak.apps.obs.nerc.mghpcc.org/admin/master/console/
+We can use this keycloak
+   * Christopher Tate
+11:29 AM
+I have some examples of how to manage the AAP install with Kustomize: 
+https://github.com/smartabyar-smartvillage/smartabyar-smartvillage/tree/main/kustomize/bundles/aap
+   * Christopher Tate
+11:38 AM
++1 for event subscriptions!
++1 for Kafka subscriptions!
+   * Using Kafka for events
+   * Here are some examples for deploying Kafka with Kustomize:
+   * AMQ Streams Operator Subscription
+   * A Kafka resource
+   * A Kafka user
+   * A Kafka topic
+   * A Python application DeploymentConfig that configures Kafka broker, Kafka group, and Kafka topics
+   * The corresponding Python application code that integrates with Kafka, and Containerfile. 
+March 5, 2025
+   * Demo discussion
+   * Want estimates for demo 1 by the end of the week
+   * Demo environment
+   * Access to Lars’s environment? Should be easy
+   * It’s a demo environment, so we should be able to add whatever
+   * No list of required components; it’s a journey of exploration
+   * Will provide link to lars’s documentation
+   * https://github.com/innabox/hypershift-demo (overall hypershift demo)
+   * https://github.com/innabox/docs/blob/main/importing-esi-nodes.md (adding ESI nodes into ACM)
+   * ACM environment even without nodes might also be good for initial validation
+   * POC 1 workflow document - tzumainn will work on this
+   * Postgres-compatible DB may be nice since it’s shipped with ACM
+   * API may be deployed on demo ACM
+   * Name of fulfillment service?
+   * For now, “fulfillment service” sounds great
+   * Communicate on slack until next meeting (Monday)
+March 3, 2025
+   * Workflow Document Questions
+   * Does there need to be an intermediate bare metal service (similar to the cluster service)?
+   * It seems like we already have one; maybe a naming issue?
+   * Rename Cluster Service and Bare Metal Service into Cluster Fulfillment Service and Bare Metal Fulfillment Service; the BM-F Service relies on a Bare Metal Service, L2 Service, and L3 Service
+   * BM-F is needed because otherwise we run into the ESI problem (e.g., difficult to easily attach a network to bare metal without calling multiple APIs)
+   * Are the service APIs the same as the public APIs?
+   * Does Fulfillment Service API need to be on the internet?
+   * Does Fulfillment Service track both orders and inventory, or should it be split?
+   * General consensus seems to be for both
+   * Two workflows
+   * Cluster and Bare Metal; no “I want five bare metal nodes, later I want you to install a cluster on them”
+   * Do we want an intermediate service between the fulfillment service and the C-F/BM-F services?
+   * Maybe? Might be better to establish the “top” and “bottom” of the architecture, with the understanding that the middle may change as we discover new fun surprises
+   * Multi-Tenancy is at the network level
+   * Users of BM-F need elevated access to bare metal, but users of C-F should probably not have that access
+   * API Questions
+   * Why are Clusters and ClusterOrders separate entities?
+   * May make sense to track separately if (for example), a user wants a cluster in the future
+   * Can track additional things; ClusterOrder might need things like approval or other attributes that don’t make sense for a Cluster representation
+   * Should it be a kubernetes API?
+   * Argument for no
+   * it’s not fundamentally tied to anything kubernetes
+   * Backend may not scale well
+   * Tentative agreement for “no”
+   * What is the minimum a user needs to input in order to request nodes?
+   * One possible minimum would be just “a cluster”, which is a template
+   * Network
+   * clusters should be able to go on new or existing networks
+   * Maybe first target should just be simple, with nodes in a pool all on the same network
+   * Instance Type, size, unique name?, version?
+   * Maybe name can be auto-generated?
+   * Version is maybe something that shouldn’t be parameterizable? Should be part of the template (“OpenShift AI 4.18”)
+   * We are maybe bouncing between ideal state and MVP state
+
+
+February 27, 2025
+   * Starting Points
+   * Fulfillment Service APIs
+   * Lars and Juan?
+   * Big picture: what’s internal/external, what’s Kubernetes, who is consuming API, etc
+   * What are the minimum number of parameters that need to be specified?
+   * At the minimum: “what kind of cluster” (t-shirt size)
+   * Max simplicity for initial POCs
+   * Existing Red Hat UIs and technologies could be good references
+   * What do we do right now? ROSA, etc
+   * Michael would be delighted to look into this
+   * Might be worth walking through how we envision the workflow as well (maybe for Monday)?
+   * Lars
+   * AI Factory CaaS Technical Outline may be worth looking at
+   * List of Metal3 requests
+   * Immediate tasks might surface this list better
+   * Some known gaps
+   * Console access
+   * Network bits (unless we think it’ll be a separate service)
+   * Separate machines on L2 domains
+   * Maybe not a metal3 thing (metal3 only does bmc stuff)
+   * Some interest in upstream Ironic in handling networking itself; not sure what the upstream priority/interest is
+   * May be worth asking Dimitry if Metal3 is interested in this
+   * He did mention that there is some interest in general bare metal infrastructure management (e.g., https://github.com/metal3-io/ip-address-manager)
+   * Multi-tenancy
+   * Part of Ironic, but Metal3 doesn’t leverage it
+   * Might not be needed if multi-tenancy is handled at a higher level
+   * Existing proposal: https://github.com/metal3-io/metal3-docs/pull/408
+
+
+February 26, 2025
+   * The current solution is built on top of openshift, triple-o. Large and complicated system
+   * Possible architecture - netbox (inventory) + ansible (do stuff)?
+   * ACM doesn’t know about networks right now
+   * RHR’s suggestion
+   * Bare Metal Service
+   * Heavily constrained
+   * Switch configuration, BMC
+   * L3 Service
+   * DHCP, IPAM
+   * Doesn’t talk to BMC or switches
+   * Does this separation make sense?
+   * OpenShift also needs access to things like BMC
+   * ACM has some hardware and network information
+   * We want the additional tooling to configure the environment before a cluster is created
+   * There are ways to do this, such as labeling on Agents
+   * But no way to handle dynamic networking
+   * Is it difficult to move nodes around like this?
+   * MOC already does this in an L2 environment (VLANs)
+   * Question regarding what switches we support
+   * Event-driven Ansible could handle much of the dynamic configuration
+   * Flexible - “does your solution support X?” “it could!”
+   * Customers wanting support for their particular environment don’t need to write software, just Ansible playbooks
+   * (many customers have different workflows for, say, Go applications versus playbooks)
+   * MOC currently uses networking-ansible (https://docs.redhat.com/en/documentation/red_hat_openstack_platform/13/html/bare_metal_provisioning/ml2-networking-ansible#ml2-networking-ansible)
+   * It’s been abandoned; MOC has forked it
+   * Design Proposal
+   * “Thing” that drives the process (Fulfillment Service? Bare Metal Service?)
+   * Setting up dhcp, configuring networking, etc
+   * Then it dumps it all on ACM
+   * Probably has to maintain state
+   * Proxy API that talks to Ironic and Neutron for now; may eventually replace these OpenStack services with something else
+   * Break down what Fulfillment Service needs to do?
+   * E.g., boot from ISO, put on VLAN
+   * Inventory piece missing
+   * Perhaps initial simplification that the various services “just know” where things are and how to manipulate them
+   * Approach
+   * High-level
+   * define what the services need to do, figure out what they’re communicating to each other and expecting the other services to do
+   * Then play with the low-level pieces beneath the API
+   * API needs to be *heavily* iterated based on real-world experiences with known components
+   * Low-level
+   * Start playing with existing technologies and make feature requests of, say Metal3
+   * Combination of both may be ideal
+   * Complicated switch architecture?
+   * MOC has a piece of hardware connected to a single switch
+   * Do we want to handle more complicated architectures?
+   * Lars thinks no; Michael clarifies that (for example) Nvidia suggests complicated topologies
+   * Lars states we want to be heavily proscriptive
+   * We should be flexible, but maybe not *too* flexible
+   * Extensibility is good, but not our complete focus
+   * Why not use overlay network?
+   * MOC wants a higher level of separation
+   * Separate L2 domains isolate network traffic
+   * Initial tasks
+   * Define API of Fulfillment Service
+   * Both final API and intermediate POC API
+   * ex: Initial POC has a big blobby Fulfillment Service that doesn’t handle networking
+   * Start looking at pieces that can execute this API
+   * L2 and L3 Networking services
+   * Dmitry asked about a Metal3 wishlist on Slack
+   * To be discussed further tomorrow
+
+
+February 25, 2025
+   * Is ACM sufficient for cluster configuration?
+   1. Lars - Need to deploy static and parametize
+   1. Oved: Different policies allow different - think ACM can do.
+   2. Lars: example - cluster needs certs with public domain name of cluster, paramterized….similar for groups…
+   3. Oved: Believes will be covered
+   4. Michael: intermediary piece between thing taking order and the fulfillment of order….
+   5. Orran: part of this is understanding two product options….focus of first POC setting up configs…
+   1. Lars wants to check POC before answering that.  Other things to check
+   6. Juan - AMC Policy template- take a closer look 
+February 20, 2025
+The initial “cloud-in-a-box” meeting covered multiple topics; here are the points relevant to this working group:
+
+
+   * If we can remove Neutron and use Metal3 that would reduce the number of specific components needed in the solution.
+   * Orran:  We’d like there to just be one Ironic in the long run,  and having ACM talk directly to it as well as the BM side, but have ACM using agent model is simpler quick solution for this.
+   * Dmitry:  In longer term, these features could be considered.  Why aren’t we talking about using Ironic and ESI as is now?
+   * Lars:  We are going to do this for probably first 3 POCs.
+   * Dmitry thinks that multitenancy will be introduced in Metal3 and people are working on it right now.  Red Hat should throw more weight behind this.
+   * There is interest in separating neutron out from Ironic.   This is possible, but requires more people to make it work.
+   * Serial console is something Dmitry has reservations about.   Doesn’t think Metal3 won’t accept this, but there is no one pushing for this.
+   * Orran and Julia had a conversation about this.  Orran suggests we work with Dmitry on the longer-term work, but it is not a priority for this solution.
+
+
+Demo script
+   * Talk about network configuration
+   * Show available nodes
+   * Will we have a UI? If not, plan on CLI (curl) hitting API
+   * Or should we write a simple client?
+   * Juan has a simple cli
+   * The story:
+   * Request a cluster
+   * Wait until cluster is ready
+   * Report back credentials
+   * Use credentials to deploy workload on cluster
+   * Demonstrate access to workload from e.g. a browser
+   * [Tear down cluster]
+
+
+POC 3 Task List
+POC 3 High Level Goals
+   * Demonstrate complete automation of the cluster deployment workflow:
+   * Agents selected automatically
+   * Layer 2 networking configured automatically
+   * Add nodes to/remove nodes from clusters
+POC 3 Task list 
+Smartsheet for AI-in-a-Box POC3 
+GitHub issues tracker
+
+
+   * Validate that we can deploy clusters on isolated networks (that’s something we ran into issues with during POC1)
+   * Implement method to fetch admin Kubeconfig without storing credentials in database
+   * Implement support for template parameters
+   * Re-architect cluster template implementation
+   * Implement support for template parameters in fulfillment service
+   * Create Kubernetes ClusterOrder with template parameters copied from cluster order
+   * Enumerate available cluster templates and their metadata
+   * Figure out how to represent node class/count in template metadata
+   * Replace AAP manual configuration with git-managed manifests (“configuration as code”)
+   * Add functionality to support adding nodes to/removing nodes from an existing cluster
+   * Extend cluster api with support for changing node counts
+   * Extend ClusterOrder CRD with support for recording/requesting node counts
+   * Extend create cluster playbook to update nodepool node counts
+   * Add functionality to create layer 2 networks and assign hosts to layer 2 networks
+   * Add functionality to automatically select agents from the agent pool to be assigned to a cluster
+   * Controller should notify fulfillment service on status changes
+   * Add functionality to add hosts to 2 layer networks
+   * Move nodes to default layer 2 network when they are removed from a cluster
+   * Clean up layer 2 networks when deleting clusters
+   * Enable disk encryption for cluster nodes
+   * Investigate events streams
+   * Run ansible cluster create/delete with limited set of rights
+   * Implement a mechanism by which Ansible can push template information to fulfillment service
+
+
+[a]@cchun@redhat.com @jhernand@redhat.com will you demo on Monday?
+[b]No, sorry this is not ready yet
+[c]@eerez@redhat.com will you demo on Monday?
+[d]@eerez@redhat.com please add time estimation
+[e]@trwest@redhat.com is there a chance to demo it on Monday? Or better next week?
+[f]@lgamliel@redhat.com @ncarboni@redhat.com @rpiccoli@redhat.com @juriarte@redhat.com @eerez@redhat.com please add here the Monday demos (if any).
+[g]@zszabo@redhat.com please confirm and add time estimation
+[h]@eaharoni@redhat.com please confirm and add time esitmation
+[i]@cchun@redhat.com @jhernand@redhat.com ready to be demoed?
+[j]@cchun@redhat.com shared this demo with me https://drive.google.com/file/d/1EFHalq0mcLt6UVdTY6SpbrVWn4XRUTHq/view?usp=drive_link .
+[k]Thanks. Will one of present it on today's meeting?
+[l]I assume that @cchun@redhat.com will present it, but better wait for her input.
+[m]Yes I will present today, thanks for updating this Juan!
+[n]@agentil@redhat.com
+[o]I'll try. We had issues with CNV last week, that slowed us down.v on the cluster last week
+[p]@trwest@redhat.com Can you demonstrate it on 27.04 meeting?
+_Assigned to trwest@redhat.com_
+[q]@agentil@redhat.com is it ready to be demoed?
+[r]let's plan it next week, it requires infra that we don't have setup yet. We had issues with CNV last week, that slowed us down.
+[s]@agentil@redhat.com
+_Assigned to agentil@redhat.com_
+[t]@wgordon@redhat.com
+_Assigned to wgordon@redhat.com_
+[u]There has been no group discussion of intent to publish anything in docs.redhat.com rather than the public repo.  What is the reason driving this?
+[v]@wgordon@redhat.com
+_Assigned to wgordon@redhat.com_
+[w]Target was April 13 for Policy.  Best practices seem like a good idea to folks, but folks agreed that was in a separate doc with a different target date.
+[x]Netris/Carbide? How do we show demos that are agnostic to it?
+[y]@tzumainn@redhat.com how is it different from what we have today?
+[z]Right now we simply select and label agents CRs; the hosts behind those agents are never marked. This change selects those hosts first through a bare metal pool CR to allocate hosts pre-provisioned as agents, and then labels the agents corresponding to those hosts.
+
+
+Once it's in place, work can begin on support for Carbide in the host inventory operator (Austin has already asked Trey to look at the interface he's using for OpenStack to see if it also works for Carbide), as well as for a Carbide host management operator.
+
+
+This work also is the "spine" that allows us to work on the missing bits simultaneously afterwards.
+[aa]I see, thanks. Does it mean that agents will be provisioned only after a baremetal pool will allocate them? Meaning only when a cluster is requested?
+[ab]Nope; part of the BMaaS design includes the idea of being able to identify hosts that are free, but which are currently pre-provisioned as agents. So when CaaS calls BMaaS, part of the parameters sent include asking for hosts that are already agents. Those hosts are assigned, and then CaaS can use that information to identify the Agent CRs to use, and the rest of the workflow is the same.
+
+
+The second part of this - and the part which is further away - is the CSP workflow of maintaining an active pool of agents. After identifying the number of agents desired, this workflow would call BMaaS to identify hosts that are free (and not provisioned as agents), and then provision them as agents.
+
+
+For the MOC 2.0 we've considered the first part more important (for our initial deadline of June 1st) because it is needed to track host allocation, and because it's a fundamental architecture change to CaaS. The second part is something we can use our current ad hoc playbooks for in our initial evaluation deployment. That being said, we do consider it important, and after our initial May 4th demo we'd definitely be continuing to implement the features needed for it (specifically image-based provisioning for hosts, and the capability to specify workflows for a host through an AAP template).
+[ac]Regarding the second part, what API will be used by the CSP to add the agent pool?
+[ad]Currently we lack routing between subnets in the same VN, it's something we should implement once we have cluster network connect (I think it's part of 4.22)
+[ae]Orran : 1. How use ESI new interface that sits on top of this
+
+
+Not directly expose OpenStack APIs...critical ops to support, etc
+
+
+2, Specify requirements for something to replace ESI.
+
+
+Lars agree....
+
+
+Oved: short term and long term plans for architecture....
+[af]Oved: Might it be two tracks?
+[ag]Heidi: Asking Oved to define long term - nothing past last POC.
+
+
+Oved: One solution over long term
+
+
+Orran: Agreed- integrate into product long term.
+
+
+Inventory service as part of bare metal fulfillment....
+[ah]Oved: Personas group feed fulfillment group
+[ai]I view this working group fleshing out the API first that we want to layer on ESI, and putting together the requirements for the replacement for ESI; perhaps enhanced metal3? Does that make sense to people?
+[aj]I partially agree, with the addition that I think it'll be critical to do planning around developing the POCs for the MOC (which presumably will include intermediate versions of this work)
+[ak]@lars@redhat.com @tzumainn@redhat.com Is ESI a layer on top of OpenStack, with its own API (or CLI) or just a name for this configuratiion of OpenStack?
+[al]ESI is OpenStack plus an added leasing service that sets the "lessee" field in Ironic, and which users can interact with to manage their leases. When tenant projects use their leased nodes, they interact directly with Ironic APIs (and with Neutron for networking, etc).
+[am]Does this mean that we will have to build an alternative (to metal3) that downloads the discovery ISO and somehow boots the machines with it? Or do we intend to do that manually in advance for the first POC?
+[an]I believe for the first POC (further discussed in https://docs.google.com/document/d/1w0NtnhomKv4r_xRzKn_mIe8GLglPlhApOPFPCBOqMHM/edit?tab=t.0) we would do this manually; however Lars has previously scripted the creation of Agents using the OpenStack CLI.
+[ao]RHOAI is also a requirement.   Need to at least include a version spec for RHOAI and a choice of GPU to include.  Note that there are also nodes with different capabilities and costs even in the MOC, so that would need to be specified for even an OpenShift only cluster.
+[ap]@jhernand@redhat.com @alkaplan@redhat.com currently we'll still have only one hub? In the drawing I see multiple hubs. for poc3 we'll have one, right?
+[aq]Yes
+[ar]@hdempsey@redhat.com can you please help us answering the open questions?
+[as]@jestacy@redhat.com I see Heidi is on PTO till 21.4. Is there anybody else that can help us to get the answers?
+[at]I think I've replied to all the questions, and I sent email to Lars and Oved with a longer explanation of what I think the ESI tenancy demonstration was trying to accomplish.  If more questions, Jen Stacy can reach me.
+[au]Having a "bare metal fulfillment service" is explicitly out of scope for PoC 3. But we will implement some capabilities of it as needed in order to demonstrate working with individual servers; specifically selecting them from an inventory, putting them on an isolated network, adding them to a cluster, and the reverse of all of that.
+[av]the user doesn't need to specify the VLAN at this stage, but the user may request more than one bare metal server which might need to be connected, so fulfillment is going to need to have an interface and track the VLANs assigned to bare metal servers
+1 total reaction
+Michael Hrivnak reacted with 👍 at 2025-04-10 20:42 PM
+[aw]I think this is the "HotPool" discussed on POC 4. And for POC 3 we should keep adding the agents manually.
+1 total reaction
+Michael Hrivnak reacted with 👍 at 2025-04-10 20:36 PM
+[ax]What do you mean by "allocate the nodes". Telling the esi exsctly what hosts it should put on an isolated vlan?
+[ay]I mean that we will have to query ESI for available nodes, select a subset of them, and then ask ESI to allocate them (so that no one else gets them) and put them in a new isolated network.
+1 total reaction
+Alona Paz reacted with 👍 at 2025-04-10 15:45 PM
+[az]@jhernand@redhat.com then we will need to have a separate logic in case the request is a ClusterOrder and not just a NodePool (since the Agents should be considered as well).
+[ba]I'd say that the additional logic to create the agents corresponding to the hosts should go in the ClusterOrder playbook: it gets the output of the host pool playbook and uses it to boot the nodes with the ISO so that they register and the agents are created.
+[bb]@jhernand@redhat.com how would it work if we want to pre-define the agents like was done on POC1?
+[bc]Instead of using the ESI API to list hosts and select a subset, we will have to iterate the list of Kubenetes "agent" objects and select a subset. After that we will anyhow have to use the ESI API to put the hosts in an isolated networt. I am not familiar enough with the ESI to say if that is simpler, more complicated or the same. My initial feeling is that there won't be much difference.
+[bd]We can ask for a new network. We do not need to enumerate available ones.
+[be]Relevant documentation is: https://docs.openstack.org/ocata/user-guide/cli-create-and-manage-networks.html (for the cli) and https://docs.openstack.org/api-ref/network/v2/index.html#layer-2-networking (for the api).
+[bf]User specified vlan or whatever free vlan esi chooses?
+[bg]@hdempsey@redhat.com is that important for the RFE?
+_Assigned to hdempsey@redhat.com_
+[bh]Adding/deleting worker nodes would be sufficient.
+[bi]What does this mean? Small since it has only 1 worker? Or it relates to the number of GPUs? Disk size?
+[bj]As discussed in the meeting, this just means there's the potential for more than one template, and how they are different from each other doesn't make much difference.
+[bk]Is that important to include or not?
+[bl]We can skip this for POC 2.5
+[bm]Is that important for the demo?
+[bn]We will show this with a different approach, so not needed for POC 2.5
