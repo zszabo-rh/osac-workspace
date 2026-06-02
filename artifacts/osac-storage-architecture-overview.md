@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-05-27
+**Last updated:** 2026-06-02
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -221,7 +221,7 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 |-----------|------|-----------|------|
 | **Tenant CRD** | `ResolvedStorageClass` type with `name` + `tier` fields | PR #204 | 2026-04-28 |
 | **Tenant CRD** | `status.storageClasses` list (map by tier) | PR #204 | 2026-04-28 |
-| **Tenant CRD** | `status.storageClass` (singular, deprecated, retained for compat) | Original | — |
+| **Tenant CRD** | `status.storageClass` (singular) removed | PR #269 | 2026-06-01 |
 | **Tenant Controller** | `getTenantStorageClasses()` - per-tier resolution with tenant->Default fallback | PR #199 | 2026-05-04 |
 | **Tenant Controller** | StorageClass watch - re-reconciles on SC label changes | PR #199 | 2026-05-04 |
 | **Tenant Controller** | `StorageClassReady` condition with per-tier detail | PR #199 | 2026-05-04 |
@@ -229,24 +229,24 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 | **AAP** | `tenant_storage_class` role - tier-aware selection from injected list, requires `storage_tier` parameter | PR #291 | 2026-05-13 |
 | **AAP** | `ocp_virt_vm` template - calls `tenant_storage_class` with tier `default` | PR #291 | 2026-05-13 |
 | **AAP** | VAST vendor integration — `storage_provider` dispatcher + `vast_storage` template role | PR #296 | 2026-05-27 |
+| **Tenant Controller** | AAP-driven provisioning/deprovisioning lifecycle (finalizer, job polling, crash recovery) | PR #210 | 2026-05-28 |
 | **Labels** | `osac.openshift.io/tenant` (EP #26) | Merged | — |
 | **Labels** | `osac.openshift.io/storage-tier` (EP #32) | Merged | — |
 
 **Note on PR #229/#291 dependency:** PR #291 (AAP) was merged first (May 13) without the corresponding operator PR #229. This temporarily broke ComputeInstance creation — the playbook expects `tenant_storage_classes` in extra_vars but the operator wasn't sending it. Akshay reproduced the failure, overrode the failing e2e-vmaas prow job, and merged PR #229 on May 16 to fix the breakage.
 
-### What's in PR (Awaiting Review / Harmonization)
+### What's in PR
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| **Tenant Controller** | AAP-driven provisioning/deprovisioning lifecycle | osac-operator #210 | Open | Reviewed by tzvatot. Awaiting merge |
-| **AAP** | `tenant_storage_provision` role + playbooks + config-as-code | osac-aap #266 | Open, CI failing | Framework with configure_backend/cleanup_backend hooks. CI failed May 26 |
+| **Tenant CRD** | Remove deprecated `status.storageClass` field | osac-operator #269 | Open, CI passing | OSAC-179. All consumers migrated. |
 
 ### What's Not Started
 
 | Area | Gap | Ticket | Notes |
 |------|-----|--------|-------|
-| **Storage Tier APIs** | No user-facing API for tier discovery/selection | OSAC-882 (New, unassigned) | Admin CRUD + tenant list/select per disk |
-| **CaaS storage** | No storage provisioning inside child clusters | — | Will's `provisioning_target: caas` stub exists but unimplemented |
+| **Storage Tier APIs** | No user-facing API for tier discovery/selection | OSAC-882 (New, Akshay) | Admin CRUD + tenant APIs. Sub-epic OSAC-1110 for v0.1 |
+| **CaaS storage** | No storage provisioning inside child clusters | OSAC-887 (New) | **Elevated to v0.1 priority (June 1).** Roy flagged split CSI won't work. |
 | **Dedicated VMaaS** | Same gap as CaaS — remote cluster, not hub | — | Same solution would cover both |
 | **Quota enforcement** | Backend-native, but no OSAC integration yet | — | Depends on OSAC-882 and quota EP |
 | **Multi-hub** | SC provisioning across multiple hub clusters | OSAC-753 (To Do) | — |
@@ -580,48 +580,53 @@ A fundamental debate about OSAC's long-term storage architecture.
 
 ## Jira Ticket Landscape
 
-### Epic: OSAC-56 — Tenant Storage and Tiers (Critical, In Progress)
+### Epic: OSAC-56 — VMaaS Tenant Storage Setup (Critical, In Progress)
 **Assignee:** Zoltan Szabo
 
 | Key | Summary | Status |
 |-----|---------|--------|
-| OSAC-278 | Ansible: Organization Storage Provisioning Playbook Framework | In Progress |
-| OSAC-394 | Organization Controller: Trigger Storage Provisioning on Lifecycle Events | In Progress |
+| OSAC-278 | Ansible: Organization Storage Provisioning Playbook Framework | **Closed** |
+| OSAC-394 | Organization Controller: Trigger Storage Provisioning on Lifecycle Events | **Closed** |
 | OSAC-326 | Demo: Storage Story | To Do |
 | OSAC-737 | VM Templates: Use Storage Tier Selection | **Closed** |
-| OSAC-738 | Documentation: CSP Storage Backend Customization Guide | To Do |
+| OSAC-738 | Documentation: Storage Provider Integration Guide | To Do |
 | OSAC-498 | Tenant controller: use target cluster client in tenantStorageClassExists | To Do |
 | OSAC-499 | Tenant operations: dedicated ServiceAccount with scoped RBAC | To Do |
+| OSAC-1143 | Tenant controller: change readiness gate from StorageClass to hub Secret | New |
+| OSAC-1144 | Tenant controller: trigger osac-ensure-tenant-storage for VMaaS Phase 2 | New |
+| OSAC-1145 | Split AAP storage playbooks into 4 lifecycle actions | New |
+| OSAC-1146 | Trigger osac-cleanup-tenant-storage on resource deletion (tenant stays) | New |
 
-### Epic: OSAC-43 — VAST Data Tenant Storage Onboarding (Critical, In Progress)
+### Epic: OSAC-43 — VAST for VMaaS (Critical, In Progress)
 **Assignee:** Will Gordon
+**Summary renamed** from "VAST Data Tenant Storage Onboarding" (May 29)
 
 | Key | Summary | Status |
 |-----|---------|--------|
+| OSAC-883 | Initial AAP MVP for VAST tenant storage provisioning | **Closed** |
+| OSAC-884 | Record VAST storage MVP demo | In Progress |
+| OSAC-885 | Follow up on network isolation requirements for VAST storage | New |
+| OSAC-886 | Expand VIP pool configuration options for VAST storage | New |
+| OSAC-887 | CaaS integration for VAST tenant storage | New |
 | OSAC-750 | Write enhancement proposal for VAST integration | To Do |
 | OSAC-751 | Create Ansible collection for VAST REST API | To Do |
 | OSAC-752 | Create orchestration roles for VAST onboarding | To Do |
 | OSAC-753 | Support VAST SC provisioning across multiple hubs | To Do |
 | OSAC-754 | E2E tests for VAST tenant storage onboarding | To Do |
 | OSAC-755 | Integrate VAST SCs with tenant label discovery | To Do |
+| OSAC-951 | Generalize vast-csi plugin to remove OSAC-specific coupling | New (Alona Paz) |
+| OSAC-1042 | Harden pod security context across all AAP instance group templates | New (Unassigned) |
+| OSAC-1043 | Add explicit provider allowlist to storage_provider dispatcher | New (Unassigned) |
+| OSAC-1044 | Surface teardown failures in storage_provider instead of silent ignore_errors | New (Alona Paz) |
 
-### Epic: OSAC-43 — New Child Tickets (post-May 18)
+### Feature Epics
 
-| Key | Summary | Status | Assignee |
-|-----|---------|--------|---------|
-| OSAC-951 | Generalize vast-csi plugin to remove OSAC-specific coupling | New | Alona Paz |
-| OSAC-1042 | Harden pod security context across all AAP instance group templates | New | Unassigned |
-| OSAC-1043 | Add explicit provider allowlist to storage_provider dispatcher | New | Unassigned |
-| OSAC-1044 | Surface teardown failures in storage_provider instead of silent ignore_errors | New | Alona Paz |
-
-OSAC-1042/1043/1044 were created 2026-05-27 as follow-up from PR #296 merge review.
-
-### New Epics (Created May 14)
-
-| Key | Summary | Status | Notes |
-|-----|---------|--------|-------|
-| OSAC-882 | Storage Tier Management APIs | New | **Assigned to Akshay Nadkarni** (was unassigned). Admin + tenant APIs, StorageTier as CRD |
-| OSAC-48 | Independent Storage Volumes | New | Full volume lifecycle API (create, attach, detach, snapshot, resize) |
+| Key | Summary | Status | Assignee | Notes |
+|-----|---------|--------|----------|-------|
+| OSAC-882 | Tiered Storage Management | New | Akshay Nadkarni | Feature-level. Admin + tenant APIs, StorageTier as CRD |
+| OSAC-1110 | Storage Tier Definition & Private API | New | Akshay Nadkarni | Epic under OSAC-882 for v0.1 |
+| OSAC-23 | Tier-Based Resource Provisioning | In Progress | Akshay Nadkarni | Feature-level |
+| OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API (create, attach, detach, snapshot, resize) |
 
 ### Dependencies
 
@@ -673,26 +678,24 @@ OSAC-882 (Storage Tier APIs)
 | #291 | osac-aap | Tier-aware `tenant_storage_class` role | 2026-05-13 |
 | #229 | osac-operator | Inject `storageClasses` into AAP extra_vars | 2026-05-16 |
 | #296 | osac-aap | VAST provider + `storage_provider` role | 2026-05-27 |
+| #210 | osac-operator | Tenant storage provisioning controller | 2026-05-28 |
+
+### Closed (superseded)
+
+| PR | Repo | Title | Closed | Reason |
+|----|------|-------|--------|--------|
+| #266 | osac-aap | Provisioning framework + playbooks | 2026-05-27 | Superseded by merged PR #296 |
 
 ### Open
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #210 | osac-operator | Tenant storage provisioning controller | Open, reviewed | 2026-05-13 |
-| #266 | osac-aap | Provisioning framework + playbooks | Open, CI failing | 2026-05-26 |
+| #269 | osac-operator | OSAC-179: remove deprecated status.storageClass | Open, CI passing | 2026-06-02 |
 
-### PR #210/#266 Status
-- Reviewed by tzvatot (operator) and adriengentil (AAP); all review comments addressed
-- E2E verified on hypershift1
-- **PR #266 CI failure** reported 2026-05-26 — e2e test failing, needs retest/fix before merge
-- Now the primary harmonization blocker since PR #296 is merged
-- Akshay to coordinate merge sequence
-
-### PR #296 — MERGED 2026-05-27
-- Approved by Akshay Nadkarni and self-approved by wgordon17
-- Akshay overrode `ci/prow/temp` check to proceed
-- Akshay noted: "it's a big one — keep an eye out for any issues tied to the PR"
-- 3 new follow-up tickets created post-merge: OSAC-1042, OSAC-1043, OSAC-1044
+### Phase A Complete (May 28)
+- All three original storage PRs resolved: #210 merged, #296 merged, #266 closed
+- OSAC-394 and OSAC-278 closed
+- Stable baseline established for Phase B refactoring
 
 ---
 
@@ -712,10 +715,10 @@ OSAC-882 (Storage Tier APIs)
 
 | # | Question | Context |
 |---|----------|---------|
-| 1 | **How to harmonize PRs #266 and #296?** | Meeting decided onboarding-time + template roles. Exact integration TBD in offline sync (Akshay, Will, Zoltan) |
-| 2 | **CaaS storage architecture?** | Acknowledged gap. Will's provisioning_target stub is a starting point. No timeline. |
-| 3 | **Storage tier CRD design?** | OSAC-882 created but unassigned. Agreed to elevate from Ansible vars to CRDs. |
-| 4 | **Who writes the storage EP?** | Akshay reviewing existing epics to align or create umbrella epic |
+| 1 | ~~How to harmonize PRs #266 and #296?~~ | **RESOLVED (May 27-28):** PR #296 merged, PR #266 closed (superseded), PR #210 merged. Template-based approach from #296 won. |
+| 2 | **CaaS storage architecture?** | **Elevated to v0.1 priority (June 1).** Akshay announced CaaS with VAST now prioritized over VMaaS. Roy Golan flagged split CSI approach won't work (CSI identifier mismatch). |
+| 3 | **Storage tier CRD design?** | OSAC-882 assigned to Akshay. New sub-ticket OSAC-1110 (Storage Tier Definition & Private API) created. |
+| 4 | ~~Who writes the storage EP?~~ | **RESOLVED:** Akshay is leading feature/epic planning in Google Doc. Jira tickets being created from doc tabs. |
 | 5 | **Tenant visibility of storage providers?** | CSP admin decides what to expose — could be generic tiers or vendor labels |
 | 6 | **Network connectivity for CaaS storage?** | Even with backend configured, child cluster nodes need network path to storage |
 | 7 | **Billing model for storage?** | Pay-per-tier vs pay-as-you-go vs included. Product decision, not engineering. |
@@ -832,9 +835,51 @@ OSAC-882 (Storage Tier APIs)
 - Action (Akshay): evaluate OpenStack service integration feasibility
 - Action (group): refine tier model for multi-backend support and vendor transitions
 
+### May 27, 2026 — DM: Akshay → Zoltan
+- Akshay approved and merged Will's PR #296 (VAST provider)
+- Key decision from storage meeting: VMaaS SCs + CSI at tenant onboarding; CaaS SCs + CSI post-cluster installation
+- Akshay organizing epic structure, expects clearer hierarchy in a few days
+
+### May 28, 2026 — PR #210 Merged
+- Akshay approved and merged osac-operator PR #210 (tenant storage provisioning controller)
+- Adds AAP-driven provisioning/deprovisioning lifecycle to Tenant controller
+- OSAC-394 closed
+
+### May 27, 2026 — PR #266 Closed (superseded)
+- Zoltan closed osac-aap PR #266 with comment explaining it's superseded by merged PR #296
+- OSAC-278 closed
+
+### May 29, 2026 — Akshay: Storage feature/epic restructuring
+- Akshay updated OSAC-56 summary: "Tenant Storage Provisioning using Tiers" → "VMaaS Tenant Storage Setup"
+- Agreed to split teardown into two phases (reverse of creation): resource deletion first, then tenant deletion
+- New Phase B tickets created under OSAC-56: OSAC-1143, OSAC-1144, OSAC-1145, OSAC-1146
+
+### May 29, 2026 — Akshay: Feature+Epic Planning Update (wg-osac-storage)
+- Posted comprehensive storage planning update in wg-osac-storage channel
+- Google Doc restructured with Feature+Epic Planning, Docs, Architecture Diagram, Release Roadmap, Planning Status tabs
+- v0.1 scope: VAST E2E for VMaaS (and maybe CaaS), StorageBackend + StorageTier CRs with private APIs, two-phase tenant provisioning, template-level tier selection
+- Jira tickets being captured from doc tabs (purple dots = captured)
+- New epic: OSAC-1110 (Storage Tier Definition & Private API) under OSAC-882, assigned to Akshay
+- Feature hierarchy: features span milestones, epics scoped to single milestone
+
+### June 1, 2026 — Akshay: v0.1 scope change (wg-osac-storage)
+- **CaaS with VAST now prioritized over VMaaS with VAST** for v0.1
+- Milestones updated in Jira
+- To be discussed at June 3 storage meeting
+
+### June 1, 2026 — Roy Golan: Split CSI won't work
+- Roy told Avishay that the split CSI approach (OSAC controller on tenant, VAST node plugin) won't work
+- CSI identifier mismatch: PVC says `csi.osac`, kubelet looks for `csi.osac` node plugin, not `csi.vast`
+- Would fail at volume publish unless OSAC also implements the node part with redirection
+
+### June 1, 2026 — PR #269 submitted (OSAC-179)
+- Zoltan submitted osac-operator PR #269: remove deprecated status.storageClass field
+- All CI checks passing; OSAC-179 moved to Review
+
 ### Recurring Meeting Established
-- **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 3-4 PM CEST
+- **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
 - Organized by Akshay via Alona
+- Dedicated channel: wg-osac-storage (C0B6USDQ85S)
 
 ---
 

@@ -2,6 +2,43 @@
 
 ---
 
+## 2026-06-02 (Monday)
+
+### Active Tickets
+- OSAC-179 (Remove deprecated status.storageClass) — Review, PR #269 open, Akshay APPROVED with comment
+- OSAC-56 (VMaaS Tenant Storage Setup) — In Progress/Critical (epic)
+- OSAC-104 (Storage-tier SC discovery) — In Progress (story)
+- OSAC-333 (Finalize quota EP) — In Progress (stagnant since May 5)
+- OSAC-70 (Quota Management) — New (epic)
+- OSAC-1143 (Tenant controller: readiness gate from SC to hub Secret) — New
+- OSAC-1144 (Tenant controller: trigger osac-ensure-tenant-storage Phase 2) — New
+- OSAC-1145 (Split AAP storage playbooks into 4 actions) — New
+- OSAC-1146 (Trigger osac-cleanup-tenant-storage on deletion) — New
+- OSAC-498 (Tenant controller: use target cluster client) — New
+- OSAC-499 (Tenant operations: dedicated SA with scoped RBAC) — New
+- OSAC-326 (Demo: Storage Story) — New
+
+### Open PRs
+- osac-operator#269: OSAC-179 — CI: e2e-vmaas FAILED (infra?), all other checks PASS. Review: APPROVED (Akshay) with 1 comment re: ToLower in groupByTier
+- enhancement-proposals#28: quota EP — CHANGES_REQUESTED (stale since Apr 10)
+
+### Milestones
+- 2026-06-15–22: hypershift1 shutdown (data center maintenance) — 13 days away
+- Late June 2026: Storage v0.1 target
+- Late June 2026: Agentic SDLC Milestone 1
+
+### Notes
+- **Akshay approved PR #269** — but asked about ToLower in groupByTier: should mixed-case tier labels be rejected instead of normalized?
+- **e2e-vmaas failed** on PR #269 — base SHA was b12cbfa (now 2 behind after rebase). May need re-trigger.
+- **New Slack sub-channels created**: wg-osac-storage (C0B6USDQ85S), wg-osac-vmaas (C0B7GNC7UM8), wg-osac-bmaas (C0B6B7DK3HV), wg-osac-core (C0B6F4DNP3P)
+- **Nick Carboni: component integration discussion** — how BMaaS/CaaS/networking compose at API level; consensus: resources should be visible, composition in Go not AAP, good defaults with flexibility
+- **Avishay: annotation consistency PRs** — all repos switching osac.io → osac.openshift.io prefix (fulfillment-service#620, osac-aap#324, osac-workspace#35)
+- **Juan: annotations shouldn't replace spec/status fields** — filed fulfillment-service#621 to codify this
+- **Oved: /implement workflow volunteers** — Akshay, Will, David Crowder, Elad volunteered; Avishay hit model availability issue (opus-4-8[1m] not on Vertex)
+- **osac-operator rebased** on feat/OSAC-179 branch — 2 commits from upstream, stash round-trip clean
+
+---
+
 ## 2026-06-01 (Sunday)
 
 ### Active Tickets
