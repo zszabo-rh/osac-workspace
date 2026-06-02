@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-06-02T17:13:33Z",
+  "generated_at": "2026-06-02T20:23:12Z",
   "summary": {
-    "needs_review": 9,
-    "ci_failing": 24,
-    "stale": 9,
+    "needs_review": 11,
+    "ci_failing": 27,
+    "stale": 7,
     "approved": 2,
-    "draft": 10
+    "draft": 9
   },
   "repos": [
     {
@@ -68,7 +68,7 @@
             {
               "name": "pre-commit",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/enhancement-proposals/actions/runs/26825368544/job/79091196457"
+              "details_url": "https://github.com/osac-project/enhancement-proposals/actions/runs/26844737526/job/79161073515"
             }
           ]
         },
@@ -107,7 +107,7 @@
           "url": "https://github.com/osac-project/enhancement-proposals/pull/44",
           "author": "ygalblum",
           "status": "needs_review",
-          "age_days": 5,
+          "age_days": 6,
           "reviewer_name": null,
           "check_runs": [
             {
@@ -152,7 +152,7 @@
           "url": "https://github.com/osac-project/enhancement-proposals/pull/48",
           "author": "ygalblum",
           "status": "needs_review",
-          "age_days": 0,
+          "age_days": 1,
           "reviewer_name": null,
           "check_runs": [
             {
@@ -288,7 +288,7 @@
           "url": "https://github.com/osac-project/fulfillment-service/pull/512",
           "author": "jhernand",
           "status": "ci_failing",
-          "age_days": 24,
+          "age_days": 25,
           "reviewer_name": null,
           "check_runs": [
             {
@@ -346,49 +346,49 @@
           "title": "Add name/UUID lookup support to CLI commands",
           "url": "https://github.com/osac-project/fulfillment-service/pull/528",
           "author": "SiddarthR56",
-          "status": "changes_requested",
-          "age_days": 19,
-          "reviewer_name": "tzvatot",
+          "status": "ci_failing",
+          "age_days": 20,
+          "reviewer_name": null,
           "check_runs": [
+            {
+              "name": "image",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26841289535/job/79148784592"
+            },
             {
               "name": "Check code format",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834329365/job/79124010753"
-            },
-            {
-              "name": "Run unit tests",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834329365/job/79124010779"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26841289581/job/79148780878"
             },
             {
               "name": "Build binaries",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834329365/job/79124010796"
-            },
-            {
-              "name": "Run integration tests - Helm",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834329365/job/79124010812"
-            },
-            {
-              "name": "Check generated code",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834329365/job/79124010830"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26841289581/job/79148780886"
             },
             {
               "name": "Check pre-commit",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834329365/job/79124010876"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26841289581/job/79148780891"
             },
             {
               "name": "Run integration tests - Kustomize",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834329365/job/79124010952"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26841289581/job/79148780900"
             },
             {
-              "name": "image",
+              "name": "Check generated code",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834330039/job/79124012374"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26841289581/job/79148780946"
+            },
+            {
+              "name": "Run integration tests - Helm",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26841289581/job/79148780965"
+            },
+            {
+              "name": "Run unit tests",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26841289581/job/79148780979"
             }
           ]
         },
@@ -447,7 +447,7 @@
           "url": "https://github.com/osac-project/fulfillment-service/pull/541",
           "author": "jhernand",
           "status": "ci_failing",
-          "age_days": 18,
+          "age_days": 19,
           "reviewer_name": null,
           "check_runs": [
             {
@@ -710,44 +710,44 @@
           "reviewer_name": null,
           "check_runs": [
             {
-              "name": "Run integration tests - Kustomize",
-              "conclusion": "FAILURE",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834206355/job/79123569007"
-            },
-            {
-              "name": "Run unit tests",
+              "name": "Check pre-commit",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834206355/job/79123569017"
-            },
-            {
-              "name": "Build binaries",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834206355/job/79123569025"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26837063377/job/79133714781"
             },
             {
               "name": "Check code format",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834206355/job/79123569080"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26837063377/job/79133714786"
+            },
+            {
+              "name": "Run unit tests",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26837063377/job/79133714791"
+            },
+            {
+              "name": "Build binaries",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26837063377/job/79133714816"
+            },
+            {
+              "name": "Run integration tests - Kustomize",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26837063377/job/79133714847"
             },
             {
               "name": "Check generated code",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834206355/job/79123569083"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26837063377/job/79133714852"
             },
             {
               "name": "Run integration tests - Helm",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834206355/job/79123569097"
-            },
-            {
-              "name": "Check pre-commit",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834206355/job/79123569177"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26837063377/job/79133714938"
             },
             {
               "name": "image",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26834206382/job/79123569467"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26837064087/job/79133717671"
             }
           ]
         },
@@ -806,7 +806,7 @@
           "url": "https://github.com/osac-project/fulfillment-service/pull/614",
           "author": "SiddarthR56",
           "status": "ci_failing",
-          "age_days": 3,
+          "age_days": 4,
           "reviewer_name": null,
           "check_runs": [
             {
@@ -862,42 +862,42 @@
             {
               "name": "image",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26768752782/job/78902190744"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26842525040/job/79153219018"
             },
             {
               "name": "Check code format",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26768753847/job/78902194842"
-            },
-            {
-              "name": "Run integration tests - Kustomize",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26768753847/job/78902194871"
-            },
-            {
-              "name": "Run unit tests",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26768753847/job/78902194874"
-            },
-            {
-              "name": "Build binaries",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26768753847/job/78902194876"
-            },
-            {
-              "name": "Check pre-commit",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26768753847/job/78902194912"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26842525118/job/79153219035"
             },
             {
               "name": "Check generated code",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26768753847/job/78902194969"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26842525118/job/79153219048"
+            },
+            {
+              "name": "Check pre-commit",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26842525118/job/79153219076"
             },
             {
               "name": "Run integration tests - Helm",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26768753847/job/78902194993"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26842525118/job/79153219096"
+            },
+            {
+              "name": "Build binaries",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26842525118/job/79153219102"
+            },
+            {
+              "name": "Run integration tests - Kustomize",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26842525118/job/79153219124"
+            },
+            {
+              "name": "Run unit tests",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26842525118/job/79153219176"
             }
           ]
         },
@@ -1014,49 +1014,49 @@
           "title": "OSAC-833: sync PublicIPAttachments to Kubernetes",
           "url": "https://github.com/osac-project/fulfillment-service/pull/623",
           "author": "akshaynadkarni",
-          "status": "draft",
+          "status": "needs_review",
           "age_days": 0,
           "reviewer_name": null,
           "check_runs": [
             {
-              "name": "Run unit tests",
+              "name": "Run integration tests - Helm",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26797968833/job/78998359038"
-            },
-            {
-              "name": "Run integration tests - Kustomize",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26797968833/job/78998359054"
-            },
-            {
-              "name": "Check generated code",
-              "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26797968833/job/78998359056"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26836840412/job/79132909830"
             },
             {
               "name": "Check code format",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26797968833/job/78998359066"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26836840412/job/79132909837"
+            },
+            {
+              "name": "Run integration tests - Kustomize",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26836840412/job/79132909850"
             },
             {
               "name": "Check pre-commit",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26797968833/job/78998359067"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26836840412/job/79132909858"
             },
             {
               "name": "Build binaries",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26797968833/job/78998359074"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26836840412/job/79132909878"
             },
             {
-              "name": "Run integration tests - Helm",
+              "name": "Check generated code",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26797968833/job/78998359081"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26836840412/job/79132909892"
+            },
+            {
+              "name": "Run unit tests",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26836840412/job/79132909934"
             },
             {
               "name": "image",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26797968836/job/78998359168"
+              "details_url": "https://github.com/osac-project/fulfillment-service/actions/runs/26836841026/job/79132916400"
             }
           ]
         },
@@ -1180,7 +1180,7 @@
           "url": "https://github.com/osac-project/osac-aap/pull/190",
           "author": "ajamias",
           "status": "ci_failing",
-          "age_days": 171,
+          "age_days": 172,
           "reviewer_name": null,
           "check_runs": [
             {
@@ -1200,7 +1200,7 @@
           "url": "https://github.com/osac-project/osac-aap/pull/292",
           "author": "SiddarthR56",
           "status": "ci_failing",
-          "age_days": 24,
+          "age_days": 25,
           "reviewer_name": null,
           "check_runs": [
             {
@@ -1268,13 +1268,13 @@
           "title": "Integrate BareMetalPools with Profiles in CaaS",
           "url": "https://github.com/osac-project/osac-aap/pull/313",
           "author": "ajamias",
-          "status": "changes_requested",
+          "status": "ci_failing",
           "age_days": 11,
-          "reviewer_name": "coderabbitai",
+          "reviewer_name": null,
           "check_runs": [
             {
               "name": "integration-tests",
-              "conclusion": null,
+              "conclusion": "SUCCESS",
               "details_url": "https://github.com/osac-project/osac-aap/actions/runs/26835747266/job/79129025094"
             },
             {
@@ -1289,7 +1289,7 @@
             },
             {
               "name": "build-execution-environment",
-              "conclusion": null,
+              "conclusion": "SUCCESS",
               "details_url": "https://github.com/osac-project/osac-aap/actions/runs/26835747382/job/79129025346"
             }
           ]
@@ -1494,34 +1494,44 @@
           "reviewer_name": null,
           "check_runs": [
             {
+              "name": "Check Helm CRD sync",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26839838192/job/79143603364"
+            },
+            {
+              "name": "Lint Helm charts",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26839838192/job/79143603431"
+            },
+            {
               "name": "Validate manifests",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/25924448336/job/76201796288"
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26839838158/job/79143603650"
             },
             {
               "name": "Check generated code",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/25924448336/job/76201796306"
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26839838158/job/79143603684"
             },
             {
               "name": "Run Tests",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/25924448328/job/76201796501"
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26839838299/job/79143603734"
             },
             {
               "name": "build",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/25924448328/job/76202295507"
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26839838299/job/79143867669"
             },
             {
               "name": "lint",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/25924448348/job/76201796285"
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26839838815/job/79143605100"
             },
             {
               "name": "pre-commit",
               "conclusion": "SUCCESS",
-              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/25924448348/job/76201796294"
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26839838815/job/79143605107"
             }
           ]
         },
@@ -1693,6 +1703,86 @@
           "age_days": 0,
           "reviewer_name": null,
           "check_runs": []
+        },
+        {
+          "title": "Fix Ginkgo version drift between root and api/ Go modules",
+          "url": "https://github.com/osac-project/osac-operator/pull/275",
+          "author": "SiddarthR56",
+          "status": "ci_failing",
+          "age_days": 0,
+          "reviewer_name": null,
+          "check_runs": [
+            {
+              "name": "pre-commit",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26837097064/job/79133836588"
+            },
+            {
+              "name": "lint",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26837097064/job/79133836657"
+            },
+            {
+              "name": "Check Helm CRD sync",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26837097105/job/79133836735"
+            },
+            {
+              "name": "Lint Helm charts",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26837097105/job/79133836781"
+            },
+            {
+              "name": "Check generated code",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26837097131/job/79133836620"
+            },
+            {
+              "name": "Run Tests",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26837097168/job/79133836643"
+            },
+            {
+              "name": "build",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26837097168/job/79134080117"
+            }
+          ]
+        },
+        {
+          "title": "fix: Add missing config/testing/console-proxy kustomize overlay",
+          "url": "https://github.com/osac-project/osac-operator/pull/276",
+          "author": "tchughesiv",
+          "status": "needs_review",
+          "age_days": 0,
+          "reviewer_name": null,
+          "check_runs": [
+            {
+              "name": "Check generated code",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26844016668/job/79158515166"
+            },
+            {
+              "name": "lint",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26844016715/job/79158515161"
+            },
+            {
+              "name": "pre-commit",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26844016715/job/79158515303"
+            },
+            {
+              "name": "Run Tests",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26844016729/job/79158565238"
+            },
+            {
+              "name": "build",
+              "conclusion": "SUCCESS",
+              "details_url": "https://github.com/osac-project/osac-operator/actions/runs/26844016729/job/79158831783"
+            }
+          ]
         }
       ]
     }
@@ -1707,19 +1797,19 @@
     {
       "repo": "osac-project/fulfillment-service",
       "total_checks": 152,
-      "passed": 146,
+      "passed": 147,
       "pass_rate": 96
     },
     {
       "repo": "osac-project/osac-aap",
       "total_checks": 39,
-      "passed": 36,
-      "pass_rate": 92
+      "passed": 38,
+      "pass_rate": 97
     },
     {
       "repo": "osac-project/osac-operator",
-      "total_checks": 30,
-      "passed": 30,
+      "total_checks": 44,
+      "passed": 44,
       "pass_rate": 100
     }
   ]
