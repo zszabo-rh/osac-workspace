@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -604,7 +604,7 @@ A fundamental debate about OSAC's long-term storage architecture.
 | Key | Summary | Status |
 |-----|---------|--------|
 | OSAC-883 | Initial AAP MVP for VAST tenant storage provisioning | **Closed** |
-| OSAC-884 | Record VAST storage MVP demo | In Progress |
+| OSAC-884 | Record VAST storage MVP demo | **Closed** |
 | OSAC-885 | Follow up on network isolation requirements for VAST storage | New |
 | OSAC-886 | Expand VIP pool configuration options for VAST storage | New |
 | OSAC-887 | CaaS integration for VAST tenant storage | New |
@@ -623,10 +623,15 @@ A fundamental debate about OSAC's long-term storage architecture.
 
 | Key | Summary | Status | Assignee | Notes |
 |-----|---------|--------|----------|-------|
-| OSAC-882 | Tiered Storage Management | New | Akshay Nadkarni | Feature-level. Admin + tenant APIs, StorageTier as CRD |
-| OSAC-1110 | Storage Tier Definition & Private API | New | Akshay Nadkarni | Epic under OSAC-882 for v0.1 |
-| OSAC-23 | Tier-Based Resource Provisioning | In Progress | Akshay Nadkarni | Feature-level |
-| OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API (create, attach, detach, snapshot, resize) |
+| OSAC-917 | Storage Backend Framework | New | WG-Storage | Feature-level. EP PR #49 submitted by Avishay (June 3) |
+| OSAC-1110 | Storage Tier Definition & Private API | New | Avishay + Roy | Epic under OSAC-882 for v0.1. Must-have. EP + CRUD API, no Tier CR for v0.1 |
+| OSAC-1111 | Storage Backend Definition & Private API | New | Avishay + Roy | Epic under OSAC-917. EP done (PR #49), CRUD API ok to defer post v0.1 |
+| OSAC-882 | Tiered Storage Management | New | Akshay Nadkarni | Feature-level |
+| OSAC-1001 | Tenant Storage Lifecycle | New | WG-Storage | Feature-level. Owns OSAC-23, OSAC-56 |
+| OSAC-23 | Tier-Based Resource Provisioning | In Progress | Akshay Nadkarni | Epic under OSAC-1001 |
+| OSAC-1191 | CaaS — Provision and Manage OpenShift Clusters | New | WG-CaaS | Feature-level. Owns OSAC-1123, OSAC-1122 |
+| OSAC-1123 | CaaS Tenant Storage Setup | New | Akshay Nadkarni | Epic under OSAC-1191. Depends on Rework Tenant Storage Onboarding |
+| OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API |
 
 ### Dependencies
 
@@ -659,11 +664,16 @@ OSAC-882 (Storage Tier APIs)
 - Template-driven tier selection (templates hardcode tier, not users)
 - Tenant controller is single source of truth
 
+### EP #49: Storage Backend Import (avishay) — IN REVIEW
+- Submitted June 3 for OSAC-917
+- StorageBackend registration via private API
+- PR: https://github.com/osac-project/enhancement-proposals/pull/49
+
 ### Missing EPs
 - **VAST integration** — OSAC-750 (To Do, no EP exists)
-- **Storage Tier Management APIs** — OSAC-882 (no EP)
+- **Storage Tier Definition** — OSAC-1110 (Avishay + Roy assigned, EP planned)
 - **Split CSI architecture** — rejected at meeting level, no EP needed
-- **CaaS storage** — no ticket, no EP
+- **CaaS storage** — OSAC-1123 (work items populated in Google Doc, no formal EP)
 
 ---
 
@@ -679,6 +689,7 @@ OSAC-882 (Storage Tier APIs)
 | #229 | osac-operator | Inject `storageClasses` into AAP extra_vars | 2026-05-16 |
 | #296 | osac-aap | VAST provider + `storage_provider` role | 2026-05-27 |
 | #210 | osac-operator | Tenant storage provisioning controller | 2026-05-28 |
+| #269 | osac-operator | OSAC-179: remove deprecated status.storageClass | 2026-06-03 |
 
 ### Closed (superseded)
 
@@ -690,7 +701,7 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #269 | osac-operator | OSAC-179: remove deprecated status.storageClass | Open, CI passing | 2026-06-02 |
+| (none) | | | | |
 
 ### Phase A Complete (May 28)
 - All three original storage PRs resolved: #210 merged, #296 merged, #266 closed
@@ -876,10 +887,56 @@ OSAC-882 (Storage Tier APIs)
 - Zoltan submitted osac-operator PR #269: remove deprecated status.storageClass field
 - All CI checks passing; OSAC-179 moved to Review
 
+### June 2, 2026 — Zoltan: CaaS Tenant Storage doc populated
+- Populated the CaaS Tenant Storage tab in Akshay's planning doc (OSAC-1123)
+- Covers: user stories, credential security, kubeconfig delivery, goals/non-goals/scope, dependencies, current implementation
+- Shared in wg-osac-storage thread for review
+
+### June 3, 2026 — PR #269 Merged (OSAC-179)
+- Akshay approved; merge bot merged
+- Deprecated `status.storageClass` (singular) field removed from Tenant CRD
+- OSAC-179 closed
+
+### June 3, 2026 — Storage WG Meeting: v0.1 Scope Decisions
+- **CaaS with VAST is the primary v0.1 focus** (VMaaS is stretch)
+- v0.1 milestone: end of June 2026
+- Avishay posted StorageBackend EP (PR #49 on enhancement-proposals, OSAC-917)
+- Roy Golan + Avishay assigned to Storage Tier Definition & Private API (OSAC-1110) and StorageBackend API (OSAC-1111)
+
+**Agreed v0.1 scope:**
+- Storage Onboarding: VAST virtual appliance, basic Tier API in fulfillment-service (stored in DB, no Tier CR for v0.1)
+- Tenant Onboarding: Tenant CR creation triggers VAST backend config (VIP pool, credentials, views per tier)
+- Resource Creation: cluster ready → install SCs + CSI on CaaS target cluster; tier info from fulfillment-service DB; etcd/control plane use local storage for v0.1
+- Storage readiness tracked on Cluster CR
+
+**New architectural direction: TenantStorage CR**
+- Move storage-related information out of Tenant CR into a new TenantStorage CR
+- Move storage logic out of tenant controller into tenant-storage controller
+- Akshay + Zoltan assigned to "Rework Tenant Storage Onboarding" epic
+
+**Work assignments (from Akshay's post-meeting breakdown):**
+- Storage Tier Definition & Private API: Avishay + Roy (must-have for v0.1, EP + CRUD API, no Tier CR)
+- Storage Backend Definition & Private API: Avishay + Roy (EP done, CRUD API ok to defer post v0.1)
+- Rework Tenant Storage Onboarding: Akshay + Zoltan (TenantStorage CR, new controller)
+- VMaaS Tenant Storage Setup: stretch for v0.1
+- CaaS Tenant Storage Setup: depends on Rework Tenant Storage Onboarding
+- VAST for CaaS: Will + Dylan (playbooks, QoS, VIP pools, VLAN isolation, VAST appliance upgrade/VoC)
+
+**Open items from meeting:**
+- How to upgrade VAST virtual appliance v5.3 → v5.4? (Roy/Will)
+- VoC (VAST on Cloud) access and cost? (Roy/Will)
+- Trigger point for cluster storage configuration during Resource Creation? (Akshay)
+- Networked storage for etcd/control plane post v0.1? (Avishay)
+- Will flagged QoS enforcement issue with VAST for CaaS (thread in wg-osac-storage)
+
+### June 3, 2026 — Akshay DM: OSAC-1145 confirmed as next task
+- "For tomorrow, yes, work on OSAC-1145" (playbook split into 4 lifecycle actions)
+
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
 - Organized by Akshay via Alona
 - Dedicated channel: wg-osac-storage (C0B6USDQ85S)
+- Additional meeting scheduled June 4 at 10 AM EDT (5 PM IDT)
 
 ---
 
