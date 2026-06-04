@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -931,6 +931,23 @@ OSAC-882 (Storage Tier APIs)
 
 ### June 3, 2026 — Akshay DM: OSAC-1145 confirmed as next task
 - "For tomorrow, yes, work on OSAC-1145" (playbook split into 4 lifecycle actions)
+
+### June 3, 2026 — Storage WG Meeting (second session)
+- Tier API is the development priority — needed for VM service functionality
+- Per-provider proxy model selected for control plane routing of storage operations
+- Storage readiness tracking decoupled from cluster status for cleaner separation
+- PRD (product requirements documents) will formalize development workflows before implementation
+- v0.1 scope confirmed: attach network storage and validate PVCs
+- Dylan onboarding — new team member, collaborating with Will on VAST integration
+- Action (Avishay): contact Eran about PRD skills for documentation standardization
+- Action (Will): manage VAST integration, transition from env vars to Tier API when available
+
+### June 4, 2026 — Akshay: fix version 0.1 assigned to features
+- All features targeted for Milestone 1.0 assigned `Fix Version: 0.1` in Jira
+- Epics to be reviewed and broken down into tasks by assignees
+- Akshay commuting to Boston, rescheduled 1:1 with Zoltan to June 5
+- Asked Zoltan about time allocation (fully on OSAC or divided)
+- Roy setting up VAST 5.4 template instance
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)

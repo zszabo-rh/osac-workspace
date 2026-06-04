@@ -2,6 +2,49 @@
 
 ---
 
+## 2026-06-04 (Wednesday)
+
+### Active Tickets
+- OSAC-179 (Remove deprecated status.storageClass) — **CLOSED** (PR #269 merged Jun 3)
+- OSAC-56 (VMaaS Tenant Storage Setup) — In Progress/Critical
+- OSAC-104 (Storage-tier SC discovery) — In Progress
+- OSAC-333 (Finalize quota EP) — In Progress (stagnant — on hold per Michael)
+- OSAC-70 (Quota Management) — New (epic, linked to NVIDIA-828)
+- OSAC-1143 (Tenant controller: readiness gate SC → hub Secret) — New (Phase B)
+- OSAC-1144 (Tenant controller: trigger osac-ensure-tenant-storage Phase 2) — New (Phase B)
+- OSAC-1145 (Split AAP storage playbooks into 4 actions) — New (Phase B)
+- OSAC-1146 (Trigger osac-cleanup-tenant-storage on deletion) — New (Phase B)
+- OSAC-498 (Tenant controller: use target cluster client) — New
+- OSAC-499 (Tenant operations: dedicated SA with scoped RBAC) — New
+- OSAC-326 (Demo: Storage Story) — New
+
+### Open PRs
+- enhancement-proposals#28: quota EP — OPEN (stale; on hold per Michael until metering direction settled)
+
+### Milestones
+- 2026-06-15–22: hypershift1 shutdown (11 days away)
+- Late June 2026: Storage v0.1 target
+- Late June 2026: Agentic SDLC Milestone 1
+
+### Notes
+- **OSAC-179 CLOSED** — PR #269 merged, ticket closed
+- **3 meetings processed (Jun 3)**:
+  - *WG Storage*: Tier API prioritized for VMaaS; "backend" terminology adopted; per-provider proxy model; storage readiness decoupled from cluster status; PRD/design doc split formalized; V1 = attach network storage + validate PVCs; **Dylan onboarding** (VAST collab with Will)
+  - *Full Team Weekly*: PRD/design doc split adopted project-wide; human-friendly resource names standard; weekly design reviews mandatory only for WG leads; Vladik adopting Cubert automation agent for OSAC; Alona opening Monday meetings to external community
+  - *Weekly Report*: release milestones formalized (0.1/0.2/0.3); 0.1 = CaaS+VMaaS+BMaaS core; new workflow: Features→EPs→Epics→Tasks; new RFE ticket type; demos: bare metal profiles, catalog items, BCM, Enclave UI, Helm installer
+- **PR #28 (quota EP)**: Vladik commented (Jun 3 01:36) proposing HostLease for bare metal tracking; Barakmor1 asking about scope (Jun 3 13:02); I replied explaining EP is on hold pending metering direction
+- **Dan Manor: unified networking EP** — PR #50 opened on enhancement-proposals, covers VMaaS/CaaS/BMaaS networking unification. Tags everyone.
+- **Juan Hernández: PG 15→18 upgrade** — PR #628 on fulfillment-service, no auto-migration (pre-release). Relates to dbennett's PG16 question.
+- **Elad Tabak: PR dashboard** — new tool at osac-project.github.io/osac-workspace/pr-dashboard/. Oved concerned about CI issues visible there.
+- **AAP CR broken on hypershift1** — rawagner reports AnsibleAutomationPlatform CR failing across namespaces (mtls attribute error). Oved escalated to Elior.
+- **Akshay: Fix Version 0.1 assigned** to all Milestone 1.0 features. Epic owners asked to review/break down work.
+- **Storage Jira tickets shared** by Akshay: OSAC-917 (Backend Framework), OSAC-1001 (Tenant Storage Lifecycle), OSAC-1191 (CaaS Storage)
+- **Roy Golan sharing** Avishay's PRD+design example from flightctl
+- **Rom Freiman joined** wg-osac-storage channel
+- **Crystal Chun turned 30** — ran 30 miles in under 5 hours
+
+---
+
 ## 2026-06-03 (Tuesday)
 
 ### Active Tickets
