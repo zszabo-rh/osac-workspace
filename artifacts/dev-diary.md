@@ -2,6 +2,49 @@
 
 ---
 
+## 2026-06-05 (Thursday)
+
+### Active Tickets
+- OSAC-1145 (Split AAP storage playbooks into 4 actions) — In Progress (feature branch active)
+- OSAC-56 (VMaaS Tenant Storage Setup) — In Progress/Critical
+- OSAC-104 (Storage-tier SC discovery) — In Progress
+- OSAC-333 (Finalize quota EP) — In Progress (stagnant — on hold per Michael)
+- OSAC-70 (Quota Management) — New (epic, linked to NVIDIA-828)
+- OSAC-1143 (Tenant controller: readiness gate SC → hub Secret) — New (Phase B)
+- OSAC-1144 (Tenant controller: trigger osac-ensure-tenant-storage Phase 2) — New (Phase B)
+- OSAC-1146 (Trigger osac-cleanup-tenant-storage on deletion) — New (Phase B)
+- OSAC-498 (Tenant controller: use target cluster client) — New
+- OSAC-499 (Tenant operations: dedicated SA with scoped RBAC) — New
+- OSAC-326 (Demo: Storage Story) — New
+
+### Open PRs
+- enhancement-proposals#28: quota EP — CHANGES_REQUESTED (stale; on hold per Michael until metering direction settled)
+
+### Milestones
+- 2026-06-15–22: hypershift1 shutdown (10 days away)
+- Late June 2026: Storage v0.1 target
+- Late June 2026: Agentic SDLC Milestone 1
+
+### Notes
+- **Repo refresh conflicts**: osac-operator on feat/OSAC-23-tenantstorage-controller has rebase conflict (24 commits behind, 4 ahead) — manual rebase needed
+- **Local work in progress**: osac-aap on feat/OSAC-1145-split-storage-playbooks (Phase B), osac-operator on TenantStorage controller branch
+- **Slack highlights**:
+  - Ygal Blum: bootstrap.sh broken by `docs` directory collision — suggests renaming `docs` and `enhancement-proposals` to be fork-friendly
+  - Will Gordon: asking if Catalog API should support storage-tier/storage-backend as generic types
+  - Ethan Kim: CaaS prototype published (https://heyethankim.github.io/osac-caas/), catalog-based experience
+  - Ilya S: all CRDs on dev cluster marked for deletion, stuck in Terminating — will patch finalizers if no objection
+  - Roy Golan: storage backend EP#51 open for review
+  - Akshay: detailed Liat feedback on storage screens, 3-phase workflow (Onboarding/Tenant/Resource), CaaS vs VMaaS SC timing differences
+- **Inbox highlights**:
+  - dbennett (Jun 4 02:27 UTC): PG16 adoption question — answered by Juan's PG18 PR#628
+  - Stephen Benjamin: ai-helpers changes coming
+  - GitHub workflow failure: PR Dashboard Data failed on osac-workspace main
+  - Corporate noise: Career Week, GE Q&A, Z-Stream cadence changes
+- **No new meeting transcripts** — all processed on Jun 4
+- **Workspace activity**: 7 new commits on osac-workspace main (auto-backups), 17 on fulfillment-service, 13 on osac-installer, 9 on osac-test-infra, 4 on osac-aap, 1 on EPs
+
+---
+
 ## 2026-06-04 (Wednesday)
 
 ### Active Tickets
