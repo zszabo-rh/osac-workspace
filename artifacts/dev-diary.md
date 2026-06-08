@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-06-08 (Monday)
+
+### Active Tickets
+- No tickets currently assigned in Jira
+
+### Open PRs
+- enhancement-proposals#52: OSAC-23 PRD + Design — REVIEW_REQUIRED, CI passing, 5 unaddressed review comments from Akshay (Jun 5)
+- enhancement-proposals#28: quota EP — CHANGES_REQUESTED (stale; on hold per Michael until metering direction settled)
+
+### Milestones
+- 2026-06-08: Q3 2026 Planning Kick-Off Meeting (4-5:30pm CEST)
+- 2026-06-15–22: hypershift1 shutdown (7 days away)
+- Late June 2026: Storage v0.1 target
+- Late June 2026: Agentic SDLC Milestone 1
+
+### Notes
+- **Repo refresh**: osac-workspace updated (36 ahead, 28 behind origin/main), fulfillment-service rebased 16 commits, osac-installer rebased 16 commits, osac-test-infra rebased 7 commits, osac-aap rebased 5 commits on feat/OSAC-1145 branch
+- **osac-operator rebase conflict**: feat/OSAC-23-tenantstorage-controller branch has conflict (29 commits behind, 4 ahead) — manual rebase needed
+- **PR #52 needs review response**: 5 inline comments from Akshay on PRD clarity, decision references, CaaS storage timing, unnecessary content, OSAC storage controller scope
+- **Inbox**: PR #631 review request from Ilya (websocket console), Q3 planning meeting today, weekly reports from Liat/Brett/Eugenia
+- **Slack**: Avishay created #osac-questions channel, Rom asking about mockups + new associates onboarding (4+ joining Jun 9)
+- **No new meeting transcripts** — folder current (0 hours old), all files processed
+
+---
+
 ## 2026-06-05 (Thursday)
 
 ### Active Tickets

@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-08
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -239,7 +239,7 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| **Tenant CRD** | Remove deprecated `status.storageClass` field | osac-operator #269 | Open, CI passing | OSAC-179. All consumers migrated. |
+| (none) | | | | |
 
 ### What's Not Started
 
@@ -597,7 +597,7 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1145 | Split AAP storage playbooks into 4 lifecycle actions | New |
 | OSAC-1146 | Trigger osac-cleanup-tenant-storage on resource deletion (tenant stays) | New |
 
-### Epic: OSAC-43 — VAST for VMaaS (Critical, In Progress)
+### Epic: OSAC-43 — VAST for VMaaS (Critical, Backlog)
 **Assignee:** Will Gordon
 **Summary renamed** from "VAST Data Tenant Storage Onboarding" (May 29)
 
@@ -701,7 +701,8 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| (none) | | | | |
+| #52 | enhancement-proposals | OSAC-23: PRD + Design for Tenant Storage Onboarding Rework | Draft, awaiting review | 2026-06-05 |
+| #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | Open | 2026-06-07 |
 
 ### Phase A Complete (May 28)
 - All three original storage PRs resolved: #210 merged, #296 merged, #266 closed
@@ -948,6 +949,41 @@ OSAC-882 (Storage Tier APIs)
 - Akshay commuting to Boston, rescheduled 1:1 with Zoltan to June 5
 - Asked Zoltan about time allocation (fully on OSAC or divided)
 - Roy setting up VAST 5.4 template instance
+
+### June 5, 2026 — Zoltan / Akshay 1:1
+- Discussed OSAC-23 scope: single OSAC Storage Controller (not multiple per phase), TenantStorage CRD name stays, controller renamed broader
+- Akshay confirmed PRD + design spec required before PRs
+- Akshay: OSAC-1145 moved under OSAC-23 as single delivery
+- Akshay asked about time allocation (fully on OSAC or divided)
+
+### June 5, 2026 — PRD + Design Doc Published (PR #52)
+- Zoltan published PRD + design doc for OSAC-23 to enhancement-proposals repo
+- First PR using the split prd.md + design.md format agreed upon by the team
+- Posted in wg-osac-storage for review
+- Akshay acknowledged but couldn't review before Monday (June 8)
+
+### June 5, 2026 — Akshay + Liat: Storage UX Discussion (wg-osac-storage)
+- Akshay and Will provided feedback on Liat Berkovich's (UX designer) storage mockups
+- Clarified 3-phase storage model for UX: Storage Onboarding (cloud admin), Tenant Storage Onboarding (cloud admin), Resource Creation (tenant admin/user)
+- Key UX distinction: StorageTiers not a CaaS concept for tenant visibility — tenants see clusters, StorageClasses, CSI drivers
+- Will explained VAST view-per-tier model and VIP pool scaling
+
+### June 6, 2026 — Roy Golan: StorageBackend EP (PR #51)
+- Roy posted StorageBackend enhancement proposal PR #51 on enhancement-proposals
+- Tagged Avishay, Akshay, Will for review
+
+### June 7, 2026 — Avishay: StorageTier Definition
+- Detailed 5-point StorageTier specification in wg-osac-storage thread:
+  1. Created mostly during StorageBackend onboarding, can be added later
+  2. Cloud provider admin can deprecate/obsolete tiers (same pattern as VM instance types)
+  3. Many-to-many relationship between StorageBackends and StorageTiers
+  4. Tier definition: Name, Description, List of StorageBackends, per-backend key-values for configuration
+  5. Remove qos class, VIP pool, StorageClass name, tenant availability from tier spec (per Akshay)
+
+### June 7, 2026 — Will: Beaker machine handover
+- Will offered his beaker machine to Zoltan for VAST appliance access
+- Akshay confirmed: "I've asked Will to hand over his beaker machine to you"
+- Coordination for handover Monday June 9
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
