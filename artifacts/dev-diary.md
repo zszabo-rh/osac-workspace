@@ -1,5 +1,58 @@
 # OSAC Dev Diary
 
+## 2026-06-10
+
+### Active Tickets
+- OSAC-1145: Split AAP storage playbooks into 4 lifecycle actions — In Progress (branch rebased, 6 upstream commits absorbed)
+- OSAC-333: Finalize quota management enhancement proposal — In Progress (PR #28 stale, mhrivnak on PTO until Jun 24)
+- OSAC-104: Add storage-tier support to tenant StorageClass discovery — In Progress
+- OSAC-56: VMaaS Tenant Storage Setup (Epic) — In Progress
+- OSAC-1146/1144/1143/499/498: TenantStorage follow-on tasks — New/unstarted
+
+### Open PRs
+- enhancement-proposals#52: PRD for Tenant Storage Onboarding Rework — CHANGES_REQUESTED (coderabbitai: 1 critical, 7 major findings), Akshay updated + tagged for review
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED (mhrivnak, on PTO until Jun 24), stale since Apr 10
+
+### Milestones
+- Late June 2026: Storage v0.1 target — CaaS only (confirmed in Jun 9 storage meeting)
+- Jun 15–22 2026: hypershift1 DOWN for data center maintenance
+
+### Notes
+- fulfillment-service: rebased 28 commits from origin/main (was stale)
+- osac-aap: rebased 6 commits from origin/main (storage playbook branch current)
+- osac-operator: 33 behind origin/main (dirty — TenantStorage work in progress, manual rebase needed)
+- osac-installer: 10 behind origin/main (dirty — manual rebase needed)
+- enhancement-proposals: rebased 4 commits from origin/main (prd/OSAC-23 branch current)
+- Storage meeting Jun 9: V0.1 = CaaS only (end of month deadline), boot volumes prioritized, storage quotas needed
+- Akshay: PRD ready for review, tagged @zszabo in wg-osac-storage
+- Michael Hrivnak on PTO until Jun 24
+- CI unstable: "Timeout waiting for CI resource provisioning" → /retest
+- Elad: Swagger UI live at https://osac-project.github.io/fulfillment-service/
+- ARPA-H/state initiative: deep planning this week with large team (Orran's message)
+
+
+## 2026-06-09
+
+### Active Tickets
+- OSAC-1145: Split AAP storage playbooks into 4 lifecycle actions — In Progress, local implementation on feat/OSAC-1145-split-storage-playbooks branch
+- OSAC-333: Finalize quota management enhancement proposal — In Progress
+- OSAC-104: Add storage-tier support to tenant StorageClass discovery — In Progress
+- OSAC-56: VMaaS Tenant Storage Setup (Epic) — In Progress
+
+### Open PRs
+- (none)
+
+### Milestones
+- Late June 2026: Storage v0.1 target (CaaS with VAST, TenantStorage EP)
+
+### Notes
+- OSAC-465 (ComputeInstance stuck) closed
+- Recent commits (last 7 days):
+  - osac-operator: TenantStorage CRD + controller implementation (4 commits on feat/OSAC-23-tenantstorage-controller)
+  - osac-aap: AAP storage playbook split (1 commit on feat/OSAC-1145-split-storage-playbooks)
+- New Jira tickets in backlog: OSAC-1146, OSAC-1144, OSAC-1143, OSAC-499, OSAC-498, OSAC-326, OSAC-70 (Epic)
+- enhancement-proposals on branch prd/OSAC-23 (PRD work in progress)
+
 ---
 
 ## 2026-06-08 (Monday)
