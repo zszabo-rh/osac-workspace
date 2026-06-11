@@ -1,4 +1,4 @@
-warning: unknown output format 'text'; falling back to json (valid options: json, table, yaml, csv)
+[PROCESSED 2026-06-11]
 Using keyring backend: keyring
 Notes from “WG - OSAC Storage”
 
