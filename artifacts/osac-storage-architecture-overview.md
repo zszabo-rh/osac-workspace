@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-08
+**Last updated:** 2026-06-12
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -239,7 +239,10 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| (none) | | | | |
+| **PRD** | OSAC-23 PRD v3 (condition ownership, no TenantStorage CRD) | EP #52 | Review required | Akshay finalized June 11 |
+| **AAP** | Playbook split: 4 lifecycle actions + `teardown_backend` | osac-aap #338 | Draft | On fork branch |
+| **Operator** | Storage Controller (condition ownership on Tenant CR) | (fork branch) | Not yet PR | `feat/OSAC-23-storage-controller` |
+| **Design** | Design doc for OSAC-23 | (fork branch) | Not yet PR | `design/OSAC-23` on EP repo |
 
 ### What's Not Started
 
@@ -606,8 +609,8 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-883 | Initial AAP MVP for VAST tenant storage provisioning | **Closed** |
 | OSAC-884 | Record VAST storage MVP demo | **Closed** |
 | OSAC-885 | Follow up on network isolation requirements for VAST storage | New |
-| OSAC-886 | Expand VIP pool configuration options for VAST storage | New |
-| OSAC-887 | CaaS integration for VAST tenant storage | New |
+| OSAC-886 | Expand VIP pool configuration options for VAST storage | **Closed** |
+| OSAC-887 | CaaS integration for VAST tenant storage | **Closed** |
 | OSAC-750 | Write enhancement proposal for VAST integration | To Do |
 | OSAC-751 | Create Ansible collection for VAST REST API | To Do |
 | OSAC-752 | Create orchestration roles for VAST onboarding | To Do |
@@ -701,8 +704,11 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #52 | enhancement-proposals | OSAC-23: PRD + Design for Tenant Storage Onboarding Rework | Draft, awaiting review | 2026-06-05 |
+| #52 | enhancement-proposals | OSAC-23: PRD for Tenant Storage Onboarding Rework | Open, review required | 2026-06-11 |
 | #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | Open | 2026-06-07 |
+| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (draft) | 2026-06-11 |
+
+Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-controller`, not yet a PR against upstream.
 
 ### Phase A Complete (May 28)
 - All three original storage PRs resolved: #210 merged, #296 merged, #266 closed
@@ -738,6 +744,9 @@ OSAC-882 (Storage Tier APIs)
 | 9 | **ComputeInstance has no storageTier field?** | Will flagged: no mechanism for users to select storage tier per VM. Currently template-driven only (EP #32). Needs operator PR to add tier field to ComputeInstance or DiskSpec. |
 | 10 | **Tier-to-Tenant mapping via Quota?** | Will proposed: no assigned quota = tier not available to tenant. Connects quota feature directly to tier availability. |
 | 11 | **Avishay's CaaS CSI proxy EP (PR #43)?** | Despite meeting rejecting custom CSI, Avishay wrote formal EP for CaaS-specific proxy CSI driver. Scoped to CaaS only. May 19: Avishay assigned to PoC the approach. May 26: CaaS installs SCs post-cluster (separate from onboarding), which aligns with proxy model. PoC in progress. |
+| 12 | **Roy's alternative CSI model?** | June 10: Roy proposed deploying vendor CSI images without their operator (like OpenShift Cluster Storage Operator), overlaying provisioner sidecar with policy check. No proxy needed. Needs evaluation vs Avishay's proxy approach. |
+| 13 | **Object storage (COSI)?** | June 10: Lars raised — MOC working with Pure on COSI driver for OpenShift. Same credential management issues as volume storage. Out of scope for v0.1 but needs tracking. |
+| 14 | **AAP client launch-by-name bug?** | Pre-existing: `LaunchJobTemplate()` uses template name in URL path, AAP 2.5 gateway requires numeric ID. Blocks E2E testing on any AAP 2.5 deployment. Affects all controllers, not just storage. |
 
 ---
 
@@ -984,6 +993,35 @@ OSAC-882 (Storage Tier APIs)
 - Will offered his beaker machine to Zoltan for VAST appliance access
 - Akshay confirmed: "I've asked Will to hand over his beaker machine to you"
 - Coordination for handover Monday June 9
+
+### June 8, 2026 — Akshay: v0.1 delivery plan published (wg-osac-storage)
+- Published delivery plan in Google Doc with pre-requisites and workflow
+- Requested alignment on StorageBackend and StorageTier object structure for v0.1
+- Will shared VAST VM setup script — fully provisions VAST to be OSAC-ready
+
+### June 8, 2026 — Jira reorganization: CaaS Cluster Storage (OSAC-1332)
+- New feature created: OSAC-1332 (CaaS Cluster Storage v0.1)
+- Placed OSAC-1122 (VAST for CaaS) and OSAC-1123 (CaaS Tenant Storage Setup) under it
+- No scope change — purely Jira management
+
+### June 10, 2026 — Storage WG Meeting
+- Roy proposed new CSI driver model: deploy vendor CSI without operator, overlay provisioner sidecar with policy check (similar to OpenShift Cluster Storage Operator)
+- Lars joined wg-osac-storage channel, raised object storage (COSI) question
+- MOC production stats: 597 Filesystem PVCs vs 5 Block — Filesystem is priority
+- NFS multi-tenancy risk discussed: single VIP pool with NFS is riskier than block for tenant isolation
+- Will shared initial VAST admin config doc (`1fzKMm7gdJ1lYT6zQTnO7BBeFsDLOiQcDzTf6MqAjVKM`)
+
+### June 10-11, 2026 — OSAC-23 PRD v3 finalized
+- Akshay rewrote PRD after Avishay's review: dropped TenantStorage CRD, adopted condition ownership on Tenant CR
+- Playbook naming finalized: backend/class convention (backend = VAST, class = cluster)
+- PRD ready for review on PR #52
+
+### June 11, 2026 — OSAC-23 Implementation
+- Design doc rewritten for condition ownership pattern (pushed to fork)
+- Storage Controller implemented: 736-line controller, two AAP providers, four job types
+- osac-aap playbooks renamed + `teardown_backend` action added
+- Deployed on edge-17 SNO: controllers running, conditions visible on `kubectl get tenant -o wide`
+- Blocked by pre-existing AAP client bug: `LaunchJobTemplate()` uses template name in URL, AAP 2.5 gateway requires numeric ID
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
