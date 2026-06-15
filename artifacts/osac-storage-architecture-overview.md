@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-12
+**Last updated:** 2026-06-15
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -239,10 +239,11 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| **PRD** | OSAC-23 PRD v3 (condition ownership, no TenantStorage CRD) | EP #52 | Review required | Akshay finalized June 11 |
+| **PRD** | OSAC-23 PRD v3 (condition ownership, no TenantStorage CRD) | EP #52 | Near merge — Avishay: "one comment + coderabbit and let's merge" (June 14). Akshay addressed both (June 15). | |
 | **AAP** | Playbook split: 4 lifecycle actions + `teardown_backend` | osac-aap #338 | Draft | On fork branch |
 | **Operator** | Storage Controller (condition ownership on Tenant CR) | (fork branch) | Not yet PR | `feat/OSAC-23-storage-controller` |
-| **Design** | Design doc for OSAC-23 | (fork branch) | Not yet PR | `design/OSAC-23` on EP repo |
+| **Design** | Design doc for OSAC-23 (Zoltan's version) | (fork branch) | Superseded by Akshay's PR #58 | `design/OSAC-23` on EP repo |
+| **Design** | Design doc for OSAC-23 (Akshay's version via `/design`) | EP #58 | Open, review requested | Uses `ClusterStorageReady` condition name |
 
 ### What's Not Started
 
@@ -707,8 +708,9 @@ OSAC-882 (Storage Tier APIs)
 | #52 | enhancement-proposals | OSAC-23: PRD for Tenant Storage Onboarding Rework | Open, review required | 2026-06-11 |
 | #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | Open | 2026-06-07 |
 | #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (draft) | 2026-06-11 |
+| #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | Open (Akshay) | 2026-06-15 |
 
-Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-controller`, not yet a PR against upstream.
+Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-controller`, not yet a PR against upstream. Akshay's design PR #58 is a separate design doc generated via `/design` skill — needs alignment with Zoltan's existing design on fork.
 
 ### Phase A Complete (May 28)
 - All three original storage PRs resolved: #210 merged, #296 merged, #266 closed
@@ -746,7 +748,8 @@ Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-contr
 | 11 | **Avishay's CaaS CSI proxy EP (PR #43)?** | Despite meeting rejecting custom CSI, Avishay wrote formal EP for CaaS-specific proxy CSI driver. Scoped to CaaS only. May 19: Avishay assigned to PoC the approach. May 26: CaaS installs SCs post-cluster (separate from onboarding), which aligns with proxy model. PoC in progress. |
 | 12 | **Roy's alternative CSI model?** | June 10: Roy proposed deploying vendor CSI images without their operator (like OpenShift Cluster Storage Operator), overlaying provisioner sidecar with policy check. No proxy needed. Needs evaluation vs Avishay's proxy approach. |
 | 13 | **Object storage (COSI)?** | June 10: Lars raised — MOC working with Pure on COSI driver for OpenShift. Same credential management issues as volume storage. Out of scope for v0.1 but needs tracking. |
-| 14 | **AAP client launch-by-name bug?** | Pre-existing: `LaunchJobTemplate()` uses template name in URL path, AAP 2.5 gateway requires numeric ID. Blocks E2E testing on any AAP 2.5 deployment. Affects all controllers, not just storage. |
+| 14 | ~~AAP client launch-by-name bug?~~ | **RESOLVED (June 12):** Fixed by adding `TemplateID` field to launch requests — uses numeric ID when available. Committed on `feat/OSAC-23-storage-controller` branch. |
+| 15 | **Akshay's design doc (PR #58) vs Zoltan's design?** | Akshay generated a new design doc via `/design` skill from the latest PRD. Uses `ClusterStorageReady` (vs `StorageClassReady`). Needs review and alignment before sharing with team. |
 
 ---
 
@@ -1022,6 +1025,26 @@ Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-contr
 - osac-aap playbooks renamed + `teardown_backend` action added
 - Deployed on edge-17 SNO: controllers running, conditions visible on `kubectl get tenant -o wide`
 - Blocked by pre-existing AAP client bug: `LaunchJobTemplate()` uses template name in URL, AAP 2.5 gateway requires numeric ID
+
+### June 12, 2026 — OSAC-23 E2E Testing on edge-17
+- Full E2E test suite executed on edge-17 SNO with VAST appliance (via SSH tunnel)
+- Stage 1 (backend provisioning): VAST org + VIP pool + hub Secret creation verified for new and existing tenants
+- Stage 2 (class provisioning): AAP created `vast-nfs-{tenant}-default` StorageClasses with VAST CSI, PVC binding confirmed
+- Two-stage teardown verified: class cleanup → backend teardown → finalizer removal → tenant deleted
+- Controller behavior: management-state skip, restart recovery, no duplicate jobs, condition ownership
+- Playbook idempotency: all 4 playbooks (create-backend, create-class, delete-class, delete-backend) handle re-runs gracefully
+- ComputeInstance integration: `tenant_storage_classes` correctly injected into AAP extra_vars from Tenant status
+- NFS mount blocked by SSH tunnel topology (edge-17 specific, not applicable on routable networks)
+- Test summary: `artifacts/osac-23-test-summary.md`
+
+### June 13, 2026 — Akshay: PRD nearly approved + new design PR
+- Avishay reviewed PR #52 (PRD): "One small comment + coderabbit and let's merge"
+- Akshay addressed both comments (June 15)
+- Akshay notified Will of upcoming playbook split changes (osac-aap PR #338)
+- Akshay left comment on Will's VAST admin config doc for Orran review
+- **New: Akshay created PR #58** — design doc generated via `/design` skill from latest PRD
+  - Asked Zoltan to review; wants to share with team after PRD is approved
+  - Uses `ClusterStorageReady` condition name (vs `StorageClassReady` in Zoltan's design)
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
