@@ -2,6 +2,38 @@
 
 ---
 
+## 2026-06-16
+
+### Active Tickets
+- OSAC-1146: Trigger cleanup on resource deletion — New
+- OSAC-1145: Split AAP storage playbooks — In Progress, PR #338 open (CI passing, 6 days old, has naming mismatch comment from Akshay)
+- OSAC-1144: Tenant controller trigger ensure — New
+- OSAC-1143: Tenant controller readiness gate change — New
+- OSAC-499: Dedicated ServiceAccount with scoped RBAC — New
+- OSAC-498: Use target cluster client — New
+- OSAC-326: Demo: Storage Story — New
+- OSAC-56: VMaaS Tenant Storage Setup (Epic) — In Progress
+- OSAC-104: Add storage-tier support — In Progress
+- OSAC-333: Finalize quota EP — In Progress
+- OSAC-70: Quota Management (Epic) — New
+
+### Open PRs
+- osac-aap#338: OSAC-23 storage playbooks rename — CI: passing, Review: awaiting (created Jun 10, 6 days old, Akshay comment on naming mismatch)
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED (mhrivnak PTO until Jun 24)
+
+### Milestones
+- Jun 15-22 (0-7 days away): hypershift1 DOWN for data center maintenance
+- Late June (~14 days): Storage v0.1 target (CaaS only, boot volumes)
+
+### Notes
+- **Repo refresh**: enhancement-proposals design/OSAC-23 branch rebase CONFLICT (13 behind, 5 ahead) — needs manual rebase
+- **Jira migration impact**: statusCategory filter not supported in new OSAC project, using status names instead
+- **Meeting notes**: Jun 15 weekly demo processed — Project Management API + Networking Manager discussions, no storage content
+- **Slack**: Akshay pushed design doc updates Jun 15, ready for review (PR #58); Elad's PR dashboard shows 5 need review, 29 CI failing; hypershift1 API cert expired overnight
+- **PR #338 naming mismatch**: Akshay noted Jun 15 that playbook names diverge between PR and PRD/design (storage-class vs cluster-storage)
+
+---
+
 ## 2026-06-15
 
 ### Active Tickets

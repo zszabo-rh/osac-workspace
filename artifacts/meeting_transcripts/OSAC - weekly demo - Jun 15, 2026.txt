@@ -1,0 +1,87 @@
+[PROCESSED 2026-06-16]
+Using keyring backend: keyring
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - weekly demo” Jun 15, 2026
+Date: Mon, 15 Jun 2026 16:21:25 +0000
+---
+Notes from “OSAC - weekly demo”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 15, 2026, 6:19 PM CEST and may  
+contain errors.
+
+
+Summary
+The team reviewed project management API implementations and evaluated new  
+networking manager designs for tenant isolation.
+
+
+Project Management API Development
+The project management API implementation utilizes Keycloak to manage  
+tenancy boundaries and authorization hierarchies. The group decided to  
+maintain the existing architecture for tenant resource sharing despite  
+requests for more flexible mechanisms.
+
+Networking Manager Implementation
+The new networking manager successfully demonstrated tenant isolation using  
+VLANs and namespace routing on a test topology. Integrating this manager  
+into the Cluster as a Service workflow remains the immediate priority.
+
+
+Suggested next steps
+
+
+
+[The group] Manage User Membership: Develop functionality to add and remove  
+users from specific projects.
+
+[The group] Test Nested Projects: Verify full functionality of nested  
+project hierarchies.
+
+[The group] Filter Project Resources: Implement logic to retrieve resources  
+categorized by project.
+
+[The group] Implement IDP API: Create remaining Identity Provider  
+management APIs for tenant administrators.
+
+[The group] Implement Role API: Create remaining role management APIs for  
+tenant administrators.
+
+[The group] Scope Resources PR: Draft and submit a pull request defining  
+whether specific resources should be scoped to projects or tenants.
+
+[The group] Document Sharing Workflow: Define and document the workflow for  
+sharing resources between specific tenants.
+
+[Yoni Bettan] Reclassify VLAN Allocation: Update the code structure to move  
+Virtual Local Area Network ID allocation from the Layer 3 to the Layer 2  
+collection.
+
+[The group] Integrate Services: Connect cluster as a service with bare  
+metal as a service.
+
+[Yoni Bettan] Research Generic Switch: Evaluate networking generic switch  
+functionality as a potential replacement for current implementations.
+
+[Yoni Bettan] List Supported Switches: Send the list of switches compatible  
+with the network runner project.
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

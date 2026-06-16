@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-15
+**Last updated:** 2026-06-16
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -705,12 +705,17 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #52 | enhancement-proposals | OSAC-23: PRD for Tenant Storage Onboarding Rework | Open, review required | 2026-06-11 |
 | #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | Open | 2026-06-07 |
 | #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (draft) | 2026-06-11 |
-| #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | Open (Akshay) | 2026-06-15 |
+| #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | Open — Zoltan approved, Akshay addressed CodeRabbit + Zoltan's ClusterOrder comment. Awaiting Avishay/Roy review. | 2026-06-16 |
 
-Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-controller`, not yet a PR against upstream. Akshay's design PR #58 is a separate design doc generated via `/design` skill — needs alignment with Zoltan's existing design on fork.
+### Recently Merged
+
+| PR | Repo | Title | Merged |
+|----|------|-------|--------|
+| #52 | enhancement-proposals | OSAC-23: PRD for Tenant Storage Onboarding Rework | 2026-06-15 |
+
+Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-controller` (aligned with PR #58 design), not yet a PR against upstream.
 
 ### Phase A Complete (May 28)
 - All three original storage PRs resolved: #210 merged, #296 merged, #266 closed
@@ -1045,6 +1050,19 @@ Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-contr
 - **New: Akshay created PR #58** — design doc generated via `/design` skill from latest PRD
   - Asked Zoltan to review; wants to share with team after PRD is approved
   - Uses `ClusterStorageReady` condition name (vs `StorageClassReady` in Zoltan's design)
+
+### June 15, 2026 — PRD merged + design review
+- **PR #52 (PRD) merged** — Avishay approved, merge bot merged
+- Zoltan posted in wg-osac-storage: PRD merged, design PR #58 open for review, implementation testing in parallel
+- Zoltan reviewed PR #58: approved with one comment (ClusterOrder watch handler uses `EnqueueRequestForOwner` but ClusterOrder has no tenant association)
+- Akshay acknowledged the ClusterOrder comment: "Good catch — ClusterOrder and Tenant live in different namespaces, so `ownerReferences` can't be used"
+- Akshay addressed CodeRabbit comments, asked Avishay and Roy for design review
+- Avishay posted in wg-osac-storage: "Let's try to have faster turnaround for PRDs/designs. Unless something needs further research we should be merging 1-2 days after initial submission."
+- Implementation aligned with PR #58 spec: renamed `StorageClassReady` → `ClusterStorageReady`, playbooks `*-storage-class` → `*-cluster-storage`, dispatcher action `cleanup` → `teardown_cluster_storage`. E2E re-tested on edge-17.
+
+### June 15, 2026 — VLAN discussion (wg-osac-storage)
+- Akshay discussed VAST VIP pool VLAN tagging for multi-tenancy with Will
+- VAST supports per-tenant VIP pools with VLAN separation — to be explored in next milestone
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
