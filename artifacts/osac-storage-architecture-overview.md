@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-16
+**Last updated:** 2026-06-17
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -239,18 +239,23 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| **PRD** | OSAC-23 PRD v3 (condition ownership, no TenantStorage CRD) | EP #52 | Near merge — Avishay: "one comment + coderabbit and let's merge" (June 14). Akshay addressed both (June 15). | |
-| **AAP** | Playbook split: 4 lifecycle actions + `teardown_backend` | osac-aap #338 | Draft | On fork branch |
-| **Operator** | Storage Controller (condition ownership on Tenant CR) | (fork branch) | Not yet PR | `feat/OSAC-23-storage-controller` |
-| **Design** | Design doc for OSAC-23 (Zoltan's version) | (fork branch) | Superseded by Akshay's PR #58 | `design/OSAC-23` on EP repo |
-| **Design** | Design doc for OSAC-23 (Akshay's version via `/design`) | EP #58 | Open, review requested | Uses `ClusterStorageReady` condition name |
+| **AAP** | Playbook split: 4 lifecycle actions + `teardown_backend` + renames | osac-aap #338 | Draft | On fork branch, ready to undraft after design merges |
+| **Operator** | Storage Controller (condition ownership on Tenant CR) | (fork branch) | Not yet PR | `feat/OSAC-23-storage-controller`, aligned with PR #58, E2E tested |
+| **Design** | Design doc for OSAC-23 (Akshay's version via `/design`) | EP #58 | Open — Zoltan+CodeRabbit approved, Roy commented (4, non-blocking), awaiting Avishay | Uses `ClusterStorageReady` condition name |
+
+### What's Merged (EPs/PRDs)
+
+| Component | What | PR | Merged |
+|-----------|------|-----|--------|
+| **PRD** | OSAC-23 PRD v3 (condition ownership, no TenantStorage CRD) | EP #52 | 2026-06-15 |
+| **EP** | OSAC-1111 StorageBackend enhancement proposal | EP #51 | 2026-06-15 |
 
 ### What's Not Started
 
 | Area | Gap | Ticket | Notes |
 |------|-----|--------|-------|
-| **Storage Tier APIs** | No user-facing API for tier discovery/selection | OSAC-882 (New, Akshay) | Admin CRUD + tenant APIs. Sub-epic OSAC-1110 for v0.1 |
-| **CaaS storage** | No storage provisioning inside child clusters | OSAC-887 (New) | **Elevated to v0.1 priority (June 1).** Roy flagged split CSI won't work. |
+| **Storage Tier APIs** | No user-facing API for tier discovery/selection | OSAC-882 (New) | Roy+Will collaborating on Tier API PRD (June 16 action item) |
+| **CaaS storage** | No storage provisioning inside child clusters | OSAC-1123 (New) | Akshay working on CaaS PRD. Depends on OSAC-23 |
 | **Dedicated VMaaS** | Same gap as CaaS — remote cluster, not hub | — | Same solution would cover both |
 | **Quota enforcement** | Backend-native, but no OSAC integration yet | — | Depends on OSAC-882 and quota EP |
 | **Multi-hub** | SC provisioning across multiple hub clusters | OSAC-753 (To Do) | — |
@@ -598,7 +603,7 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-499 | Tenant operations: dedicated ServiceAccount with scoped RBAC | To Do |
 | OSAC-1143 | Tenant controller: change readiness gate from StorageClass to hub Secret | New |
 | OSAC-1144 | Tenant controller: trigger osac-ensure-tenant-storage for VMaaS Phase 2 | New |
-| OSAC-1145 | Split AAP storage playbooks into 4 lifecycle actions | New |
+| OSAC-1145 | Split AAP storage playbooks into 4 lifecycle actions | **In Progress** |
 | OSAC-1146 | Trigger osac-cleanup-tenant-storage on resource deletion (tenant stays) | New |
 
 ### Epic: OSAC-43 — VAST for VMaaS (Critical, Backlog)
@@ -627,15 +632,16 @@ A fundamental debate about OSAC's long-term storage architecture.
 
 | Key | Summary | Status | Assignee | Notes |
 |-----|---------|--------|----------|-------|
-| OSAC-917 | Storage Backend Framework | New | WG-Storage | Feature-level. EP PR #49 submitted by Avishay (June 3) |
-| OSAC-1110 | Storage Tier Definition & Private API | New | Avishay + Roy | Epic under OSAC-882 for v0.1. Must-have. EP + CRUD API, no Tier CR for v0.1 |
-| OSAC-1111 | Storage Backend Definition & Private API | New | Avishay + Roy | Epic under OSAC-917. EP done (PR #49), CRUD API ok to defer post v0.1 |
-| OSAC-882 | Tiered Storage Management | New | Akshay Nadkarni | Feature-level |
+| OSAC-917 | Storage Backend Framework | New | WG-Storage | Feature-level. EP PR #51 merged (June 15) |
+| OSAC-1110 | Storage Tier Definition & Private API | New | Unassigned | Epic under OSAC-917 for v0.1. Must-have. Roy+Will to collaborate on Tier API PRD (June 16 action item) |
+| OSAC-1111 | Storage Backend Definition & Private API | New | Unassigned | Epic under OSAC-917. EP done (PR #51 merged), CRUD API ok to defer post v0.1 |
+| OSAC-882 | Tiered Storage Management | New | Unassigned | Feature-level |
 | OSAC-1001 | Tenant Storage Lifecycle | New | WG-Storage | Feature-level. Owns OSAC-23, OSAC-56 |
-| OSAC-23 | Tier-Based Resource Provisioning | In Progress | Akshay Nadkarni | Epic under OSAC-1001 |
+| OSAC-23 | Rework Tenant Storage Onboarding | In Progress | Unassigned | Epic under OSAC-1001. PRD merged, design under review, implementation E2E tested |
 | OSAC-1191 | CaaS — Provision and Manage OpenShift Clusters | New | WG-CaaS | Feature-level. Owns OSAC-1123, OSAC-1122 |
-| OSAC-1123 | CaaS Tenant Storage Setup | New | Akshay Nadkarni | Epic under OSAC-1191. Depends on Rework Tenant Storage Onboarding |
-| OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API |
+| OSAC-1332 | CaaS Cluster Storage (v0.1) | New | — | New parent for OSAC-1123 |
+| OSAC-1123 | CaaS Tenant Storage Setup | New | Unassigned | Epic under OSAC-1332. Depends on OSAC-23. Akshay working on CaaS PRD |
+| OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API. Under OSAC-984 |
 
 ### Dependencies
 
@@ -705,15 +711,15 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | Open | 2026-06-07 |
-| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (draft) | 2026-06-11 |
-| #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | Open — Zoltan approved, Akshay addressed CodeRabbit + Zoltan's ClusterOrder comment. Awaiting Avishay/Roy review. | 2026-06-16 |
+| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (draft) | 2026-06-16 |
+| #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | Open — Zoltan+CodeRabbit approved. Roy commented (4 comments, none affect implementation). Will commented. Awaiting Avishay review. | 2026-06-17 |
 
 ### Recently Merged
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
 | #52 | enhancement-proposals | OSAC-23: PRD for Tenant Storage Onboarding Rework | 2026-06-15 |
+| #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | 2026-06-15 |
 
 Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-controller` (aligned with PR #58 design), not yet a PR against upstream.
 
@@ -754,7 +760,9 @@ Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-contr
 | 12 | **Roy's alternative CSI model?** | June 10: Roy proposed deploying vendor CSI images without their operator (like OpenShift Cluster Storage Operator), overlaying provisioner sidecar with policy check. No proxy needed. Needs evaluation vs Avishay's proxy approach. |
 | 13 | **Object storage (COSI)?** | June 10: Lars raised — MOC working with Pure on COSI driver for OpenShift. Same credential management issues as volume storage. Out of scope for v0.1 but needs tracking. |
 | 14 | ~~AAP client launch-by-name bug?~~ | **RESOLVED (June 12):** Fixed by adding `TemplateID` field to launch requests — uses numeric ID when available. Committed on `feat/OSAC-23-storage-controller` branch. |
-| 15 | **Akshay's design doc (PR #58) vs Zoltan's design?** | Akshay generated a new design doc via `/design` skill from the latest PRD. Uses `ClusterStorageReady` (vs `StorageClassReady`). Needs review and alignment before sharing with team. |
+| 15 | ~~Akshay's design doc (PR #58) vs Zoltan's design?~~ | **RESOLVED (June 15):** Implementation aligned with PR #58 spec — all renames applied (`ClusterStorageReady`, `*-cluster-storage` playbooks, `teardown_cluster_storage` action). E2E re-tested successfully. Awaiting Avishay review for merge. |
+| 16 | **StorageBackend lifecycle (soft-delete vs hard-delete)?** | June 16: Roy raised in wg-osac-storage. Will: soft-delete for retiring backends without nuking resources. Akshay: must define backend lifecycle. Consensus: block deletion if in use by any tier. Maintenance is a separate state. |
+| 17 | **NVIDIA NCP storage requirements?** | June 16: Rom shared [NVIDIA requirements](https://docs.nvidia.com/dsx/ncp/nvidia-requirements-for-ai-clouds/storage-requirements). Potential future priority for AI cloud storage. |
 
 ---
 
@@ -1063,6 +1071,24 @@ Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-contr
 ### June 15, 2026 — VLAN discussion (wg-osac-storage)
 - Akshay discussed VAST VIP pool VLAN tagging for multi-tenancy with Will
 - VAST supports per-tenant VIP pools with VLAN separation — to be explored in next milestone
+
+### June 16, 2026 — WG-OSAC Storage meeting
+- **Attendees:** Akshay (lost power mid-meeting), Roy, Ronnie, Rom, Avishay, Will, others
+- Storage backend designs published and integrated; tenant storage onboarding refactoring in testing phase
+- Resource shortages blocking cluster provisioning — team relying on new cluster tooling for testing
+- **Paired reviews adopted** to accelerate design approvals (1-2 day turnaround target)
+- **v0.2 planning started:** Akshay shared [v0.2 goals doc](https://docs.google.com/document/d/1-CCfzubTF0cS8ehF82zPc36wrGS19YM5-HQvjE3BbcA/edit?tab=t.4znol3d4jy9q) — multi-backend support, improved secret management for admin credentials
+- **StorageBackend soft-delete discussion:** Roy raised whether soft-delete or hard-delete for StorageBackend. Will: soft-delete for retiring backends without nuking resources; maintenance is a separate state/status. Akshay: must define backend lifecycle (delete data vs replicate elsewhere). Ronnie: retention of data is the key difference. Consensus: block deletion if backend in use by any tier.
+- Rom shared [NVIDIA NCP storage requirements](https://docs.nvidia.com/dsx/ncp/nvidia-requirements-for-ai-clouds/storage-requirements) — potential future priority
+- Avishay removed GSD from osac-workspace (PR #63)
+- **Action items:** Roy to review backend storage design + remove draft status; Roy+Will to collaborate on Tier API PRD; team to update PTO in KNI Edge calendar; Roy to share secrets thread in Slack
+
+### June 16-17, 2026 — Akshay DMs
+- Akshay will set up VAST appliance connection (tomorrow = June 18)
+- Once design PR #58 approved, expects Zoltan to submit upstream PR(s) with implementation
+- Akshay working on CaaS support PRD next
+- Asked Zoltan to share beaker-to-VAST connectivity guide (guide created: `artifacts/vast-beaker-connectivity-guide.md`)
+- Requested PTO update in KNI Edge calendar
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
