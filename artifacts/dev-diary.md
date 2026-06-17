@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-06-17
+
+### Active Tickets
+- OSAC-1145: Split AAP storage playbooks into 4 lifecycle actions — In Progress, PR osac-aap#338 (CI:PASS, awaiting review)
+- OSAC-56: VMaaS Tenant Storage Setup — In Progress (Critical), no PR
+- OSAC-333: Finalize quota management EP — In Progress, STALE (43d no update)
+- OSAC-104: Add storage-tier support to tenant StorageClass discovery — In Progress, STALE (43d no update)
+- OSAC-1146/1144/1143/499/326/498: VMaaS Tenant Storage tasks — New/To Do
+
+### Open PRs
+- osac-aap#338: OSAC-23: Rename storage playbooks to match two-stage model — CI:PASS, Review:NONE (updated 2026-06-16)
+
+### Milestones
+- Late June 2026: Storage v0.1 — CaaS with VAST, StorageBackend/StorageTier CRs (~2 weeks)
+- End of summer 2026: HIPAA + NIST 800-171 compliance
+
+### Notes
+- Repo updates: fulfillment-service +16 commits (console ping, VN triggers, grpc keepalive), osac-operator +7 (on feat/OSAC-23), osac-installer +9, docs +1
+- @zszabo mentioned by Roy Golan: StorageBackend soft-delete/delete design question (wg-osac-storage) — needs reply
+- Roy Golan: suggests renaming README.md → design.md in enhancement-proposals (conflicts with CLAUDE.md convention — needs clarification)
+- Akshay: addressed zszabo comments on EP PR #52, asking PTAL
+- Prow CI unstable (Omer Vishlitzky, Jun 16)
+- Storage meeting Jun 16: backend designs published, tenant onboarding in testing, paired reviews adopted, resource shortage blocking cluster provisioning
+- osac-operator fork: 11 ahead, 2 behind fork/feat/OSAC-23-storage-controller — push needed
+- osac-aap: fork 4 ahead, 3 behind fork branch — diverged, needs attention
+
+
+
+---
+
 ## 2026-06-16
 
 ### Active Tickets
