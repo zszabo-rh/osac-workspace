@@ -711,14 +711,14 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #299 | osac-operator | OSAC-23: Extract storage lifecycle into OSAC Storage Controller | Open — all CI passes (tests, lint, Helm, prow images, e2e-vmaas). Akshay reviewing: raised JobType enum concern + missing unit tests. | 2026-06-18 |
-| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (ready for review) | 2026-06-17 |
-| #60 | enhancement-proposals | OSAC-1111: StorageBackend API design document | Open — Roy's design, Zoltan+Avishay reviewed. | 2026-06-18 |
+| #299 | osac-operator | OSAC-23: Extract storage lifecycle into OSAC Storage Controller | Open — all CI passes. Akshay reviewing: raised JobType enum concern + missing unit tests. | 2026-06-18 |
+| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (ready for review). Akshay: target mismatch comment. | 2026-06-18 |
 
 ### Recently Merged
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #60 | enhancement-proposals | OSAC-1111: StorageBackend API design document | 2026-06-17 |
 | #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | 2026-06-17 |
 | #52 | enhancement-proposals | OSAC-23: PRD for Tenant Storage Onboarding Rework | 2026-06-15 |
 | #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | 2026-06-15 |
