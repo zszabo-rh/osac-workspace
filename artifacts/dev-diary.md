@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-06-18
+
+### Active Tickets
+- OSAC-1145: Split AAP storage playbooks — In Progress, PR osac-aap#338 (CI:PASS, 1 new Akshay comment overnight)
+- OSAC-56: VMaaS Tenant Storage Setup (Epic) — In Progress (Critical)
+- OSAC-104: Add storage-tier support to tenant StorageClass discovery — In Progress, STALE (44d)
+- OSAC-333: Finalize quota management EP — In Progress, STALE (44d, mhrivnak returns Jun 24)
+
+### Open PRs
+- osac-operator#299: OSAC-23 storage controller — CI:PASS, Review:CHANGES_REQUESTED (coderabbitai bot), 6 substantive Akshay comments overnight (01:42-01:51 UTC)
+- osac-aap#338: OSAC-23 rename storage playbooks — CI:PASS, Review:NONE, 1 Akshay question overnight (02:39 UTC)
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since Jun 3 (mhrivnak PTO until Jun 24)
+
+### Milestones
+- Jun 15-22 (ongoing): hypershift1 DOWN for data center maintenance
+- Late June (~12 days): Storage v0.1 target (CaaS, boot volumes)
+
+### Notes
+- Repos: enhancement-proposals +15, fulfillment-service +15 (v0.0.65, v0.0.66 tagged), osac-operator rebased 2 new upstream commits, osac-installer +4
+- PR #60 (Roy's StorageBackend EP design) MERGED — zszabo merged in wg-osac-storage thread yesterday
+- PR #58 (zszabo's tenant storage design): reviewDecision=APPROVED, Roy conditional LGTM pending final look
+- Akshay: #299 needs — rename handleClassXxx→handleClusterStorageXxx, Secrets RBAC→namespaced Role, fill StorageBackendStatus/ClusterStorageStatus on TenantStatus, use shared NeedsProvisionJob, rename osacTenantAnnotation→osacTenantLabel, add TODO(OSAC-1123)
+- Akshay: #338 question — teardown_cluster_storage.yaml accepts hcp_data_plane but teardown_backend.yaml only accepts vmaas — intentional?
+- osac-aap: feature branch has uncommitted nvidia.bare_metal vendor changes (from upstream) — investigate
+- Inbox: DB Bennett DM asking if OSAC team ready to adopt PG16 for MCE 5.0 — needs reply
+- DB Bennett DM: "We have added PG16 to the bundle for MCE 5.0. Is your team ready to adopt it?"
+- Fork: osac-operator 9 ahead fork remote, 7 behind fork remote — push needed after #299 fixes
+
+---
+
 ## 2026-06-17
 
 ### Active Tickets

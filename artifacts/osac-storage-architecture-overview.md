@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-17
+**Last updated:** 2026-06-18
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -711,17 +711,19 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (draft) | 2026-06-16 |
-| #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | Open — Zoltan+CodeRabbit approved. Roy commented (4 comments, none affect implementation). Will commented. Awaiting Avishay review. | 2026-06-17 |
+| #299 | osac-operator | OSAC-23: Extract storage lifecycle into OSAC Storage Controller | Open — all CI passes (tests, lint, Helm, prow images, e2e-vmaas). Akshay reviewing: raised JobType enum concern + missing unit tests. | 2026-06-18 |
+| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (ready for review) | 2026-06-17 |
+| #60 | enhancement-proposals | OSAC-1111: StorageBackend API design document | Open — Roy's design, Zoltan+Avishay reviewed. | 2026-06-18 |
 
 ### Recently Merged
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | 2026-06-17 |
 | #52 | enhancement-proposals | OSAC-23: PRD for Tenant Storage Onboarding Rework | 2026-06-15 |
 | #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | 2026-06-15 |
 
-Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-controller` (aligned with PR #58 design), not yet a PR against upstream.
+Note: Operator PR #299 and AAP PR #338 are the implementation PRs. Merge order: operator first (storage controller disabled by default), then AAP.
 
 ### Phase A Complete (May 28)
 - All three original storage PRs resolved: #210 merged, #296 merged, #266 closed
@@ -762,7 +764,8 @@ Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-contr
 | 14 | ~~AAP client launch-by-name bug?~~ | **RESOLVED (June 12):** Fixed by adding `TemplateID` field to launch requests — uses numeric ID when available. Committed on `feat/OSAC-23-storage-controller` branch. |
 | 15 | ~~Akshay's design doc (PR #58) vs Zoltan's design?~~ | **RESOLVED (June 15):** Implementation aligned with PR #58 spec — all renames applied (`ClusterStorageReady`, `*-cluster-storage` playbooks, `teardown_cluster_storage` action). E2E re-tested successfully. Awaiting Avishay review for merge. |
 | 16 | **StorageBackend lifecycle (soft-delete vs hard-delete)?** | June 16: Roy raised in wg-osac-storage. Will: soft-delete for retiring backends without nuking resources. Akshay: must define backend lifecycle. Consensus: block deletion if in use by any tier. Maintenance is a separate state. |
-| 17 | **NVIDIA NCP storage requirements?** | June 16: Rom shared [NVIDIA requirements](https://docs.nvidia.com/dsx/ncp/nvidia-requirements-for-ai-clouds/storage-requirements). Potential future priority for AI cloud storage. |
+| 17 | **NVIDIA NCP storage requirements?** | June 16: Rom shared [NVIDIA requirements](https://docs.nvidia.com/dsx/ncp/nvidia-requirements-for-ai-clouds/storage-requirements). June 17: NCP meeting held. Akshay analyzed [NVIDIA ai-cloud-validation](https://github.com/NVIDIA/ai-cloud-validation) — 4 CSI validators + S3 test. Storage tests passed using LVMO. Avishay: "NCP doesn't affect the OSAC storage roadmap much." |
+| 18 | **JobType enum leaking to all CRDs?** | June 17: Akshay raised on PR #299. 4 storage-specific job types added to shared `JobType` enum appear in all 9 CRD schemas. Two alternatives: (1) per-tenant CRs (`TenantStorageBackend`, `TenantClusterStorage`) with standard `provision`/`deprovision`, or (2) accept as pragmatic v0.1 choice. Needs decision for CaaS support. |
 
 ---
 
@@ -1089,6 +1092,15 @@ Note: osac-operator implementation is on fork branch `feat/OSAC-23-storage-contr
 - Akshay working on CaaS support PRD next
 - Asked Zoltan to share beaker-to-VAST connectivity guide (guide created: `artifacts/vast-beaker-connectivity-guide.md`)
 - Requested PTO update in KNI Edge calendar
+
+### June 17, 2026 — PR submissions + NCP meeting
+- Design PR #58 **merged** (Akshay merged after Roy/Will/Zoltan/CodeRabbit approvals)
+- Zoltan posted implementation PRs in wg-osac-storage: osac-operator [#299](https://github.com/osac-project/osac-operator/pull/299) + osac-aap [#338](https://github.com/osac-project/osac-aap/pull/338)
+- Akshay reviewed both PRs: raised JobType enum concern (storage-specific types leaking to all CRDs), missing unit tests, and AAP `teardown_cluster_storage` target mismatch (`hcp_data_plane` accepted but `teardown_backend` only accepts `vmaas`)
+- Roy created storage labs spreadsheet with VAST/NetApp/Pure details, pinned in channel bookmarks
+- Roy shared new VAST config doc for Orran/datacenter admins: `1fzKMm7gdJ1lYT6zQTnO7BBeFsDLOiQcDzTf6MqAjVKM`
+- NCP meeting: Akshay analyzed NVIDIA ai-cloud-validation repo — 4 CSI validators (block/shared FS/NFS, quotas, tenant-scoped creds, dynamic+static provisioning) + S3. Storage tests passed using LVMO. Avishay: "NCP doesn't affect the OSAC storage roadmap much."
+- OSAC got listed on [NVIDIA ISV validation program](https://www.nvidia.com/en-eu/data-center/isv-validation-program/)
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)

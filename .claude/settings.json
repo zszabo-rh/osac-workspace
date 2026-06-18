@@ -19,7 +19,9 @@
       "Bash(git diff:*)",
       "Bash(git tag:*)",
       "Bash(jira issue list:*)",
-      "Bash(jira issue view:*)"
+      "Bash(jira issue view:*)",
+      "Bash(bash tools/coffee/gather-data.sh:*)",
+      "Bash(bash tools/coffee/mark-processed.sh:*)"
     ]
   },
   "hooks": {
