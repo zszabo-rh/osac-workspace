@@ -14,6 +14,28 @@ Note: after the storage extraction, the Tenant's generic `jobs` field (with `pro
 
 New CRDs: `TenantStorageBackend` (one per tenant) + `TenantClusterStorage` (one per tenant-cluster pair). Each has its own controller using standard `provision`/`deprovision` + `RunProvisioningLifecycle`.
 
+```yaml
+kind: TenantStorageBackend       # one per tenant
+status:
+  phase: Ready
+  jobs: []    # standard provision/deprovision
+
+kind: TenantClusterStorage       # one per tenant-cluster pair
+status:
+  phase: Ready
+  jobs: []    # standard provision/deprovision
+
+kind: Tenant                     # no jobs field
+status:
+  phase: Ready
+  # reads storage readiness from child CRs
+
+kind: Subnet                     # unchanged
+status:
+  phase: Ready
+  jobs: []
+```
+
 - Follows Subnet/ClusterOrder pattern
 - CaaS-native (one CR per cluster)
 - Eliminates current storage controller (~740 lines) in favor of two simpler controllers
