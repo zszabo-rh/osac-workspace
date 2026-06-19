@@ -79,13 +79,28 @@
 | Controller restart resilience | Full | No duplicate jobs after pod restart |
 | ClusterOrder schema | Schema only | New fields accepted; no controller writes to `clusterStorageJobs` yet (CaaS not implemented) |
 
-### What is NOT covered (and why)
+### Unit test coverage for non-E2E-tested controllers
+
+All 8 standard controllers had `.Status.Jobs` → `.Status.ProvisioningJobs` renames in their code AND tests. The 6 controllers not E2E-tested on edge-17 have comprehensive unit test coverage:
+
+| Controller | Unit Tests | Direct `ProvisioningJobs` assertions | Provisioning flow refs |
+|---|---|---|---|
+| Subnet | 19 | 18 | Yes |
+| VirtualNetwork | 18 | 19 | Yes |
+| SecurityGroup | 21 | 7 | Yes |
+| PublicIP | 24 | 4 | Yes |
+| PublicIPPool | 12 | 5 | Yes |
+| PublicIPAttachment | 25 | 0 (tests via helpers) | 35 |
+
+All 119 tests pass. The rename is a compile-time-checked Go struct field change — a wrong field name would fail to build. Tests exercise provisioning lifecycle through the renamed field either via direct assertions or through `RunProvisioningLifecycle`/`RunDeprovisioningLifecycle` helpers that receive `&instance.Status.ProvisioningJobs`.
+
+### What is NOT covered by E2E (and why)
 
 | Area | Reason | Risk |
 |------|--------|------|
 | **ClusterOrder cluster-storage provisioning** | CaaS storage provisioning not implemented yet. The storage controller's `mapClusterOrderToTenant` returns nil (marked `TODO(OSAC-1123)`). `clusterStorageJobs` on ClusterOrder is a schema placeholder for CaaS v0.1 | **None** — no code path writes to this field. Schema validated in test 16 |
-| **Networking CRDs (Subnet, VNet, SG) with `provisioningJobs`** | Networking controller disabled on edge-17; requires full networking stack. The rename is identical to ComputeInstance/ClusterOrder (mechanical `Jobs` → `ProvisioningJobs`) | **Low** — covered by unit tests; same code pattern as tested CRDs |
-| **PublicIP/PublicIPPool/PublicIPAttachment with `provisioningJobs`** | Same as networking — controllers not exercised on edge-17 | **Low** — covered by unit tests |
+| **Networking CRDs (Subnet, VNet, SG) with `provisioningJobs`** | Networking controller disabled on edge-17; requires full networking stack. The rename is identical to ComputeInstance/ClusterOrder (mechanical `Jobs` → `ProvisioningJobs`) | **Low** — 58 unit tests cover these controllers; same code pattern as E2E-tested CRDs |
+| **PublicIP/PublicIPPool/PublicIPAttachment with `provisioningJobs`** | Same as networking — controllers not exercised on edge-17 | **Low** — 61 unit tests cover these controllers |
 | **Feedback controllers** | No fulfillment-service deployed on edge-17. Feedback controllers sync status to fulfillment-service via gRPC | **None for Option C** — feedback controllers don't read job arrays directly; they use `GetJobsFromResource()` which was updated |
 | **Playbook idempotency** | Cannot test via direct AAP launch (playbooks require EDA payload format). Tested in first E2E round (June 12-15) with v2 operator; playbooks unchanged by Option C | **None** — Option C doesn't modify playbooks |
 | **Multi-cluster CaaS** | Not implemented. ClusterOrder storage provisioning is planned for v0.1 but not yet coded | **None** — no code to test |
