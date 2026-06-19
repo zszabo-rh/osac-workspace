@@ -1,6 +1,6 @@
 # OSAC Roadmap — 2026
 
-*Last updated: 2026-05-05 based on meeting analysis (March 2 – May 4, 2026)*
+*Last updated: 2026-06-19 based on meeting analysis (March 2 – June 18, 2026)*
 
 ## Strategic Context
 
