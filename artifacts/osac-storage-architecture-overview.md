@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-18
+**Last updated:** 2026-06-22
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -239,9 +239,9 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| **AAP** | Playbook split: 4 lifecycle actions + `teardown_backend` + renames | osac-aap #338 | Draft | On fork branch, ready to undraft after design merges |
-| **Operator** | Storage Controller (condition ownership on Tenant CR) | (fork branch) | Not yet PR | `feat/OSAC-23-storage-controller`, aligned with PR #58, E2E tested |
-| **Design** | Design doc for OSAC-23 (Akshay's version via `/design`) | EP #58 | Open — Zoltan+CodeRabbit approved, Roy commented (4, non-blocking), awaiting Avishay | Uses `ClusterStorageReady` condition name |
+| **Operator** | Storage Controller + Option C (provisioningJobs rename, lifecycle-specific arrays) | osac-operator #299 | Open — all feedback addressed, E2E validated (16/16), awaiting re-review | 11 commits, image `osac-23-v3` |
+| **AAP** | Playbook split: 4 lifecycle actions + `teardown_backend` + renames | osac-aap #338 | Open — ready for review | 1 unaddressed comment (target mismatch) |
+| **Fulfillment** | StorageBackend CRUD API | fulfillment-service #728 | Draft — under review | Roy addressing jhernand + Akshay comments |
 
 ### What's Merged (EPs/PRDs)
 
@@ -249,6 +249,8 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 |-----------|------|-----|--------|
 | **PRD** | OSAC-23 PRD v3 (condition ownership, no TenantStorage CRD) | EP #52 | 2026-06-15 |
 | **EP** | OSAC-1111 StorageBackend enhancement proposal | EP #51 | 2026-06-15 |
+| **Design** | OSAC-23 design (Akshay's version) — ClusterStorageReady, two-stage model | EP #58 | 2026-06-17 |
+| **Design** | OSAC-1111 StorageBackend API design | EP #60 | 2026-06-17 |
 
 ### What's Not Started
 
@@ -711,8 +713,9 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #299 | osac-operator | OSAC-23: Extract storage lifecycle into OSAC Storage Controller | Open — all CI passes. Akshay reviewing: raised JobType enum concern + missing unit tests. | 2026-06-18 |
-| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (ready for review). Akshay: target mismatch comment. | 2026-06-18 |
+| #299 | osac-operator | OSAC-23: Extract storage lifecycle into OSAC Storage Controller | Open — 11 commits (Option C implemented), all review feedback addressed, E2E validated (16/16). Awaiting re-review from Akshay. | 2026-06-19 |
+| #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | Open (ready for review). Akshay: target mismatch comment (unaddressed). | 2026-06-18 |
+| #728 | fulfillment-service | OSAC-1111: StorageBackend API | Draft — jhernand + Akshay reviewing. 8 comments from jhernand, credential redaction issue flagged by Akshay. Roy addressing. | 2026-06-21 |
 
 ### Recently Merged
 
@@ -765,7 +768,7 @@ Note: Operator PR #299 and AAP PR #338 are the implementation PRs. Merge order: 
 | 15 | ~~Akshay's design doc (PR #58) vs Zoltan's design?~~ | **RESOLVED (June 15):** Implementation aligned with PR #58 spec — all renames applied (`ClusterStorageReady`, `*-cluster-storage` playbooks, `teardown_cluster_storage` action). E2E re-tested successfully. Awaiting Avishay review for merge. |
 | 16 | **StorageBackend lifecycle (soft-delete vs hard-delete)?** | June 16: Roy raised in wg-osac-storage. Will: soft-delete for retiring backends without nuking resources. Akshay: must define backend lifecycle. Consensus: block deletion if in use by any tier. Maintenance is a separate state. |
 | 17 | **NVIDIA NCP storage requirements?** | June 16: Rom shared [NVIDIA requirements](https://docs.nvidia.com/dsx/ncp/nvidia-requirements-for-ai-clouds/storage-requirements). June 17: NCP meeting held. Akshay analyzed [NVIDIA ai-cloud-validation](https://github.com/NVIDIA/ai-cloud-validation) — 4 CSI validators + S3 test. Storage tests passed using LVMO. Avishay: "NCP doesn't affect the OSAC storage roadmap much." |
-| 18 | **JobType enum leaking to all CRDs?** | June 17: Akshay raised on PR #299. 4 storage-specific job types added to shared `JobType` enum appear in all 9 CRD schemas. Two alternatives: (1) per-tenant CRs (`TenantStorageBackend`, `TenantClusterStorage`) with standard `provision`/`deprovision`, or (2) accept as pragmatic v0.1 choice. Needs decision for CaaS support. |
+| 18 | ~~JobType enum leaking to all CRDs?~~ | **RESOLVED (June 19):** Option C agreed — rename `status.jobs` → `status.provisioningJobs` on all 9 CRDs, add lifecycle-specific arrays (`storageBackendJobs`, `clusterStorageJobs`) on Tenant and ClusterOrder. Implemented on PR #299, E2E validated. [Alternatives doc](https://docs.google.com/document/d/1obxCZSWvdy42B8Ig55UQbpSQpSsRzTv-gsdkJXYG6UQ). |
 
 ---
 
@@ -1101,6 +1104,30 @@ Note: Operator PR #299 and AAP PR #338 are the implementation PRs. Merge order: 
 - Roy shared new VAST config doc for Orran/datacenter admins: `1fzKMm7gdJ1lYT6zQTnO7BBeFsDLOiQcDzTf6MqAjVKM`
 - NCP meeting: Akshay analyzed NVIDIA ai-cloud-validation repo — 4 CSI validators (block/shared FS/NFS, quotas, tenant-scoped creds, dynamic+static provisioning) + S3. Storage tests passed using LVMO. Avishay: "NCP doesn't affect the OSAC storage roadmap much."
 - OSAC got listed on [NVIDIA ISV validation program](https://www.nvidia.com/en-eu/data-center/isv-validation-program/)
+
+### June 18, 2026 — JobType alternatives document circulated
+- Akshay posted [Job Tracking Alternatives](https://docs.google.com/document/d/1obxCZSWvdy42B8Ig55UQbpSQpSsRzTv-gsdkJXYG6UQ) in wg-osac-storage with 3 proposals (A: per-lifecycle CRDs, B: separate arrays on Tenant, C: renamed arrays on all CRDs)
+- Akshay's recommendation: Option C for long-term consistency
+- Roy voted for Option B initially, then agreed with Akshay's suggestion
+- Akshay got buy-in from WG-Core (Juan, Crystal) on Option C
+- Akshay confirmed: "let's go with Option C"
+- PR #728 (StorageBackend API): jhernand left 8 review comments (status message type, unique key design, tenant immutability, inline small functions, DB trigger checks). Akshay flagged credential plaintext in NOTIFY payload.
+
+### June 19, 2026 — Option C implemented + E2E validated
+- Rebased both PRs on latest origin/main (operator picked up BareMetalInstance feedback controller)
+- Implemented Option C on PR #299: renamed `status.jobs` → `status.provisioningJobs` across all 9 CRDs, added `storageBackendJobs` + `clusterStorageJobs` on Tenant, added `clusterStorageJobs` on ClusterOrder, removed 4 storage-specific JobType enum values
+- Additional cleanup: removed 6 unused TenantReason constants, added `TenantReasonNoProvider`, removed dead `GetStatusJobs()` methods, removed Tenant from `GetJobsFromResource()` (returns nil — storage controller manages its own arrays)
+- Added 4 new unit tests for job array isolation and failure paths
+- E2E tested on edge-17: 16/16 tests pass (CRD migration, upgrade path, lifecycle, deletion, job array routing, ComputeInstance with VAST storage)
+- New image: `quay.io/rh-ee-zszabo/osac-operator:osac-23-v3`
+- E2E report: `artifacts/osac-23-e2e-option-c-report.md`
+
+### June 20, 2026 — US Holiday (Juneteenth)
+
+### June 22, 2026 — Status
+- hypershift1 cluster down June 15-22 for data center maintenance (back tomorrow June 23)
+- No new PR reviews or Slack activity since June 19
+- Storage meeting tomorrow (Tuesday June 23, 3-4 PM CEST)
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
