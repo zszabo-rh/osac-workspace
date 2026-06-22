@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-06-22
+
+### Active Tickets
+- Jira CLI currently unavailable (jira_failed) — unable to retrieve ticket status
+
+### Open PRs
+- osac-operator#299: OSAC-23 storage controller — CI:SUCCESS (pending), Review:CHANGES_REQUESTED, updated 2026-06-21
+- osac-aap#338: OSAC-23 rename storage playbooks — CI:SUCCESS (pending), Review:NONE, updated 2026-06-18
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since Jun 3 (mhrivnak returns Jun 24)
+
+### Milestones
+- Jun 15-22 (ongoing, ends today): hypershift1 DOWN for data center maintenance
+- Late June (~8 days): Storage v0.1 target (CaaS, boot volumes)
+
+### Notes
+- Repos: enhancement-proposals +2 (auto/bump-submodules branch, new PR #64), fulfillment-service +15, osac-aap +6, osac-operator +2, osac-installer +12, osac-test-infra +3
+- Fork status: osac-operator 13 ahead/11 behind fork branch, osac-aap 10 ahead/4 behind fork branch — both diverged
+- Inbox: Weekly reports from Tatjana and Yaron (Jun 16-17)
+- Slack: Dan Manor asking for review on EP #64 (Friday evening)
+- **Option C implementation complete** (commit f4f6529 on osac-operator) — renamed jobs→provisioningJobs across all CRDs
+- osac-installer submodules updated (osac-aap, fulfillment-service, osac-operator all advanced)
+- **Jira CLI unavailable** — all jira_failed, cannot retrieve ticket status this session
+
+---
+
 ## 2026-06-18
 
 ### Active Tickets
