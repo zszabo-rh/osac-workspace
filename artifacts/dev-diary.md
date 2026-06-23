@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-06-23
+
+### Active Tickets
+- OSAC-1145: Split AAP storage playbooks — In Progress, PR osac-aap#338 (CI:SUCCESS/pending, APPROVED)
+- OSAC-56: VMaaS Tenant Storage Setup — In Progress (Critical)
+- OSAC-333: Finalize quota management EP — In Progress, STALE (49d)
+- OSAC-104: Add storage-tier support to tenant StorageClass discovery — In Progress, STALE (49d)
+
+### Open PRs
+- osac-operator#299: OSAC-23 storage controller — CI:SUCCESS/pending, Review:APPROVED (Akshay), updated 2026-06-23
+- osac-aap#338: OSAC-23 rename storage playbooks — CI:SUCCESS/pending, Review:APPROVED (Akshay), updated 2026-06-22
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since Jun 3 (mhrivnak returns Jun 24)
+
+### Milestones
+- Jun 15-22 (ended): hypershift1 DOWN for data center maintenance — CI should be unblocked
+- Late June (~7 days): Storage v0.1 target (CaaS, boot volumes)
+
+### Notes
+- Repos: osac-workspace merged 1 upstream commit (settings cleanup), fulfillment-service +17, osac-aap +6, osac-operator +2, osac-installer +12, osac-test-infra +12
+- **PR #299 APPROVED** by Akshay (Jun 23) — all review comments addressed, pending JobType refactoring (Option C complete)
+- **PR #338 APPROVED** by Akshay (Jun 22)
+- Fork status: osac-workspace 2 ahead origin/main, fulfillment-service 17 ahead fork/main, osac-aap 16 ahead/4 behind fork branch, osac-installer 12 ahead fork/main, osac-test-infra 12 ahead fork/main
+- osac-installer stash pop warning — no actual conflicts, just "no stash entries" after successful rebase
+- osac-operator fork 2 behind fork/feat/OSAC-23-storage-controller (fork has newer commits from Jun 22-23 pushes)
+- Inbox: GitLab PAT expires in 7 days, CI failures (osac-workspace PR dashboard, osac-installer bump-submodules, osac-operator pre-commit), Kalyn calendar invites (July telco events)
+- Slack: @Akshay confirms reviewing #299 today (wg-osac-storage), Rom's daily summary shows GitHub Actions E2E POC passed, Ygal requesting reviews on fulfillment-service PRs, Crystal asking about migration gap handling
+- Meeting notes: 96h old (last: Jun 18 weekly report) — WARNING: possible missed meetings
+
+---
+
 ## 2026-06-22
 
 ### Active Tickets
