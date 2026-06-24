@@ -1,0 +1,99 @@
+[PROCESSED 2026-06-24]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jun 23, 2026
+Date: Tue, 23 Jun 2026 14:08:49 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 23, 2026, 4:06 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting discussions focused on storage architecture, vendor integration  
+challenges, and project tracking improvements for upcoming releases.
+
+
+Storage and Architecture Updates
+The team aligned on using OpenStack Cinder and Manila as a translation  
+layer for Cluster as a Service requirements. A proof of concept was  
+authorized to validate this end-to-end flow before full implementation.
+
+Vendor Integration and Scaling
+Discussions centered on challenges with Vast access permissions and 4000  
+tenant limitations. Participants reached a consensus that the OpenStack  
+control plane must remain central to enforce quotas and policies.
+
+Project Tracking and Reporting
+The team established a protocol to apply fixed version tags exclusively to  
+features rather than epics. This change ensures accurate milestone  
+reporting and visibility into upcoming quarterly deliverables.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Send feature details: Provide information regarding Vmass  
+and storage tier selection to Ygal Blum.
+
+[Akshay Nadkarni] Review AAPR: Examine the operator and the submission  
+today.
+
+[Akshay Nadkarni] Review backend PR: Evaluate the storage backend code  
+contribution submitted by Roy Golan.
+
+[Akshay Nadkarni] Link thread: Share the URL to the vast channel  
+conversation regarding tenant creation and cluster admin permissions with  
+Ronnie Lazar.
+
+[Akshay Nadkarni] Create ticket: Generate a record for the Vmass compute  
+instance and storage tier selection. Share the ID with relevant  
+stakeholders upon completion.
+
+[Akshay Nadkarni] Research requirements: Connect with Adrian and the bare  
+metal team to determine their storage needs for the next milestone.
+
+[Akshay Nadkarni] Discuss UI: Consult with Leah regarding user interface  
+priorities and specifications for the next milestone.
+
+[Ygal Blum] Discuss business partnerships: Address business partnership  
+requirements regarding vendor integration with Ken Haltz.
+
+[Avishay Traeger, Roy Golan] Conduct proof of concept: Perform a quick and  
+dirty end to end flow to verify that the OpenStack integration works as  
+expected.
+
+[Akshay Nadkarni] Update feature tracking: Add placeholders for future  
+options and features to the Jira tracking board.
+
+[Akshay Nadkarni] Request hardware: Procure a powerful machine for the Cass  
+project because the existing beaker machine is insufficient.
+
+[The group] Report hardware needs: Post any requirements for additional  
+hardware in the storage channel.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

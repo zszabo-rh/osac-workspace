@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-06-24
+
+### Active Tickets
+- OSAC-1145: Split AAP storage playbooks — In Progress, PR osac-aap#338 (CI:SUCCESS, APPROVED)
+- OSAC-56: VMaaS Tenant Storage Setup — In Progress (Critical)
+- OSAC-333: Finalize quota management EP — In Progress, STALE (50d)
+- OSAC-104: Add storage-tier support to tenant StorageClass discovery — In Progress, STALE (50d)
+
+### Open PRs
+- osac-aap#338: OSAC-23 rename storage playbooks — CI:SUCCESS, Review:APPROVED (Akshay), updated 2026-06-24, READY TO MERGE
+- osac-operator#299: OSAC-23 storage controller — awaiting Prow override (zszabo requested Jun 23 evening)
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since Jun 3 (mhrivnak returns Jun 24)
+
+### Milestones
+- Jun 15-22 (ENDED): hypershift1 DOWN — CI should be unblocked
+- Late June (~6 days): Storage v0.1 target (CaaS, boot volumes)
+
+### Notes
+- **Repo updates**: .ai-workflows +4, enhancement-proposals +2, fulfillment-service +13, osac-installer +20, osac-operator +3, osac-test-infra +3
+- **New meeting**: OSAC Storage (Jun 23) — OpenStack Cinder/Manila PoC authorized, Vast 4000 tenant limit noted, milestone tracking protocol established (fix versions on features only)
+- **PR #338 ready to merge** — all CI passing, Akshay approved, awaiting final merge
+- **PR #299 awaiting Prow override** — zszabo requested `/override ci/prow/e2e-vmaas` on Jun 23 evening, Akshay confirmed manual E2E run passed
+- **Fork divergence**: fulfillment-service 30 ahead fork/main, osac-installer 32 ahead fork/main — push needed after coffee-update
+- **Slack overnight**: Rom's daily summary (11 green E2E runs, Full Setup Helm root cause found by Ameya), Riccardo asked for config parameter review for wizard, Souvik Das new UI install issue
+- **Action items from storage meeting**: Akshay to review operator+backend PRs, create VMaaS storage tier selection ticket, research BM storage needs; Roy+Avishay to run OpenStack PoC
+- **Inbox**: PR #338 approved by Akshay overnight, osac-installer bump-submodules CI failures (4 instances), Akshay 1:1 scheduled Thu Jun 25
+
+---
+
 ## 2026-06-23
 
 ### Active Tickets
