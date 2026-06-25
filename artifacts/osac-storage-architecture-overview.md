@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-24
+**Last updated:** 2026-06-25
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -241,7 +241,7 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| **Fulfillment** | StorageBackend CRUD API | fulfillment-service #728 | Open — changes requested, Roy addressing (6 commits) | jhernand + Akshay reviewing |
+| **Fulfillment** | StorageBackend CRUD API | fulfillment-service #728 | **Merged** (June 24) | spec/status pattern, credential redaction, migration #62 |
 
 ### What's Merged (EPs/PRDs)
 
@@ -603,10 +603,10 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-738 | Documentation: Storage Provider Integration Guide | To Do |
 | OSAC-498 | Tenant controller: use target cluster client in tenantStorageClassExists | To Do |
 | OSAC-499 | Tenant operations: dedicated ServiceAccount with scoped RBAC | To Do |
-| OSAC-1143 | Tenant controller: change readiness gate from StorageClass to hub Secret | New |
-| OSAC-1144 | Tenant controller: trigger osac-ensure-tenant-storage for VMaaS Phase 2 | New |
-| OSAC-1145 | Split AAP storage playbooks into 4 lifecycle actions | **In Progress** |
-| OSAC-1146 | Trigger osac-cleanup-tenant-storage on resource deletion (tenant stays) | New |
+| OSAC-1143 | Tenant controller: change readiness gate from StorageClass to hub Secret | **Closed** (superseded by OSAC-23 storage controller) |
+| OSAC-1144 | Tenant controller: trigger osac-ensure-tenant-storage for VMaaS Phase 2 | **Closed** (done in PR #299) |
+| OSAC-1145 | Split AAP storage playbooks into 4 lifecycle actions | **Closed** (done in PR #338) |
+| OSAC-1146 | Trigger osac-cleanup-tenant-storage on resource deletion (tenant stays) | **Closed** (done in PRs #299 + #338) |
 
 ### Epic: OSAC-43 — VAST for VMaaS (Critical, Backlog)
 **Assignee:** Will Gordon
@@ -639,7 +639,7 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1111 | Storage Backend Definition & Private API | **In Progress** | Roy Golan | Epic under OSAC-917. EP done (PR #51 merged), CRUD API (PR #728) under review. Updated June 21 |
 | OSAC-882 | Tiered Storage Management | New | Unassigned | Feature-level |
 | OSAC-1001 | Tenant Storage Lifecycle | New | WG-Storage | Feature-level. Owns OSAC-23, OSAC-56 |
-| OSAC-23 | Rework Tenant Storage Onboarding | In Progress | Akshay Nadkarni | Epic under OSAC-1001. PRD merged, design merged, implementation APPROVED (PRs #299 + #338) |
+| OSAC-23 | Rework Tenant Storage Onboarding | In Progress | Akshay Nadkarni | Epic under OSAC-1001. PRD+design merged, PRs #299+#338 merged. Only OSAC-77 (E2E tests) remains. |
 | OSAC-1191 | CaaS — Provision and Manage OpenShift Clusters | New | WG-CaaS | Feature-level. Owns OSAC-1123, OSAC-1122 |
 | OSAC-1332 | CaaS Cluster Storage (v0.1) | **In Progress** | Akshay Nadkarni | New parent for OSAC-1123 |
 | OSAC-1123 | CaaS Tenant Storage Setup | New | Unassigned | Epic under OSAC-1332. Depends on OSAC-23. Akshay working on CaaS PRD |
@@ -704,6 +704,7 @@ OSAC-882 (Storage Tier APIs)
 | #269 | osac-operator | OSAC-179: remove deprecated status.storageClass | 2026-06-03 |
 | #299 | osac-operator | OSAC-23: Storage Controller + Option C + lifecycle refactoring | 2026-06-23 |
 | #338 | osac-aap | OSAC-23: Rename storage playbooks to match two-stage model | 2026-06-24 |
+| #728 | fulfillment-service | OSAC-1111: StorageBackend API (CRUD, spec/status, credential redaction) | 2026-06-24 |
 
 ### Closed (superseded)
 
@@ -716,7 +717,7 @@ OSAC-882 (Storage Tier APIs)
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
 | #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. No reviews yet. | 2026-06-24 |
-| #728 | fulfillment-service | OSAC-1111: StorageBackend API | Open — changes requested. 6 commits. jhernand + Akshay reviewing. Roy addressing. | 2026-06-24 |
+| #728 | fulfillment-service | OSAC-1111: StorageBackend API | **MERGED** (June 24). 9 commits. spec/status restructure, credential redaction, migration renumbered to 62. | 2026-06-24 |
 | #72 | enhancement-proposals | OSAC-1123: PRD: CaaS Cluster Storage | Open — Akshay. Posted June 23 in wg-osac-storage. | 2026-06-24 |
 | #66 | enhancement-proposals | OSAC-1110: PRD: StorageTier API | Open — Roy. Akshay reviewing. | 2026-06-23 |
 
@@ -1150,11 +1151,21 @@ Note: Operator PR #299 and AAP PR #338 are the implementation PRs. Merge order: 
 - **CaaS PRD posted**: enhancement-proposals PR #72 (OSAC-1123: CaaS Cluster Storage) — Akshay authored, posted in wg-osac-storage
 - Akshay DM: "After the AAP change is in, what's the next thing on your plate?" — CaaS PRD is next priority
 
-### June 24, 2026 — PR #338 merged, CaaS PRD under review
-- **PR #338 MERGED** (all CI green including e2e-vmaas override)
-- Both OSAC-23 implementation PRs now in upstream main
-- CaaS PRD (PR #72) open for review
-- StorageTier PRD (PR #66) has Akshay review comments, Roy responding
+### June 24, 2026 — PR #338 + #728 merged, Jira cleanup, CaaS PRD reviewed
+- **PR #338 MERGED** (all CI green)
+- **PR #728 MERGED** (StorageBackend API — Roy addressed all feedback: spec/status restructure, credential redaction in events, migration renumbered to 62)
+- All three OSAC-23 implementation PRs now in upstream main (#299 operator, #338 AAP, #728 fulfillment-service StorageBackend API)
+- **Jira cleanup under OSAC-56**: Closed 5 tickets (OSAC-1145 done, OSAC-104 done, OSAC-1144 done, OSAC-1146 done, OSAC-1143 superseded by storage controller)
+- Akshay asked about OSAC-23/OSAC-56 ticket completion in wg-osac-storage channel
+- Zoltan responded: OSAC-23 core done (only OSAC-77 E2E tests remain), OSAC-56 cleaned up
+- Akshay: will evaluate remaining OSAC-56 tickets for v0.1 vs v0.2 scope (VMaaS-related)
+- CaaS PRD (PR #72) reviewed via `/review` skill — 1 critical (persona coverage), several important findings posted
+- Akshay acknowledged `/prd-review` and `/review` skills as useful self-review tools
+- PR #363 (Will, VAST RBAC): still open, changes requested by CodeRabbit, not draft
+
+### June 25, 2026 — Status
+- No storage meeting today (Wednesday)
+- Next storage meeting: Tuesday June 30, 3-4 PM CEST
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)

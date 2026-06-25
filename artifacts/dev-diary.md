@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-06-25
+
+### Active Tickets
+- OSAC-56: VMaaS Tenant Storage Setup — In Progress (Critical)
+- OSAC-333: Finalize quota management EP — In Progress, STALE (51d)
+- OSAC-77: Automated E2E tests for tenant StorageClass in osac-test-infra — To Do (assigned Jun 24)
+
+### Open PRs
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since Jun 3, updated 2026-06-03
+- enhancement-proposals#72: OSAC-1123 CaaS Cluster Storage PRD — CI:SUCCESS,pending, Michael/Akshay active discussion Jun 24
+
+### Milestones
+- Late June (~5 days): Storage v0.1 target (CaaS, boot volumes)
+
+### Notes
+- **Repo updates**: enhancement-proposals +2, fulfillment-service +24, osac-aap +13, osac-installer +11, osac-operator +6, osac-test-infra +3
+- **PRs merged yesterday**: osac-operator#299 (OSAC-23 storage controller), osac-aap#338 (OSAC-23 playbook split)
+- **Fork divergence WARNING**: enhancement-proposals 4 ahead, fulfillment-service 54 ahead, osac-aap 13 ahead, osac-installer 43 ahead, osac-operator 6 ahead — all need push
+- **New Jira assignment**: OSAC-77 (E2E tests for tenant StorageClass) assigned by Akshay overnight
+- **CI failures**: osac-installer bump-submodules failing (multiple runs), osac-workspace PR dashboard failing
+- **Inbox**: Multiple Jira tickets from Akshay (OSAC-1143/77/1144/1146/499/56/498), PR #72 review activity (Akshay/Michael/CodeRabbit), RHEM 1.2 GA announcements
+- **Slack**: Eran stressed PR/Jira hygiene — 63% PRs have no ticket, many merged PRs not closed in Jira; Ygal flagged duplicate migration numbers breaking CI; Lars reported hypershift1 back up with 2 new nodes; Michael clarified PRD vs design scope
+- **Meeting notes**: All processed (last: Jun 23 Storage WG, 23h old)
+- **git activity**: osac-workspace (10 auto-backup commits), osac-aap (5 OSAC-23 commits), osac-operator (10 OSAC-23 commits)
+
+---
+
 ## 2026-06-24
 
 ### Active Tickets
