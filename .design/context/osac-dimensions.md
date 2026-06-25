@@ -100,6 +100,16 @@ What E2E test coverage does the feature require in osac-test-infra (bootstrapped
 - Are there cross-service test scenarios (e.g., provisioning + networking)?
 - What test infrastructure is required (pytest fixtures, env/config, test tenants/organizations)?
 
+### Documentation
+
+What user-facing documentation does the feature require?
+
+- What user-facing documentation is needed (user guides, API reference, architecture docs)?
+- Which persona workflows need documented?
+- Are there docs repo updates needed (`docs/`, `enhancement-proposals/`)?
+- Is documentation in scope for this milestone or explicitly deferred?
+- Does the feature change existing documented workflows that need updating?
+
 ## User-Facing API
 
 For each service in scope, identify which API surfaces the feature affects.
