@@ -123,6 +123,7 @@ Using `.design/context/osac-dimensions.md`, check:
 - [ ] **Installation**: Helm/kustomize changes, CI implications, osac-installer updates
 - [ ] **Verification scope**: Milestone declares what must be demonstrably working for users (vs deferred); cross-cutting user journeys identified — detailed test plan belongs in the EP
 - [ ] **Documentation**: User-observable doc needs identified; milestone scope (in scope vs deferred); impact on existing documented workflows — detailed doc plan belongs in the EP
+- [ ] **UI**: User-observable console needs identified; persona workflows affected; milestone scope (in scope vs API/CLI-only vs deferred) — detailed UI design belongs in the EP
 - [ ] **API resources**: For each in-scope service, affected API resources listed
 
 Not every dimension applies to every feature. Score based on whether the PRD
