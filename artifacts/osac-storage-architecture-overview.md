@@ -598,11 +598,11 @@ A fundamental debate about OSAC's long-term storage architecture.
 |-----|---------|--------|
 | OSAC-278 | Ansible: Organization Storage Provisioning Playbook Framework | **Closed** |
 | OSAC-394 | Organization Controller: Trigger Storage Provisioning on Lifecycle Events | **Closed** |
-| OSAC-326 | Demo: Storage Story | To Do |
+| OSAC-326 | Demo: Tenant storage onboarding lifecycle | New (Zoltan) — v0.1/v0.2 TBD |
 | OSAC-737 | VM Templates: Use Storage Tier Selection | **Closed** |
-| OSAC-738 | Documentation: Storage Provider Integration Guide | To Do |
-| OSAC-498 | Tenant controller: use target cluster client in tenantStorageClassExists | To Do |
-| OSAC-499 | Tenant operations: dedicated ServiceAccount with scoped RBAC | To Do |
+| OSAC-738 | Documentation: Storage Provider Integration Guide | New — v0.1/v0.2 TBD |
+| OSAC-498 | Tenant controller: use target cluster client in tenantStorageClassExists | **Closed** |
+| OSAC-499 | Tenant operations: dedicated ServiceAccount with scoped RBAC | New (Zoltan) — v0.1/v0.2 TBD |
 | OSAC-1143 | Tenant controller: change readiness gate from StorageClass to hub Secret | **Closed** (superseded by OSAC-23 storage controller) |
 | OSAC-1144 | Tenant controller: trigger osac-ensure-tenant-storage for VMaaS Phase 2 | **Closed** (done in PR #299) |
 | OSAC-1145 | Split AAP storage playbooks into 4 lifecycle actions | **Closed** (done in PR #338) |
@@ -639,7 +639,7 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1111 | Storage Backend Definition & Private API | **In Progress** | Roy Golan | Epic under OSAC-917. EP done (PR #51 merged), CRUD API (PR #728) under review. Updated June 21 |
 | OSAC-882 | Tiered Storage Management | New | Unassigned | Feature-level |
 | OSAC-1001 | Tenant Storage Lifecycle | New | WG-Storage | Feature-level. Owns OSAC-23, OSAC-56 |
-| OSAC-23 | Rework Tenant Storage Onboarding | In Progress | Akshay Nadkarni | Epic under OSAC-1001. PRD+design merged, PRs #299+#338 merged. Only OSAC-77 (E2E tests) remains. |
+| OSAC-23 | Rework Tenant Storage Onboarding | In Progress | Akshay Nadkarni | Epic under OSAC-1001. PRD+design merged, PRs #299+#338 merged. Only OSAC-77 (E2E tests, assigned to Zoltan) remains. OSAC-308 closed. |
 | OSAC-1191 | CaaS — Provision and Manage OpenShift Clusters | New | WG-CaaS | Feature-level. Owns OSAC-1123, OSAC-1122 |
 | OSAC-1332 | CaaS Cluster Storage (v0.1) | **In Progress** | Akshay Nadkarni | New parent for OSAC-1123 |
 | OSAC-1123 | CaaS Tenant Storage Setup | New | Unassigned | Epic under OSAC-1332. Depends on OSAC-23. Akshay working on CaaS PRD |
