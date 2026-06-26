@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-25
+**Last updated:** 2026-06-26
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -241,7 +241,9 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| **Fulfillment** | StorageBackend CRUD API | fulfillment-service #728 | **Merged** (June 24) | spec/status pattern, credential redaction, migration #62 |
+| **AAP** | CaaS StorageClass provisioning target (`hcp_data_plane`) | osac-aap #377 | Open (Will) | Removes vmaas-only guards, cluster-aware volume naming |
+| **AAP** | VAST tenant-UID-hash storage paths | osac-aap #373 | Open (Will) | Uniqueness via SHA256(UID), fallback for existing tenants |
+| **AAP** | VAST RBAC Realm + restricted CSI Role | osac-aap #363 | Open (Will) | Scoped credentials for CSI driver |
 
 ### What's Merged (EPs/PRDs)
 
@@ -251,6 +253,7 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 | **EP** | OSAC-1111 StorageBackend enhancement proposal | EP #51 | 2026-06-15 |
 | **Design** | OSAC-23 design (Akshay's version) — ClusterStorageReady, two-stage model | EP #58 | 2026-06-17 |
 | **Design** | OSAC-1111 StorageBackend API design | EP #60 | 2026-06-17 |
+| **PRD** | OSAC-1123 CaaS Cluster Storage PRD | EP #72 | 2026-06-25 |
 
 ### What's Not Started
 
@@ -634,15 +637,15 @@ A fundamental debate about OSAC's long-term storage architecture.
 
 | Key | Summary | Status | Assignee | Notes |
 |-----|---------|--------|----------|-------|
-| OSAC-917 | Storage Backend Framework | New | WG-Storage | Feature-level. EP PR #51 merged (June 15) |
+| OSAC-917 | Storage Framework (v0.1) | **In Progress** | Akshay Nadkarni | Feature-level. EP PR #51 merged (June 15) |
 | OSAC-1110 | Storage Tier Definition & Private API | **In Progress** | Roy Golan | Epic under OSAC-917 for v0.1. Must-have. Updated June 21 |
 | OSAC-1111 | Storage Backend Definition & Private API | **In Progress** | Roy Golan | Epic under OSAC-917. EP done (PR #51 merged), CRUD API (PR #728) under review. Updated June 21 |
-| OSAC-882 | Tiered Storage Management | New | Unassigned | Feature-level |
+| OSAC-882 | Tiered Storage Management | New | Akshay Nadkarni | Feature-level |
 | OSAC-1001 | Tenant Storage Lifecycle | New | WG-Storage | Feature-level. Owns OSAC-23, OSAC-56 |
 | OSAC-23 | Rework Tenant Storage Onboarding | In Progress | Akshay Nadkarni | Epic under OSAC-1001. PRD+design merged, PRs #299+#338 merged. Only OSAC-77 (E2E tests, assigned to Zoltan) remains. OSAC-308 closed. |
 | OSAC-1191 | CaaS — Provision and Manage OpenShift Clusters | New | WG-CaaS | Feature-level. Owns OSAC-1123, OSAC-1122 |
 | OSAC-1332 | CaaS Cluster Storage (v0.1) | **In Progress** | Akshay Nadkarni | New parent for OSAC-1123 |
-| OSAC-1123 | CaaS Tenant Storage Setup | New | Unassigned | Epic under OSAC-1332. Depends on OSAC-23. Akshay working on CaaS PRD |
+| OSAC-1123 | CaaS Tenant Storage Setup | **In Progress** | Akshay Nadkarni | Epic under OSAC-1332. PRD merged (PR #72). Depends on OSAC-23 |
 | OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API. Under OSAC-984 |
 
 ### Dependencies
@@ -716,21 +719,22 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. No reviews yet. | 2026-06-24 |
-| #728 | fulfillment-service | OSAC-1111: StorageBackend API | **MERGED** (June 24). 9 commits. spec/status restructure, credential redaction, migration renumbered to 62. | 2026-06-24 |
-| #72 | enhancement-proposals | OSAC-1123: PRD: CaaS Cluster Storage | Open — Akshay. Posted June 23 in wg-osac-storage. | 2026-06-24 |
+| #377 | osac-aap | OSAC-1327: adds hcp_data_plane provisioning target for CaaS StorageClasses | Open — Will Gordon. No reviews yet. | 2026-06-25 |
+| #373 | osac-aap | OSAC-1325: switches VAST storage paths to tenant-UID-hash convention | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
+| #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 | #66 | enhancement-proposals | OSAC-1110: PRD: StorageTier API | Open — Roy. Akshay reviewing. | 2026-06-23 |
 
 ### Recently Merged
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #72 | enhancement-proposals | OSAC-1123: PRD: CaaS Cluster Storage | 2026-06-25 |
 | #60 | enhancement-proposals | OSAC-1111: StorageBackend API design document | 2026-06-17 |
 | #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | 2026-06-17 |
 | #52 | enhancement-proposals | OSAC-23: PRD for Tenant Storage Onboarding Rework | 2026-06-15 |
 | #51 | enhancement-proposals | OSAC-1111: StorageBackend enhancement proposal | 2026-06-15 |
 
-Note: Operator PR #299 and AAP PR #338 are the implementation PRs. Merge order: operator first (storage controller disabled by default), then AAP.
+Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSAC-23 implementation PRs. All three merged June 23-24.
 
 ### Phase A Complete (May 28)
 - All three original storage PRs resolved: #210 merged, #296 merged, #266 closed
@@ -773,6 +777,7 @@ Note: Operator PR #299 and AAP PR #338 are the implementation PRs. Merge order: 
 | 16 | **StorageBackend lifecycle (soft-delete vs hard-delete)?** | June 16: Roy raised in wg-osac-storage. Will: soft-delete for retiring backends without nuking resources. Akshay: must define backend lifecycle. Consensus: block deletion if in use by any tier. Maintenance is a separate state. |
 | 17 | **NVIDIA NCP storage requirements?** | June 16: Rom shared [NVIDIA requirements](https://docs.nvidia.com/dsx/ncp/nvidia-requirements-for-ai-clouds/storage-requirements). June 17: NCP meeting held. Akshay analyzed [NVIDIA ai-cloud-validation](https://github.com/NVIDIA/ai-cloud-validation) — 4 CSI validators + S3 test. Storage tests passed using LVMO. Avishay: "NCP doesn't affect the OSAC storage roadmap much." |
 | 18 | ~~JobType enum leaking to all CRDs?~~ | **RESOLVED (June 19):** Option C agreed — rename `status.jobs` → `status.provisioningJobs` on all 9 CRDs, add lifecycle-specific arrays (`storageBackendJobs`, `clusterStorageJobs`) on Tenant and ClusterOrder. Implemented on PR #299, E2E validated. [Alternatives doc](https://docs.google.com/document/d/1obxCZSWvdy42B8Ig55UQbpSQpSsRzTv-gsdkJXYG6UQ). |
+| 19 | **Cinder CSI PoC: iSCSI node connection failure?** | June 25: Roy's PoC gets through Cinder gateway, NetApp plugin, policy endpoint, PVC→volume, pod attach — but iSCSI login fails on node. Workers are OpenStack VMs, nova connects at hypervisor; no iscsi on node. Roy: could patch node part but "it will stop being a Cinder CSI." Avishay: "the whole reason we're using cinder csi is for the node plugin." Fundamental topology mismatch. |
 
 ---
 
@@ -1163,9 +1168,35 @@ Note: Operator PR #299 and AAP PR #338 are the implementation PRs. Merge order: 
 - Akshay acknowledged `/prd-review` and `/review` skills as useful self-review tools
 - PR #363 (Will, VAST RBAC): still open, changes requested by CodeRabbit, not draft
 
-### June 25, 2026 — Status
-- No storage meeting today (Wednesday)
-- Next storage meeting: Tuesday June 30, 3-4 PM CEST
+### June 25, 2026 — OSAC-77 E2E test approach posted + CaaS PRD updates
+- Zoltan posted OSAC-77 E2E test approach in wg-osac-storage: mock VMS, auto-detection, lifecycle validation (no PVC/data-plane)
+- CI integration needs: storage controller enabled, mock VMS pod, AAP storage config — Omer notified
+- Akshay updated CaaS PRD (PR #72) based on Michael's feedback ("PRDs should focus on user stories, not API fields")
+- Akshay asked about joining a call; no rush
+
+### June 25, 2026 — Will Gordon: 3 new VAST AAP PRs
+- **PR #377** (OSAC-1327): Adds `hcp_data_plane` provisioning target for CaaS StorageClasses. Removes vmaas-only guards, adds cluster-aware volume naming. Open, no reviews.
+- **PR #373** (OSAC-1325): Switches VAST storage paths from `/osac/{tenant_name}/{tier}` to `/osac-{tenant_name}-{uid_hash}/{tier}` using SHA256(Tenant UID). Ensures uniqueness across same-named tenants. Open, CodeRabbit changes requested.
+- **PR #363** (OSAC-1326): VAST RBAC Realm + restricted Role for CSI credential. Open, CodeRabbit changes requested.
+
+### June 25, 2026 — Roy Golan: Cinder CSI PoC results
+- **Almost complete but hit a fundamental blocker:**
+  - Standalone Cinder: PASS
+  - Cinder gateway/translator: PASS
+  - NetApp Cinder plugin: PASS
+  - Simulating policy endpoint (in gateway): PASS
+  - Install Cinder CSI on OCP: PASS
+  - PVC creates volume on NetApp: PASS
+  - Pod triggers attach in NetApp: PASS
+  - **iSCSI connect on node: FAIL** — workers are OpenStack VMs, so nova connects at hypervisor level; no iscsi login available on node
+- Roy: "we could patch the node part and add support... It will stop being a Cinder CSI"
+- Avishay: "The whole reason we're using cinder csi is for the node plugin"
+- This is a significant architectural finding — Cinder CSI approach may not work for OSAC's bare-metal/VM topology without substantial modifications
+
+### June 25, 2026 — CaaS PRD merged (PR #72)
+- Enhancement-proposals PR #72 (OSAC-1123: CaaS Cluster Storage PRD) **MERGED**
+- Michael Hrivnak approved after Akshay's revisions
+- Multiple review rounds: Akshay, Avishay, Michael, Ronnie, CodeRabbit, Zoltan all participated
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
