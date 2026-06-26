@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-06-26
+
+### Active Tickets
+- OSAC-56: VMaaS Tenant Storage Setup — In Progress (Critical)
+- OSAC-333: Finalize quota management EP — In Progress, STALE (52d)
+- OSAC-77: Automated E2E tests for tenant StorageClass in osac-test-infra — To Do
+
+### Open PRs
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since Jun 3
+- enhancement-proposals#72: OSAC-1123 CaaS Cluster Storage PRD — CI:SUCCESS,pending
+
+### Milestones
+- Late June (~4 days): Storage v0.1 target (CaaS, boot volumes)
+
+### Notes
+- **Repo updates**: docs +1, enhancement-proposals +9, fulfillment-service +42, osac-aap +8, osac-installer +17, osac-operator +3, osac-test-infra +3 (all rebased to latest upstream)
+- **PRs merged**: osac-operator#299 (OSAC-23) + osac-aap#338 (OSAC-23) both merged Jun 23-24
+- **Fork divergence WARNING CRITICAL**: enhancement-proposals 9 ahead, fulfillment-service 42 ahead, osac-aap 8 ahead, osac-installer 17 ahead, osac-operator 3 ahead, osac-test-infra 3 ahead — ALL need push (coffee-update should have pushed after rebase)
+- **CI failures**: Multiple osac-workspace PR dashboard failures, osac-installer bump-submodules failing
+- **Inbox**: Friday Five newsletter, GitHub Actions failures (workspace PR dashboard, installer bump-submodules), Cursor newsletter, Red Hat 101 newsletter, Gemini 1:1 notes (Jun 25)
+- **Slack highlights (Jun 25)**: Juan Hernández added migration hash check to prevent duplicate numbers (PR #761 merged, PR #747 in progress); Omer's CI triage bot analyzing failures with Claude+Gemini; Eran proposing to flip `strict: false` on branch protection to reduce Prow retests; PRD quality standards clarified (Michael: "PRD does not stand for 'Please Review my Design'"); Rom's daily summary shows 10/12 E2E vmaas passed, 6 Helm full-setup still failing
+- **Meeting notes**: No new transcripts fetched — newest is Jun 23 Storage WG (45h old, WARNING: possible missed meetings)
+- **git activity**: osac-workspace (4 auto-backup commits), osac-aap (5 OSAC-23 commits Jun 19-24), osac-operator (10 OSAC-23 commits Jun 17-23)
+
+---
+
 ## 2026-06-25
 
 ### Active Tickets
