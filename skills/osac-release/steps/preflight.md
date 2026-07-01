@@ -23,21 +23,32 @@ Version overrides must match `v[0-9]+\.[0-9]+\.[0-9]+` (strict semver).
 
 ## Step 0.5: Component Selection (AskUserQuestion)
 
-Ask which components to release using a multi-select checkbox. All are selected
-by default (the AskUserQuestion options represent the pre-selected state):
+Use AskUserQuestion with **exactly** this structure. Do NOT improvise the
+format -- use the exact questions, headers, options, and descriptions below.
 
-**Component repos** (tagged via `git tag` + `git push`, triggers `publish-charts.yaml`):
-- [x] fulfillment-service
-- [x] osac-operator
-- [x] bare-metal-fulfillment-operator
-- [x] osac-aap
-- [x] osac-ui (UI web console)
+The default release includes ALL components. Present two multi-select questions
+so the user sees three tabs: `☐ Components`, `☐ More`, `✔ Submit`.
 
-**Umbrella chart** (published via `workflow_dispatch` in Step 7, not tag push):
-- [x] osac (umbrella)
+**Question 1** (header: `Components`, multiSelect: true):
+
+| label | description |
+|-------|-------------|
+| `fulfillment-service` | `Tags fulfillment-service repo, publishes fulfillment-service chart` |
+| `osac-operator` | `Tags osac-operator repo, publishes osac-operator + osac-operator-crds charts` |
+| `bare-metal-fulfillment-operator` | `Tags bare-metal-fulfillment-operator repo, publishes bmf + bmf-crds charts` |
+| `osac-aap` | `Tags osac-aap repo, publishes osac-aap chart` |
+
+**Question 2** (header: `More`, multiSelect: true):
+
+| label | description |
+|-------|-------------|
+| `osac-ui` | `Tags osac-ui repo, publishes osac-ui chart` |
+| `osac (umbrella)` | `Publishes umbrella chart via workflow_dispatch with all component versions` |
+
+Both questions use: `question: "Which components should be included in this release?"`
 
 If `--only` or `--skip` flags were parsed from the user's message, pre-filter
-the selection accordingly.
+the selection accordingly (omit deselected components from the options).
 
 If the user deselects a component, warn: "Deselected components will NOT be
 re-tagged. The umbrella chart will use their current published version."
