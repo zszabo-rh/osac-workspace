@@ -99,6 +99,13 @@ REPOS=(
   "bare-metal-fulfillment-operator"
 )
 
+# Reference repos — cloned read-only from osac-project, no fork remote added.
+# Used by AI agents for context during /design and /implement phases only.
+# GITHUB_ORG resolves these to https://github.com/osac-project/<repo>.git
+REFERENCE_REPOS=(
+  "osac-ux"
+)
+
 UPDATE_WARNINGS=0
 
 is_expected_clone() {
@@ -142,6 +149,19 @@ for entry in "${REPOS[@]}"; do
   fi
 done
 
+for entry in "${REFERENCE_REPOS[@]}"; do
+  repo="${entry%%:*}"
+  dir="${entry#*:}"
+  if [ -d "$dir" ] && is_expected_clone "$dir" "$repo"; then
+    echo "📦 Updating $dir (reference)..."
+    (cd "$dir" && git fetch origin && git rebase origin/main --autostash) || \
+      echo "⚠️  Update failed for $dir — skipping."
+  elif [ ! -d "$dir" ]; then
+    echo "📥 Cloning $repo (reference, no fork)..."
+    git clone "https://github.com/${GITHUB_ORG}/${repo}.git" "$dir"
+  fi
+done
+
 # Install ai-workflows (bugfix, implement, etc.)
 AI_WORKFLOWS_REPO="flightctl/ai-workflows"
 AI_WORKFLOWS_DIR=""
@@ -174,8 +194,8 @@ else
   git clone "https://github.com/${AI_WORKFLOWS_REPO}.git" ".ai-workflows"
 fi
 echo "🔧 Installing ai-workflows skills..."
-"$AI_WORKFLOWS_DIR/install.sh" claude --project . --workflows bugfix,implement,prd,design
-"$AI_WORKFLOWS_DIR/install.sh" cursor --project . --workflows bugfix,implement,prd,design
+"$AI_WORKFLOWS_DIR/install.sh" claude --project . --workflows bugfix,implement,prd,design,e2e
+"$AI_WORKFLOWS_DIR/install.sh" cursor --project . --workflows bugfix,implement,prd,design,e2e
 
 if command -v rh-multi-pre-commit &>/dev/null; then
   echo ""

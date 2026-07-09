@@ -21,7 +21,7 @@ implementation differences.
 
 ## Personas
 
-OSAC has four canonical personas (defined in `docs/personas.md`). Features
+OSAC has four canonical personas (defined in `osac-docs/personas.md`). Features
 must specify what each affected persona can see and do. Use these exact names
 in user stories and workflow descriptions.
 
@@ -35,8 +35,11 @@ in user stories and workflow descriptions.
 ## Cross-Cutting Dimensions
 
 For each dimension below, the PRD should state what's in scope vs. explicitly
-out of scope. The PRD should focus on "what" and "why" — detailed
-implementation approaches belong in the design document.
+out of scope.
+
+**PRD vs Design:** The PRD states which user-facing behaviors are affected
+and why. The design document specifies how (CRD fields, conditions, reconcile
+logic, AAP templates, installer changes).
 
 ### Tenant Onboarding
 
@@ -74,32 +77,69 @@ Which networking backend(s) are involved?
 
 ### Storage
 
-What storage integration does the feature require?
+Does the feature involve persistent storage for tenant workloads?
 
-- Prerequisites (e.g., VAST storage accessible from hub cluster)
-- StorageTier API resources
-- Automated provisioning during tenant onboarding (credentials, CSIDriver, StorageClass)
-- Per-cluster / per-tenant VAST view creation
-- Disk attachment to compute instances
+- Can tenants create persistent volumes on provisioned clusters?
+- Can tenants select a storage tier when creating persistent volumes?
+- Can tenants and admins see whether storage is ready on a given cluster?
+- Does the feature affect how storage is provisioned or configured for tenants during onboarding?
+- Are there storage prerequisites that must be in place before clusters are provisioned?
+
+*Design document specifies: storage provider details, API fields, driver
+installation, credential management.*
 
 ### Installation
 
-How does the feature affect deployment and installation?
+Does the feature require new deployment prerequisites or configuration?
 
-- Changes to Helm charts or kustomize manifests
-- CI pipeline implications
-- New prerequisites or dependencies
-- `osac-installer/setup.sh` updates needed
+- Does an admin need to configure new infrastructure before using the feature (e.g., storage backend reachable from hub cluster)?
+- Does the feature add new configuration options for operators or admins?
+- Are there CI pipeline changes needed?
 
-## User-Facing API
+*Design document specifies: Helm chart values, kustomize overlays,
+osac-installer script changes.*
 
-For each service in scope, identify which API surfaces the feature affects.
-Detailed API design (field names, resource schemas, new states) belongs in the
-design document — the PRD should focus on which surfaces are touched and why.
+### E2E Testing
 
-- **Fulfillment API** (gRPC/REST) — which resources are affected?
-- **OSAC CRDs** (Kubernetes) — which custom resources are affected?
-- **Catalog Items** — does the feature introduce or change catalog entries?
+What E2E test coverage does the feature require in osac-test-infra (bootstrapped at `osac-test-infra/`)?
+
+- Which user-visible flows must work for this milestone (happy path, error paths, edge cases)?
+- Which API surfaces need E2E coverage via pytest (Fulfillment API, CRDs, catalog/templates)?
+- Are there cross-service test scenarios (e.g., provisioning + networking)?
+- What test infrastructure is required (pytest fixtures, env/config, test tenants/organizations)?
+
+### Documentation
+
+What user-facing documentation does the feature require?
+
+- What user-facing documentation is needed (user guides, API reference, architecture docs)?
+- API reference may live in component repos (e.g. `fulfillment-service/`) rather than `osac-docs/` alone.
+- Which persona workflows need documented?
+- Are there docs repo updates needed (`osac-docs/`, `enhancement-proposals/`)?
+- Is documentation in scope for this milestone or explicitly deferred?
+- Does the feature change existing documented workflows that need updating?
+
+### UI
+
+What UI support does the feature require in the osac-ui web console (bootstrapped at `osac-ui/`)?
+
+- Which persona workflows need UI support? (osac-ui maps Keycloak roles to provider/tenant admin/user — Cloud Infrastructure Admin may have no console today)
+- Which UI views/pages are affected (list, detail, create, edit / lifecycle actions)?
+- Is UI in scope for this milestone or explicitly deferred (API/CLI-only acceptable)?
+- Does the feature require new UI components or extend existing ones in osac-ui?
+- Which Fulfillment API resources and catalog entries need console representation? (osac-ui uses the Fulfillment Public API via proxy — not direct CRD access)
+
+## User-Facing Behavior
+
+For each service in scope, identify which user-observable behaviors the feature
+affects. The PRD states what users can do or see; the design document specifies
+the API surfaces, field names, and resource schemas that implement those
+behaviors.
+
+- What new capabilities do users gain? (e.g., tenants can provision clusters with storage, admins can see storage readiness across tenants)
+- What existing behaviors change? (e.g., cluster provisioning now includes automatic storage setup)
+- Which personas are affected and how?
+- Which user-facing resources are affected? (e.g., ClusterOrder, ComputeInstance, Tenant, VirtualNetwork, StorageClass)
 
 ## Milestone Scoping
 
