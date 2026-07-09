@@ -32,9 +32,16 @@ Get the PR reviewed and merged.
 
 Phases: `/implement:ingest` → `/implement:plan` → `/implement:code` → `/implement:validate` → `/implement:publish` → `/implement:respond`
 
+## 6. Write E2E Tests
+
+`/e2e` — Pick up a [QE] Jira task produced by the design workflow, discover the project's e2e testing infrastructure, plan test scenarios, write e2e tests matching project conventions, validate, and publish a PR.
+
+Phases: `/e2e:ingest` → `/e2e:plan` → `/e2e:code` → `/e2e:validate` → `/e2e:publish` → `/e2e:respond`
+
 ## Other Useful Skills
 
 - `/bugfix` — Systematic bug investigation and fix (phase-based)
+- `/debug-e2e` — Debug a failing CI job using build logs and gathered OSAC artifacts
 - `/create-pr` — Runs repo-specific validation and creates a PR via the fork workflow
 - `/code-review` — Review your current diff before submitting
 
