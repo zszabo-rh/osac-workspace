@@ -1,6 +1,6 @@
 # OSAC Project
 
-Development workspace for the Open Sovereign AI Cloud (OSAC) project. This repo provides a meta-workspace that bootstraps all OSAC components for cross-component development and testing, with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) integration pre-configured.
+Development workspace for the Open Sovereign AI Cloud (OSAC) project. This repo provides a meta-workspace that bootstraps all OSAC components for cross-component development and testing, with AI-assisted workflows for Claude Code, Cursor, and Gemini CLI.
 
 ## Prerequisites
 
@@ -56,6 +56,8 @@ Use `--no-fork` if you only need read-only access or are running in CI.
 | [osac-ui](https://github.com/osac-project/osac-ui) | OSAC UI web console for managing cloud resources |
 | [enhancement-proposals](https://github.com/osac-project/enhancement-proposals) | Design documents and enhancement proposals |
 | [docs](https://github.com/osac-project/docs)[^1] | Architecture documentation, diagrams, and design guides |
+| [host-management-openstack](https://github.com/osac-project/host-management-openstack) | Bare metal host management via OpenStack |
+| [bare-metal-fulfillment-operator](https://github.com/osac-project/bare-metal-fulfillment-operator) | Kubernetes operator for bare metal fulfillment |
 
 [^1]: Cloned into a subdirectory as `osac-docs`
 
@@ -65,13 +67,15 @@ This workspace provides a pre-configured AI-assisted development environment:
 
 | File | Purpose |
 |------|---------|
-| `bootstrap.sh` | Clones or updates all component repos to latest `main` — re-run anytime to sync |
+| `bootstrap.sh` | Clones or updates all component repos, installs ai-workflows, and wires agent skill symlinks — re-run anytime to sync |
 | `osac-helpers.sh` | Developer shell helpers — source to get worktree and workflow utilities |
-| `CLAUDE.md` | Project instructions Claude Code reads automatically — build commands, architecture patterns, conventions |
+| `AGENTS.md` | Tool-agnostic project instructions (Claude, Cursor, Gemini, Copilot) — build commands, architecture; bootstrap-linked skills for Claude/Cursor/Gemini; Copilot reads this file for conventions only |
+| `CLAUDE.md` | Thin wrapper that loads `AGENTS.md` plus Claude-specific command syntax |
+| `tools/link-agent-skills.sh` | Links `.claude/skills`, `.cursor/skills`, and `.gemini/skills` to canonical `skills/` |
 | `.claude/settings.json` | Pre-approved shell commands (git, ls, cat, etc.) so Claude doesn't prompt for routine operations |
 | `AI-assisted-development-workflow.md` | AI-assisted development workflow: Feature → PRD → Design → Jira sync → Implement |
-| `skills/` | AI skills for Claude Code — EP generation, Jira management, bug fix workflows, demo recording |
-| `.gitignore` | Ignores cloned repos, `.planning/`, `.claude/`, credentials, editor files, and build artifacts |
+| `skills/` | Canonical OSAC skill definitions (Jira, PRs, design review, release, demos) plus bootstrap-managed ai-workflows symlinks |
+| `.gitignore` | Ignores cloned repos, `.planning/`, `.claude/`, `.cursor/`, `.gemini/`, credentials, editor files, and build artifacts |
 
 ## Distrobox Dev Environment
 
@@ -184,6 +188,8 @@ grpcurl -insecure -H "Authorization: Bearer $TOKEN" $ROUTE:443 osac.public.v1.Vi
 
 See [`AI-assisted-development-workflow.md`](AI-assisted-development-workflow.md) for the full workflow: Feature → PRD → Design → Jira sync → Implement.
 
-**Prerequisites:** `gh` (authenticated), `jira` CLI, `rg`
+**Prerequisites:** `./bootstrap.sh` (installs ai-workflows and links agent skill directories), `gh` (authenticated), `jira` CLI, `rg`
 
-See `CLAUDE.md` for detailed development instructions and conventions.
+After bootstrap, OSAC repo-local skills and ai-workflows (`bugfix`, `implement`, `prd`, `design`, `e2e`) are discoverable via `.claude/skills/`, `.cursor/skills/`, and `.gemini/skills/` (each symlinked to `skills/`). See `AGENTS.md` for agent-specific paths and the full skill list.
+
+See `AGENTS.md` and `CLAUDE.md` for detailed development instructions and conventions.

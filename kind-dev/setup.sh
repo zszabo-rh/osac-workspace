@@ -206,6 +206,32 @@ check_prerequisites() {
     fi
   fi
 
+  # VPN route conflict check (Linux + rootful podman only)
+  # VPNs often add a broad 10.0.0.0/8 route via tun0 in a policy-routing table
+  # that takes precedence over the main table. If the podman bridge subnet
+  # (e.g. 10.89.x.0/24) falls within that range, container traffic is sent
+  # through the VPN instead of the local bridge — making kind unreachable.
+  if [[ "$KIND_PROVIDER" == "podman" && "$(uname -s)" == "Linux" ]]; then
+    local vpn_table
+    vpn_table=$(ip rule show 2>/dev/null | awk '/proto static/ && /lookup [0-9]/ {for(i=1;i<=NF;i++) if($i=="lookup") {print $(i+1); exit}}' || true)
+    if [[ -n "$vpn_table" ]]; then
+      local vpn_catch_all
+      vpn_catch_all=$(ip route show table "$vpn_table" 2>/dev/null | grep -E '^10\.' | head -1 || true)
+      if [[ -n "$vpn_catch_all" ]]; then
+        local vpn_prio
+        vpn_prio=$(ip rule show 2>/dev/null | awk "/lookup ${vpn_table}/"'{gsub(/:/, "", $1); print $1; exit}')
+        if [[ -n "$vpn_prio" ]]; then
+          local bypass_prio=$(( vpn_prio - 1 ))
+          if ! ip rule show 2>/dev/null | grep -q "to 10\.89\.0\.0/16 lookup main"; then
+            warn "VPN route table ${vpn_table} covers 10.0.0.0/8 — adding bypass for podman subnets"
+            sudo ip rule add to 10.89.0.0/16 lookup main priority "$bypass_prio" 2>/dev/null || true
+            log "Added ip rule: to 10.89.0.0/16 lookup main priority ${bypass_prio}"
+          fi
+        fi
+      fi
+    fi
+  fi
+
   # Check for Python requests module (needed for AWX configuration)
   if ! python3 -c "import requests" 2>/dev/null; then
     err "Python 'requests' module not found (needed for AWX configuration)"
@@ -731,6 +757,39 @@ install_fake_crds() {
     [[ "$base" == *"osac.openshift.io"* ]] && continue
     kubectl apply -f "$f" 2>/dev/null || true
   done
+  # ClusterUserDefinedNetwork CRD — needed by the cudn_net Ansible role for
+  # subnet provisioning. OVN-Kubernetes is not installed on kind, but the CRD
+  # must exist so the k8s module can create CUDN resources without errors.
+  kubectl apply -f - <<'CRDEOF'
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: clusteruserdefinednetworks.k8s.ovn.org
+spec:
+  group: k8s.ovn.org
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+  scope: Cluster
+  names:
+    plural: clusteruserdefinednetworks
+    singular: clusteruserdefinednetwork
+    kind: ClusterUserDefinedNetwork
+    shortNames:
+      - cudn
+CRDEOF
+
   log "Fake CRDs installed"
 }
 
@@ -862,6 +921,13 @@ install_kubevirt() {
 
   kubectl apply -f "https://github.com/kubevirt/kubevirt/releases/download/${version}/kubevirt-cr.yaml"
   kubectl -n kubevirt wait kv kubevirt --for condition=Available --timeout=300s
+
+  # Register l2bridge network binding plugin (replicates what HCO does on OpenShift).
+  # The osac-aap ocp_virt_vm role builds VM specs with "binding: name: l2bridge".
+  # managedTap creates a tap device wired through a bridge to the pod interface.
+  log "Registering l2bridge network binding plugin..."
+  kubectl patch kubevirts -n kubevirt kubevirt --type=merge \
+    -p='{"spec":{"configuration":{"network":{"binding":{"l2bridge":{"domainAttachmentType":"managedTap"}}}}}}'
 
   log "KubeVirt installed"
 }
@@ -1009,16 +1075,13 @@ configure_awx() {
   done
   log "AWX project synced: ${proj_status}"
 
-  # Create compute instance job templates (real playbooks + pod network override for kind)
+  # Create compute instance job templates (real playbooks)
   local compute_extra_vars
   compute_extra_vars="tenant_target_namespace: ${OSAC_NAMESPACE}
 compute_instance_target_namespace: ${OSAC_NAMESPACE}
 tenant_storage_classes:
   - name: standard
-    tier: default
-create_step_modify_vm_spec_override:
-  name: osac.templates.ocp_virt_vm
-  tasks_from: create_modify_vm_spec_pod_network.yaml"
+    tier: default"
 
   local compute_templates=(
     "osac-create-compute-instance:playbook_osac_create_compute_instance.yml"
@@ -1042,17 +1105,19 @@ create_step_modify_vm_spec_override:
     log "  template: ${name}"
   done
 
-  # Create no-op networking job templates (hello_world.yml — kind has no real networking backend)
-  local noop_templates=(
-    "osac-create-virtual-network"
-    "osac-delete-virtual-network"
-    "osac-create-subnet"
-    "osac-delete-subnet"
-    "osac-create-security-group"
-    "osac-delete-security-group"
+  # Create networking job templates (use real playbooks — they are effective no-ops
+  # on kind because there is no matching implementation strategy / fabric manager)
+  local network_templates=(
+    "osac-create-virtual-network:playbook_osac_create_virtual_network.yml"
+    "osac-delete-virtual-network:playbook_osac_delete_virtual_network.yml"
+    "osac-create-subnet:playbook_osac_create_subnet.yml"
+    "osac-delete-subnet:playbook_osac_delete_subnet.yml"
+    "osac-create-security-group:playbook_osac_create_security_group.yml"
+    "osac-delete-security-group:playbook_osac_delete_security_group.yml"
   )
 
-  for name in "${noop_templates[@]}"; do
+  for entry in "${network_templates[@]}"; do
+    local name="${entry%%:*}" playbook="${entry##*:}"
     curl -s -X POST http://localhost:8052/api/v2/job_templates/ \
       -H "Authorization: Bearer ${awx_token}" \
       -H "Content-Type: application/json" \
@@ -1061,10 +1126,10 @@ create_step_modify_vm_spec_override:
         \"organization\": 1,
         \"inventory\": ${inv_id},
         \"project\": ${project_id},
-        \"playbook\": \"hello_world.yml\",
+        \"playbook\": \"${playbook}\",
         \"ask_variables_on_launch\": true
       }" >/dev/null
-    log "  template: ${name} (no-op)"
+    log "  template: ${name}"
   done
 
   # Create Kubernetes credential for AWX
@@ -1117,6 +1182,213 @@ create_step_modify_vm_spec_override:
     --dry-run=client -o yaml | kubectl apply -f -
 
   log "AWX configured for OSAC"
+}
+
+# ── Catalog Seeding ───────────────────────────────────────────────────────────
+
+seed_catalog() {
+  log "Seeding compute instance template and instance types..."
+
+  local admin_token api_base
+  admin_token=$(kubectl -n "${OSAC_NAMESPACE}" create token admin)
+  api_base="https://internal-api.${OSAC_NAMESPACE}.localhost:${EXTERNAL_INGRESS_PORT}"
+
+  # Seed ComputeInstance template (osac.templates.ocp_virt_vm)
+  local tpl_response
+  tpl_response=$(curl -sk -X POST "${api_base}/api/private/v1/compute_instance_templates" \
+    -H "Authorization: Bearer ${admin_token}" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "id": "osac.templates.ocp_virt_vm",
+      "title": "Virtual Machine Template (Linux and Windows)",
+      "description": "VM template for OpenShift Virtualization supporting Linux and Windows guests.",
+      "spec_defaults": {
+        "cores": 2,
+        "memory_gib": 2,
+        "boot_disk": {"size_gib": 10},
+        "image": {"source_type": "registry", "source_ref": "quay.io/containerdisks/fedora:latest"},
+        "run_strategy": "Always"
+      },
+      "parameters": [
+        {
+          "name": "exposed_ports",
+          "title": "Exposed Ports",
+          "description": "Ports to expose (e.g. 22/tcp,80/tcp)",
+          "type": "string",
+          "required": false
+        }
+      ]
+    }')
+
+  if echo "$tpl_response" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'id' in d else 1)" 2>/dev/null; then
+    log "  template: osac.templates.ocp_virt_vm"
+  else
+    warn "  template creation failed (may already exist)"
+  fi
+
+  # Seed InstanceTypes
+  local instance_types=(
+    "u1-small:2:4:2 cores, 4 GiB RAM"
+    "u1-medium:4:8:4 cores, 8 GiB RAM"
+    "u1-large:8:16:8 cores, 16 GiB RAM"
+  )
+
+  for entry in "${instance_types[@]}"; do
+    local name cores mem desc
+    name="${entry%%:*}"; entry="${entry#*:}"
+    cores="${entry%%:*}"; entry="${entry#*:}"
+    mem="${entry%%:*}"; desc="${entry#*:}"
+
+    local it_response
+    it_response=$(curl -sk -X POST "${api_base}/api/private/v1/instance_types" \
+      -H "Authorization: Bearer ${admin_token}" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"metadata\": {\"name\": \"${name}\"},
+        \"spec\": {\"cores\": ${cores}, \"memory_gib\": ${mem}, \"description\": \"${desc}\", \"state\": \"INSTANCE_TYPE_STATE_ACTIVE\"}
+      }")
+
+    if echo "$it_response" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'id' in d else 1)" 2>/dev/null; then
+      log "  instance-type: ${name} (${desc})"
+    else
+      warn "  instance-type ${name} creation failed (may already exist)"
+    fi
+  done
+
+  # Seed catalog items (visible in UI)
+  local catalog_items=(
+    'linux-vm:Linux Virtual Machine:Fedora-based virtual machine with KVM acceleration. Default: 2 cores, 2 GiB RAM, 10 GiB disk.'
+  )
+
+  for entry in "${catalog_items[@]}"; do
+    local ci_name ci_title ci_desc
+    ci_name="${entry%%:*}"; entry="${entry#*:}"
+    ci_title="${entry%%:*}"; ci_desc="${entry#*:}"
+
+    local ci_response
+    ci_response=$(curl -sk -X POST "${api_base}/api/private/v1/compute_instance_catalog_items" \
+      -H "Authorization: Bearer ${admin_token}" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"metadata\": {\"name\": \"${ci_name}\"},
+        \"title\": \"${ci_title}\",
+        \"description\": \"${ci_desc}\",
+        \"template\": \"osac.templates.ocp_virt_vm\",
+        \"published\": true,
+        \"tenant\": \"\"
+      }")
+
+    if echo "$ci_response" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'id' in d else 1)" 2>/dev/null; then
+      log "  catalog-item: ${ci_name} (${ci_title})"
+    else
+      warn "  catalog-item ${ci_name} creation failed (may already exist)"
+    fi
+  done
+
+  # Seed networking resources (NetworkClass → VirtualNetwork → Subnet)
+  log "Seeding networking resources..."
+
+  local nc_response
+  nc_response=$(curl -sk -X POST "${api_base}/api/private/v1/network_classes" \
+    -H "Authorization: Bearer ${admin_token}" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "metadata": {"name": "pod-network"},
+      "title": "Pod Network (kind)",
+      "description": "Default network for kind dev. Uses cudn_net role — creates namespace but no real L2.",
+      "implementation_strategy": "cudn_net",
+      "fabric_manager": "noop",
+      "is_default": true,
+      "capabilities": {"supports_ipv4": true}
+    }')
+
+  if echo "$nc_response" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'id' in d else 1)" 2>/dev/null; then
+    log "  network-class: pod-network (default)"
+  else
+    warn "  network-class creation failed (may already exist)"
+  fi
+
+  local vn_response vn_id
+  vn_response=$(curl -sk -X POST "${api_base}/api/private/v1/virtual_networks" \
+    -H "Authorization: Bearer ${admin_token}" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "metadata": {"name": "default"},
+      "spec": {
+        "region": "kind",
+        "ipv4_cidr": "10.100.0.0/16"
+      }
+    }')
+
+  vn_id=$(echo "$vn_response" | python3 -c "import json,sys; print(json.load(sys.stdin).get('id',''))" 2>/dev/null)
+  if [[ -n "$vn_id" ]]; then
+    log "  virtual-network: default (id=${vn_id})"
+  else
+    warn "  virtual-network creation failed (may already exist)"
+    vn_id=$(curl -sk -H "Authorization: Bearer ${admin_token}" \
+      "${api_base}/api/private/v1/virtual_networks" 2>/dev/null | \
+      python3 -c "import json,sys; items=json.load(sys.stdin).get('items',[]); print(next((i['id'] for i in items if i.get('metadata',{}).get('name')=='default'), ''))" 2>/dev/null)
+  fi
+
+  # Wait for VirtualNetwork to reach READY (operator runs AWX no-op job)
+  if [[ -n "$vn_id" ]]; then
+    log "  waiting for virtual-network to become READY..."
+    local vn_state="unknown"
+    for i in $(seq 1 30); do
+      vn_state=$(curl -sk -H "Authorization: Bearer ${admin_token}" \
+        "${api_base}/api/private/v1/virtual_networks/${vn_id}" 2>/dev/null | \
+        python3 -c "import json,sys; print(json.load(sys.stdin).get('status',{}).get('state','unknown'))" 2>/dev/null)
+      if [[ "$vn_state" == "VIRTUAL_NETWORK_STATE_READY" ]]; then break; fi
+      sleep 5
+    done
+
+    if [[ "$vn_state" == "VIRTUAL_NETWORK_STATE_READY" ]]; then
+      log "  virtual-network: READY"
+
+      local sn_response
+      sn_response=$(curl -sk -X POST "${api_base}/api/private/v1/subnets" \
+        -H "Authorization: Bearer ${admin_token}" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"metadata\": {\"name\": \"default\"},
+          \"spec\": {
+            \"virtual_network\": \"${vn_id}\",
+            \"ipv4_cidr\": \"10.100.0.0/24\"
+          }
+        }")
+
+      if echo "$sn_response" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'id' in d else 1)" 2>/dev/null; then
+        log "  subnet: default (10.100.0.0/24)"
+      else
+        warn "  subnet creation failed: $(echo "$sn_response" | python3 -c "import json,sys; print(json.load(sys.stdin).get('message','unknown'))" 2>/dev/null)"
+      fi
+
+      # Security group — allow SSH inbound, all outbound
+      local sg_response
+      sg_response=$(curl -sk -X POST "${api_base}/api/private/v1/security_groups" \
+        -H "Authorization: Bearer ${admin_token}" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"metadata\": {\"name\": \"default\"},
+          \"spec\": {
+            \"virtual_network\": \"${vn_id}\",
+            \"ingress\": [{\"protocol\": \"PROTOCOL_TCP\", \"port_from\": 22, \"port_to\": 22, \"ipv4_cidr\": \"0.0.0.0/0\"}],
+            \"egress\": [{\"protocol\": \"PROTOCOL_ALL\", \"ipv4_cidr\": \"0.0.0.0/0\"}]
+          }
+        }")
+
+      if echo "$sg_response" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'id' in d else 1)" 2>/dev/null; then
+        log "  security-group: default (SSH in, all out)"
+      else
+        warn "  security-group creation failed (may already exist)"
+      fi
+    else
+      warn "  virtual-network did not reach READY (state=${vn_state}) — skipping subnet/security-group creation"
+      warn "  Create them manually once the VN is ready"
+    fi
+  fi
+
+  log "Catalog seeded — ready to create compute instances"
 }
 
 # ── Summary ────────────────────────────────────────────────────────────────────
@@ -1232,6 +1504,9 @@ main() {
   # Step 7: Install and configure AWX
   install_awx
   configure_awx
+
+  # Step 8: Seed catalog (templates + instance types)
+  seed_catalog
 
   print_summary
 }
