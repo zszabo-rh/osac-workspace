@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-06-26
+**Last updated:** 2026-07-13
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -595,7 +595,7 @@ A fundamental debate about OSAC's long-term storage architecture.
 ## Jira Ticket Landscape
 
 ### Epic: OSAC-56 — VMaaS Tenant Storage Setup (Critical, In Progress)
-**Assignee:** Zoltan Szabo
+**Assignee:** Zoltan Szabo — **Epic now CLOSED (July 5)**
 
 | Key | Summary | Status |
 |-----|---------|--------|
@@ -642,10 +642,10 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1111 | Storage Backend Definition & Private API | **In Progress** | Roy Golan | Epic under OSAC-917. EP done (PR #51 merged), CRUD API (PR #728) under review. Updated June 21 |
 | OSAC-882 | Tiered Storage Management | New | Akshay Nadkarni | Feature-level |
 | OSAC-1001 | Tenant Storage Lifecycle | New | WG-Storage | Feature-level. Owns OSAC-23, OSAC-56 |
-| OSAC-23 | Rework Tenant Storage Onboarding | In Progress | Akshay Nadkarni | Epic under OSAC-1001. PRD+design merged, PRs #299+#338 merged. Only OSAC-77 (E2E tests, assigned to Zoltan) remains. OSAC-308 closed. |
+| OSAC-23 | Rework Tenant Storage Onboarding | **Closed** | Akshay Nadkarni | All implementation PRs merged, OSAC-77 E2E merged. Closed July 11. |
 | OSAC-1191 | CaaS — Provision and Manage OpenShift Clusters | New | WG-CaaS | Feature-level. Owns OSAC-1123, OSAC-1122 |
-| OSAC-1332 | CaaS Cluster Storage (v0.1) | **In Progress** | Akshay Nadkarni | New parent for OSAC-1123 |
-| OSAC-1123 | CaaS Tenant Storage Setup | **In Progress** | Akshay Nadkarni | Epic under OSAC-1332. PRD merged (PR #72). Depends on OSAC-23 |
+| OSAC-1332 | CaaS Cluster Storage (v0.1) | **Closed** | Akshay Nadkarni | Closed July 11 (v0.1 complete). 3 follow-up PRs still open. |
+| OSAC-1123 | CaaS Tenant Storage Setup | **Closed** | Akshay Nadkarni | Closed July 12. Implementation merged (PR #324, #333, #832). |
 | OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API. Under OSAC-984 |
 
 ### Dependencies
@@ -719,15 +719,22 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #377 | osac-aap | OSAC-1327: adds hcp_data_plane provisioning target for CaaS StorageClasses | Open — Will Gordon. No reviews yet. | 2026-06-25 |
+| #887 | fulfillment-service | OSAC-2396: restructure StorageTier proto to spec/status pattern | Open — CHANGES_REQUESTED (Ygal commented). | 2026-07-13 |
+| #79 | enhancement-proposals | OSAC-1332: Design: CaaS Cluster Storage | Open — REVIEW_REQUIRED. Akshay flagged needs approval. | 2026-07-07 |
+| #384 | osac-installer | OSAC-1908: align installer with storage controller restructuring | Open — APPROVED, ready to merge. | 2026-07-12 |
+| #138 | osac-test-infra | OSAC-1123: CaaS cluster storage E2E test | Open — APPROVED, needs /lgtm. Akshay's PR. | 2026-07-10 |
 | #373 | osac-aap | OSAC-1325: switches VAST storage paths to tenant-UID-hash convention | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 | #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
-| #66 | enhancement-proposals | OSAC-1110: PRD: StorageTier API | Open — Roy. Akshay reviewing. | 2026-06-23 |
 
 ### Recently Merged
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #377 | osac-aap | OSAC-1327: hcp_data_plane CaaS StorageClass target | 2026-07-13 |
+| #333 | osac-operator | OSAC-1908/1927: storage controller dual-path + CaaS + race fix | 2026-07-10 |
+| #832 | fulfillment-service | OSAC-1110: StorageTier API | 2026-07-10 |
+| #324 | osac-operator | OSAC-1123: CaaS cluster storage provisioning | 2026-07-01 |
+| #107 | osac-test-infra | OSAC-77: VMaaS storage E2E test | 2026-06-29 |
 | #72 | enhancement-proposals | OSAC-1123: PRD: CaaS Cluster Storage | 2026-06-25 |
 | #60 | enhancement-proposals | OSAC-1111: StorageBackend API design document | 2026-06-17 |
 | #58 | enhancement-proposals | Design: Rework Tenant Storage Onboarding (OSAC-23) | 2026-06-17 |
@@ -1197,6 +1204,65 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Enhancement-proposals PR #72 (OSAC-1123: CaaS Cluster Storage PRD) **MERGED**
 - Michael Hrivnak approved after Akshay's revisions
 - Multiple review rounds: Akshay, Avishay, Michael, Ronnie, CodeRabbit, Zoltan all participated
+
+### June 29, 2026 — OSAC-77 (VMaaS storage E2E) merged
+- osac-test-infra PR #107 **MERGED** by Akshay
+- OSAC-77 and OSAC-56 closed
+
+### June 30, 2026 — Storage WG Meeting
+- v0.1 milestone facing delays, incomplete CaaS testing
+- Decision: keep cluster-admin permissions (no TenantAdmin shift for v0.1)
+- Roy: finalize Tier API design and implementation
+- Will: research using tenant admin credentials, update VAST meeting invites to include Akshay + Ronnie
+- Danni Shi (Pure Storage): share integration plan with team
+- New participant: Danni Shi from Pure Storage attending, working on pure storage integration
+
+### July 1, 2026 — CaaS storage operator PR merged
+- osac-operator PR #324 **MERGED** (OSAC-1123: CaaS cluster storage provisioning + teardown)
+
+### July 7, 2026 — Storage WG Meeting
+- v0.2 planning: storage framework integration, vendor-specific backend support, secret management
+- Architecture consensus: central controller deployment model for CSI drivers, separation of management and tenant clusters
+- Prioritize internal volume workflows over public API
+- Roy to document architecture; Akshay+Will to identify remaining VAST scope
+- Danni Shi (Pure): reviewing integration docs
+- Roy: create Jira ticket for osac-storage feature, collaborate with Avishay on scope
+
+### July 7, 2026 — Will Gordon: outstanding VAST integrations listed
+- Network ACLs for file storage (need client IP injection)
+- Block ACLs via NQN (is NQN sufficient or need VIP Pool isolation?)
+- Block QoS not available until VAST 5.6 (2 months away) — may affect minimum supportable VAST
+- Per-OSAC-tenant encryption at rest
+- Storage lifecycles (persisting beyond CaaS cluster or OSAC tenant lifetime)
+- CSI deployment into CaaS without exposing VAST credentials to tenant (requires isolated VAST tenants)
+- Adjusting API calls to use tenant admin (not cluster admin)
+- Object storage?
+
+### July 7-10, 2026 — Roy Golan: OSAC CSI PoC progress
+- osac-CSI controller + node routing to vendor CSI: PASS
+- Tenant resolution at storage API layer (stubbed): PASS
+- Create volume in NetApp: PASS
+- Create volume in VAST: PASS
+- Attach volume NetApp: PASS
+- Attach volume VAST (NFS mount): PASS
+- Hiding credentials from tenant: IN PROGRESS — needs further investigation
+- This is separate from Cinder CSI approach (which hit iSCSI blocker) — Roy built a custom OSAC CSI proxy
+
+### July 10, 2026 — StorageTier API + storage controller rework merged
+- fulfillment-service PR #832 **MERGED** (OSAC-1110: StorageTier API — Akshay merged after addressing CodeRabbit comments without further review cycle)
+- osac-operator PR #333 **MERGED** (OSAC-1908+1927: storage controller dual-path resolution, CaaS provisioning, race fix)
+  - Dual-path: with AAP → provision via AAP; without AAP → discover labeled SCs (fallback for dev/UI environments)
+  - Fixes race condition causing duplicate AAP job launches
+  - Depends on osac-aap PR #377 (also merged same week)
+
+### July 12-13, 2026 — Akshay: v0.1 closure + outstanding PRs
+- Closed features OSAC-1001 and OSAC-1332 for v0.1
+- Carrying OSAC-917 (Storage Framework) forward to v0.2
+- AAP PR #377 (CaaS hcp_data_plane target) **MERGED**; OSAC-1327 and OSAC-1122 closed
+- **2 PRs still need review/approval** (explicitly flagged by Akshay):
+  - enhancement-proposals PR #79 (CaaS Cluster Storage design — REVIEW_REQUIRED)
+  - osac-installer PR #384 (Helm chart storage controller enablement — APPROVED, ready to merge)
+- osac-test-infra PR #138 (CaaS storage E2E, Akshay's) also open and APPROVED, needs /lgtm
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
