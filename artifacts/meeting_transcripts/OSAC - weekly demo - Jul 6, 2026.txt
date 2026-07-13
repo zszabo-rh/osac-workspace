@@ -1,0 +1,99 @@
+[PROCESSED 2026-07-13]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - weekly demo” Jul 6, 2026
+Date: Mon, 06 Jul 2026 16:08:27 +0000
+---
+Notes from “OSAC - weekly demo”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 6, 2026, 6:06 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting discussions addressed instance type implementation, code review  
+standards, and infrastructure transitions to GitHub Actions.
+
+
+Instance Type Feature Implementation
+The team successfully introduced instance types to replace arbitrary CPU  
+and RAM configurations, mandating a transition away from older core and  
+memory fields. Administrators will manage instance type lifecycles, and  
+future efforts will standardize naming and resource compatibility for  
+virtual machines and bare metal instances.
+
+Code Review Policy Consensus
+Participants decided to maintain manual code review processes to ensure  
+quality, rejecting proposals to bypass human oversight. The team agreed to  
+shift focus toward critical aspects and integrate AI assistance to improve  
+review efficiency.
+
+Infrastructure and Security Updates
+The organization transitioned to GitHub Actions for improved job  
+reliability and successfully increased runner capacity to support higher  
+concurrency. Critical security protocols were reinforced to address the  
+recent exposure of sensitive secrets in pull requests.
+
+
+Suggested next steps
+
+
+
+[Ygal Blum] Update Test Code: Remove cores and memory usage from end to end  
+tests.
+
+[Ygal Blum] Remove Code Support: Clean up remaining usage of cores and  
+memory throughout the codebase.
+
+[Ygal Blum] Discuss Preferences: Coordinate with Vladik Romanovsky to  
+clarify the purpose and implementation of Hubert preferences.
+
+[Ygal Blum] Fix Error Message: Update the deletion precondition warning to  
+accurately reflect that the instance is in use by at least 1 compute  
+instance.
+
+[Eran Cohen] Investigate CI Failures: Examine pull requests that are  
+currently failing the continuous integration process.
+
+[Team leads] Add Meeting Agenda: Include an agenda document for each  
+working group sync to facilitate cross-team collaboration.
+
+[The group] Update Meeting Agenda: Add relevant discussion topics to the  
+shared meeting agenda. This ensures attendees can prepare for upcoming  
+sessions.
+
+[The group] Publish Standardized Pull Requests: Include the Product  
+Requirements Document Markdown and design Markdown files when submitting  
+pull requests. Ensure all future submissions follow this document structure.
+
+[The group] Secure Pull Requests: Refrain from including pull secrets in  
+any submitted code changes. Prevent security leaks by verifying that no  
+sensitive credentials are present in pull requests.
+
+[The group] Report CI Issues: Submit any problems or feedback regarding the  
+GitHub actions infrastructure to the infrastructure working group. This  
+assists the team in stabilizing the continuous integration workflows.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

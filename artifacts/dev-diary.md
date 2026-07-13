@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-07-13 (2-week holiday catch-up: 2026-06-29 → 2026-07-13)
+
+### Active Tickets
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01, no actual movement during holiday
+
+### Open PRs
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (unchanged)
+- enhancement-proposals#78 (not mine, watch): Moti Asayag's Metering and Usage Tracking PRD — active, likely overlaps quota `/v1/usage` design
+
+### Milestones
+- v0.1 formally closed 2026-07-12 (Akshay, storage side); v0.2 planning through 2026-07-31
+
+### Notes
+- **All previously-tracked storage PRs merged while away**: osac-operator#299 (Jun 23), osac-aap#338 (Jun 24), fulfillment-service#728 (Jun 24), osac-test-infra#107/OSAC-77 (Jun 29), osac-operator#333/CaaS storage (Jul 12). OSAC-23 epic is done.
+- **Quota EP (PR #28 / OSAC-333) did not move** — needs attention now that back.
+- **New finding**: PR #78 (Metering and Usage Tracking PRD, masayag) progressed through 2 review cycles during the holiday, addressing the same reviewer (mhrivnak) who blocked the quota EP. Directly adjacent scope — review before resuming OSAC-333.
+- **Repo refresh**: massive 2-week catch-up — fulfillment-service +244, osac-installer +104, osac-aap +158, osac-test-infra +142, enhancement-proposals +87, osac-operator +48 commits. All rebased clean, forks pushed back in sync.
+- **Process/policy changes while away**: one PRD+design per Feature (not Epic) going forward (Eran, Jul 7); "Ship/Show/Ask" auto-merge proposal raised and effectively rejected (Ygal pushed back); `/pr-review-quality` skill found 45% of PRs in the last 14 days had zero human reviewer.
+- **Security incident**: committed Keycloak secret found in osac-installer#286 — gitleaks CI scanning added workspace-wide, rotation status still unconfirmed as of Jul 9.
+- **Org change**: weekly report ownership moved from Alona Paz to Brad Nichols (Jun 28).
+- **Storage architecture decisions**: OpenStack Cinder/Manila adopted as CaaS translation layer (Jun 23, PoC authorized); VAST stayed on ClusterAdmin through v0.1 (no tenant-admin shift yet); unresolved question on how tenant VPCs reach VAST storage (escalated Jul 9, still open).
+- **Quarterly Connections Q2 2026**: reminder posted Jul 12 in storage channel that it was the last day to fill — verify this got submitted.
+- **Minor cleanup**: local osac-test-infra checkout is still on the merged `feat/OSAC-77-storage-e2e` branch (0 commits ahead of origin/main) — safe to switch back to main and delete.
+
+---
+
 ## 2026-06-26
 
 ### Active Tickets

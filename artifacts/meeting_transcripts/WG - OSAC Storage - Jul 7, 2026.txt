@@ -1,0 +1,100 @@
+[PROCESSED 2026-07-13]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jul 7, 2026
+Date: Tue, 07 Jul 2026 14:07:09 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 7, 2026, 4:05 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting reviewed storage framework milestones and technical architecture  
+with clarified development workflows and developer tooling improvements.
+
+
+Storage Milestone Planning
+Development priorities shifted toward the 0.2 milestone including storage  
+framework integration and vendor specific backend support. The team  
+identified necessary improvements for cluster provisioning and secret  
+management.
+
+Architecture and CSI Drivers
+Discussions validated the central controller deployment model for CSI  
+drivers with clear separation between management and tenant clusters. The  
+group reached a consensus to prioritize internal volume workflows over  
+public API implementation.
+
+Tooling and Workflow Adoption
+Team members implemented new workspace automation tools to streamline Jira  
+ticket integration and development environments. Standardizing these  
+configurations will improve long-term consistency across the engineering  
+team.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Check UI Status: Contact LeAD to determine why the OSAC  
+UI feature is currently in progress.
+
+[Akshay Nadkarni] Research Secret Store: Investigate the missing feature  
+tied to the secret management store involving the core team.
+
+[Akshay Nadkarni, Will Gordon] Identify Vast Tasks: Collaborate to  
+determine the remaining scope and priority of tasks on the Vast side.
+
+[Akshay Nadkarni, Roy Golan] Organize CSI Work: Define the organizational  
+structure for the CSI driver separation to track execution and deployment  
+flows.
+
+[Danni Shi] Review Integration Docs: Review the linked document regarding  
+pure storage integration requirements and support.
+
+[Roy Golan] Document Architecture: List all architectural considerations  
+for the storage layer in a formal document.
+
+[Roy Golan] Create Jira Ticket: Document the Ozac storage feature in a new  
+Jira ticket.
+
+[Danny] Create Requirements Doc: Utilize the PRD skill to generate a  
+requirements document from the assigned Jira feature.
+
+[Roy] Coordinate Feature Development: Connect with Avishay while writing  
+the feature to confirm scope and expectations.
+
+[The group] Update Development Workspace: Download the latest OSAC  
+workspace and execute Bootstrap.
+
+[Roy] Share Work Tree Utility: Demonstrate the new work tree bash function  
+at the next demo meeting.
+
+[The group] Update Thread Messages: Provide status updates in the storage  
+channel threads when available.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

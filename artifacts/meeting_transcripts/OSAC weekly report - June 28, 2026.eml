@@ -1,0 +1,315 @@
+[PROCESSED 2026-07-13]
+From: Brad Nichols <bradnichols@redhat.com>
+To: Joe Fernandes <jofernan@redhat.com>, Tushar Katarki <tkatarki@redhat.com>, Mike Evans <mevans@redhat.com>, Ryan King <rking@redhat.com>, Steve Gordon <sgordon@redhat.com>, Orran Krieger <okrieger@redhat.com>, Stephen Cuppett <scuppett@redhat.com>, Scott Berens <sberens@redhat.com>, Jeff Lo <jlo@redhat.com>, Ohad Anaf Levy <olevy@redhat.com>, Itamar Heim <iheim@redhat.com>
+Cc: ecoeng-sovereign-cloud <ecoeng-sovereign-cloud@redhat.com>, Brad Nichols <bradnichols@redhat.com>, Daniele Zonca <dzonca@redhat.com>, Richa Srivastava <risrivas@redhat.com>, Pau Garcia Quiles <pgarciaq@redhat.com>, Michal Zasepa <mzasepa@redhat.com>, Jonathan Zarecki <jzarecki@redhat.com>, Steve Fulmer <sfulmer@redhat.com>, Sachin Mullick <smullick@redhat.com>, Ronen Sde-Or <rsdeor@redhat.com>, Erwan Gallen <egallen@redhat.com>, Kirsten Newcomer <knewcome@redhat.com>, Kyle Baker <kybaker@redhat.com>, Matt Carleton <mcarleto@redhat.com>, Ethan Kim <ekim@redhat.com>, Abigael Donahue <adonahue@redhat.com>, Isaiah Stapleton <istaplet@redhat.com>, Heidi Dempsey <hdempsey@redhat.com>, Lars Kellogg-Stedman <lars@redhat.com>, Chris Butler <chbutler@redhat.com>, Liming Tsai <ltsai@redhat.com>, Vincent Caldeira <vcaldeir@redhat.com>, Darren Orzechowski <dorzecho@redhat.com>, Scott England-Sullivan <scottes@redhat.com>, Jeff Picozzi <jpicozzi@redhat.com>, Lucy Kerner <lkerner@redhat.com>, Andrea Hudson <ahudson@redhat.com>, Ben Scheerer <bscheere@redhat.com>, Laura Franch <lfranchd@redhat.com>, Justin Hibbard <jhibbard@redhat.com>, Avishay Traeger <avishay@redhat.com>, Karanbir Singh <kasingh@redhat.com>, Michael Hrivnak <mhrivnak@redhat.com>, Idan Levi <ilevi@redhat.com>, Yossi Yitzhakov <yyitzhak@redhat.com>, Scott Collier <scollier@redhat.com>, Chen Yosef <cyosef@redhat.com>, Omri Hochman <ohochman@redhat.com>, Rom Freiman <rfreiman@redhat.com>
+Subject: OSAC Weekly Report - 2026-06-28
+Date: Sun, 28 Jun 2026 16:29:26 -0600
+---
+Hello All,
+
+I’m taking over coordinating and sending our project weekly to offload Alona
+Paz <alkaplan@redhat.com>.
+
+I’ve made some changes to format, comment and scope and expect to continue
+to expand.
+Suggestions, comments and corrections welcome,
+
+Brad
+
+OSAC Weekly Report - Jun 26, 2026
+<https://docs.google.com/document/d/1gL2pdo67m6WtsmefED2oeZm4cg54pMFbL6_CBKaWvHA/edit?tab=t.0#heading=h.w4i8242y1reh>
+
+Executive Summary
+
+   -
+
+   Focus continues to be:
+   -
+
+      Rapid feature implementation and in parallel integration of feedback
+      and experience from partner and customer demos
+      -
+
+         Completion of 0.1 release for next week,  planning for 0.2
+         -
+
+      Parallel build out engineering team: onboarding, structure, lab
+      resources, workflows and agentic
+      -
+
+   Risks, Blockers, Gaps:
+   -
+
+      0.1 Release
+      -
+
+         UI is in risk for 0.1
+
+Looking Ahead
+
+   -
+
+   Preparation for the 0.2 planning phase and final validation of 0.1
+   release candidates.
+
+Schedule Summary
+
+Release
+
+Phase
+
+Date
+
+Content Summary
+
+Themes & Goals
+
+0.1
+
+Execution
+
+2026-06-30
+
+   -
+
+   35 Total Features <https://redhat.atlassian.net/issues/?filter=112141>
+   -
+
+   15 Closed, 20 In Progress
+
+
+   -
+
+   BMaaS, CaaS, and VMaaS build-out
+   -
+
+   MT & Persona definitions
+   -
+
+   Netrix & Enclave integration
+
+0.2
+
+Planning
+
+2026-07-31
+
+   -
+
+   45 Total Features <https://redhat.atlassian.net/issues/?filter=112140>
+   -
+
+   39 New items identified
+
+TBD - Roadmap Definition
+
+Release 0.1 HighlightsDependent Work
+
+   -
+
+   Cost and Meeting:  Moti Asayag <masayag@redhat.com>, Pau Garcia Quiles
+   <pgarciaq@redhat.com>. CM integration strategy — after discussion with
+   CM team, a new data processing pipeline will be developed as separate
+   component, owned by CM team. OSAC feeds data, CM owns pipeline. @pgarciaq
+   created a spike document. PoC will stay outside main koku codebase for
+   velocity.
+
+
+Working Group Demos
+
+Lead Alona Paz <alkaplan@redhat.com>, OSAC Working Group
+<https://docs.google.com/document/d/1V7uxuxJNyK2pkoaTQ3TJngnNp2ktvZzTAJMUESv0U4M/edit?tab=t.c91kd825w3xm>
+
+
+   -
+
+   OSAC - weekly demo - 2026/06/22 17:55 IDT - Notes by Gemini
+   <https://docs.google.com/document/d/1C5b2p_HjM4gmTIuhpaC2w4RuAZyX4P7Oe_SOFwkrUTc/edit?tab=t.1u6qwwvsn16a>
+   -
+
+      [Core] LDAP + Keycloak
+      <https://drive.google.com/file/d/1DqY2ryVYUF_aJ7LbLnKy0b7Htjp5GoFm/view?usp=sharing&t=424.109>
+Ofer
+      Bochan <obochan@redhat.com> PPT - LDAP - PPT
+      <https://docs.google.com/presentation/d/1uCBo_BQAau0-u5MX5ihN5yfPTy3K02Sp/edit?usp=sharing&ouid=108745508760264320280&rtpof=true&sd=true>
+      DEMO
+      <https://drive.google.com/file/d/1o-dk-t7b07avC9JQ87AMFbl2znJlNWO8/view?usp=sharing>
+      -
+
+         Focused on transitioning from local user management in Keycloak to
+         using an external LDAP directory. Also covered support for
+OIDC endpoints.
+         -
+
+      [VMaaS] Graphical Console
+      <https://drive.google.com/file/d/1DqY2ryVYUF_aJ7LbLnKy0b7Htjp5GoFm/view?usp=sharing&t=1934.233>
+Ilya
+      Skornyakov <iskornya@redhat.com>
+      -
+
+         A new feature allows users to access a graphical console for
+         running VMs via a two-step process involving a short-lived
+ticket from the
+         fulfillment service and a console proxy
+
+E2E Demo (New)
+
+Lead Asaf Alfandary <aalfanda@redhat.com>, OSAC Milestone 0.1 — E2E Demo
+Flows
+<https://docs.google.com/document/d/1Dv3xyndbgVvJjhrrcCXVlxM0hAlO6LlTAIHuj3W5SCk/edit?tab=t.0>
+
+   -
+
+   Inaugural Demo on 6/23
+   -
+
+   VMaaS
+   <https://drive.google.com/file/d/1PdehJUnXW3oDBgiOSeO9FifQ2PMk31Kw/view?usp=sharing&t=891.529>
+   (Minute 14:50)
+   -
+
+   Meeting included a review of desired goals and outcomes
+   <https://docs.google.com/document/d/1Vdl2nA4c-w8tXeedZ9KspUqoqGUr40j2BlIYCUd1mV0/edit?tab=t.ybk0k97ynvl0>
+   for this initiative and next steps
+   -
+
+   Tentative Demo for Tuesday June 31 will be Tenant Onboarding. A total of
+   5 E2E demos including Tenant Onboarding have been outlined and are being
+   flushed out OSAC Milestone 0.1 — E2E Demo Flows
+   <https://docs.google.com/document/d/1Dv3xyndbgVvJjhrrcCXVlxM0hAlO6LlTAIHuj3W5SCk/edit?tab=t.0>
+
+Additional Project Highlights
+
+   -
+
+   Associate Onboarding: Brad Nichols <bradnichols@redhat.com>: Continued
+   on boarding, see SVGN Engineering org and roster
+   <https://docs.google.com/spreadsheets/d/1P1FSweIOn5nwTgU8xlbIsRGhT50XiBlGpKaEg_kXO8Y/edit?gid=1789168777#gid=1789168777>
+   -
+
+   Lab Environments: Udi Buczko <ubuczko@redhat.com>: is now tasked to
+   coordinate lab environments across the OSAC engineering effort
+   -
+
+   AI Grid: Yossi Yitzhakov <yyitzhak@redhat.com>, Scott Collier
+   <scollier@redhat.com>: Yossi and Scott are building integration and
+   collaboration points with core OSAC workstreams for Telco AI Grid.
+
+Partners, Customers and FieldEngagement Pipeline for Ecosystem Engineering
+
+Leads: BU/PM Justin Hibbard <jhibbard@redhat.com>, Architects Michael
+Hrivnak <mhrivnak@redhat.com>, Engineering Rom Freiman <rfreiman@redhat.com>,
+Chen Yosef <cyosef@redhat.com>
+
+Tracking:
+
+   -
+
+   In the face of multiple parallel dialogs, a clearing house tracking
+   sheet has been created OSAC Partner and Customer Tracking
+   <https://docs.google.com/spreadsheets/d/1Ohp4Z4w-YMlD-3tuW2DNYNJpq3UsmOWrwIR-cHQFLF8/edit?gid=1655485615#gid=1655485615>
+   -
+
+   Next step is to institute a regular workflow to ensure updates and
+   freshness
+
+Highlights this Week:
+
+   -
+
+   Equinix: Justin Hibbard <jhibbard@redhat.com>. A demo on 2026-06-25 is
+   now a goal
+   -
+
+   CloudKey: Chen Yosef <cyosef@redhat.com>. Initial discussions on VCD
+   requirements
+   -
+
+   MOC ARPAH Harbor: Justin Hibbard <jhibbard@redhat.com>. Discussion w/Orran
+   Krieger <okrieger@redhat.com> on emerging VCD requirements from MoC
+   -
+
+   Canadian Public Sector Service Project. Karanbir Singh
+   <kbsingh@redhat.com>. A RH services team is competing to deliver a MT
+   hybrid cloud solution. Next step is to present OSAC to the internal RH
+   team.
+
+Partner Projects (On Going)
+
+Massachusetts Open Cloud (MOC)
+
+Leads: OOCTO Robby Stahl <rstahl@redhat.com>
+
+   -
+
+   < will include update next week >
+
+
+IBM Sovereign Core (Aka GoRI)
+
+Leads: Eng Maor Friedman <mafriedm@redhat.com> Arch Karanbir Singh
+<kbsingh@redhat.com>
+
+   -
+
+   Challenging weeks supporting IBM as they are in the end stages of their
+   1.1 release. Worst seems past with delivery of Enclave kit  0.1.1
+   <https://github.com/rh-ecosystem-edge/enclave/commits/0.1.1>
+   -
+
+   Joint workshop next week to discuss opportunities for additional RH
+   component integration and general positioning of IBM Sovereign Core and
+   RH’s own OSAC direction.
+
+
+Netris
+
+Leads: Eng Dan Manor <dmanor@redhat.com>, PM Paul Lancaster
+<plancast@redhat.com>
+
+   -
+
+   Testing and integration into OSAC continues Dan Manor <dmanor@redhat.com>
+   -
+
+   High level technical overview of RH and Netris completed. Open Sovereign
+   AI Cloud with Red Hat and Netris (Updates to OSAC disambiguation)
+   <https://docs.google.com/document/d/1kMW6-2Yr60z2ifzsfdPUFXOI8xaZ3qDsORV_QhdhGNI/edit?tab=t.0#heading=h.zbpdiam5i35o>.
+   But further work depends on future OSAC public facing references.  Camry
+   Fedei <cfedei@redhat.com>, Ricardo Garcia Cavero <rgarciac@redhat.com>
+   -
+
+   Shifting to focus on Business Plan / Collaboration with Mike Evans
+   <mevans@redhat.com> and Greg Labows <glabows@redhat.com>
+
+
+VAST Storage
+
+Leads: Eng Akshay Nadkarni <anadkarn@redhat.com>
+
+   -
+
+   < will include update next week >
+
+
+Monetize 360
+
+Leads:
+
+   -
+
+   < will include update next week >
+
+
+-- 
+
+Bradford Nichols
+
+Principal Project Manager, Ecosystem Engineering Engagement Projects
+
+Red Hat <https://www.redhat.com/>
+
+bradford.nichols@redhat.com
+M: 603-264-1446
+<https://www.redhat.com/>
+
