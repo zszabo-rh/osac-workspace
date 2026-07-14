@@ -1,0 +1,87 @@
+[PROCESSED 2026-07-14]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - weekly demo - new” Jul 13, 2026
+Date: Mon, 13 Jul 2026 16:31:24 +0000
+---
+Notes from “OSAC - weekly demo - new”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 13, 2026, 6:29 PM CEST and may  
+contain errors.
+
+
+Summary
+This session reviewed UI development progress and finalized a phased  
+strategy for Model as a Service deployment.
+
+
+UI Development And Configuration
+The team reviewed cluster and Virtual Machine as a Service interfaces,  
+prioritizing simplified defaults for users. Technical validation for  
+complex data structures remains under assessment.
+
+UI Strategy And Personas
+Discussions regarding interface complexity favored distinct portals for  
+specific personas to avoid overwhelming consumers. The team agreed that  
+implementing validated patterns is the viable path for infrastructure  
+deployment.
+
+Phased Model Service Strategy
+The group decided to adopt a 3-phase service delivery model where the  
+provider manages initial model deployment to reduce complexity. This  
+approach defers tenant-admin interfaces for a later rollout.
+
+
+Suggested next steps
+
+
+
+[Brad Nichols] Update meeting time: Reschedule the meeting to occur 1.5  
+hours earlier starting next week.
+
+[The group] Add password visibility: Implement a feature to hide and show  
+passwords with a copy option.
+
+[The group] Resolve configuration bugs: Address existing issues related to  
+node set removal and default value application.
+
+[The group] Create backend endpoint: Develop a new API endpoint to  
+calculate and apply all default values from templates and catalog items.
+
+[The group] Conduct UX review: Coordinate with the user experience team to  
+finalize the design for virtual network and subnet creation flows.
+
+[Rastislav Wagner] Demonstrate catalog: Show the content and details of  
+catalog items during the next meeting.
+
+[The group] Align Phasing Strategy: Formalize the 3 phase strategy for  
+Model as a Service deployment. Coordinate with the team to finalize the  
+transition steps from service provider deployment to tenant specific models.
+
+[The group] Implement Cache Salting: Integrate key value cache salting into  
+the gateway capability. Ensure the mechanism meets compliance requirements  
+for multi-tenant isolation.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

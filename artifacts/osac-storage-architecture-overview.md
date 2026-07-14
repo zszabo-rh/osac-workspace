@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-07-13
+**Last updated:** 2026-07-14
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -241,7 +241,7 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Component | What | PR | Status | Notes |
 |-----------|------|-----|--------|-------|
-| **AAP** | CaaS StorageClass provisioning target (`hcp_data_plane`) | osac-aap #377 | Open (Will) | Removes vmaas-only guards, cluster-aware volume naming |
+| **AAP** | CaaS StorageClass provisioning target (`hcp_data_plane`) | osac-aap #377 | **Merged (2026-07-13)** | Removes vmaas-only guards, cluster-aware volume naming |
 | **AAP** | VAST tenant-UID-hash storage paths | osac-aap #373 | Open (Will) | Uniqueness via SHA256(UID), fallback for existing tenants |
 | **AAP** | VAST RBAC Realm + restricted CSI Role | osac-aap #363 | Open (Will) | Scoped credentials for CSI driver |
 
@@ -647,6 +647,8 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1332 | CaaS Cluster Storage (v0.1) | **Closed** | Akshay Nadkarni | Closed July 11 (v0.1 complete). 3 follow-up PRs still open. |
 | OSAC-1123 | CaaS Tenant Storage Setup | **Closed** | Akshay Nadkarni | Closed July 12. Implementation merged (PR #324, #333, #832). |
 | OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API. Under OSAC-984 |
+| OSAC-1957 | StorageBackend API integration into storage controller | **New** | Zoltan Szabo | Replace AAP-check heuristic with Backend API (`private.v1.StorageBackends/List`). TODO already in storage_controller.go. Assigned 2026-07-13. |
+| OSAC-1992 | StorageTier API integration | **New** | Will Gordon | Tier definitions from Tier API drive per-tenant SC provisioning. Blocked on PR #887 merging. Assigned 2026-07-13. |
 
 ### Dependencies
 
@@ -719,10 +721,8 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #887 | fulfillment-service | OSAC-2396: restructure StorageTier proto to spec/status pattern | Open — CHANGES_REQUESTED (Ygal commented). | 2026-07-13 |
-| #79 | enhancement-proposals | OSAC-1332: Design: CaaS Cluster Storage | Open — REVIEW_REQUIRED. Akshay flagged needs approval. | 2026-07-07 |
-| #384 | osac-installer | OSAC-1908: align installer with storage controller restructuring | Open — APPROVED, ready to merge. | 2026-07-12 |
-| #138 | osac-test-infra | OSAC-1123: CaaS cluster storage E2E test | Open — APPROVED, needs /lgtm. Akshay's PR. | 2026-07-10 |
+| #887 | fulfillment-service | OSAC-2396: restructure StorageTier proto to spec/status pattern | Open — CHANGES_REQUESTED (Ygal commented). Blocks OSAC-1992. | 2026-07-14 |
+| #138 | osac-test-infra | OSAC-1123: CaaS cluster storage E2E test | Open — CHANGES_REQUESTED (Will Gordon, 2026-07-13). Minor fix needed. | 2026-07-14 |
 | #373 | osac-aap | OSAC-1325: switches VAST storage paths to tenant-UID-hash convention | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 | #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 
@@ -730,6 +730,8 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #79 | enhancement-proposals | OSAC-1332: Design: CaaS Cluster Storage | 2026-07-13 |
+| #384 | osac-installer | OSAC-1908: align installer with storage controller restructuring | 2026-07-13 |
 | #377 | osac-aap | OSAC-1327: hcp_data_plane CaaS StorageClass target | 2026-07-13 |
 | #333 | osac-operator | OSAC-1908/1927: storage controller dual-path + CaaS + race fix | 2026-07-10 |
 | #832 | fulfillment-service | OSAC-1110: StorageTier API | 2026-07-10 |
@@ -1259,10 +1261,20 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Closed features OSAC-1001 and OSAC-1332 for v0.1
 - Carrying OSAC-917 (Storage Framework) forward to v0.2
 - AAP PR #377 (CaaS hcp_data_plane target) **MERGED**; OSAC-1327 and OSAC-1122 closed
-- **2 PRs still need review/approval** (explicitly flagged by Akshay):
-  - enhancement-proposals PR #79 (CaaS Cluster Storage design — REVIEW_REQUIRED)
-  - osac-installer PR #384 (Helm chart storage controller enablement — APPROVED, ready to merge)
-- osac-test-infra PR #138 (CaaS storage E2E, Akshay's) also open and APPROVED, needs /lgtm
+- enhancement-proposals PR #79 (CaaS Cluster Storage design) **MERGED** 2026-07-13
+- osac-installer PR #384 (Helm chart storage controller enablement) **MERGED** 2026-07-13
+- osac-test-infra PR #138 (CaaS storage E2E): Will Gordon posted CHANGES_REQUESTED 2026-07-13 ("Otherwise looks good 👍") — minor change required
+
+### July 13, 2026 — Akshay: v0.2 ticket assignments
+- Assigned **OSAC-1957** to Zoltan: StorageBackend API integration — storage controller should use Backend API (`private.v1.StorageBackends/List`) to determine provisioning path instead of checking AAP availability. There's a `TODO(OSAC-1957)` already in `storage_controller.go`. Depends on fulfillment-service PR #728 (merged June 24).
+- Assigned **OSAC-1992** to Will Gordon: StorageTier API integration — tier definitions from Tier API drive per-tenant StorageClass provisioning. Blocked on fulfillment-service PR #887 (CHANGES_REQUESTED) merging first.
+- Published **WG_Storage_UserFlows_Roadmap** spreadsheet (new external doc) — v0.2 user flows grouped by feature/milestone. To be walked through in storage meeting.
+
+### July 13, 2026 — Roy Golan: CaaS + kind-dev progress
+- Got ClusterOrder working on local ACM (hub) registered in kind-dev
+- AWX triggered HostedCluster creation via ACM — cluster being created
+- Hacks needed: ClusterOrder applied on local kind-dev (not target hub); explicit k8s credentials in AWX for ACM cluster; import Ansible templates for hosted-cluster; ip route for VPN on home laptop
+- Not ready to demo storage portion yet; VMaaS looks solid (Mac support added by Daniel Erez)
 
 ### Recurring Meeting Established
 - **OSAC Storage (for VMaaS and CaaS)** — Tuesdays 9-10 AM ET (4-5 PM Israel, 3-4 PM CEST)
@@ -1295,3 +1307,12 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 ### CaaS Template (No Storage)
 - `osac-aap/collections/ansible_collections/osac/templates/roles/ocp_4_17_small/tasks/install.yaml`
 - `osac-aap/collections/ansible_collections/osac/service/roles/hosted_cluster/tasks/create_hosted_cluster.yaml`
+
+### Tracked External Docs
+
+| Doc ID | Type | Description | First Seen |
+|--------|------|-------------|------------|
+| `1-CCfzubTF0cS8ehF82zPc36wrGS19YM5-HQvjE3BbcA` | Google Doc | Akshay's storage planning notes | 2026-05-19 |
+| `1bKa8-fm7lIgwp0yBA2GeKDd0dg165p1tKC-nNzPIui8` | Spreadsheet | Storage planning spreadsheet | 2026-05-19 |
+| `1MF-1xoxGWJ6tamlvLos_0fwhW3U55tcgB2R6ZroAjcY` | Google Doc | VAST CSI driver credential bug writeup | 2026-05-19 |
+| `1kwpUdOUeCI8qVtDN1iL1iu-M1a7N_ZSCso-Rt_KpVKE` | Spreadsheet | WG_Storage_UserFlows_Roadmap — v0.2 user flows by feature/milestone | 2026-07-14 |

@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-07-14
+
+### Active Tickets
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01, still no movement
+- OSAC-1957: Storage provisioning should key off registered backends, not AAP availability — New, assigned today by Akshay (follow-up from OSAC-1908/PR#333)
+
+### Open PRs
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (unchanged)
+- osac-test-infra#138 (Akshay's, review-requested from me): CaaS E2E test — Will Gordon requested changes 7/13, Akshay addressed 7/14, CI green, blocked only on `/lgtm`
+
+### Milestones
+- No new milestone changes today
+
+### Notes
+- **Repo refresh**: docs +2, enhancement-proposals +3, fulfillment-service +23, osac-aap +31, osac-installer +12, osac-operator +14, osac-test-infra +4 commits — all rebased clean, forks still ahead (push-back pending, see feedback-coffee-update-fork-sync).
+- **Resolved since yesterday**: EP#79 (CaaS design) and osac-installer#384 both merged — no longer need my review (previously flagged as "3 PRs needing review NOW").
+- **New**: OSAC-1957 assigned to me by Akshay — see project-caas-storage-workitems.md for full technical writeup.
+- **New signal for quota**: github-config#127 proposes a new `osac-metering-service` repo (masayag) — metering PRD #78 moving from design to infra standup. Worth a look before finalizing OSAC-333's `/v1/usage` design.
+- **Meeting**: "OSAC weekly demo" Jul 13 — UI/persona strategy discussion, 3-phase Model-as-a-Service rollout decided (provider-managed first, tenant-admin interfaces deferred). Not directly quota-relevant.
+- **Inbox**: no urgent action-required items beyond what's already tracked; a few Jira/PR notification threads on fulfillment-service#866 (Ygal Blum, removes cores/memory_gib fields — not mine to review) and github-config#127.
+
+---
+
 ## 2026-07-13 (2-week holiday catch-up: 2026-06-29 → 2026-07-13)
 
 ### Active Tickets
