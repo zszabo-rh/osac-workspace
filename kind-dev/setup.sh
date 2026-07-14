@@ -37,6 +37,7 @@
 #   OSAC_NAMESPACE                 Namespace for OSAC services (default: osac)
 #   KEYCLOAK_NAMESPACE             Namespace for Keycloak (default: keycloak)
 #   KIND_EXPERIMENTAL_PROVIDER     Container runtime: docker or podman (auto-detected)
+#   FULFILLMENT_IMAGE              Override fulfillment-service image (e.g. quay.io/user/fulfillment-service:dev)
 
 set -euo pipefail
 
@@ -820,12 +821,18 @@ deploy_osac() {
   helm dependency build "${chart_dir}" 2>&1 | tail -3
 
   log "Deploying OSAC via umbrella chart..."
-  # Deploy without waiting (console-proxy has TLS issues with self-signed certs)
-  helm upgrade --install osac \
-    "${chart_dir}" \
-    --namespace "${OSAC_NAMESPACE}" \
-    --create-namespace \
+  local helm_args=(
+    upgrade --install osac
+    "${chart_dir}"
+    --namespace "${OSAC_NAMESPACE}"
+    --create-namespace
     --values "${SCRIPT_DIR}/values-kind.yaml"
+  )
+  if [[ -n "${FULFILLMENT_IMAGE:-}" ]]; then
+    helm_args+=(--set "service.images.service=${FULFILLMENT_IMAGE}")
+    log "Using custom fulfillment image: ${FULFILLMENT_IMAGE}"
+  fi
+  helm "${helm_args[@]}"
 
   # Workaround: Remove console-proxy readiness probe (TLS verification fails with self-signed certs in kind)
   log "Waiting for deployments to be ready..."
