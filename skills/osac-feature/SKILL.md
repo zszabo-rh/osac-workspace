@@ -21,10 +21,20 @@ Collect from conversation context. Ask only if truly ambiguous:
 |-------|----------|---------|
 | Feature summary | Yes | From conversation context |
 | Description | Yes | From conversation context |
+| Component | Yes | Infer from context: VMaaS, CaaS, BMaaS, Core, Storage, Connectivity&Fabric, UI, Infrastructure, Enclave |
+| Customer | No | If the feature is driven by a specific customer requirement, note the customer name |
 | Assignee | No | Unassigned — only assign if user specifies |
 | Label | No | `OSAC` |
 
 **Note:** Features do not have parent epics in the OSAC project.
+
+## Customer Labeling
+
+When a feature is driven by a customer requirement, add two labels:
+- `customer` — generic label for filtering all customer-driven features (`project = OSAC AND labels = customer`)
+- `customer:<name>` — specific customer label (e.g., `customer:jio`, `customer:hitachi`) for per-customer filtering
+
+Add both labels at creation time using `--label customer --label "customer:<name>"`.
 
 ## Create the Feature
 
@@ -75,8 +85,11 @@ KEY=$(jira issue create -t Feature --project OSAC \
 
 <What is explicitly excluded from this feature>" \
   --label OSAC \
+  --component "<component>" \
   --no-input --raw 2>/dev/null | jq -r '.key')
 ```
+
+If a customer is specified, add `--label customer --label "customer:<name>"` to the create command.
 
 **Key extraction notes:**
 - Use `--raw` to get JSON output on stdout, then `jq -r '.key'` to extract the issue key reliably.
@@ -97,9 +110,10 @@ Output to user:
 ```
 Feature created:
 
-Jira:   https://redhat.atlassian.net/browse/<KEY>
-Label:  OSAC
-Status: New
+Jira:      https://redhat.atlassian.net/browse/<KEY>
+Component: <component>
+Labels:    OSAC [, customer, customer:<name>]
+Status:    New
 ```
 
 ## Standard Feature Format
