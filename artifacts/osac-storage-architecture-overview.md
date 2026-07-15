@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-07-14
+**Last updated:** 2026-07-15
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -648,7 +648,8 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1123 | CaaS Tenant Storage Setup | **Closed** | Akshay Nadkarni | Closed July 12. Implementation merged (PR #324, #333, #832). |
 | OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API. Under OSAC-984 |
 | OSAC-1957 | StorageBackend API integration into storage controller | **New** | Zoltan Szabo | Replace AAP-check heuristic with Backend API (`private.v1.StorageBackends/List`). TODO already in storage_controller.go. Assigned 2026-07-13. |
-| OSAC-1992 | StorageTier API integration | **New** | Will Gordon | Tier definitions from Tier API drive per-tenant SC provisioning. Blocked on PR #887 merging. Assigned 2026-07-13. |
+| OSAC-1992 | StorageTier API integration | **In Progress** | Will Gordon | Tier definitions from Tier API drive per-tenant SC provisioning. **Unblocked** — PR #887 merged 2026-07-14. |
+| OSAC-2519 | Storage Framework UI | **New** | Unassigned | UI work for Storage Framework (StorageBackend/StorageTier admin screens). Added 2026-07-14. |
 
 ### Dependencies
 
@@ -721,8 +722,7 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #887 | fulfillment-service | OSAC-2396: restructure StorageTier proto to spec/status pattern | Open — CHANGES_REQUESTED (Ygal commented). Blocks OSAC-1992. | 2026-07-14 |
-| #138 | osac-test-infra | OSAC-1123: CaaS cluster storage E2E test | Open — CHANGES_REQUESTED (Will Gordon, 2026-07-13). Minor fix needed. | 2026-07-14 |
+| #901 | fulfillment-service | Add buf lint OSAC_OBJECT_SHAPE enforcement for proto spec/status convention | Open — Ygal Blum. Adds automated protobuf structure check. | 2026-07-14 |
 | #373 | osac-aap | OSAC-1325: switches VAST storage paths to tenant-UID-hash convention | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 | #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 
@@ -730,6 +730,8 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #887 | fulfillment-service | OSAC-2396: StorageTier proto restructure to spec/status pattern | 2026-07-14 |
+| #138 | osac-test-infra | OSAC-1123: CaaS cluster storage E2E test | 2026-07-14 |
 | #79 | enhancement-proposals | OSAC-1332: Design: CaaS Cluster Storage | 2026-07-13 |
 | #384 | osac-installer | OSAC-1908: align installer with storage controller restructuring | 2026-07-13 |
 | #377 | osac-aap | OSAC-1327: hcp_data_plane CaaS StorageClass target | 2026-07-13 |
@@ -773,7 +775,7 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 | 3 | **Storage tier CRD design?** | OSAC-882 assigned to Akshay. New sub-ticket OSAC-1110 (Storage Tier Definition & Private API) created. |
 | 4 | ~~Who writes the storage EP?~~ | **RESOLVED:** Akshay is leading feature/epic planning in Google Doc. Jira tickets being created from doc tabs. |
 | 5 | **Tenant visibility of storage providers?** | CSP admin decides what to expose — could be generic tiers or vendor labels |
-| 6 | **Network connectivity for CaaS storage?** | Even with backend configured, child cluster nodes need network path to storage |
+| 6 | **Network connectivity for CaaS storage?** | **Partially resolved (July 14 meeting):** VIP pools chosen over NAT gateways for storage networking. Open sub-question: VAST support inquiry pending on NAT gateway performance impact (bandwidth, latency, RDMA) — result will confirm whether VIP pools are the correct final decision or if NAT is viable. Per-tenant VIP pool requirements to be defined by Akshay/Will/Ronnie. |
 | 7 | **Billing model for storage?** | Pay-per-tier vs pay-as-you-go vs included. Product decision, not engineering. |
 | 8 | **X tiers × Y tenants scalability?** | Michael raised: "if we have X tiers and Y tenants, that could be a ton of total StorageClasses." May push some optimization toward lazy creation despite onboarding-time decision. Akshay acknowledged: "we will have to identify what part of the storage configuration can wait until the very end." |
 | 9 | **ComputeInstance has no storageTier field?** | Will flagged: no mechanism for users to select storage tier per VM. Currently template-driven only (EP #32). Needs operator PR to add tier field to ComputeInstance or DiskSpec. |
@@ -1269,6 +1271,25 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Assigned **OSAC-1957** to Zoltan: StorageBackend API integration — storage controller should use Backend API (`private.v1.StorageBackends/List`) to determine provisioning path instead of checking AAP availability. There's a `TODO(OSAC-1957)` already in `storage_controller.go`. Depends on fulfillment-service PR #728 (merged June 24).
 - Assigned **OSAC-1992** to Will Gordon: StorageTier API integration — tier definitions from Tier API drive per-tenant StorageClass provisioning. Blocked on fulfillment-service PR #887 (CHANGES_REQUESTED) merging first.
 - Published **WG_Storage_UserFlows_Roadmap** spreadsheet (new external doc) — v0.2 user flows grouped by feature/milestone. To be walked through in storage meeting.
+
+### July 14, 2026 — WG-OSAC-Storage Meeting
+- **Networking decision**: VIP pools chosen over NAT gateways for storage networking (VPC connectivity from tenant cluster nodes to VAST)
+- **VAST inquiry action**: Contact VAST Support about NAT gateway performance impact (bandwidth, latency, RDMA compatibility)
+- **Roy demo**: Demo kind cluster setup for team on Monday (July 20)
+- **Akshay, Will, Ronnie**: Define and prioritize per-tenant VIP pool storage requirements for current milestone
+- **Roy**: Finalize and share OSAC CSI architecture in a Google Doc for team review
+- **OSAC Volumes v0.2 breakdown meeting** rescheduled to July 15 at 10 AM EDT — goal: clear understanding of volumes scope before Akshay formalizes Jira epics
+- Networking document (Dan Manor EP #107) and VAST multi-tenancy consideration document shared as action item references
+
+### July 14, 2026 — fulfillment-service PR #887 merged (StorageTier proto spec/status fix)
+- Roy Golan's PR restructuring StorageTier proto to match spec/status conventions (flagged by Ygal Blum after PR #832 merged with flat structure)
+- Akshay pushed final CodeRabbit fix, Ygal /lgtm'd → **MERGED 2026-07-14**
+- Unblocks OSAC-1992 (Will Gordon's StorageTier integration into the operator)
+- Ygal filed PR #901 (fulfillment-service) — automated `buf lint` check via plugin to enforce OSAC_OBJECT_SHAPE protobuf convention going forward
+
+### July 14, 2026 — Akshay: edge-17 and compute environment guidance (DM to Zoltan)
+- Akshay did not use edge-17 during Zoltan's holiday — state unchanged
+- For upcoming storage work that requires provisioning tenant clusters, edge-17 may be underpowered; Akshay suggests reaching out to Herb Halfin (hhalbfin) for a more powerful machine assignment
 
 ### July 13, 2026 — Roy Golan: CaaS + kind-dev progress
 - Got ClusterOrder working on local ACM (hub) registered in kind-dev

@@ -1,0 +1,79 @@
+[PROCESSED 2026-07-15]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jul 14, 2026
+Date: Tue, 14 Jul 2026 14:04:08 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 14, 2026, 4:02 PM CEST and may  
+contain errors.
+
+
+Summary
+Architecture reviews and storage roadmap discussions led to a consensus on  
+networking infrastructure for milestone development.
+
+
+Networking Strategy and Architecture
+Comparing VIP pools and NAT gateways revealed trade-offs regarding tenant  
+capacity and performance. Adopting VIP pools resolved the primary  
+networking architecture requirements.
+
+Storage Framework and Roadmap
+Outlining storage requirements for the 0.2 milestone prioritized backend  
+integration and Kubernetes API development. Developing internal control  
+plane APIs and specific storage driver configurations addresses critical  
+implementation needs.
+
+
+Suggested next steps
+
+
+
+[The group] Contact VAST Support: Inquire about the performance impact of  
+using a NAT gateway regarding bandwidth, latency, and RDMA compatibility.
+
+[Roy] Demo Kind Setup: Demonstrate the current Kind cluster setup to the  
+team on Monday.
+
+[Akshay, Will, Ronnie] Prioritize Storage Requirements: Collaborate to  
+define and prioritize per-tenant VIP pool storage requirements for the  
+current milestone.
+
+[Akshay] Update Meeting Notes: Attach the networking document and VAST  
+multi-tenancy consideration document to the meeting notes.
+
+[Roy Golan] Share Architecture: Finalize and share the architecture  
+markdown document in a Google Doc for team review and comments.
+
+[The group] Review Networking Document: Review the shared networking  
+document and provide comments or questions as needed.
+
+[Akshay Nadkarni] Reschedule Meeting: Reschedule the user flows discussion  
+meeting for later today or tomorrow to finalize the feature breakdown and  
+Jira epics.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

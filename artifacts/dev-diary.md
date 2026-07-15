@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-07-15
+
+### Active Tickets
+- OSAC-1957: Backend-registration-aware storage provisioning — In Progress; local branch `feat/OSAC-1957` (osac-operator) has 3 commits, no PR yet
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01 (14d, stale by rule but restart is the known plan — see quota-feature-details.md)
+
+### Open PRs
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (kept only as reference, restart in progress via `/prd:ingest OSAC-998`, no action needed)
+
+### Milestones
+- No new milestone changes today
+
+### Notes
+- **Repo refresh**: osac-workspace merged 2 commits from upstream (skills/osac-feature/SKILL.md rewrite), fulfillment-service +39, osac-aap +2, osac-installer +11, osac-test-infra +29, enhancement-proposals +26 commits — all rebased clean. osac-installer showed a harmless stash-pop warning (submodule pointer diffs aren't stashable, not a real conflict).
+- **Resolved since yesterday**: osac-test-infra#138 (CaaS E2E test) merged 2026-07-14 — no longer needs my `/lgtm`.
+- **New**: Akshay commented on OSAC-1957 (Jira, 7/14) — once the Backend API check lands, also remove stub `vast-tenant-config-*` secrets in `osac-installer/scripts/prepare-tenant.sh` (currently `TODO(OSAC-1957)`), and validate all 3 deployment configs (AAP+VAST, AAP+no-VAST, no-AAP) before opening the PR.
+- **Meeting**: "WG - OSAC Storage" Jul 14 (thin Gemini summary) — VIP pools chosen over NAT gateway for tenant storage networking, resolving the open "how do tenant VPCs reach VAST" question from 7/9. Full detail needs `/storage-update`, not captured here. User-flows/Jira-epic-breakdown meeting rescheduled to today as "OSAC Volumes for v0.2 - Work Breakdown" (Akshay, 4-4:30pm CEST).
+- **Inbox**: ACM-37727 assigned to zszabo by Liat Gamliel (Assisted Installer/ACM project, not OSAC — outside normal scope, worth a quick look). osac-installer fork's scheduled "Bump submodules" GitHub Action failed on `088ad12`.
+
+---
+
 ## 2026-07-14
 
 ### Active Tickets
