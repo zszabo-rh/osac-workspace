@@ -145,6 +145,13 @@ rules:
     # additional-placeholders: []
 
   # Detect instructions that should be automated as hooks instead of prose instructions
+  # The buf-lint suggestion this rule raises on protobuf-conventions.md is
+  # already covered: bootstrap.sh installs a pre-commit hook (buf-lint,
+  # golangci-lint) into fulfillment-service and other component repos that
+  # ship a .pre-commit-config.yaml. A Claude Code PostToolUse hook would be
+  # additive at best (git-level enforcement already runs) and would only
+  # cover Claude Code sessions, not Cursor/Gemini CLI — accepted as info,
+  # not pursued further.
   content-hook-candidate:
     enabled: auto
     severity: info
@@ -187,6 +194,11 @@ rules:
     severity: warning
 
   # Detect bare path-like strings not wrapped in markdown link syntax
+  # OSAC's skill authoring conventions (AGENTS.md) intentionally keep
+  # workspace-root and cross-component paths as backtick text, not markdown
+  # links — reserving links for paths inside a skill's own directory. The
+  # remaining info-level violations on AGENTS.md / .claude/rules/*.md /
+  # cross-component paths are this accepted exception, not an oversight.
   content-unlinked-internal-reference:
     enabled: auto
     severity: info
