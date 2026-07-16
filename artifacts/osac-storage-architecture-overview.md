@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-07-15
+**Last updated:** 2026-07-16
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -647,7 +647,7 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1332 | CaaS Cluster Storage (v0.1) | **Closed** | Akshay Nadkarni | Closed July 11 (v0.1 complete). 3 follow-up PRs still open. |
 | OSAC-1123 | CaaS Tenant Storage Setup | **Closed** | Akshay Nadkarni | Closed July 12. Implementation merged (PR #324, #333, #832). |
 | OSAC-48 | Independent Storage Volumes | New | Unassigned | Full volume lifecycle API. Under OSAC-984 |
-| OSAC-1957 | StorageBackend API integration into storage controller | **New** | Zoltan Szabo | Replace AAP-check heuristic with Backend API (`private.v1.StorageBackends/List`). TODO already in storage_controller.go. Assigned 2026-07-13. |
+| OSAC-1957 | StorageBackend API integration into storage controller | **Code Review** | Zoltan Szabo | PR #354 open, CodeRabbit APPROVED, waiting for human reviewer. Edge-17 validated (all 3 routing paths). |
 | OSAC-1992 | StorageTier API integration | **In Progress** | Will Gordon | Tier definitions from Tier API drive per-tenant SC provisioning. **Unblocked** — PR #887 merged 2026-07-14. |
 | OSAC-2519 | Storage Framework UI | **New** | Unassigned | UI work for Storage Framework (StorageBackend/StorageTier admin screens). Added 2026-07-14. |
 
@@ -722,6 +722,7 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
+| #354 | osac-operator | OSAC-1957: use Backend API to determine storage provisioning path | Open — **APPROVED** (CodeRabbit). Zoltan's PR. Waiting for human reviewer /lgtm. | 2026-07-15 |
 | #901 | fulfillment-service | Add buf lint OSAC_OBJECT_SHAPE enforcement for proto spec/status convention | Open — Ygal Blum. Adds automated protobuf structure check. | 2026-07-14 |
 | #373 | osac-aap | OSAC-1325: switches VAST storage paths to tenant-UID-hash convention | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 | #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
@@ -730,6 +731,7 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #422 | osac-aap | OSAC-2522: Fix ocp_virt_vm AAP role for removed cores/memory_gib fields | 2026-07-15 |
 | #887 | fulfillment-service | OSAC-2396: StorageTier proto restructure to spec/status pattern | 2026-07-14 |
 | #138 | osac-test-infra | OSAC-1123: CaaS cluster storage E2E test | 2026-07-14 |
 | #79 | enhancement-proposals | OSAC-1332: Design: CaaS Cluster Storage | 2026-07-13 |
@@ -788,6 +790,7 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 | 16 | **StorageBackend lifecycle (soft-delete vs hard-delete)?** | June 16: Roy raised in wg-osac-storage. Will: soft-delete for retiring backends without nuking resources. Akshay: must define backend lifecycle. Consensus: block deletion if in use by any tier. Maintenance is a separate state. |
 | 17 | **NVIDIA NCP storage requirements?** | June 16: Rom shared [NVIDIA requirements](https://docs.nvidia.com/dsx/ncp/nvidia-requirements-for-ai-clouds/storage-requirements). June 17: NCP meeting held. Akshay analyzed [NVIDIA ai-cloud-validation](https://github.com/NVIDIA/ai-cloud-validation) — 4 CSI validators + S3 test. Storage tests passed using LVMO. Avishay: "NCP doesn't affect the OSAC storage roadmap much." |
 | 18 | ~~JobType enum leaking to all CRDs?~~ | **RESOLVED (June 19):** Option C agreed — rename `status.jobs` → `status.provisioningJobs` on all 9 CRDs, add lifecycle-specific arrays (`storageBackendJobs`, `clusterStorageJobs`) on Tenant and ClusterOrder. Implemented on PR #299, E2E validated. [Alternatives doc](https://docs.google.com/document/d/1obxCZSWvdy42B8Ig55UQbpSQpSsRzTv-gsdkJXYG6UQ). |
+| 20 | **OSAC CSI Meta-Driver: RBAC and per-tenant credential model?** | July 15 OSAC Volumes meeting: how does the OSAC CSI driver authorize users within tenant clusters? Who can create volumes, and how are per-tenant credentials isolated and injected dynamically? Roy to design. Also: does authentication to guest CaaS clusters need to be ongoing (Will's GitOps concern) or one-shot? |
 | 19 | **Cinder CSI PoC: iSCSI node connection failure?** | June 25: Roy's PoC gets through Cinder gateway, NetApp plugin, policy endpoint, PVC→volume, pod attach — but iSCSI login fails on node. Workers are OpenStack VMs, nova connects at hypervisor; no iscsi on node. Roy: could patch node part but "it will stop being a Cinder CSI." Avishay: "the whole reason we're using cinder csi is for the node plugin." Fundamental topology mismatch. |
 
 ---
@@ -1272,6 +1275,18 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Assigned **OSAC-1992** to Will Gordon: StorageTier API integration — tier definitions from Tier API drive per-tenant StorageClass provisioning. Blocked on fulfillment-service PR #887 (CHANGES_REQUESTED) merging first.
 - Published **WG_Storage_UserFlows_Roadmap** spreadsheet (new external doc) — v0.2 user flows grouped by feature/milestone. To be walked through in storage meeting.
 
+### July 15, 2026 — OSAC Volumes for v0.2: Work Breakdown Meeting
+- **CaaS prioritized over VMaaS** for OSAC Volumes v0.2 scope
+- **OSAC CSI Meta-Driver** architecture confirmed: new `osac-csi-driver` repo; CSI Controller + Node Plugin + gRPC Proxy routing to vendor CSI backends
+- **Controller on hub cluster**, vendor CSI node plugin via DaemonSet on tenant clusters
+- **Storage Logic Layer** in fulfillment-service: Volume API (gRPC+REST), Tier Resolution, Policy Engine, Credential Manager, Volume Inventory, Quota Lifecycle
+- Roy shared CSI architecture doc (see Tracked External Docs) — status: Draft, for team work breakdown
+- Key open questions: RBAC strategy for volume authorization within tenant clusters; per-tenant credential management; quota integration; whether vendor CSI controllers go on hub or alongside storage logic layer
+- Will: raised GitOps as a model for CaaS cluster reconciliation — requires ongoing authentication to guest clusters
+- **Action items**: Roy to design RBAC + decide CSI controller location + update AAP template; Ronnie+Akshay to define quota management framework; someone to discuss quota PRD with Zoltan (OSAC-333); Akshay to schedule follow-up
+- **Meeting continues July 17** — discussion on workflows and design components incomplete
+- Recording: https://drive.google.com/file/d/1frwtGOu1RZj6YLCG-OdrTQoqRNmcsVec/view
+
 ### July 14, 2026 — WG-OSAC-Storage Meeting
 - **Networking decision**: VIP pools chosen over NAT gateways for storage networking (VPC connectivity from tenant cluster nodes to VAST)
 - **VAST inquiry action**: Contact VAST Support about NAT gateway performance impact (bandwidth, latency, RDMA compatibility)
@@ -1337,3 +1352,4 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 | `1bKa8-fm7lIgwp0yBA2GeKDd0dg165p1tKC-nNzPIui8` | Spreadsheet | Storage planning spreadsheet | 2026-05-19 |
 | `1MF-1xoxGWJ6tamlvLos_0fwhW3U55tcgB2R6ZroAjcY` | Google Doc | VAST CSI driver credential bug writeup | 2026-05-19 |
 | `1kwpUdOUeCI8qVtDN1iL1iu-M1a7N_ZSCso-Rt_KpVKE` | Spreadsheet | WG_Storage_UserFlows_Roadmap — v0.2 user flows by feature/milestone | 2026-07-14 |
+| `1GCWco97kWNwFwfbC4TAoyXIxPSMO4CNyqFKv_lQczZU` | Google Doc | Roy Golan: OSAC CSI Meta-Driver architecture (Draft) — multi-vendor CSI routing, Volume API design, per-tenant credentials | 2026-07-15 |

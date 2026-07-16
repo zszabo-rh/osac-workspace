@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-07-16
+
+### Active Tickets
+- OSAC-1957: Backend-registration-aware storage provisioning — status "Review"; PR #354 (osac-operator) open, APPROVED, CI green, tide PENDING
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01 (still no restart via `/prd:ingest OSAC-998`)
+
+### Open PRs
+- osac-operator#354 (OSAC-1957): APPROVED, all checks SUCCESS, tide PENDING — should merge on its own
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (kept only as reference)
+
+### Milestones
+- v0.2 planning phase deadline: 2026-07-31 (15 days away)
+
+### Notes
+- **Repo refresh**: osac-workspace merged 5 commits from upstream (protobuf-conventions rewrite pointing to fulfillment-service/docs/API.md, design-review skill tweak, .gitignore). All component repos rebased clean (fulfillment-service +26, osac-aap +12, osac-installer +10, osac-test-infra +12, enhancement-proposals +1). osac-installer showed a harmless stash-pop false-positive (submodule pointers transiently dirty during fetch — verified `git stash list` empty, nothing lost).
+- **Resolved since yesterday**: OSAC-1957 commitment gap closed — PR #354 is up, approved, CI green (yesterday it was still 3 unpushed local commits).
+- **Meeting processed**: "OSAC Volumes for v0.2 - Work Breakdown" (Jul 15, thin Gemini summary) — CaaS reaffirmed over VMaaS for v0.2; controller deployment confirmed on hub cluster; RBAC direction is creator's-role-based; DaemonSets used for volume attachment; CSI driver placement (hub vs. storage-logic-layer) still open (Roy's call); new ask to consult the CAS (Cluster-as-a-Service) team on auth/forgery/network. Follow-up "OSAC Volumes Architecture (Contd.)" meeting scheduled today 9:30-10:30am EDT — **Zoltan's calendar shows it declined**, worth checking if intentional.
+- **Quota-relevant**: Roy Golan assigned Zoltan an action item in his Google Doc "osac-csi-meta-driver-design.md" (comment + Slack post in wg-osac-storage, both Jul 15) asking him to mention the quota PRD there. Not yet actioned — second external ask (after Vladik's) to reference quota status before a PRD exists.
+- **Slack (wg-osac-eng)**: Eranco posted a workspace update summary — AGENTS.md consolidation, auto-update on session start, PRD/design template changes, quick-fix skill added. Already covered by this morning's repo refresh (upstream merge). PR dashboard bot: 26 need review, 14 CI failing, 15 with conflicts, 20 stale (7+d) — up slightly from yesterday.
+- **Slack (wg-osac-storage)**: wgordon linked an OSAC Core thread on tenant-owned CaaS cluster ongoing access/auth (relevant to today's RBAC/CAS discussion). Ygal Blum asked how Storage Tier maps to StorageClass per workload cluster (VMaaS split of root/data volumes) — team question, not assigned to Zoltan.
+- **Inbox**: Roy Golan's Google Doc share + comment (see above). JP Jung's PQC-in-OCP note and the k8s 1.36 bump note are general FYI, not OSAC-specific action items.
+
+---
+
 ## 2026-07-15
 
 ### Active Tickets
