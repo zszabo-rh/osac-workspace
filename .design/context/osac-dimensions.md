@@ -131,19 +131,19 @@ What UI support does the feature require in the osac-ui web console (bootstrappe
 
 #### Jira labeling and component conventions
 
-When a feature requires UI work, create a `[UI]` epic under the Feature with
-one Task per affected persona. Apply labels and components as follows:
+When a feature requires UI work, add UI tasks to the feature's regular epics
+(not a separate UI epic). Each UI task for an affected persona gets a label
+and an extra component so it appears in the right Jira filter:
 
 | Persona | Label | Components |
 |---------|-------|------------|
-| Cloud Infrastructure Admin | `ENCLAVE-UI-<fixVersion>` | Feature components + `Enclave` |
-| Cloud Provider Admin | `OSAC-UI-<fixVersion>` | Feature components + `UI` |
-| Tenant Admin | `OSAC-UI-<fixVersion>` | Feature components + `UI` |
-| Tenant User | `OSAC-UI-<fixVersion>` | Feature components + `UI` |
+| Cloud Infrastructure Admin | `ENCLAVE-UI-<fixVersion>` | Epic's components + `Enclave` |
+| Cloud Provider Admin | `OSAC-UI-<fixVersion>` | Epic's components + `UI` |
+| Tenant Admin | `OSAC-UI-<fixVersion>` | Epic's components + `UI` |
+| Tenant User | `OSAC-UI-<fixVersion>` | Epic's components + `UI` |
 
 - The `<fixVersion>` comes from the parent Feature's `fixVersions` field (e.g., `0.2`).
-- The `[UI]` epic itself inherits the Feature's components without adding `UI` or `Enclave`.
-- Mark personas not affected by the feature as "skip" — no Task is created for them.
+- Only create UI tasks for personas affected by the feature.
 
 These labels feed the per-component Jira filters used to track UI work across
 services (CaaS, BMaaS, VMaaS, Core, Enclave, Connectivity&Fabric, Storage).
