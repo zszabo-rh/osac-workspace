@@ -129,24 +129,22 @@ What UI support does the feature require in the osac-ui web console (bootstrappe
 - Does the feature require new UI components or extend existing ones in osac-ui?
 - Which Fulfillment API resources and catalog entries need console representation? (osac-ui uses the Fulfillment Public API via proxy — not direct CRD access)
 
-#### Jira labeling and component conventions
+#### Jira component conventions
 
 When a feature requires UI work, add UI tasks to the feature's regular epics
-(not a separate UI epic). Each UI task for an affected persona gets a label
-and an extra component so it appears in the right Jira filter:
+(not a separate UI epic). Each UI task for an affected persona gets an extra
+component so it appears in the right Jira filter:
 
-| Persona | Label | Components |
-|---------|-------|------------|
-| Cloud Infrastructure Admin | `ENCLAVE-UI-<fixVersion>` | Epic's components + `Enclave` |
-| Cloud Provider Admin | `OSAC-UI-<fixVersion>` | Epic's components + `UI` |
-| Tenant Admin | `OSAC-UI-<fixVersion>` | Epic's components + `UI` |
-| Tenant User | `OSAC-UI-<fixVersion>` | Epic's components + `UI` |
+| Persona | Components |
+|---------|------------|
+| Cloud Infrastructure Admin | Epic's components + `Enclave` |
+| Cloud Provider Admin | Epic's components + `UI` |
+| Tenant Admin | Epic's components + `UI` |
+| Tenant User | Epic's components + `UI` |
 
-- The `<fixVersion>` comes from the parent Feature's `fixVersions` field (e.g., `0.2`).
-- Only create UI tasks for personas affected by the feature.
-
-These labels feed the per-component Jira filters used to track UI work across
-services (CaaS, BMaaS, VMaaS, Core, Enclave, Connectivity&Fabric, Storage).
+Only create UI tasks for personas affected by the feature. The per-component
+Jira filters track UI work across services (CaaS, BMaaS, VMaaS, Core,
+Enclave, Connectivity&Fabric, Storage) using these component assignments.
 
 ## User-Facing Behavior
 
