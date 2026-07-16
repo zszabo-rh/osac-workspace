@@ -42,13 +42,14 @@ rules:
 
   # Skill directories should only contain recognized subdirectories (stricter than spec)
   agentskill-structure:
-    enabled: false
+    enabled: auto
     severity: warning
-    # allowed_dirs:
-    #   - assets
-    #   - evals
-    #   - references
-    #   - scripts
+    allowed_dirs:
+      - assets
+      - evals
+      - references
+      - scripts
+      - steps
 
   # Every bundled skill file should be referenced from SKILL.md, directly or transitively
   agentskill-unreferenced-files:
@@ -217,7 +218,7 @@ rules:
     severity: warning
     limits:
       skill:
-        warn: 7000
+        warn: 5000
         error: 10000
     #   command:
     #     warn: 2000

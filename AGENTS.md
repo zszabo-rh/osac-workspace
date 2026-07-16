@@ -233,6 +233,8 @@ Skillsaw enforces [Agent Skills](https://agentskills.io/specification) structure
 
 OSAC skills are workspace operators, not isolated skill bundles:
 
+- **Context budget:** Keep `SKILL.md` body under **5,000 tokens** ([Agent Skills spec](https://agentskills.io/specification) Tier 2). Move reference material to `references/` or `steps/` and link from `SKILL.md` with explicit **read before** callouts at each workflow step.
+
 | Reference type | Format | Example |
 |----------------|--------|---------|
 | File inside the skill directory | Markdown link ([Agent Skills spec](https://agentskills.io/specification)) | `[preflight.md](steps/preflight.md)` |
