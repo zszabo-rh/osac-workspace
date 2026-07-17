@@ -3,9 +3,9 @@
 
 input=$(cat)
 
-# Run the user's global statusline first
-if [[ -f ~/.claude/statusline.sh ]]; then
-  echo "$input" | bash ~/.claude/statusline.sh
+# Run the user's global statusline first (ccstatusline, per ~/.claude/settings.json)
+if command -v ccstatusline >/dev/null 2>&1; then
+  echo "$input" | ccstatusline
 fi
 
 # Colors
