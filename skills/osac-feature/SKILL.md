@@ -114,6 +114,7 @@ Ask explicitly — do not infer from summary text (e.g. `(0.2)` in the title).
    - A valid release name from the suggestion list
    - `backlog` when the user explicitly says backlog, none, or skip
 4. On `invalid` (including empty input), ask again — do not default to backlog.
+5. On `lookup_failed` (Jira release list error), stop and report — do not treat as invalid input.
 
 Only the Feature **chooses** `fixVersion` at the confirm gate. The bootstrap epic
 receives a **copy** when the Feature version is set (not backlog). Gate tasks

@@ -44,49 +44,105 @@ parse_plain_keys() {
 
 # Collect keys for JQL into variables (bash 3.2 / zsh — no mapfile).
 # Usage: read keys from list_keys_for_jql "…" into FIRST_KEY and KEY_COUNT.
+# On jira-cli failure, returns non-zero — callers must stop before create/edit.
+#
+# jira-cli exits 1 for BOTH genuine failures (bad JQL, network/auth errors)
+# AND a valid query that simply matches nothing ("No result found for given
+# query…" on stderr) — verified against jira-cli v1.7.0. Treat the latter as
+# a normal empty result, not a failure, or every first-time duplicate check
+# (which by definition finds nothing) would incorrectly abort create.
 list_keys_for_jql() {
-  jira issue list -q "$1" --plain | parse_plain_keys
+  local jql=$1 out err rc
+  out=$(new_temp osac-jira-list-out)
+  add_temp "$out"
+  err=$(new_temp osac-jira-list-err)
+  add_temp "$err"
+  jira issue list -q "$jql" --plain >"$out" 2>"$err"
+  rc=$?
+  if [ "$rc" -ne 0 ] && ! grep -qi "no result found" "$err"; then
+    echo "Jira issue list failed for: ${jql}" >&2
+    cat "$err" >&2
+    return 1
+  fi
+  parse_plain_keys <"$out"
 }
 
 collect_keys_from_jql() {
-  local jql=$1
+  local jql=$1 out k
   FIRST_KEY=""
   KEY_COUNT=0
-  local k
+  out=$(new_temp osac-jira-keys-collect)
+  add_temp "$out"
+  # Redirect list_keys_for_jql output to a temp file — do not use command
+  # substitution ($(…)), which runs in a subshell and prevents add_temp inside
+  # list_keys_for_jql from registering with the parent shell's EXIT trap.
+  if ! list_keys_for_jql "$jql" >"$out"; then
+    return 1
+  fi
   while IFS= read -r k; do
     [ -z "$k" ] && continue
     KEY_COUNT=$((KEY_COUNT + 1))
-    FIRST_KEY=$k
-  done < <(list_keys_for_jql "$jql")
+    [ -n "$FIRST_KEY" ] || FIRST_KEY=$k
+  done <"$out"
 }
 ```
 
 ## Fix version helpers
 
 ```bash
+# Portable version sort (GNU sort -V or Homebrew gsort). macOS BSD sort lacks -V.
+version_sort_desc() {
+  if sort -V </dev/null >/dev/null 2>&1; then
+    sort -Vr
+  elif command -v gsort >/dev/null 2>&1; then
+    gsort -Vr
+  else
+    echo "version sort unavailable — install GNU coreutils (gsort)" >&2
+    return 1
+  fi
+}
+
 # Fetch OSAC fix-version candidates (exclude 0.0 — pre-team legacy bucket —
 # and the literal "Backlog" release, which collides with this skill's own
 # "backlog" sentinel for "no fix version"; see validate_fix_version).
 # jira release list does NOT support useful --plain output; parse tab format.
 # Columns: ID, NAME, RELEASED, DESCRIPTION
-# Output: one version name per line, newest first (sort -Vr).
+# Output: one version name per line, newest first.
+# Returns non-zero on Jira or sort failure — not the same as an empty list.
 list_fix_version_suggestions() {
-  jira release list -p OSAC 2>/dev/null \
-    | awk -F'\t' 'NR>1 && $2 != "0.0" && tolower($2) != "backlog" && $3 == "false" {print $2}' \
-    | sort -Vr
+  local out err
+  out=$(new_temp osac-jira-release-out)
+  add_temp "$out"
+  err=$(new_temp osac-jira-release-err)
+  add_temp "$err"
+  if ! jira release list -p OSAC >"$out" 2>"$err"; then
+    echo "Jira release list failed:" >&2
+    cat "$err" >&2
+    return 1
+  fi
+  awk -F'\t' 'NR>1 && $2 != "0.0" && tolower($2) != "backlog" && $3 == "false" {print $2}' <"$out" \
+    | version_sort_desc
 }
 
 # Validate user-chosen version. Returns: backlog | <version> | invalid
 # backlog only when user explicitly says backlog/none/skip (not empty string).
+# Returns 1 with "lookup_failed" on stdout when release list fails.
 validate_fix_version() {
-  local choice
-  choice=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+  local trimmed choice list_out
+  trimmed=$(printf '%s' "$1" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+  choice=$(printf '%s' "$trimmed" | tr '[:upper:]' '[:lower:]')
   case "$choice" in
     backlog|none|skip) echo "backlog"; return 0 ;;
     '') echo "invalid"; return 0 ;;
   esac
-  if list_fix_version_suggestions | grep -Fxq "$1"; then
-    echo "$1"
+  list_out=$(new_temp osac-jira-fixver-list)
+  add_temp "$list_out"
+  if ! list_fix_version_suggestions >"$list_out"; then
+    echo "lookup_failed"
+    return 1
+  fi
+  if grep -Fxq "$trimmed" <"$list_out"; then
+    echo "$trimmed"
   else
     echo "invalid"
   fi
@@ -133,9 +189,13 @@ apply_bootstrap_epic_metadata() {
 
   [ "$fix_version" = "backlog" ] && return 0
 
-  local epic_version_count
-  epic_version_count=$(jira issue view "$epic_key" --raw 2>/dev/null \
-    | jq -r '[.fields.fixVersions[]?.name] | length')
+  local epic_version_count raw
+  if ! raw=$(jira issue view "$epic_key" --raw 2>>"$err"); then
+    echo "Could not read ${epic_key} for fix version check — set manually if needed" >&2
+    cat "$err" >&2
+    return 0
+  fi
+  epic_version_count=$(printf '%s' "$raw" | jq -r '[.fields.fixVersions[]?.name] | length')
   [ "${epic_version_count:-0}" -gt 0 ] && return 0
 
   if ! jira issue edit "$epic_key" --fix-version "$fix_version" --no-input 2>>"$err" </dev/null; then
@@ -175,6 +235,13 @@ require_osac_key "$KEY" "Feature" "$OUT" "$ERR"
 ## Duplicate search pattern
 
 ```bash
-collect_keys_from_jql "parent = ${EPIC_KEY} AND type = Task AND summary = \"PRD\""
+collect_keys_from_jql "parent = ${EPIC_KEY} AND type = Task AND summary = \"PRD\"" \
+  || { echo "Duplicate-check lookup failed — stopping before create" >&2; exit 1; }
 # KEY_COUNT == 1 → reuse FIRST_KEY; KEY_COUNT > 1 → ask user; 0 → create
 ```
+
+**Always check the return value.** `collect_keys_from_jql` sets `KEY_COUNT=0`
+before running the lookup, so a failed `jira issue list` looks identical to
+"no duplicate found" if the caller doesn't check the exit status — that would
+silently defeat the failure propagation above and risk creating a duplicate
+issue on a transient Jira error.

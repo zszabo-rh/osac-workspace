@@ -3,8 +3,8 @@
 **Read this file when creating the Feature issue** (after user confirms the gate).
 
 The User Stories section must include a subsection for each OSAC persona
-defined in `osac-docs/personas.md` (local clone name per `bootstrap.sh`;
-canonical source: [osac-project/docs/personas.md](https://github.com/osac-project/docs/blob/main/personas.md)).
+defined in `osac-docs/personas.md` (canonical source:
+[osac-project/docs/personas.md](https://github.com/osac-project/docs/blob/main/personas.md)).
 For each persona, either write an outcome-focused story ("As a X, I want Y
 so that Z") or explicitly mark the persona as not affected by this feature.
 
@@ -49,8 +49,7 @@ each `###` persona heading so jira-cli preserves separate subsections in Jira.
 
 ## Duplicate check
 
-Exact summary match, project-scoped — Features have no parent to scope by
-(unlike the bootstrap epic and gate tasks):
+Exact summary match, project-scoped (Features have no parent):
 
 ```bash
 collect_keys_from_jql "project = OSAC AND type = Feature AND summary = \"${FEATURE_SUMMARY}\"" \
@@ -103,7 +102,7 @@ Gate tasks never receive `--fix-version`. Use `$BOOTSTRAP_FIX_VERSION` (not
 `$FIX_VERSION`) when applying bootstrap epic metadata below — it reflects
 whether the Feature edit actually succeeded.
 
-### Assign if specified
+## Assign if specified
 
 If user specified an assignee:
 

@@ -18,7 +18,8 @@ Exact summary, scoped to parent; also check **orphan** epics (no parent) from a
 failed create-then-parent run:
 
 ```bash
-collect_keys_from_jql "parent = ${KEY} AND type = Epic AND summary = \"${EPIC_SUMMARY}\""
+collect_keys_from_jql "parent = ${KEY} AND type = Epic AND summary = \"${EPIC_SUMMARY}\"" \
+  || { echo "Bootstrap epic duplicate-check failed — stopping before create" >&2; exit 1; }
 if [ "$KEY_COUNT" -gt 1 ]; then
   echo "Multiple bootstrap epics under ${KEY} — ask user which to use" >&2
   exit 1
@@ -26,7 +27,8 @@ fi
 if [ "$KEY_COUNT" -eq 1 ]; then
   EPIC_KEY=$FIRST_KEY
 else
-  collect_keys_from_jql "type = Epic AND summary = \"${EPIC_SUMMARY}\" AND parent is EMPTY"
+  collect_keys_from_jql "project = OSAC AND type = Epic AND summary = \"${EPIC_SUMMARY}\" AND parent is EMPTY" \
+    || { echo "Orphan epic duplicate-check failed — stopping before create" >&2; exit 1; }
   if [ "$KEY_COUNT" -gt 1 ]; then
     echo "Multiple orphan bootstrap epics — ask user which to use" >&2
     exit 1
@@ -37,6 +39,9 @@ else
   fi
 fi
 ```
+
+A failed lookup must stop the workflow here — falling through with `KEY_COUNT=0`
+would look identical to "no duplicate found" and risk creating a duplicate epic.
 
 If `EPIC_KEY` is set from duplicate search, skip epic create below; run **Set
 parent** if parent is not yet `"${KEY}"`, then verify before creating tasks.
@@ -78,9 +83,24 @@ Run when parent is not yet `"${KEY}"`:
 ```bash
 EPIC_ERR=$(new_temp osac-jira-epic-err)
 add_temp "$EPIC_ERR"
-PARENT=$(jira issue view "${EPIC_KEY}" --raw | jq -r '.fields.parent.key // empty')
+EPIC_VIEW=$(new_temp osac-jira-epic-view)
+add_temp "$EPIC_VIEW"
+if ! jira issue view "${EPIC_KEY}" --raw >"$EPIC_VIEW" 2>>"$EPIC_ERR"; then
+  echo "Could not read ${EPIC_KEY} for parent check — stopping before edit" >&2
+  cat "$EPIC_ERR" >&2
+  exit 1
+fi
+if ! jq -e . <"$EPIC_VIEW" >/dev/null 2>>"$EPIC_ERR"; then
+  echo "Could not parse ${EPIC_KEY} JSON — stopping before edit" >&2
+  exit 1
+fi
+PARENT=$(jq -r '.fields.parent.key // empty' <"$EPIC_VIEW")
 if [ "$PARENT" != "$KEY" ]; then
-  jira issue edit "${EPIC_KEY}" -P "${KEY}" --no-input 2>>"$EPIC_ERR" </dev/null
+  if ! jira issue edit "${EPIC_KEY}" -P "${KEY}" --no-input 2>>"$EPIC_ERR" </dev/null; then
+    echo "Parent edit failed for ${EPIC_KEY} — stopping" >&2
+    cat "$EPIC_ERR" >&2
+    exit 1
+  fi
 fi
 ```
 
@@ -91,10 +111,28 @@ Allow up to 3 minutes for parent edit (smoke test: ~4s with `</dev/null`).
 Re-check once after 30s if still empty — edit may lag:
 
 ```bash
-PARENT=$(jira issue view "${EPIC_KEY}" --raw | jq -r '.fields.parent.key // empty')
+if ! jira issue view "${EPIC_KEY}" --raw >"$EPIC_VIEW" 2>>"$EPIC_ERR"; then
+  echo "Could not re-read ${EPIC_KEY} for parent verify — stopping" >&2
+  cat "$EPIC_ERR" >&2
+  exit 1
+fi
+if ! jq -e . <"$EPIC_VIEW" >/dev/null 2>>"$EPIC_ERR"; then
+  echo "Could not parse ${EPIC_KEY} JSON — stopping" >&2
+  exit 1
+fi
+PARENT=$(jq -r '.fields.parent.key // empty' <"$EPIC_VIEW")
 if [ "$PARENT" != "$KEY" ]; then
   sleep 30
-  PARENT=$(jira issue view "${EPIC_KEY}" --raw | jq -r '.fields.parent.key // empty')
+  if ! jira issue view "${EPIC_KEY}" --raw >"$EPIC_VIEW" 2>>"$EPIC_ERR"; then
+    echo "Could not re-read ${EPIC_KEY} after parent-edit wait — stopping" >&2
+    cat "$EPIC_ERR" >&2
+    exit 1
+  fi
+  if ! jq -e . <"$EPIC_VIEW" >/dev/null 2>>"$EPIC_ERR"; then
+    echo "Could not parse ${EPIC_KEY} JSON after wait — stopping" >&2
+    exit 1
+  fi
+  PARENT=$(jq -r '.fields.parent.key // empty' <"$EPIC_VIEW")
 fi
 ```
 
