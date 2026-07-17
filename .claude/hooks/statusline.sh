@@ -11,7 +11,7 @@ input=$(cat)
 if command -v jq >/dev/null 2>&1 && [[ -f "${HOME}/.claude/settings.json" ]]; then
   USER_STATUSLINE_CMD=$(jq -r '.statusLine.command // empty' "${HOME}/.claude/settings.json" 2>/dev/null)
   if [[ -n "${USER_STATUSLINE_CMD}" ]]; then
-    echo "$input" | bash -c "${USER_STATUSLINE_CMD}"
+    printf "%s\n" "$input" | bash -c "${USER_STATUSLINE_CMD}"
   fi
 fi
 
