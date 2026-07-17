@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-07-16
+**Last updated:** 2026-07-17
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -1274,6 +1274,15 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Assigned **OSAC-1957** to Zoltan: StorageBackend API integration — storage controller should use Backend API (`private.v1.StorageBackends/List`) to determine provisioning path instead of checking AAP availability. There's a `TODO(OSAC-1957)` already in `storage_controller.go`. Depends on fulfillment-service PR #728 (merged June 24).
 - Assigned **OSAC-1992** to Will Gordon: StorageTier API integration — tier definitions from Tier API drive per-tenant StorageClass provisioning. Blocked on fulfillment-service PR #887 (CHANGES_REQUESTED) merging first.
 - Published **WG_Storage_UserFlows_Roadmap** spreadsheet (new external doc) — v0.2 user flows grouped by feature/milestone. To be walked through in storage meeting.
+
+### July 16, 2026 — OSAC Volumes Architecture (Contd.)
+- **1 StorageClass per tier per cluster** — consensus reached; maintains consistency across clusters
+- **CSI calls bypass standard creation logic** — all storage requests go directly via RPC to fulfillment-service storage logic layer
+- **Separate `osac-csi-driver` repo confirmed** — Roy to create; driver deployed with an **operator** (not just Helm chart) for enterprise certification requirements
+- **Development structure**: epics for demoable deliverables — storage volumes epic and private Volume API epic separately
+- **Monday July 20 meeting** scheduled — core team to discuss storage control plane service requirements; GitOps vs ACM vs AAP reconciliation also on agenda (Will added it)
+- **Action items**: Roy to create CSI repo, document VM+volume creation workflow, write high-level design proposal for storage control plane; Akshay to draft Jira epics from §7 of work breakdown, schedule Monday meeting, update user flows with day-zero storage config notes
+- **Quota workgroup clarified** (in wg-osac-storage thread): Ronnie asked which WG owns quota; Zoltan replied OSAC-Metering; Avishay confirmed "this is a service that the metering WG should provide, covering all OSAC resources"
 
 ### July 15, 2026 — OSAC Volumes for v0.2: Work Breakdown Meeting
 - **CaaS prioritized over VMaaS** for OSAC Volumes v0.2 scope

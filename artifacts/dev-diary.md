@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-07-17
+
+### Active Tickets
+- OSAC-1957: Backend-registration-aware storage provisioning — status "Review"; PR #354 (osac-operator) still APPROVED/CI green, tide still PENDING (2nd day)
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01 (16d, stale by rule); restart via `/prd:ingest OSAC-998` still not kicked off
+
+### Open PRs
+- osac-operator#354 (OSAC-1957): APPROVED, all checks SUCCESS, tide still PENDING — no action needed, just hasn't landed yet
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (kept only as reference, no action)
+
+### Milestones
+- v0.2 planning phase deadline: 2026-07-31 (14 days away)
+
+### Notes
+- **Repo refresh**: osac-workspace merged 18 commits from upstream (skillsaw CI workflows added, Jira/report-bug/osac-feature skill rewrites). All component repos rebased/merged clean. osac-installer showed the same harmless stash-pop false-positive as before (submodule pointers transiently dirty; `git stash list` confirmed empty, nothing lost).
+- **Meeting processed**: "OSAC Volumes Architecture (Contd.)" (Jul 16, thin Gemini summary, follow-on to Jul 15 work-breakdown meeting) — new decisions: one StorageClass per tier; storage requests bypass standard creation logic via direct RPC (matches Roy's CSI proxy PoC direction); **separate new repo planned for the OSAC CSI driver**, deployed with its own operator for enterprise/cert requirements. Jira to be restructured into distinct epics (storage volumes vs. private volume APIs). Open items: reconciliation tool choice (GitOps/ACM/AAP) and whether single-hub-cluster assumption holds at scale. Core-team session proposed for Monday 2026-07-20 on control-plane requirements.
+- **Quota WG question resolved (Slack, wg-osac-storage thread, 2026-07-16)**: Ronnie Lazar asked which workgroup owns the Quota Service; Zoltan and Avishay confirmed it falls under **OSAC-Metering** (roster responsibilities: Observability, Metering, Billing, Quota). Zoltan also restated quota status in-thread: on hold pending metering foundation (now merged, but storage metering deferred to future PRDs), two prior EP attempts obsolete, restarting from blank slate, **targeted for v0.3** (nothing quota needs to land in v0.2). No further action needed — question is closed.
+- **Heads up for the quota PRD restart**: Vitaliy flagged (wg-osac-eng, 2026-07-16) that the `/prd` skill's draft phase defaults the risk "Owner" field to the author's personal name instead of a team/role, inconsistent with every published OSAC PRD. Worth checking whether this has been fixed before running `/prd:ingest OSAC-998` — could otherwise put "Zoltan Szabo" in the quota PRD's risk-owner fields.
+- **Slack (wg-osac-eng)**: PR dashboard bot (2026-07-16 post) — 26 need review, 10 CI failing, 11 with conflicts, 18 stale (7+d), trending down from the numbers in yesterday's diary entry. Haim Tayrie opened enhancement-proposals#121 (OSAC-1330 design) for review — not assigned to Zoltan.
+- **Slack (wg-osac-storage)**: Akshay posted the Jul 16 "OSAC Volumes Architecture (Contd.)" recording in the same thread as the quota Q&A above. wgordon shared current default-volume inventory on his dev SNO (19 volumes across Keycloak/fulfillment-service/AAP/ACM/OS-image storage) — useful baseline if quota's storage-tier work needs real numbers later.
+- **Inbox**: no new review requests or direct asks; mostly CI failure notifications for osac-installer "Bump submodules" and osac-workspace "PR Dashboard" workflows (repeated, not yet root-caused — worth a look if it keeps recurring) plus routine Red Hat corporate mail. Akshay sent a calendar invite for "OSAC Storage Control Plane" Monday 2026-07-20 3pm CEST — matches the core-team session floated in the meeting notes.
+
+---
+
 ## 2026-07-16
 
 ### Active Tickets
