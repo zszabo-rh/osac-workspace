@@ -3,9 +3,16 @@
 
 input=$(cat)
 
-# Run the user's global statusline first (ccstatusline, per ~/.claude/settings.json)
-if command -v ccstatusline >/dev/null 2>&1; then
-  echo "$input" | ccstatusline
+# Run the user's own global statusline first. This project's statusLine
+# setting fully replaces (not merges with) the user's global one, so recover
+# whatever they actually configured in ~/.claude/settings.json and re-invoke
+# it directly — works for ccstatusline, a custom script, or any other tool,
+# without assuming every contributor uses the same one.
+if command -v jq >/dev/null 2>&1 && [[ -f "${HOME}/.claude/settings.json" ]]; then
+  USER_STATUSLINE_CMD=$(jq -r '.statusLine.command // empty' "${HOME}/.claude/settings.json" 2>/dev/null)
+  if [[ -n "${USER_STATUSLINE_CMD}" ]]; then
+    echo "$input" | bash -c "${USER_STATUSLINE_CMD}"
+  fi
 fi
 
 # Colors
