@@ -32,8 +32,6 @@ KEY=$(jira issue create -t Bug --project OSAC \
 **Actual result:**
 
 <what actually happens>" \
-  --label OSAC \
-  --affects-version "OSAC" \
   --no-input --raw 2>/dev/null | jq -r '.key')
 ```
 

@@ -22,7 +22,6 @@ Collect from conversation context. Ask only if truly ambiguous:
 | Bug description | Yes | From conversation context |
 | Root cause | Yes | From conversation context or investigation |
 | Epic key | If ambiguous | Ask user — e.g. "Which epic should I link this to?" |
-| Label | No | `OSAC` |
 | Affected repo | Yes | Infer from file paths in conversation |
 
 ## Execute

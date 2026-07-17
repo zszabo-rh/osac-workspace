@@ -1,0 +1,32 @@
+name: Skillsaw
+
+# No paths-ignore: this job (runner setup + checkout + lint) takes ~10s in CI,
+# so filtering triggers isn't worth the risk of the path list drifting out of
+# sync with .skillsaw.yaml's `exclude:` (the actual scan scope) and silently
+# skipping lint on newly-added in-scope files (e.g. .mcp.json, GEMINI.md) that
+# don't match an older filter.
+on:
+  pull_request: {}
+
+# SECURITY: read-only on untrusted PR code; inline comments are posted by
+# skillsaw-review.yml (workflow_run, no PR checkout).
+permissions:
+  contents: read
+
+concurrency:
+  group: skillsaw-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  skillsaw:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - uses: stbenjam/skillsaw@641606f379ebea086b31dec023366c7ff89301a2 # v0
+        with:
+          path: .
+          version: "0.16.0"
+          strict: true

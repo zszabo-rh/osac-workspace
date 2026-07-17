@@ -68,7 +68,7 @@ all 4 dimensions.
 
 - YAML frontmatter: title, authors, creation-date, last-updated, tracking-link (full URL)
 - Required sections: Summary, Motivation (User Stories, Goals, Non-Goals), Proposal (Workflow Description, API Extensions, Implementation Details, Risks and Mitigations, Drawbacks), Alternatives, Test Plan
-- Placeholder-only sections ("TODO", "TBD" with no other content) count against the relevant dimension score
+- Placeholder-only sections (`TBD` with no other content, or a lone `TODO:` line with no other content) count against the relevant dimension score
 - Sections that are genuinely N/A must explain why — silence is a gap
 
 ### Criteria (0-2 each, /8 total)
@@ -84,7 +84,7 @@ Are the technical decisions sound and consistent with OSAC patterns?
 Check:
 - [ ] Resource hierarchy uses owner reference annotations (`osac.openshift.io/owner-reference`)
 - [ ] Tenant isolation includes `osac.openshift.io/tenant` annotation on all new resources
-- [ ] API conventions per [`fulfillment-service/docs/API.md`](../../fulfillment-service/docs/API.md): standard object shape (`id`, `Metadata`, `<Type>Spec`, `<Type>Status`), spec/status ownership, declarative intent-based design (no imperative methods), naming conventions
+- [ ] API conventions per `fulfillment-service/docs/API.md`: standard object shape (`id`, `Metadata`, `<Type>Spec`, `<Type>Status`), spec/status ownership, declarative intent-based design (no imperative methods), naming conventions
 - [ ] Spec contains only desired state (user-controlled); status contains only observed state (system-controlled)
 - [ ] Controller patterns: finalizer → status update → provisioning lifecycle
 - [ ] Conditions used for lifecycle state (preferred over phase enums for new resources)
@@ -113,7 +113,7 @@ Is the implementation realistic, specific, and proportional to the scope?
 Check:
 - [ ] Implementation details are specific — names data structures, specifies error codes, defines validation rules
 - [ ] Proto schemas included for new resources (at least key fields, types, constraints)
-- [ ] No hand-waving on hard parts ("handle edge cases appropriately", "implement as needed")
+- [ ] No hand-waving on hard parts (e.g. vague phrases like `handle edge cases appropriately` or `implement as needed`)
 - [ ] Effort is proportional to scope
 - [ ] Workflow covers all lifecycle operations (create, get, list, update, delete)
 - [ ] Error handling and failure modes described
@@ -126,7 +126,7 @@ Check:
 
 **Calibration examples:**
 
-- F=0: "The controller will handle provisioning appropriately" with no detail on what provisioning means, no proto schema, and risks like "implementation might be complex."
+- F=0: Example of vague implementation: `The controller will handle provisioning appropriately` with no detail on what provisioning means, no proto schema, and risks like "implementation might be complex."
 - F=1: Design includes proto schemas for the main resource and describes create/get/list, but update and delete flows are "TBD." Risks mention "race conditions" without specifying which ones or how to mitigate.
 - F=2: Design includes full proto schemas with field types and validation annotations, describes all CRUD lifecycle operations with error codes, identifies specific risks ("concurrent subnet allocation may cause CIDR overlap") with concrete mitigations ("use optimistic locking with resource version").
 

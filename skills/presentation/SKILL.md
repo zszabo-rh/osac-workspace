@@ -17,12 +17,12 @@ triggers:
 
 # Presentation Skill
 
-Create a Red Hat-branded slide deck as a [Marp](https://marp.app/) markdown file under [`presentations/`](../../presentations/), render it, and (when asked) export a PPTX for Google Slides import.
+Create a Red Hat-branded slide deck as a [Marp](https://marp.app/) markdown file under `presentations/`, render it, and (when asked) export a PPTX for Google Slides import.
 
 ## Workflow
 
 1. **Gather inputs.** Confirm the outline, the audience, and any source material (quotes, images, data). For each slide know: what class it is (content / title / divider / dark / cover) and whether it carries an image.
-2. **Copy every image into [`presentations/assets/`](../../presentations/assets/)** before referencing it. Never reference `~/Documents`, `~/Downloads`, or any absolute path — the deck must be self-contained so it renders for anyone who clones the repo. `cp <source> presentations/assets/<name>`.
+2. **Copy every image into `presentations/assets/`** before referencing it. Never reference `~/Documents`, `~/Downloads`, or any absolute path — the deck must be self-contained so it renders for anyone who clones the repo. `cp <source> presentations/assets/<name>`.
 3. **Write the deck** as `presentations/<slug>.md` using `theme: redhat` (see Frontmatter below).
 4. **Render and review** (see Rendering). Iterate on layout.
 5. **If a PPTX / Google Slides export is requested**, follow the PPTX rules below — they change how you must author the slides.
@@ -30,7 +30,7 @@ Create a Red Hat-branded slide deck as a [Marp](https://marp.app/) markdown file
 
 ## Frontmatter
 
-Use the shared theme — do **not** paste a giant inline `style:` block. The theme lives at [`presentations/themes/redhat.css`](../../presentations/themes/redhat.css) and is registered by `presentations/.marprc.yml`.
+Use the shared theme — do **not** paste a giant inline `style:` block. The theme lives at `presentations/themes/redhat.css` and is registered by `presentations/.marprc.yml`.
 
 ```yaml
 ---

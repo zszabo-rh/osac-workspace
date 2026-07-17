@@ -36,10 +36,6 @@ Install Go, Node.js, buf, kubectl, kind, jira CLI, gh CLI directly.
 
 Re-run `./bootstrap.sh` anytime to update all repos to latest `main`.
 
-## Local Runtime
-
-See [`kind-dev/README.md`](kind-dev/README.md) for a lightweight kind-based dev environment running the full OSAC stack locally (no OpenShift required).
-
 ## Repository Structure
 
 Meta-workspace — run `./bootstrap.sh` to clone/update all component repos to latest `main`. **In component repos, read `CLAUDE.md` first** (progressive disclosure). Use that component's `AGENTS.md` where the table below shows **Yes** for tool-agnostic build/test conventions.
@@ -221,6 +217,27 @@ Canonical skill definitions live in `skills/` (committed OSAC skills plus bootst
 | GitHub Copilot | `AGENTS.md` conventions only | — |
 
 `.claude/`, `.cursor/`, and `.gemini/` are gitignored except project settings; bootstrap recreates agent skill symlinks via `tools/link-agent-skills.sh`.
+
+**Skillsaw linting** (version pinned in `Makefile` `SKILLSAW_VERSION`; scope is `skillsaw lint .` with blacklist via `.skillsaw.yaml` `exclude:`; strict lint only — no baseline file, see `.gitignore`):
+
+- `make skillsaw` — lint full repo (on-demand; applies `SKILLSAW_VERSION`, `--strict`, `--no-baseline`)
+- `make skillsaw SKILL=skills/<name>/` — lint one skill (same pin and flags; no bare `skillsaw` on PATH)
+- **No pre-commit, no git hooks** — this repo has no root `.pre-commit-config.yaml`; skillsaw never runs automatically on `git commit`/`git push`. CI is the only gate. Keep `Makefile`'s `SKILLSAW_VERSION` and `.github/workflows/skillsaw.yml`'s `version:` input in sync when bumping.
+- **CI** — `stbenjam/skillsaw` action on PRs (same `.skillsaw.yaml`; fixed command, not `Makefile`); `skillsaw-review` workflow posts inline PR comments from the lint report (no PR code execution in the review job)
+
+Skillsaw enforces [Agent Skills](https://agentskills.io/specification) structure (frontmatter, naming) and content quality heuristics. **Do not rewrite skill semantics just to pass lint** — tune `.skillsaw.yaml` for false positives or fix with backticks (see below).
+
+**Skill authoring conventions** (OSAC skills are workspace operators, not isolated skill bundles):
+
+| Reference type | Format | Example |
+|----------------|--------|---------|
+| File inside the skill directory | Markdown link ([Agent Skills spec](https://agentskills.io/specification)) | `[preflight.md](steps/preflight.md)` |
+| Path at workspace repo root | Backtick path, not a markdown link | `` `presentations/themes/redhat.css` `` |
+| Component or external doc | Backtick path or full URL | `` `fulfillment-service/docs/API.md` `` |
+| User-input markers in examples | Backtick the marker | `` `TODO:` `` in meeting notes (not bare `TODO` in headings) |
+| Bad examples in calibration text | Backtick the quoted phrase | `` `handle edge cases appropriately` `` |
+
+Put `CRITICAL` / `IMPORTANT` rules in the first 20% of `SKILL.md` (skillsaw `content-critical-position`). When stating a prohibition, include the required alternative (for example: do Y instead of X). When lint forces a trade-off between passing and preserving operational guidance, preserve the guidance and adjust config or formatting.
 
 **OSAC repo-local skills** (in `skills/`):
 

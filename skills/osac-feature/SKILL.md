@@ -20,8 +20,8 @@ portable constructs only — macOS `/bin/bash` is 3.2 (no `mapfile`).
 ## Gather Inputs
 
 Collect from conversation context. Ask only if truly ambiguous — **except**
-for **Requires UI work**, which must always be asked explicitly (never inferred
-from the description).
+for **Requires UI work** and **Fix version**, which must always be asked
+explicitly (never inferred from the description or summary).
 
 | Input | Required | Default |
 |-------|----------|---------|
@@ -30,11 +30,22 @@ from the description).
 | Component | Yes | Infer from context: VMaaS, CaaS, BMaaS, Core, Storage, Connectivity&Fabric, UI, Infrastructure, Enclave |
 | Customer | No | If the feature is driven by a specific customer requirement, note the customer name |
 | Requires UI work | **Yes** | Ask: "Does this feature require UI work?" |
+| Fix version | **Yes** | Propose highest unreleased milestone from Jira (exclude `0.0`); user accepts, picks another, or chooses backlog |
 | Assignee | No | Unassigned — only assign if user specifies |
-| Label | No | `OSAC` |
 
 **Note:** Features are never *children* of epics. After creation, a bootstrap
 epic is created as a *child* of the Feature to track documentation gates.
+
+**Fix version convention:**
+
+| Issue type | fixVersion | Labels | Notes |
+|------------|------------|--------|-------|
+| Feature | Yes (confirm gate; source of truth) | (optional) `osac-ux`, `osac-ui`, `customer`, … | User chooses version or backlog |
+| Bootstrap epic | Copied from Feature when set | `bootstrap` | Never independently chosen |
+| Gate tasks | No | `osac-ux` / `osac-ui` on UX/UI tasks only | PRD and Design have no labels |
+
+The Feature is the single source of truth for `/milestone-scope` reporting.
+Bootstrap epics mirror the Feature's fix version after parent linkage is verified.
 
 ## Customer Labeling
 
@@ -90,6 +101,24 @@ Normalize the user's answer to `REQUIRES_UI=yes` or `REQUIRES_UI=no`:
 
 If ambiguous, ask again — do not infer from the description.
 
+### Fix version
+
+Ask explicitly — do not infer from summary text (e.g. `(0.2)` in the title).
+
+1. Run `list_fix_version_suggestions` (see Reusable bash patterns) to fetch
+   unreleased OSAC milestones, excluding `0.0` and the literal `Backlog`
+   release (collides with the `backlog` sentinel below — see step 3).
+2. Propose the highest version as default, e.g. "Proposed fix version: **0.3**.
+   Accept, specify another milestone, or choose **backlog** (no fix version)?"
+3. Normalize the user's answer via `validate_fix_version` and store in `FIX_VERSION`:
+   - A valid release name from the suggestion list
+   - `backlog` when the user explicitly says backlog, none, or skip
+4. On `invalid` (including empty input), ask again — do not default to backlog.
+
+Only the Feature **chooses** `fixVersion` at the confirm gate. The bootstrap epic
+receives a **copy** when the Feature version is set (not backlog). Gate tasks
+never receive fix version.
+
 ### Assignee (optional)
 
 If assignee is specified, confirm with the user before create. Use Jira
@@ -112,11 +141,15 @@ Ready to create in Jira:
   Component:   <COMPONENT>
   Customer:    <name or none>
   UI work:     yes | no
-  Labels:      OSAC[, osac-ux, osac-ui if UI work][, customer, customer:<name>]
+  Fix version: <version> | backlog (unset)
+  Labels:      [osac-ux, osac-ui if UI work][, customer, customer:<name>] | none
   Assignee:    <name or unassigned>
 
   Bootstrap epic:  <FEATURE_SUMMARY> - Bootstrap
+    Label: bootstrap; fix version copied from Feature (when not backlog)
   Bootstrap tasks: PRD, Design[, UX Design, UI Design if UI work]
+
+  (Gate tasks do not receive fix version.)
 
 Proceed? (yes/no)
 ```
@@ -125,23 +158,13 @@ Only continue when the user answers yes.
 
 ## Reusable bash patterns
 
-Define once before any Jira create. Reference these helpers from each create
-step instead of duplicating temp setup, key validation, or `--plain` parsing.
+Define once before any Jira create: source `tools/jira-safe-create.sh` (see
+`jira-task-management` Safe create pattern), then define skill-specific helpers
+below. Reference these from each create step instead of duplicating key
+validation or `--plain` parsing.
 
 ```bash
-TEMP_FILES=()
-cleanup() { rm -f "${TEMP_FILES[@]}"; }
-trap cleanup EXIT
-
-add_temp() { TEMP_FILES+=("$1"); }
-
-new_temp() {
-  local prefix=${1:-osac-jira}
-  local f
-  f=$(mktemp "${TMPDIR:-/tmp}/${prefix}.XXXXXX")
-  add_temp "$f"
-  echo "$f"
-}
+source "$(git rev-parse --show-toplevel)/tools/jira-safe-create.sh"
 
 # After jq -r '.key // empty' — stop on empty/malformed keys
 require_osac_key() {
@@ -186,6 +209,84 @@ collect_keys_from_jql() {
     FIRST_KEY=$k
   done < <(list_keys_for_jql "$jql")
 }
+
+# Fetch OSAC fix-version candidates (exclude 0.0 — pre-team legacy bucket —
+# and the literal "Backlog" release, which collides with this skill's own
+# "backlog" sentinel for "no fix version"; see validate_fix_version).
+# jira release list does NOT support useful --plain output; parse tab format.
+# Columns: ID, NAME, RELEASED, DESCRIPTION
+# Output: one version name per line, newest first (sort -Vr).
+list_fix_version_suggestions() {
+  jira release list -p OSAC 2>/dev/null \
+    | awk -F'\t' 'NR>1 && $2 != "0.0" && tolower($2) != "backlog" && $3 == "false" {print $2}' \
+    | sort -Vr
+}
+
+# Validate user-chosen version. Returns: backlog | <version> | invalid
+# backlog only when user explicitly says backlog/none/skip (not empty string).
+validate_fix_version() {
+  local choice
+  choice=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+  case "$choice" in
+    backlog|none|skip) echo "backlog"; return 0 ;;
+    '') echo "invalid"; return 0 ;;
+  esac
+  if list_fix_version_suggestions | grep -Fxq "$1"; then
+    echo "$1"
+  else
+    echo "invalid"
+  fi
+}
+
+# Set fixVersion on Feature when FIX_VERSION is not backlog.
+# Run after require_osac_key on Feature KEY, before assign/bootstrap; use </dev/null>.
+# jira issue edit --fix-version appends; safe on new Features (empty fixVersions).
+# Returns 1 on edit failure (non-fatal — does not exit) so the caller can avoid
+# copying an unset version onto the bootstrap epic. Backlog is not a failure.
+apply_feature_fix_version() {
+  local key=$1 version=$2
+  [ "$version" = "backlog" ] && return 0
+  local err
+  err=$(new_temp osac-jira-fixver-err)
+  add_temp "$err"
+  if ! jira issue edit "$key" --fix-version "$version" --no-input 2>"$err" </dev/null; then
+    echo "Fix version edit failed for ${key} (${version}) — set manually:" >&2
+    echo "  jira issue edit ${key} --fix-version \"${version}\" --no-input </dev/null" >&2
+    cat "$err" >&2
+    return 1
+  fi
+}
+
+# After bootstrap epic parent verified. Label at create; copy fix version here.
+# Re-run safe on reuse: add label if missing; set fix version only when epic has none.
+# Caller passes "backlog" for fix_version when the Feature edit did not succeed,
+# so a failed Feature update never results in a copied version on the epic.
+apply_bootstrap_epic_metadata() {
+  local epic_key=$1 feature_key=$2 fix_version=$3
+  local err
+  err=$(new_temp osac-jira-bootstrap-meta-err)
+  add_temp "$err"
+
+  if ! jira issue edit "$epic_key" -l bootstrap --no-input 2>>"$err" </dev/null; then
+    echo "Bootstrap label edit failed for ${epic_key} — set manually:" >&2
+    echo "  jira issue edit ${epic_key} -l bootstrap --no-input </dev/null" >&2
+    cat "$err" >&2
+  fi
+
+  [ "$fix_version" = "backlog" ] && return 0
+
+  local epic_version_count
+  epic_version_count=$(jira issue view "$epic_key" --raw 2>/dev/null \
+    | jq -r '[.fields.fixVersions[]?.name] | length')
+  [ "${epic_version_count:-0}" -gt 0 ] && return 0
+
+  if ! jira issue edit "$epic_key" --fix-version "$fix_version" --no-input 2>>"$err" </dev/null; then
+    echo "Bootstrap fix version copy failed for ${epic_key} (${fix_version}) — set manually:" >&2
+    echo "  jira issue edit ${epic_key} --fix-version \"${fix_version}\" --no-input </dev/null" >&2
+    cat "$err" >&2
+    return 0
+  fi
+}
 ```
 
 Safe-create rules (all create/edit steps):
@@ -199,8 +300,11 @@ Safe-create rules (all create/edit steps):
 
 ```bash
 BODY=$(new_temp osac-feature-body)
+add_temp "$BODY"
 OUT=$(new_temp osac-jira-out)
+add_temp "$OUT"
 ERR=$(new_temp osac-jira-err)
+add_temp "$ERR"
 # ... jira issue create ... >"$OUT" 2>"$ERR" </dev/null
 KEY=$(jq -r '.key // empty' "$OUT")
 require_osac_key "$KEY" "Feature" "$OUT" "$ERR"
@@ -263,11 +367,14 @@ Safe-create — use patterns above (`new_temp`, `require_osac_key`):
 
 ```bash
 BODY=$(new_temp osac-feature-body)
+add_temp "$BODY"
 # write markdown body to $BODY, then:
 OUT=$(new_temp osac-jira-feature-out)
+add_temp "$OUT"
 ERR=$(new_temp osac-jira-feature-err)
+add_temp "$ERR"
 
-FEATURE_LABELS=(--label OSAC)
+FEATURE_LABELS=()
 [ "$REQUIRES_UI" = "yes" ] && FEATURE_LABELS+=(--label osac-ux --label osac-ui)
 [ -n "${CUSTOMER:-}" ] && FEATURE_LABELS+=(--label customer --label "customer:${CUSTOMER}")
 
@@ -280,9 +387,20 @@ jira issue create -t Feature --project OSAC \
 
 KEY=$(jq -r '.key // empty' "$OUT")
 require_osac_key "$KEY" "Feature" "$OUT" "$ERR"
+if apply_feature_fix_version "$KEY" "$FIX_VERSION"; then
+  BOOTSTRAP_FIX_VERSION="$FIX_VERSION"
+else
+  echo "Feature fix version not applied — bootstrap epic will not receive a copy; set both manually" >&2
+  BOOTSTRAP_FIX_VERSION="backlog"
+fi
 ```
 
 Allow up to 3 minutes for create to complete.
+
+Order after Feature create: **fix version → assign (if any) → bootstrap epic**.
+Gate tasks never receive `--fix-version`. Use `$BOOTSTRAP_FIX_VERSION` (not
+`$FIX_VERSION`) when applying bootstrap epic metadata below — it reflects
+whether the Feature edit actually succeeded.
 
 ### Assign if specified
 
@@ -290,6 +408,7 @@ If user specified an assignee:
 
 ```bash
 ASSIGN_ERR=$(new_temp osac-jira-assign-err)
+add_temp "$ASSIGN_ERR"
 if ! jira issue assign "$KEY" "$ASSIGNEE" 2>"$ASSIGN_ERR"; then
   echo "Assign failed for ${KEY} — continuing bootstrap" >&2
   cat "$ASSIGN_ERR" >&2
@@ -298,8 +417,9 @@ fi
 
 ## Create Bootstrap Epic
 
-After the Feature is created (and optionally assigned), create a bootstrap epic
-under the Feature. Use `jira issue create -t Epic` — **not** `jira epic create`
+After the Feature is created, fix version is set (when not backlog), and
+optionally assigned, create a bootstrap epic under the Feature. Use
+`jira issue create -t Epic` — **not** `jira epic create`
 (that subcommand has no parent flag).
 
 Set `EPIC_SUMMARY="${FEATURE_SUMMARY} - Bootstrap"` for searches and create.
@@ -343,12 +463,14 @@ any retry.
 ```bash
 if [ -z "${EPIC_KEY:-}" ]; then
   OUT=$(new_temp osac-jira-epic-out)
+  add_temp "$OUT"
   ERR=$(new_temp osac-jira-epic-err)
+  add_temp "$ERR"
 
   jira issue create -t Epic --project OSAC \
     -s "${EPIC_SUMMARY}" \
     -b "Documentation work gates for ${KEY}. These tasks track drafting, submitting, and merging planning documents — not implementation." \
-    --label OSAC --no-input --raw >"$OUT" 2>"$ERR" </dev/null
+    --label bootstrap --no-input --raw >"$OUT" 2>"$ERR" </dev/null
 
   EPIC_KEY=$(jq -r '.key // empty' "$OUT")
   require_osac_key "$EPIC_KEY" "epic" "$OUT" "$ERR"
@@ -361,6 +483,7 @@ Allow up to 3 minutes for epic create to complete (typically seconds with `</dev
 
 ```bash
 EPIC_ERR=$(new_temp osac-jira-epic-err)
+add_temp "$EPIC_ERR"
 PARENT=$(jira issue view "${EPIC_KEY}" --raw | jq -r '.fields.parent.key // empty')
 if [ "$PARENT" != "$KEY" ]; then
   jira issue edit "${EPIC_KEY}" -P "${KEY}" --no-input 2>>"$EPIC_ERR" </dev/null
@@ -383,6 +506,14 @@ If `PARENT` is still not `"${KEY}"`, stop. Report Feature key, epic key, `$EPIC_
 and suggest manual fix: `jira issue edit "${EPIC_KEY}" -P "${KEY}" --no-input </dev/null`.
 Do not create bootstrap tasks.
 
+**Apply bootstrap metadata** (label + copied fix version when not backlog):
+
+```bash
+apply_bootstrap_epic_metadata "$EPIC_KEY" "$KEY" "$BOOTSTRAP_FIX_VERSION"
+```
+
+Run after parent verify succeeds — including when reusing an epic from duplicate search.
+
 ## Create Bootstrap Tasks
 
 Create documentation gate tasks under the bootstrap epic. Line 1 of each body
@@ -392,13 +523,13 @@ body includes `Feature: ${KEY}` on its own line. Do **not** reference
 
 | Summary | Labels | Body (lines in `$TASK_BODY`) | When |
 |---------|--------|------------------------------|------|
-| PRD | `OSAC` | 1: Draft, submit, and merge the Product Requirements Document. 2: Use `/prd` workflow. 3: Feature: ${KEY} | Always |
-| Design | `OSAC` | 1: Draft, submit, and merge the technical Design / Enhancement Proposal. 2: Use `/design` workflow. 3: Feature: ${KEY} | Always |
-| UX Design | `OSAC`, `osac-ux` | 1: Draft, submit, and merge the UX specification. 2: Feature: ${KEY} | `REQUIRES_UI=yes` |
-| UI Design | `OSAC`, `osac-ui` | 1: Draft, submit, and merge the UI design document. 2: Feature: ${KEY} | `REQUIRES_UI=yes` |
+| PRD | (none) | 1: Draft, submit, and merge the Product Requirements Document. 2: Use `/prd` workflow. 3: Feature: ${KEY} | Always |
+| Design | (none) | 1: Draft, submit, and merge the technical Design / Enhancement Proposal. 2: Use `/design` workflow. 3: Feature: ${KEY} | Always |
+| UX Design | `osac-ux` | 1: Draft, submit, and merge the UX specification. 2: Feature: ${KEY} | `REQUIRES_UI=yes` |
+| UI Design | `osac-ui` | 1: Draft, submit, and merge the UI design document. 2: Feature: ${KEY} | `REQUIRES_UI=yes` |
 
 Apply gate-task labels only on the task they describe — do **not** put `osac-ux`
-on UI Design or `osac-ui` on UX Design. PRD and Design stay `OSAC` only
+on UI Design or `osac-ui` on UX Design. PRD and Design have no labels
 (universal gates, not UX- or UI-specific work).
 
 For each gate task, duplicate-check with exact summary (substitute task name in
@@ -424,8 +555,11 @@ create** when the parent is a Feature; tasks under an epic accept `-P` normally.
 
 ```bash
 TASK_BODY=$(new_temp osac-bootstrap-task)
+add_temp "$TASK_BODY"
 OUT=$(new_temp osac-jira-task-out)
+add_temp "$OUT"
 ERR=$(new_temp osac-jira-task-err)
+add_temp "$ERR"
 
 cat >"$TASK_BODY" <<EOF
 Draft, submit, and merge the Product Requirements Document.
@@ -437,7 +571,7 @@ EOF
 
 jira issue create -t Task --project OSAC -s "PRD" \
   --template "$TASK_BODY" \
-  -P "${EPIC_KEY}" --label OSAC --no-input --raw >"$OUT" 2>"$ERR" </dev/null
+  -P "${EPIC_KEY}" --no-input --raw >"$OUT" 2>"$ERR" </dev/null
 
 TASK_PRD=$(jq -r '.key // empty' "$OUT")
 require_osac_key "$TASK_PRD" "task PRD" "$OUT" "$ERR"
@@ -455,7 +589,7 @@ EOF
 
 jira issue create -t Task --project OSAC -s "UX Design" \
   --template "$TASK_BODY" \
-  -P "${EPIC_KEY}" --label OSAC --label osac-ux --no-input --raw >"$OUT" 2>"$ERR" </dev/null
+  -P "${EPIC_KEY}" --label osac-ux --no-input --raw >"$OUT" 2>"$ERR" </dev/null
 
 TASK_UX=$(jq -r '.key // empty' "$OUT")
 require_osac_key "$TASK_UX" "task UX Design" "$OUT" "$ERR"
@@ -472,7 +606,7 @@ EOF
 
 jira issue create -t Task --project OSAC -s "UI Design" \
   --template "$TASK_BODY" \
-  -P "${EPIC_KEY}" --label OSAC --label osac-ui --no-input --raw >"$OUT" 2>"$ERR" </dev/null
+  -P "${EPIC_KEY}" --label osac-ui --no-input --raw >"$OUT" 2>"$ERR" </dev/null
 
 TASK_UI=$(jq -r '.key // empty' "$OUT")
 require_osac_key "$TASK_UI" "task UI Design" "$OUT" "$ERR"
@@ -490,6 +624,8 @@ keys, plus `$ERR` and error JSON from `$OUT`.
 | Invalid summary (JQL/shell unsafe chars, >255 chars) | Reject before confirm; ask user to revise |
 | User declines confirm gate | Stop; no Jira creates |
 | Empty `KEY` after Feature create | Stop; report `$ERR` and error JSON; do not bootstrap |
+| Fix version edit failed after Feature create | Non-fatal; report manual `jira issue edit --fix-version …`; continue bootstrap |
+| Bootstrap metadata failed (label or fix version copy) | Non-fatal; report manual edit commands; continue gate tasks |
 | Empty `EPIC_KEY` after epic create | Stop; report Feature key and errors; do not create tasks |
 | Epic parent edit slow | Wait up to 3 minutes; do not kill and retry |
 | Epic parent ≠ Feature after 30s re-check | Stop; report keys + manual `jira issue edit -P … </dev/null>`; do not create tasks |
@@ -511,13 +647,16 @@ Feature created:
 
 Jira:           https://redhat.atlassian.net/browse/<KEY>
 Component:      <component>
-Labels:         OSAC[, osac-ux, osac-ui if UI work][, customer, customer:<name>]
+Fix version:    <version> | backlog (unset)
+Labels:         [osac-ux, osac-ui if UI work][, customer, customer:<name>] | none
 Bootstrap epic: https://redhat.atlassian.net/browse/<EPIC_KEY>
+Bootstrap label: bootstrap
+Epic fix version: <copied from Feature | not set (backlog)>
 Bootstrap tasks:
-  - PRD:        <TASK_PRD>         (OSAC)
-  - Design:     <TASK_DESIGN>      (OSAC)
-  [- UX Design:  <TASK_UX>         (OSAC, osac-ux)   UI work only]
-  [- UI Design:  <TASK_UI>         (OSAC, osac-ui)   UI work only]
+  - PRD:        <TASK_PRD>
+  - Design:     <TASK_DESIGN>
+  [- UX Design:  <TASK_UX>         (osac-ux)   UI work only]
+  [- UI Design:  <TASK_UI>         (osac-ui)   UI work only]
 Status:         New
 ```
 
@@ -537,14 +676,17 @@ Features should include these sections (in `$BODY`):
 ## Notes
 
 - OSAC project key: `OSAC`
-- Default label: `OSAC` on every issue this skill creates
 - Customer-driven features: add `customer` and `customer:<name>` labels on the Feature only
 - When `REQUIRES_UI=yes`: Feature gets `osac-ux` and `osac-ui`; both UX Design
   and UI Design tasks are created (`REQUIRES_UI` gates the full UX → UI track)
-- UX Design task gets `osac-ux`; UI Design task gets `osac-ui`; PRD/Design/epic
-  stay `OSAC` only
+- UX Design task gets `osac-ux`; UI Design task gets `osac-ui`; PRD and Design
+  have no labels; bootstrap epic gets `bootstrap` only
 - Jira hierarchy: Feature → Bootstrap epic → gate tasks (PRD, Design, [UX Design, UI Design])
 - Bootstrap epic: create without `-P`, then `jira issue edit -P` — Epic create with `-P` on a Feature parent returns HTTP 400; use `</dev/null` on all jira create/edit to avoid stdin hangs (jira-cli#948)
 - Gate tasks track documentation milestones, not implementation work
-- Temp files: `new_temp` + `TEMP_FILES`/`trap` cleanup — see Reusable bash patterns
+- **Fix version:** Feature chooses at confirm gate; bootstrap epic copies when set;
+  gate tasks never receive `fixVersion`
+- Existing bootstrap epics predating this convention are not backfilled — only
+  epics created going forward get the `bootstrap` label and copied `fixVersion`
+- Temp files: source `tools/jira-safe-create.sh`; call `add_temp` in the parent shell after each `new_temp` — see `jira-task-management` Safe create pattern
 - jira-cli handles markdown-to-ADF conversion automatically
