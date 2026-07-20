@@ -37,8 +37,9 @@ Run through this for every new or edited workflow file:
       `actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0`
 - [ ] **A SHA pin needs an update *mechanism*.** Especially for pinned
       **reusable workflows** - Dependabot resolves against tags/releases; if
-      the repo publishes none the pin drifts silently. Either leave that ref
-      unpinned (`@main`) or add a scheduled bump job. See
+      the repo publishes none, retain the SHA pin and use a scheduled or
+      explicitly maintained bump process. Never fall back to a mutable ref
+      such as `@main`. See
       [reference.md](reference.md#stale-reusable-workflow-pins).
 - [ ] **`persist-credentials: false`** on every `actions/checkout` step unless
       that job explicitly pushes back to the repo.
