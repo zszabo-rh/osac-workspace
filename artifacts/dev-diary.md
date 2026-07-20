@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-07-20
+
+### Active Tickets
+- OSAC-1957: Backend-registration-aware storage provisioning — status "Review"; PR #354 (osac-operator) still APPROVED/CI green, tide still PENDING (5th day now — worth checking why it's stuck)
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01 (19d, stale); restart via `/prd:ingest OSAC-998` still not kicked off
+- OSAC-2520 (NEW): Storage Framework E2E Integration — assigned by Akshay 2026-07-17, status "New"/To Do, not yet started. Validate full storage stack across 3 deployment configs (AAP+VAST, AAP+no-backend, no-AAP), document for demo-team handoff.
+
+### Open PRs
+- osac-operator#354 (OSAC-1957): APPROVED, all checks SUCCESS, tide PENDING 5 days — flag for investigation, no longer "just hasn't landed yet"
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (kept only as reference, no action)
+
+### Milestones
+- v0.2 planning phase deadline: 2026-07-31 (11 days away)
+- Core-team session on OSAC Storage Control Plane requirements — today, 2026-07-20 3pm CEST (Akshay's calendar invite, tied to the Jul 16 meeting's proposal)
+
+### Notes
+- **Repo refresh**: osac-workspace merged 19 commits from upstream (new github-actions-workflows skill, osac-cluster/osac-feature skill reference-file splits). All component repos rebased/merged clean; osac-installer again showed the harmless stash-pop false-positive (nothing actually lost).
+- **No new meeting transcripts** — newest is still the Jul 16 "OSAC Volumes Architecture (Contd.)" file (71h old), consistent with the weekend gap. Today's 3pm storage control-plane session hasn't happened yet.
+- **New Jira assignment found via Slack, not the ticket query**: Akshay assigned OSAC-2520 directly in wg-osac-storage on 2026-07-17 — the standard `assignee = zszabo AND status in (To Do)` sweep didn't surface it (ticket status is "New", a sub-state of the To Do category that the query apparently missed). Worth double-checking the Jira query filter.
+- **Storage v0.2 feature structure posted** (Akshay, wg-osac-storage, 2026-07-17): new Outcome OSAC-2871 (Storage Volumes) containing OSAC-2181 (CSI Meta-Driver) and OSAC-2872 (Storage Control Plane), plus OSAC-984 (Volume Public API, later). OSAC-917 and OSAC-2117 continue in parallel. No action needed — informational, PRD/Design phases will produce real epics.
+- **Slack (wg-osac-eng)**: PR dashboard bot (2026-07-19) — 27 need review, 9 CI failing, 10 with conflicts, 22 stale (7+d) — roughly flat vs. Jul 17's numbers (26/10/11/18), stale count ticking up slightly.
+- **Inbox**: recurring CI failure notifications continue unaddressed — osac-installer "Bump submodules"/"Integration Tests"/"Nightly Build" and osac-workspace "PR Dashboard" workflows have been failing repeatedly since at least Jul 16-17. Worth root-causing if it keeps going. Also a batch of Jira watch notifications for Alona Paz's storage-tier tickets (OSAC-173/174/175/176) and OSAC-219/239/242 — not assigned to Zoltan, no action.
+- **No direct Slack mentions** since Jul 17.
+
+---
+
 ## 2026-07-17
 
 ### Active Tickets

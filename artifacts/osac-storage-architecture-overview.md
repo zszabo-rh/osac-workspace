@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-07-17
+**Last updated:** 2026-07-20
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -244,6 +244,17 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 | **AAP** | CaaS StorageClass provisioning target (`hcp_data_plane`) | osac-aap #377 | **Merged (2026-07-13)** | Removes vmaas-only guards, cluster-aware volume naming |
 | **AAP** | VAST tenant-UID-hash storage paths | osac-aap #373 | Open (Will) | Uniqueness via SHA256(UID), fallback for existing tenants |
 | **AAP** | VAST RBAC Realm + restricted CSI Role | osac-aap #363 | Open (Will) | Scoped credentials for CSI driver |
+| **Operator** | Use Backend API for storage provisioning path (OSAC-1957) | osac-operator #354 | Open (Zoltan) — CodeRabbit APPROVED; awaiting Akshay /lgtm | Replaces AAP heuristic with `StorageBackends/List` call |
+
+### Active Engineering Work (v0.2)
+
+| Area | Status | Assignee | Notes |
+|------|--------|----------|-------|
+| OSAC-2520: Storage Framework E2E Integration | **In planning** | Zoltan | Next task after PR #354 merges. Full stack validation across 3 configs. |
+| OSAC-1992: StorageTier operator integration | **In Progress** | Will | pick-first for multiple backends; PR in flight |
+| OSAC-1710: ComputeInstance StorageTier selection | **In Progress** | Carlo Lobrano | Default tier behavior TBD — Monday call with Ygal/Akshay |
+| OSAC-2181/2872: PRDs needed | **Not started** | TBD | First work items for new OSAC Volumes v0.2 scope |
+| `osac-csi-driver` repo | **Created 2026-07-19** | Roy | Repo live; Roy to scaffold CSI structure |
 
 ### What's Merged (EPs/PRDs)
 
@@ -650,6 +661,12 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1957 | StorageBackend API integration into storage controller | **Code Review** | Zoltan Szabo | PR #354 open, CodeRabbit APPROVED, waiting for human reviewer. Edge-17 validated (all 3 routing paths). |
 | OSAC-1992 | StorageTier API integration | **In Progress** | Will Gordon | Tier definitions from Tier API drive per-tenant SC provisioning. **Unblocked** — PR #887 merged 2026-07-14. |
 | OSAC-2519 | Storage Framework UI | **New** | Unassigned | UI work for Storage Framework (StorageBackend/StorageTier admin screens). Added 2026-07-14. |
+| OSAC-2520 | Storage Framework E2E Integration | **New** | Zoltan Szabo | Full stack E2E validation: Backend API + Tier API + storage controller + AAP. 3 configs to validate. Document for demo team. Assigned July 17. **Zoltan's next task.** |
+| OSAC-2871 | Storage Volumes (Outcome) | **New** | — | v0.2 Outcome grouping: parent of OSAC-2181, OSAC-2872, OSAC-984. Created by Akshay July 18. |
+| OSAC-2181 | OSAC CSI Meta-Driver | **New** | — | v0.2 Feature: new osac-csi-driver repo; CSI controller + node plugin + gRPC proxy. Start with PRD. |
+| OSAC-2872 | OSAC Storage Control Plane | **New** | — | v0.2 Feature: storage control plane service; Volume API, Tier Resolution, Policy Engine, Credential Manager, Volume Inventory. Start with PRD. |
+| OSAC-984 | OSAC Volume Public API | **New** | — | v0.2 Feature: public gRPC+REST Volume API. Comes after OSAC-2181 and OSAC-2872. |
+| OSAC-2117 | Pure File Storage Support | **In Progress** | — | v0.2 Feature (parallel, not under OSAC-2871). Pure Storage (Danni Shi). |
 
 ### Dependencies
 
@@ -722,7 +739,7 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #354 | osac-operator | OSAC-1957: use Backend API to determine storage provisioning path | Open — **APPROVED** (CodeRabbit). Zoltan's PR. Waiting for human reviewer /lgtm. | 2026-07-15 |
+| #354 | osac-operator | OSAC-1957: use Backend API to determine storage provisioning path | Open — **APPROVED** (CodeRabbit). Zoltan's PR. Waiting for human reviewer /lgtm. Akshay to review. | 2026-07-15 |
 | #901 | fulfillment-service | Add buf lint OSAC_OBJECT_SHAPE enforcement for proto spec/status convention | Open — Ygal Blum. Adds automated protobuf structure check. | 2026-07-14 |
 | #373 | osac-aap | OSAC-1325: switches VAST storage paths to tenant-UID-hash convention | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 | #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
@@ -731,6 +748,7 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #138 | github-config | Add osac-csi-driver repository configuration | 2026-07-19 |
 | #422 | osac-aap | OSAC-2522: Fix ocp_virt_vm AAP role for removed cores/memory_gib fields | 2026-07-15 |
 | #887 | fulfillment-service | OSAC-2396: StorageTier proto restructure to spec/status pattern | 2026-07-14 |
 | #138 | osac-test-infra | OSAC-1123: CaaS cluster storage E2E test | 2026-07-14 |
@@ -792,6 +810,8 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 | 18 | ~~JobType enum leaking to all CRDs?~~ | **RESOLVED (June 19):** Option C agreed — rename `status.jobs` → `status.provisioningJobs` on all 9 CRDs, add lifecycle-specific arrays (`storageBackendJobs`, `clusterStorageJobs`) on Tenant and ClusterOrder. Implemented on PR #299, E2E validated. [Alternatives doc](https://docs.google.com/document/d/1obxCZSWvdy42B8Ig55UQbpSQpSsRzTv-gsdkJXYG6UQ). |
 | 20 | **OSAC CSI Meta-Driver: RBAC and per-tenant credential model?** | July 15 OSAC Volumes meeting: how does the OSAC CSI driver authorize users within tenant clusters? Who can create volumes, and how are per-tenant credentials isolated and injected dynamically? Roy to design. Also: does authentication to guest CaaS clusters need to be ongoing (Will's GitOps concern) or one-shot? |
 | 19 | **Cinder CSI PoC: iSCSI node connection failure?** | June 25: Roy's PoC gets through Cinder gateway, NetApp plugin, policy endpoint, PVC→volume, pod attach — but iSCSI login fails on node. Workers are OpenStack VMs, nova connects at hypervisor; no iscsi on node. Roy: could patch node part but "it will stop being a Cinder CSI." Avishay: "the whole reason we're using cinder csi is for the node plugin." Fundamental topology mismatch. |
+| 21 | **Multiple backends per tier — how to resolve?** | July 18: Will asked in context of OSAC-1992. Akshay: "pick-first" for now; short-term is 1 backend per tier. Future: tier→backend mapping per cluster based on connectivity (some backends may be cluster-specific). Not a blocker for v0.2. |
+| 22 | **Default StorageTier when none specified in ComputeInstance?** | July 18 (OSAC-1710 thread): Carlo asked, active discussion. Avishay recommends: make tier required initially, add per-org default setting later as backlog. Ygal: playbook should use operator-provided tier list, not hardcoded defaults. Akshay open to changing current fallback mechanism. Call July 20 to resolve. |
 
 ---
 
@@ -1326,6 +1346,41 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Organized by Akshay via Alona
 - Dedicated channel: wg-osac-storage (C0B6USDQ85S)
 - Additional meeting scheduled June 4 at 10 AM EDT (5 PM IDT)
+
+### July 17, 2026 — Zoltan / Akshay 1:1
+- v0.2 milestone deadline confirmed: **July 31, 2026**
+- 3 distinct environments must be supported (various internal WGs need storage accessible)
+- Hardware shortage for tenant cluster provisioning — Akshay suggesting Netris lab infrastructure
+- Akshay to coordinate with Assaf on BAS (bare metal appliance) for E2E demos
+- **OSAC-2520 assigned to Zoltan** — Storage Framework E2E Integration: deploy full stack (fulfillment-service Backend + Tier APIs, storage controller, AAP) and validate the integrated flow across 3 configs (AAP+VAST, AAP+no backend, no AAP); document for demo team handoff
+- Akshay to review PR #354 when planning bandwidth frees up
+- Akshay to set up recurring weekly check-in with Zoltan
+
+### July 18, 2026 — Akshay: v0.2 Jira feature structure (wg-osac-storage)
+- New **Outcome** OSAC-2871 "Storage Volumes" created, with 3 features:
+  - OSAC-2181: OSAC CSI Meta-Driver (start here, v0.2)
+  - OSAC-2872: OSAC Storage Control Plane (start here, v0.2)
+  - OSAC-984: OSAC Volume Public API (later)
+- Separately (not under Outcome): OSAC-917 (Storage Framework) and OSAC-2117 (Pure File Storage Support) continue in parallel
+- Work order: PRDs first, then Design (design breaks down into epics with tasks)
+- Akshay used Roy's CSI architecture doc and WG_Storage_UserFlows_Roadmap as reference for feature breakdowns
+
+### July 18, 2026 — wg-osac-storage: OSAC-1710 StorageTier default behavior discussion
+- Carlo Lobrano (working OSAC-1710: ComputeInstance StorageTier Selection) asked: is "No StorageTier specified" valid, or must tier be required?
+- Ygal Blum: hardcoded defaults in Ansible template are wrong; playbook should resolve tier→SC from operator-provided list; proposes splitting volume creation into separate playbook with storage WG owning tier→SC resolution
+- Akshay: supports 1 backend per tier for now ("pick-first" — Akshay's guidance on Will's OSAC-1992 question in same session); per-cluster tier→backend mapping a future consideration
+- Michael Hrivnak (on EBC Mon-Tue): CSPs define small number of tiers, one as default, users pick; StorageClass complexity is implementation detail not UX
+- Avishay: recommend (1) start with required tier value, (2) per-org settings backlog item (core team), (3) per-org default tier backlog item (storage team)
+- Call scheduled for Monday July 20 to continue discussion
+
+### July 19, 2026 — osac-csi-driver repository created
+- Roy's github-config PR #138 MERGED — `osac-csi-driver` repository now live in osac-project org
+- Next: Roy to scaffold the repo with CSI controller + node plugin + gRPC proxy structure per July 16 architecture decision
+
+### July 20, 2026 — Core Team Storage Control Plane Meeting (TODAY)
+- Scheduled for Monday — Roy to demo kind cluster setup; discuss storage control plane requirements; GitOps vs ACM vs AAP reconciliation question (Will added this)
+- OSAC-1710 StorageTier default behavior call also on Monday (after demo call, Ygal's invite)
+- No transcript yet
 
 ---
 
