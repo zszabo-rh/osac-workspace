@@ -348,11 +348,16 @@ Two independent mistakes, both required:
    (`YnJlYWtfZ2xhc3NfY3JlZGVudGlhbHM` for `break_glass_credentials`) is
    alignment-fragile - embedding the key at an arbitrary byte offset does
    not preserve a stable base64 substring. Decode each quoted candidate
-   (standard and URL-safe) and look for the key in the plaintext.
+   (standard and URL-safe) and look for the key in the plaintext; when
+   found, replace the original encoded candidate in the output with a
+   redaction marker (the encoded form is just as sensitive as the
+   plaintext).
 2. **Re-echo gap.** Even a perfect artifact redaction is undone if the
    job log reprints the pre-fix content (or a redaction miss) via
-   `grep -C` / `cat` / `$GITHUB_STEP_SUMMARY`. Keep the full dump in the
-   artifact; print only a count/pointer to the console.
+   `grep -C` / `cat` / `$GITHUB_STEP_SUMMARY`. Keep the full
+   **redacted/sanitized** dump in the artifact; never upload raw
+   secret-bearing content to artifacts, summaries, or logs. Print only
+   a count/pointer to the console.
 
 Related: quoted password/token sed classes that only allow
 `[A-Za-z0-9+/=]` miss real passwords with punctuation (`@`, `%`, `#`) -

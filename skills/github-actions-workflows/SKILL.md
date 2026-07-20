@@ -184,8 +184,9 @@ Run through this for every new or edited workflow file:
       step log / `$GITHUB_STEP_SUMMARY` re-exposes secrets into the
       *workflow run logs* - exactly what a post-run credential scanner
       then flags - even when the uploaded artifact was mostly clean. Write
-      the full dump to a file in the artifact and print only a count /
-      pointer in the job log. See
+      the **redacted/sanitized** dump to a file in the artifact (never
+      upload raw secret-bearing content) and print only a count / pointer
+      in the job log. See
       [reference.md](reference.md#dont-re-echo-redacted-diagnostics).
 - [ ] **Redact every encoding of a secret, not just the plaintext form.**
       Matching `"break_glass_credentials":{...}` (or `"password":"..."`)
@@ -193,7 +194,10 @@ Run through this for every new or edited workflow file:
       SQL/DEBUG lines. Substring-matching the key's own base64 is
       alignment-fragile (embedding at an arbitrary byte offset does not
       preserve a stable base64 substring) - decode candidate blobs and
-      inspect the plaintext. Password/token character classes must allow
+      inspect the plaintext; when a key is found, replace the original
+      encoded candidate in the output with a redaction marker (the encoded
+      form is just as sensitive as the plaintext). Password/token character
+      classes must allow
       punctuation too (`[^"]+`, not `[A-Za-z0-9+/=]`), or real passwords
       with `@`/`%`/`#` slip through. See
       [reference.md](reference.md#dont-re-echo-redacted-diagnostics).
