@@ -26,32 +26,20 @@ Run through this for every new or edited workflow file:
 - [ ] **`permissions:`** set explicitly on every job (least privilege). A job
       that only reads event metadata (no checkout, no API calls) gets
       `permissions: {}`. Never rely on the inherited/default `GITHUB_TOKEN` scope.
-- [ ] **No `${{ }}` spliced directly into a `run:` shell script.** Route
-      through `env:` and reference as `"$VAR"` instead - this applies to
-      `secrets.*`, `github.*`, and `workflow_run.*` alike, even ones that feel
-      "static" (e.g. a workflow-level `env:` constant, or `github.repository`).
-      A workflow-level `env:` block is already auto-injected as a real shell
-      var into every `run:` step - reference it as `"$VAR"` directly, don't
-      redundantly re-map it via a step-level `env: VAR: ${{ env.VAR }}`.
-      This `env:` routing rule is for `run:` blocks only - `${{ }}` in YAML
-      contexts like `outputs:`, `if:`, and `with:` is correct and required
-      (those keys cannot read shell `env:`). Do not "fix" those away.
+- [ ] **No `${{ }}` in `run:` blocks.** Route through `env:` and reference
+      as `"$VAR"` - applies to `secrets.*`, `github.*`, `workflow_run.*`
+      alike. Workflow-level `env:` is already injected into every `run:`
+      step; don't re-map via step-level `env: VAR: ${{ env.VAR }}`.
+      This rule is for `run:` only - `${{ }}` in `outputs:`, `if:`, `with:`
+      is correct and required.
 
-- [ ] **Pin *every* action to a full commit SHA**, not just the well-known
-      ones. `actions/checkout` gets fixed first and often the last one in the
-      same job (e.g. `azure/setup-helm@v5`) gets missed:
+- [ ] **Pin *every* action to a full commit SHA**, not just well-known ones:
       `actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0`
-- [ ] **A SHA pin needs an update *mechanism*, not just an initial pin** -
-      this applies doubly to a pinned **reusable workflow** (`uses:
-      owner/repo/.github/workflows/x.yml@<sha>`), not just third-party
-      actions. Dependabot's `github-actions` ecosystem resolves updates
-      against the pinned repo's tags/releases; if that repo publishes none
-      (common for an internal/sibling repo, pinned once with a `# main`
-      comment), the pin can drift silently forever with nothing - not
-      Dependabot, not CI, not a human - ever flagging it. Either leave that
-      specific reference unpinned (`@main`) if the reduced hardening is
-      acceptable there, or add a scheduled job that actively re-resolves and
-      bumps it. See [reference.md](reference.md#stale-reusable-workflow-pins).
+- [ ] **A SHA pin needs an update *mechanism*.** Especially for pinned
+      **reusable workflows** - Dependabot resolves against tags/releases; if
+      the repo publishes none the pin drifts silently. Either leave that ref
+      unpinned (`@main`) or add a scheduled bump job. See
+      [reference.md](reference.md#stale-reusable-workflow-pins).
 - [ ] **`persist-credentials: false`** on every `actions/checkout` step unless
       that job explicitly pushes back to the repo.
 - [ ] **Validate tags with a real semver grammar**, not `startsWith(ref, 'v')`
@@ -96,46 +84,24 @@ Run through this for every new or edited workflow file:
         run: notify-slack ...
       ```
 - [ ] **Don't let "couldn't check" collapse into "checked, clean."** A failed
-      fetch/download/list needs its own distinct status, separate from the
-      actual pass/fail result (e.g. `SCAN_OK=false` vs `LEAKS_FOUND=false`) -
-      otherwise an auth/permission failure silently masquerades as a clean
-      scan to every downstream consumer. This includes the HTTP status
-      *and* the response shape: a 200 doesn't guarantee the body has the
-      field you expect - `jq`'s `.items[]?` turns a missing/wrong-typed
-      field into empty output just as readily as a genuinely-empty result,
-      so validate the field is actually an array (`jq -e '.items | type ==
-      "array"'`) before trusting "empty" as a real answer - and if you're
-      also bounds-checking a count field (e.g. `total_count <= 100`), check
-      its *type* too: a missing/null field passes a bare `<=` comparison in
-      `jq` (null compares less than any number), so `type == "number"` has
-      to come first. Some GitHub
-      endpoints add a *third* way to be wrong on a 200: code search can
-      return `incomplete_results: true` on a server-side timeout with an
-      otherwise well-formed `.items` array - check API-specific
-      completeness fields too, not just the shape.
-- [ ] **When aggregating several steps' status into one summary/notification,
-      check `steps.<id>.outcome`, not just `steps.<id>.outputs.*`.** A step
-      skipped because an earlier one failed leaves its outputs empty; an
-      `|| '0'`/`|| 'false'` fallback on that empty output then reads as a
-      clean pass instead of the incomplete result it actually is. Revisit
-      this OR-list every time a new step gets added between detection and
-      the notification - a gate written before that step existed won't
-      automatically cover its failure too.
-- [ ] **Validate untrusted numeric/string input (e.g. a `workflow_dispatch`
-      input) before using it in date/arithmetic logic**, not after. `0`, a
-      negative number, or non-numeric text flowing into something like
-      `date -d "${N} hours ago"` produces a wrong or empty result *silently*
-      - the job still reports success, having checked the wrong window (or
-      nothing at all). If the input's scale interacts with another already-
-      known limitation (e.g. an unpaginated `per_page=100` fetch), cap the
-      upper bound too, not just the lower one - document it as a sanity
-      bound against a bad input, not a guarantee, if it can't be derived
-      precisely.
-- [ ] **`curl` exits `0` on 4xx/5xx by default**, and a manually-checked
-      `CODE=$(curl -w '%{http_code}' ...)` is separately *not* exempt from
-      `set -e` on a *transport*-level failure (DNS, connection reset, TLS) -
-      two different gaps, both need closing on any `curl` call whose success
-      matters. See [reference.md](reference.md#curl-failure-handling).
+      fetch needs its own status distinct from pass/fail (e.g. `SCAN_OK`
+      vs `LEAKS_FOUND`). Validate response shape: `jq -e '.items | type ==
+      "array"'` before trusting "empty"; check `type == "number"` on count
+      fields before `<=` (null passes). Some endpoints also return
+      `incomplete_results: true` on timeout - check API-specific
+      completeness fields. See
+      [reference.md](reference.md#documented-endpoints).
+- [ ] **Check `steps.<id>.outcome`, not just `.outputs.*`, when aggregating
+      status.** A skipped step's outputs are empty; `|| 'false'` fallbacks
+      on empty outputs read as clean. Revisit the gate every time a new
+      step is added between detection and notification.
+- [ ] **Validate untrusted numeric input before use in date/arithmetic.**
+      `0`, negative, or non-numeric text in `date -d "${N} hours ago"`
+      silently produces wrong results. Cap upper bounds too when the scale
+      interacts with known limits (e.g. unpaginated `per_page=100`).
+- [ ] **`curl` exits `0` on 4xx/5xx by default**, and manual HTTP-code
+      checking doesn't cover transport failures (DNS, TLS). Both gaps need
+      closing. See [reference.md](reference.md#curl-failure-handling).
 - [ ] **Inside a composite action, pass data between its own steps via
       `steps.<id>.outputs`, not `$GITHUB_ENV`.** An env var written there
       leaks into every later step of the *calling* job (not just this
@@ -145,29 +111,15 @@ Run through this for every new or edited workflow file:
       etc.) into a Markdown table** built via `jq`/`echo` for a job summary
       or issue body - an unescaped pipe in the data breaks the rendered
       table.
-- [ ] **If a script handles raw secrets locally** (downloaded logs, decrypted
-      files), **clean up the local copy via `trap ... EXIT`**, not just
-      deleting the remote/authoritative copy - otherwise the raw secret
-      still sits on disk, especially relevant on persistent self-hosted
-      runners. This includes *derived* files, not just the original input -
-      a scanning tool's own report (e.g. gitleaks' JSON output) embeds the
-      actual matched secret value just as much as the logs it scanned, and
-      is easy to forget in the trap since it's a byproduct, not something
-      you explicitly downloaded. Never point downstream reporting (job
-      summaries, issue bodies) at that raw report directly either - produce
-      a sanitized copy (drop the secret-value field, keep only what
-      reporting needs) for anything outside the redact/mask/purge steps to
-      read.
-- [ ] **A per-item failure in a batch/loop must abort, not skip-and-continue**,
-      whenever a later step trusts the *entire* result (e.g. uploading a
-      "redacted" directory as an artifact, assuming every file in it really
-      was redacted) - skipping one bad item ships it downstream with
-      whatever the batch was supposed to fix still intact. See
+- [ ] **Clean up local secrets via `trap ... EXIT`**, not just remote
+      deletion - includes *derived* files (e.g. gitleaks JSON embeds
+      matched values). Never point downstream reporting at raw reports;
+      produce a sanitized copy for summaries/issue bodies.
+- [ ] **A per-item batch failure must abort, not skip-and-continue**, when a
+      later step trusts the entire result. See
       [reference.md](reference.md#fail-loud-on-per-item-batch-failures).
 - [ ] **Track detection and remediation as separate outcomes**
-      (e.g. `PURGE_OK` alongside `LEAKS_FOUND`) - don't fold "found a
-      problem" and "successfully fixed it" into one status flag, or a
-      failed fix silently reads as a successful one. See
+      (e.g. `PURGE_OK` alongside `LEAKS_FOUND`). See
       [reference.md](reference.md#detection-vs-remediation-status).
 - [ ] **Don't equate "credential found" with "workflow failed" in
       notifications.** A post-run log scanner (or similar) can find secrets
@@ -178,28 +130,17 @@ Run through this for every new or edited workflow file:
       fetch logs) as `failure`, and use a distinct `warning` (or equivalent)
       when detection succeeded *and* remediation succeeded. Same spirit as
       detection-vs-remediation - the notify status is yet another axis.
-- [ ] **Never dump "already-redacted" diagnostics back into the job
-      console.** Grepping gathered artifacts with context (`grep -C`,
-      `error|panic|fatal` sweeps, etc.) and `echo`-ing the match into the
-      step log / `$GITHUB_STEP_SUMMARY` re-exposes secrets into the
-      *workflow run logs* - exactly what a post-run credential scanner
-      then flags - even when the uploaded artifact was mostly clean. Write
-      the **redacted/sanitized** dump to a file in the artifact (never
-      upload raw secret-bearing content) and print only a count / pointer
-      in the job log. See
+- [ ] **Never re-echo diagnostics into the job console.** `grep -C` /
+      `cat` / `$GITHUB_STEP_SUMMARY` on gathered artifacts re-exposes
+      secrets into *workflow run logs*. Write only a **redacted/sanitized**
+      dump to the artifact (never raw secret-bearing content); print a
+      count/pointer in the job log. See
       [reference.md](reference.md#dont-re-echo-redacted-diagnostics).
-- [ ] **Redact every encoding of a secret, not just the plaintext form.**
-      Matching `"break_glass_credentials":{...}` (or `"password":"..."`)
-      is not enough if the same payload also appears base64-encoded inside
-      SQL/DEBUG lines. Substring-matching the key's own base64 is
-      alignment-fragile (embedding at an arbitrary byte offset does not
-      preserve a stable base64 substring) - decode candidate blobs and
-      inspect the plaintext; when a key is found, replace the original
-      encoded candidate in the output with a redaction marker (the encoded
-      form is just as sensitive as the plaintext). Password/token character
-      classes must allow
-      punctuation too (`[^"]+`, not `[A-Za-z0-9+/=]`), or real passwords
-      with `@`/`%`/`#` slip through. See
+- [ ] **Redact every encoding of a secret.** Base64-encoded payloads
+      survive plaintext JSON redaction. Decode each quoted candidate
+      (standard + URL-safe) and check for the key; when found, replace the
+      original encoded blob with a redaction marker. Use `[^"]+` for
+      password character classes (not `[A-Za-z0-9+/=]`). See
       [reference.md](reference.md#dont-re-echo-redacted-diagnostics).
 - [ ] **A same-file `if:` conditional is not a security boundary against ref
       selection.** For `workflow_dispatch` (or anything else where the
@@ -312,19 +253,12 @@ Copy [scripts/verify-tag-matches-sha.sh](scripts/verify-tag-matches-sha.sh)
 into the target repo's `.github/scripts/` and `chmod +x` it - don't
 reimplement the dereferencing/failure-masking logic inline.
 
-**This checkout is the repo's own tagged source** (pushed by someone with
-write access to create the tag), not an untrusted pull-request
-contribution, so the classic `workflow_run` privilege-escalation risk - a
-`pull_request`-triggered workflow chaining into a privileged `workflow_run`
-job that then checks out and executes attacker-controlled code - doesn't
-directly apply to this specific gate. If you adapt this pattern to gate on
-a workflow that *can* be triggered by an untrusted contribution (e.g. one
-that also runs on `pull_request` from forks), don't check out or execute
-that contributor's code in the privileged `publish` job - treat anything
-produced by the upstream run as untrusted data (verify/attest it) and keep
-real build/compile steps confined to the unprivileged workflow. See
-[reference.md](reference.md#workflow-run-privilege-escalation) for the
-general pattern.
+**This checkout is the repo's own tagged source**, not untrusted PR code, so
+the classic `workflow_run` privilege-escalation risk doesn't directly apply.
+If you adapt this pattern for a workflow triggered by untrusted contributions
+(e.g. `pull_request` from forks), never check out or execute contributor code
+in the privileged `publish` job. See
+[reference.md](reference.md#workflow-run-privilege-escalation).
 
 An immutability control isn't optional here - a tag-protection ruleset or
 immutable release is what makes the SHA re-checks above actually mean
@@ -351,26 +285,18 @@ something - see [reference.md](reference.md#tag-immutability).
    while doing this (concurrency-group collisions, GHCR package-linking
    chicken-and-egg, forked-repo Actions being disabled by default).
 
-Editing *this skill itself* (not a workflow that uses it)? Run
-[scripts/self-check.sh](scripts/self-check.sh) - it does steps 1-3 above
-against the skill's own embedded template/script/regexes, plus a live
-functional test of `verify-tag-matches-sha.sh` against a real tag, so a
-content edit can't silently break an example without something catching it.
-The full guarantee only holds when `actionlint` and an authenticated `gh`
-are both installed - missing either degrades that specific check to a
-printed `skip`, not a failure, so re-run with both available before
-trusting an all-green result completely.
+Editing *this skill itself*? Run
+[scripts/self-check.sh](scripts/self-check.sh) - it validates embedded
+templates/scripts/regexes plus a live `verify-tag-matches-sha.sh` test.
+Requires `actionlint` and authenticated `gh` for full coverage (missing
+either degrades to a printed `skip`).
 
 ## Also applies (enforced automatically, not just for workflows)
 
-These aren't workflow-specific but every commit touching a workflow will hit
-them: branch from latest `origin/main` before starting (never reuse a stale
-branch), rebase before pushing and use `--force-with-lease` not `--force`,
-and add an `Assisted-by: <Tool Name> <tool-noreply-email>` trailer (e.g.
-`Assisted-by: Claude Code <noreply@anthropic.com>`) to AI-assisted commits -
-never `Co-Authored-By` for AI tools. See the root `AGENTS.md` ("Critical
-Rules" / "Git Workflow") and the target repo's own `AGENTS.md`/`CLAUDE.md`
-for the full fork/branch/attribution conventions.
+Branch from latest `origin/main`, rebase before pushing with
+`--force-with-lease`, and add `Assisted-by:` trailers to AI-assisted
+commits (never `Co-Authored-By` for AI tools). See root `AGENTS.md` for
+the full fork/branch/attribution conventions.
 
 ## Additional resources
 
