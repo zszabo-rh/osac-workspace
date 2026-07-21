@@ -97,6 +97,7 @@ REPOS=(
   "docs:osac-docs"
   "host-management-openstack"
   "bare-metal-fulfillment-operator"
+  "osac-csi-driver"
 )
 
 # Reference repos — cloned read-only from osac-project, no fork remote added.
