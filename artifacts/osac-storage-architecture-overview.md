@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-07-20
+**Last updated:** 2026-07-21
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -250,7 +250,8 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Area | Status | Assignee | Notes |
 |------|--------|----------|-------|
-| OSAC-2520: Storage Framework E2E Integration | **In planning** | Zoltan | Next task after PR #354 merges. Full stack validation across 3 configs. |
+| OSAC-2520: Storage Framework E2E Integration | **Investigation complete** | Zoltan | July 20 decisions changed the approach — named dev StorageTier+StorageBackend replaces Default-labeled SC. Implementation to be revised post July 21 storage meeting. |
+| OSAC-2300: SNO install missing storage-operations-ig Secret | **New** | Zoltan (flagged) | Akshay flagged July 20. Related gap on Akshay's radar alongside OSAC-2520. |
 | OSAC-1992: StorageTier operator integration | **In Progress** | Will | pick-first for multiple backends; PR in flight |
 | OSAC-1710: ComputeInstance StorageTier selection | **In Progress** | Carlo Lobrano | Default tier behavior TBD — Monday call with Ygal/Akshay |
 | OSAC-2181/2872: PRDs needed | **Not started** | TBD | First work items for new OSAC Volumes v0.2 scope |
@@ -661,7 +662,8 @@ A fundamental debate about OSAC's long-term storage architecture.
 | OSAC-1957 | StorageBackend API integration into storage controller | **Code Review** | Zoltan Szabo | PR #354 open, CodeRabbit APPROVED, waiting for human reviewer. Edge-17 validated (all 3 routing paths). |
 | OSAC-1992 | StorageTier API integration | **In Progress** | Will Gordon | Tier definitions from Tier API drive per-tenant SC provisioning. **Unblocked** — PR #887 merged 2026-07-14. |
 | OSAC-2519 | Storage Framework UI | **New** | Unassigned | UI work for Storage Framework (StorageBackend/StorageTier admin screens). Added 2026-07-14. |
-| OSAC-2520 | Storage Framework E2E Integration | **New** | Zoltan Szabo | Full stack E2E validation: Backend API + Tier API + storage controller + AAP. 3 configs to validate. Document for demo team. Assigned July 17. **Zoltan's next task.** |
+| OSAC-2520 | Storage Framework E2E Integration | **New** | Zoltan Szabo | Investigation complete (July 21 Jira comment). Proposed fix (label lvms-vg1 as tenant=Default) now SUPERSEDED by July 20 decision to use named dev StorageTier+StorageBackend instead. Approach to be revised after July 21 storage meeting. |
+| OSAC-2300 | SNO install missing storage-operations-ig secret blocks tenant storage AAP jobs without VAST | **New** | Unassigned | Akshay flagged to Zoltan July 20 (OSAC-2520 thread). Related gap: AAP present but no storage-operations-ig Secret → CreateContainerConfigError. |
 | OSAC-2871 | Storage Volumes (Outcome) | **New** | — | v0.2 Outcome grouping: parent of OSAC-2181, OSAC-2872, OSAC-984. Created by Akshay July 18. |
 | OSAC-2181 | OSAC CSI Meta-Driver | **New** | — | v0.2 Feature: new osac-csi-driver repo; CSI controller + node plugin + gRPC proxy. Start with PRD. |
 | OSAC-2872 | OSAC Storage Control Plane | **New** | — | v0.2 Feature: storage control plane service; Volume API, Tier Resolution, Policy Engine, Credential Manager, Volume Inventory. Start with PRD. |
@@ -748,6 +750,8 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Merged |
 |----|------|-------|--------|
+| #139 | osac-workspace | Add osac-csi-driver to bootstrap | 2026-07-20 (Open, Roy) |
+| #402 | osac-installer | OSAC-1964: extend LVMS CSV wait + cluster stability gate | 2026-07-14 (Open) |
 | #138 | github-config | Add osac-csi-driver repository configuration | 2026-07-19 |
 | #422 | osac-aap | OSAC-2522: Fix ocp_virt_vm AAP role for removed cores/memory_gib fields | 2026-07-15 |
 | #887 | fulfillment-service | OSAC-2396: StorageTier proto restructure to spec/status pattern | 2026-07-14 |
@@ -811,7 +815,9 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 | 20 | **OSAC CSI Meta-Driver: RBAC and per-tenant credential model?** | July 15 OSAC Volumes meeting: how does the OSAC CSI driver authorize users within tenant clusters? Who can create volumes, and how are per-tenant credentials isolated and injected dynamically? Roy to design. Also: does authentication to guest CaaS clusters need to be ongoing (Will's GitOps concern) or one-shot? |
 | 19 | **Cinder CSI PoC: iSCSI node connection failure?** | June 25: Roy's PoC gets through Cinder gateway, NetApp plugin, policy endpoint, PVC→volume, pod attach — but iSCSI login fails on node. Workers are OpenStack VMs, nova connects at hypervisor; no iscsi on node. Roy: could patch node part but "it will stop being a Cinder CSI." Avishay: "the whole reason we're using cinder csi is for the node plugin." Fundamental topology mismatch. |
 | 21 | **Multiple backends per tier — how to resolve?** | July 18: Will asked in context of OSAC-1992. Akshay: "pick-first" for now; short-term is 1 backend per tier. Future: tier→backend mapping per cluster based on connectivity (some backends may be cluster-specific). Not a blocker for v0.2. |
-| 22 | **Default StorageTier when none specified in ComputeInstance?** | July 18 (OSAC-1710 thread): Carlo asked, active discussion. Avishay recommends: make tier required initially, add per-org default setting later as backlog. Ygal: playbook should use operator-provided tier list, not hardcoded defaults. Akshay open to changing current fallback mechanism. Call July 20 to resolve. |
+| 22 | ~~Default StorageTier when none specified in ComputeInstance?~~ | **RESOLVED (July 20 meeting):** StorageTier is required — users must specify it. No per-org default in the short term; that is a future feature. |
+| 23 | **Dev/E2E StorageTier and StorageBackend name?** | July 20: will create a named "dev" StorageTier+StorageBackend for dev/CI environments instead of the deprecated `tenant=Default` fallback. Name TBD (candidates: `dev`, `dev-e2e`, `dev-ci`, `trial`, `lvms`). To be agreed at July 21 storage meeting. |
+| 24 | **OSAC-2300: SNO installs without VAST fail because storage-operations-ig Secret missing?** | July 20: Akshay flagged OSAC-2300 to Zoltan (OSAC-2520 thread). On SNO without VAST, storage controller launches AAP jobs that fail because `storage-operations-ig` Secret is not created by osac-installer. Related to OSAC-2520 investigation but separate angle — AAP is present but the Secret is missing, causing `CreateContainerConfigError`. |
 
 ---
 
@@ -1377,10 +1383,28 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Roy's github-config PR #138 MERGED — `osac-csi-driver` repository now live in osac-project org
 - Next: Roy to scaffold the repo with CSI controller + node plugin + gRPC proxy structure per July 16 architecture decision
 
-### July 20, 2026 — Core Team Storage Control Plane Meeting (TODAY)
-- Scheduled for Monday — Roy to demo kind cluster setup; discuss storage control plane requirements; GitOps vs ACM vs AAP reconciliation question (Will added this)
-- OSAC-1710 StorageTier default behavior call also on Monday (after demo call, Ygal's invite)
-- No transcript yet
+### July 20, 2026 — "VMaaS and Storage Tier - Take 2" Meeting (OSAC-1710 resolution)
+- **StorageTier is now REQUIRED** when creating a ComputeInstance — users must specify it
+- **Default Tenant StorageClass DEPRECATED** — no longer creating SCs with labels `tenant=Default, tier=default`
+- **New approach for dev/E2E**: create a named "dev" StorageTier AND StorageBackend (LVMS-backed) instead of relying on the Default fallback. Name TBD — candidates: `dev`, `dev-e2e`, `dev-ci`, `trial`, `lvms`. To be agreed at July 21 storage meeting.
+- **Storage controller code must be modified** to support this — tracked under OSAC-917 (Storage Framework)
+- NOTE: The "dev" StorageTier/Backend is separate from the future per-tenant/per-org default tier feature (different release)
+- **Impact on OSAC-2520**: the proposed fix (labeling `lvms-vg1` with `tenant=Default`) is based on the mechanism now being deprecated. Investigation findings remain valid but implementation approach needs to shift to creating a named "dev" StorageTier+StorageBackend via the Tier/Backend APIs instead.
+
+### July 20, 2026 — OSAC Storage Control Plane Meeting
+- Storage control plane integrates as RPC service within fulfillment-service (not a separate service)
+- Authentication: per-tenant-cluster service accounts with OIDC + OPA
+- Authorization: cluster creator permissions via RBAC
+- Inventory, auditing, quota management as generic components within fulfillment-service
+- Decision: file-based auditing as foundational implementation
+- Action items: Crystal to consult stakeholders; group to implement Volume API with public API + service account auth; design proposal for generic inventory/quota/auditing framework
+
+### July 20, 2026 — OSAC Weekly Demo + v0.2 milestone structure
+- **New release/milestone structure**: v0.2 release due August 31; 0.2-M1 due July 31; 0.2-M2 due August 31
+- Storage features for v0.2: OSAC-917 (Storage Framework), OSAC-2872 (Storage Control Plane), OSAC-2117 (Pure Storage)
+- Note: OSAC-2181 (CSI Meta-Driver) NOT listed for v0.2 — scope adjustment
+- Architecture leads now hold full accountability for features backend-to-frontend; UI/UX involvement required earlier
+- Teams asked to add milestone fixed-version to each epic
 
 ---
 

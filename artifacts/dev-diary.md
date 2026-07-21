@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-07-21
+
+### Active Tickets
+- OSAC-1957: Backend-registration-aware storage provisioning — PR #354 (osac-operator) still APPROVED/CI green, tide PENDING (7th day) — root cause found: GitHub reports `mergeStateStatus: BEHIND`, fork branch needs rebase+push
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01 (20d, stale); restart via `/prd:ingest OSAC-998` still not kicked off
+- OSAC-2520: Storage Framework E2E Integration (Akshay-assigned) — still "New"/To Do, not started, updated yesterday
+- OSAC-2300 (NEW, unassigned): SNO install missing `storage-operations-ig` secret — Akshay pinged me directly in Slack to review; explicitly references OSAC-1957/PR #354 as the broader related fix
+
+### Open PRs
+- osac-operator#354 (OSAC-1957): APPROVED, all checks SUCCESS, but `mergeStateStatus: BEHIND` — this is why tide has been stuck 7 days. Needs: rebase feat/OSAC-1957 onto origin/main (done locally today) then force-push to `fork` remote to update the PR.
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (kept only as reference, no action)
+
+### Milestones
+- v0.2 planning phase deadline: 2026-07-31 (10 days away)
+
+### Notes
+- **Repo refresh**: osac-workspace merged 8 commits from upstream. All component repos rebased clean. osac-operator's feat/OSAC-1957 rebase dropped one duplicate commit (private-api version bump already merged upstream) — not related to PR #354's actual fix.
+- **New meeting transcripts (2)**: "OSAC - weekly demo" (Jul 20) — Milestone 02 planning (2 sub-milestones ending August), Bootstrap Epic process note (apply "design approved" label once PRD+design both linked — relevant for OSAC-998/70 later). "OSAC Storage Control Plane" (Jul 20) — quota/inventory/auditing framed as generic fulfillment-service components; next step to propose a cross-service generic framework, which **may overlap with the quota EP restart** — worth checking before `/prd:ingest OSAC-998` who's driving that framework proposal.
+- **Direct Slack mention**: Akshay in wg-osac-storage asked me to review OSAC-2300 (SNO storage secret bug, related to OSAC-1957/#354).
+- **Slack (wg-osac-eng)**: PR dashboard bot — 32 need review, 9 CI failing, 10 with conflicts, 21 stale (7+d), continuing a slow upward drift. `ssh_key` renamed to `ssh_public_key` on ComputeInstance (fulfillment-service #924 merged) — anyone using the CLI locally needs to adjust.
+- **Inbox**: no direct action items; OCP 4.22 release notes change notice and a Kube 1.36 rebase/lgtm-mode announcement are FYI-only.
+
+---
+
 ## 2026-07-20
 
 ### Active Tickets

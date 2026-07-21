@@ -1,0 +1,86 @@
+[PROCESSED 2026-07-21]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - weekly demo” Jul 20, 2026
+Date: Mon, 20 Jul 2026 14:47:05 +0000
+---
+Notes from “OSAC - weekly demo”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 20, 2026, 4:45 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting covered API validation strategies, resource management protocols,  
+development workflows, and milestone 02 planning requirements.
+
+
+API and Resource Management
+Proto validate allows moving validation logic into Protobuf definitions for  
+improved Application Programming Interface consistency. The team decided  
+against proactive cluster reconciliation, shifting responsibility to  
+tenants.
+
+Feature Development Workflow
+Updated workflows require earlier involvement from User Interface and User  
+Experience personnel. Architecture leads now hold full accountability for  
+feature ownership from backend to front end.
+
+Milestone 02 Planning
+Milestone 02 planning establishes 2 sub-milestones ending in August. Teams  
+are prioritizing predictable timelines by adjusting feature scopes  
+conservatively.
+
+
+Suggested next steps
+
+
+
+[The group] Rebase Workspace Repo: Rebase and bootstrap the workspace  
+repository daily when starting the workday.
+
+[Michal Zasepa] Check Workspace Repository: Access and examine the  
+workspace repository provided in the project.
+
+[Alona Paz] Send Jira Instructions: Send instructions to the team on how to  
+open a ticket to Jira administrators for project mapping requests.
+
+[Brad Nichols] Create Jira Tickets: Initiate the creation of necessary Jira  
+tickets for MOC 20.
+
+[The group] Update Bootstrap Epic: Update the status and provide links to  
+the product requirement document and design document in the Bootstrap Epic.  
+Apply the design approved label if both files are present.
+
+[The leads] Update Fixed Version: Add the appropriate milestone fixed  
+version to each epic to ensure alignment with project reality.
+
+[The group] Align Milestones: Verify that each assigned epic milestone is  
+realistic and raise a flag if the current version is not achievable.
+
+[Alona Paz] Contact Jira Admins: Inquire with the Jira administrators about  
+adding specific statuses to the project workflow.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+
