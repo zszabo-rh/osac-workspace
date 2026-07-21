@@ -15,8 +15,10 @@ description: |
 
 ## Overview
 
-This skill reviews a design document against the [OSAC design template](https://github.com/osac-project/enhancement-proposals/blob/main/guidelines/enhancement_template.md),
+This skill reviews a design document against the [OSAC design template](../../.design/templates/design.md),
 architectural conventions, and patterns learned from past reviewer feedback.
+Design documents describe HOW — architecture, APIs, implementation. User stories
+and persona coverage belong in the PRD (`prd.md`), not the design.
 It uses calibrated 0-2 scoring across 4 dimensions with hard pass/fail
 thresholds — matching the Org Pulse dashboard assessment format.
 
@@ -66,8 +68,9 @@ Before scoring, note any structural issues. These feed into dimension scores
 rather than blocking the review — the agent must always produce scores for
 all 4 dimensions.
 
-- YAML frontmatter: title, authors, creation-date, last-updated, tracking-link (full URL)
-- Required sections: Summary, Motivation (User Stories, Goals, Non-Goals), Proposal (Workflow Description, API Extensions, Implementation Details, Risks and Mitigations, Drawbacks), Alternatives, Test Plan
+- YAML frontmatter: title, authors, creation-date, last-updated, tracking-link (full URL), prd (relative path to PRD)
+- Required sections: Summary, Motivation (Goals, Non-Goals), Proposal (Workflow Description, API Extensions, UX Alignment, Implementation Details, Security Considerations, Failure Handling and Recovery, RBAC/Tenancy, Observability and Monitoring, Risks and Mitigations, Drawbacks), Alternatives, Test Plan
+- PRD reference: the `prd:` frontmatter field or an explicit link to `prd.md` must be present — user stories and persona coverage belong in the PRD, not the design
 - Placeholder-only sections (`TBD` with no other content, or a lone `TODO:` line with no other content) count against the relevant dimension score
 - Sections that are genuinely N/A must explain why — silence is a gap
 
@@ -137,22 +140,21 @@ Check:
 - [ ] Non-goals are specific about what's explicitly out of scope and why
 - [ ] No scope creep signals ("and related functionality", "all necessary changes")
 - [ ] Alternatives section includes at least one real alternative with rationale for rejection
-- [ ] User stories cover all relevant OSAC personas
-- [ ] User stories follow: "As a [role], I want to [action] so that I can [goal]"
+- [ ] Design references its PRD (`prd:` frontmatter or link to `prd.md`) and addresses relevant personas through architectural decisions
 
 Using `.design/context/osac-dimensions.md`, also check cross-cutting dimension
 coverage — for each dimension relevant to this design, the design must address it or
 explicitly defer. Silence on a relevant dimension is a gap.
 
-- 0 = Scope unbounded, only one persona, vague non-goals, no alternatives, relevant dimensions ignored
-- 1 = Boundaries mostly clear, some personas missing, non-goals could be more specific, some dimensions not mentioned
-- 2 = Clear boundaries, all relevant personas covered, specific non-goals, real alternatives, relevant dimensions addressed or deferred
+- 0 = Scope unbounded, no PRD reference, vague non-goals, no alternatives, relevant dimensions ignored
+- 1 = Boundaries mostly clear, PRD referenced but some relevant dimensions not addressed, non-goals could be more specific
+- 2 = Clear boundaries, PRD referenced, specific non-goals, real alternatives, relevant dimensions addressed or deferred
 
 **Calibration examples:**
 
-- S=0: Design has no non-goals, covers only "Tenant User" persona, and says "Alternatives: none considered." Storage dimension is relevant but not mentioned.
-- S=1: Design covers Tenant Admin and Tenant User but not Cloud Provider Admin (who would manage the feature's backend config). Non-goals say "advanced features are out of scope" without specifying which. Networking dimension acknowledged but not addressed.
-- S=2: Design covers all relevant personas with user stories, non-goals explicitly exclude auto-scaling and multi-region ("deferred to v0.2, see OSAC-XXXX"), alternatives section compares two real approaches with trade-offs, and all relevant dimensions from osac-dimensions.md are addressed or explicitly deferred.
+- S=0: Design has no PRD reference, no non-goals, and says "Alternatives: none considered." Storage dimension is relevant but not mentioned.
+- S=1: Design references a PRD but non-goals say "advanced features are out of scope" without specifying which. Networking dimension acknowledged but not addressed. Cloud Provider Admin perspective not covered in workflow description.
+- S=2: Design references its PRD, non-goals explicitly exclude auto-scaling and multi-region ("deferred to v0.2, see OSAC-XXXX"), alternatives section compares two real approaches with trade-offs, and all relevant dimensions from osac-dimensions.md are addressed or explicitly deferred.
 
 #### 4. Testability (0-2)
 
@@ -236,7 +238,7 @@ that cover similar scope. Note what this design does well or could learn from th
 
 - **Critical**: Any zero-scored criterion. Also: missing tenant isolation on new resources, fundamental architectural misalignment, breaking changes without migration path, security gaps.
 - **Important**: Score of 1 on any criterion. Also: incomplete sections, missing personas, unclear workflow, vague non-goals, generic risks, thin implementation details, relevant dimension neither addressed nor deferred.
-- **Suggestion**: Style improvements, additional user stories, deeper alternatives discussion, more specific test plan, documentation polish.
+- **Suggestion**: Style improvements, deeper alternatives discussion, more specific test plan, documentation polish.
 
 ## Notes
 
