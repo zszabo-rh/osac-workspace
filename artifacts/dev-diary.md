@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-07-22
+
+### Active Tickets
+- OSAC-1957: Backend-registration-aware storage provisioning — PR #354 (osac-operator) now **worse**: `mergeStateStatus` moved from BEHIND to DIRTY/`mergeable: CONFLICTING`. Root cause: yesterday's local rebase+fix was never force-pushed to `fork`; GitHub still sees the July 15 commit. 8th day stuck.
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01 (21d, stale); restart via `/prd:ingest OSAC-998` still not kicked off
+- OSAC-2520: Storage Framework E2E Integration (Akshay-assigned) — still "New"/To Do, not started
+- OSAC-2300: could not verify today — REST API and text search both return "does not exist" in the OSAC project. Yesterday's diary listed it as a new Akshay-flagged ticket; either it was never actually created, got deleted, or the key was mistranscribed. Needs a check with Akshay before assuming it's resolved or gone.
+
+### Open PRs
+- osac-operator#354 (OSAC-1957): APPROVED, CI green, but now DIRTY/CONFLICTING on GitHub because the local rebase from 2026-07-21 was never pushed. Today's repo refresh rebased the local `feat/OSAC-1957` branch again (7 new commits from origin/main, 2 ahead) — local branch should be conflict-free; needs a force-push to `fork` to sync the PR.
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (kept only as reference, no action)
+- enhancement-proposals#134 (OSAC-2872, Storage Control Plane PRD): **merged 2026-07-22** — Zoltan was a requested reviewer but it merged without his review. Explicitly puts "Quota lifecycle (reserve/commit/release)" in Out of Scope for v0.3, which resolves the 2026-07-20 overlap-risk flag (no generic quota framework introduced).
+
+### Milestones
+- v0.2 planning phase deadline: 2026-07-31 (9 days away)
+- New, unresolved: 2026-07-21 WG-OSAC-Storage meeting notes say "the project release moved to the end of August" — conflicts with the tracked 2026-07-31 v0.2 planning deadline; unclear if this is v0.2 itself slipping or a different release train. Needs clarification.
+
+### Notes
+- **Repo refresh**: osac-workspace merged 10 commits from upstream; all component repos rebased/updated cleanly. osac-installer showed a stash-pop "conflict" warning that is a false positive — caused by submodule ref bumps (bare-metal-fulfillment-operator, osac-aap, osac-fulfillment-service, osac-operator) that `git stash push` doesn't actually stash; stash list is empty, nothing was lost.
+- **New meeting transcript (1)**: "WG - OSAC Storage" (Jul 21) — decision to discontinue the default tenant storage class in favor of auto-provisioned, configurable backend tiers; new action item for Zoltan to propose naming/setup for the local backend and tier configuration (not started); compliance/RBAC-for-personas discussion continues from prior meetings.
+- **Quota overlap resolved**: the Storage Control Plane PRD (#134, merged today) explicitly excludes quota lifecycle from scope (v0.3 target) — the three-way quota-effort collision risk noted 2026-07-20/21 is down to two (OSAC-998 PRD work vs. Ronnie Lazar's independent effort).
+- **Slack (wg-osac-eng)**: Moti Asayag's WG (masayag) posted the Metering design EP (enhancement-proposals#131, OSAC-985) for cross-WG review — relevant background for quota given the validated metering/quota separation (see quota-feature-details.md). PR dashboard bot: 27 need review, 21 CI failing, 5 with conflicts, 17 stale (7+d).
+- **Inbox**: Konflux Service Account Migration follow-up (hcaballe, Assisted-side, not OSAC) marked [action required] — revised deadline end of August, live AMA 2026-07-28 10am DST.
+
+---
+
 ## 2026-07-21
 
 ### Active Tickets

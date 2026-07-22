@@ -1,0 +1,89 @@
+[PROCESSED 2026-07-22]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jul 21, 2026
+Date: Tue, 21 Jul 2026 13:39:04 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 21, 2026, 3:37 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting focused on development workflows and project milestones regarding  
+storage frameworks and compliance security requirements.
+
+
+Development and Release Scheduling
+The project release moved to the end of August. Features now require  
+explicit milestone alignment for progress tracking.
+
+Storage Class Configuration
+The team decided to discontinue the default tenant storage class in favor  
+of automatically provisioned configurable backend tier entries.
+
+Compliance and Security
+Discussions centered on verifying storage boundary requirements for  
+compliance and establishing role based access control for specific customer  
+personas.
+
+
+Suggested next steps
+
+
+
+[Roy Golan] Enable Self-Approval: Enable self approval on the OSAC CSI  
+driver repository to allow code pushes without waiting for pull request  
+stamps.
+
+[Roy Golan] Review Code: Check the code rabbit feedback before merging code  
+to ensure all issues are addressed.
+
+[Akshay Nadkarni] Create Epic: Create an epic to track the default local  
+tier creation work.
+
+[Akshay Nadkarni] Define Epics: Define existing storage framework tasks as  
+proper epics for the development team.
+
+[Akshay Nadkarni] Consult Vast: Query the Vast channel to determine how  
+their customers handle HIPAA compliance.
+
+[Akshay Nadkarni] Schedule Meeting: Organize a meeting with the core team  
+to plan RBAC management for different personas.
+
+[Akshay Nadkarni] Coordinate Work: Connect with Will to verify the current  
+status of storage framework tasks.
+
+[Zoltan Szabo] Propose Configuration: Submit a proposal for naming and  
+setting up the local backend and tier configuration.
+
+[Danni Shi] Create PRD: Write a product requirements document for the Pure  
+storage file support feature.
+
+[Danni Shi] Verify Requirements: Contact Heidi to clarify specific  
+requirements regarding volume separation and storage boundaries for MOC.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+
