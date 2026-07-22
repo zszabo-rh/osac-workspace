@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-07-21
+**Last updated:** 2026-07-22
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -250,12 +250,13 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Area | Status | Assignee | Notes |
 |------|--------|----------|-------|
-| OSAC-2520: Storage Framework E2E Integration | **Investigation complete** | Zoltan | July 20 decisions changed the approach — named dev StorageTier+StorageBackend replaces Default-labeled SC. Implementation to be revised post July 21 storage meeting. |
-| OSAC-2300: SNO install missing storage-operations-ig Secret | **New** | Zoltan (flagged) | Akshay flagged July 20. Related gap on Akshay's radar alongside OSAC-2520. |
-| OSAC-1992: StorageTier operator integration | **In Progress** | Will | pick-first for multiple backends; PR in flight |
-| OSAC-1710: ComputeInstance StorageTier selection | **In Progress** | Carlo Lobrano | Default tier behavior TBD — Monday call with Ygal/Akshay |
-| OSAC-2181/2872: PRDs needed | **Not started** | TBD | First work items for new OSAC Volumes v0.2 scope |
-| `osac-csi-driver` repo | **Created 2026-07-19** | Roy | Repo live; Roy to scaffold CSI structure |
+| OSAC-2520: local backend+tier setup proposal | **Proposing** | Zoltan | Named dev StorageTier+StorageBackend (LVMS-backed). Zoltan to propose naming and configuration. Akshay creating epic under OSAC-917. |
+| OSAC-2300: SNO storage-operations-ig Secret missing | **New** | Unassigned | PR #354 (when merged) fixes short-term; permanent fix via LVMS backend type. |
+| OSAC-1992: StorageTier operator integration | **In PR** | Will | PR #375 open (test phase). Validates tier coverage via labeled SCs; passes tier + backend connection details to AAP; absorbs OSAC-1957 backend connections AC. |
+| OSAC-1710: ComputeInstance StorageTier selection | **In PR** | Carlo Lobrano | StorageTier required (decision July 20). EP PR #137 up for review. |
+| OSAC-2872: Storage Control Plane PRD | **In PR** | Akshay | PR #134 on enhancement-proposals. Quick review requested. |
+| `osac-csi-driver` initial migration | **In PR** | Roy | PR #2 open. Starting with VAST only. Self-approval enabled for now. |
+| Cross-review | **Pending** | Zoltan + Will | Akshay assigned: Zoltan reviews PR #375 (Will), Will reviews PR #354 (Zoltan). |
 
 ### What's Merged (EPs/PRDs)
 
@@ -741,8 +742,12 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #354 | osac-operator | OSAC-1957: use Backend API to determine storage provisioning path | Open — **APPROVED** (CodeRabbit). Zoltan's PR. Waiting for human reviewer /lgtm. Akshay to review. | 2026-07-15 |
-| #901 | fulfillment-service | Add buf lint OSAC_OBJECT_SHAPE enforcement for proto spec/status convention | Open — Ygal Blum. Adds automated protobuf structure check. | 2026-07-14 |
+| #354 | osac-operator | OSAC-1957: use Backend API to determine storage provisioning path | Open — **APPROVED** (CodeRabbit). Akshay asked Will to review; Zoltan asked to review PR #375 (cross-review). | 2026-07-15 |
+| #375 | osac-operator | OSAC-1992: wire Tier API into storage controller for validation and AAP extra_vars | Open — Will Gordon (in test phase). Validates tier coverage via labeled SC discovery; passes tier definitions + backend connection details to AAP via extra_vars; absorbs OSAC-1957 outstanding AC on backend connections. | 2026-07-21 |
+| #2 | osac-csi-driver | Initial CSI driver migration (VAST-only, from PoC) | Open — Roy Golan. Self-approval enabled for now; CodeRabbit comments to address before merging. | 2026-07-21 |
+| #134 | enhancement-proposals | OSAC-2872: OSAC Storage Control Plane PRD | Open — Akshay. Wants quick review to proceed with design doc. | 2026-07-21 |
+| #137 | enhancement-proposals | OSAC-1710: ComputeInstance StorageTier Selection EP | Open — Carlo Lobrano. | 2026-07-21 |
+| #901 | fulfillment-service | Add buf lint OSAC_OBJECT_SHAPE enforcement for proto spec/status convention | Open — Ygal Blum. | 2026-07-14 |
 | #373 | osac-aap | OSAC-1325: switches VAST storage paths to tenant-UID-hash convention | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 | #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 
@@ -1405,6 +1410,19 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Note: OSAC-2181 (CSI Meta-Driver) NOT listed for v0.2 — scope adjustment
 - Architecture leads now hold full accountability for features backend-to-frontend; UI/UX involvement required earlier
 - Teams asked to add milestone fixed-version to each epic
+
+### July 21, 2026 — WG-OSAC Storage weekly meeting
+- Default Tenant StorageClass discontinued — confirmed formally. "Automatically provisioned configurable backend tier entries" replaces it.
+- **Zoltan's action**: submit naming and setup proposal for the local backend+tier configuration
+- **Akshay's action**: create epic for "default local tier creation work" under OSAC-917; coordinate with Will on OSAC-917 task status
+- MOC: storage boundary per tenant project raised (MOC requirement); Roy: quota + RBAC likely sufficient; Akshay: MOC yet to confirm if per-project boundary is absolute requirement
+- Weka: new potential storage vendor (via Rom Freiman); Akshay created OSAC Storage Provider Integration Guide doc for initial discussion
+- Roy: CSI driver migration started (PR #2, VAST-only first); risks from PoC-to-production porting
+- Compliance/RBAC for specific personas: follow-up meeting to be scheduled by Akshay
+
+### July 21, 2026 — Akshay cross-review request + OSAC-917 organizing
+- Zoltan to review PR #375 (Will's Tier API); Will to review PR #354 (Zoltan's Backend API)
+- Akshay: OSAC-917 tickets almost organized; full summary to come July 22
 
 ---
 
