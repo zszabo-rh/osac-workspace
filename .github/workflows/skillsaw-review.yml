@@ -25,4 +25,4 @@ jobs:
       actions: read # download the Skillsaw lint report artifact
       pull-requests: write # post inline lint findings as PR comments
     steps:
-      - uses: stbenjam/skillsaw/review@641606f379ebea086b31dec023366c7ff89301a2 # v0
+      - uses: stbenjam/skillsaw/review@f9819d2de4d69100f8544175d4045f34f0282b66 # v0.17.0
