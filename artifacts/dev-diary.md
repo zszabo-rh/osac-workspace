@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-07-23
+
+### Active Tickets
+- OSAC-1957: Backend-registration-aware storage provisioning — PR #354 (osac-operator) still DIRTY/mergeable:CONFLICTING, tide state ERROR. 9th day stuck since 2026-07-15 approval. Confirmed cause: today's rebase again produced new commit SHAs (local 3 behind fork/feat/OSAC-1957 on old SHAs) — never force-pushed.
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01 (22d, stale); restart via `/prd:ingest OSAC-998` still not kicked off
+- OSAC-3011 (NEW to Jira as of yesterday, already known from prior session's design proposal): Local/Dev/E2E CI Storage Setup — status "New"; design proposal (storage_class_name field) drafted 2026-07-22 but not yet posted to Jira/Slack for Akshay's sign-off
+- OSAC-3012 (NEW to Jira as of yesterday): MOC Developer Environment Storage Setup — status "New", LVMS-on-MOC investigation, not started
+- OSAC-2520: Storage Framework E2E Integration — still "New", unstarted since 2026-07-17; possibly superseded by OSAC-3011/3012, needs confirmation with Akshay
+
+### Open PRs
+- osac-operator#354 (OSAC-1957): APPROVED, CI green, DIRTY/CONFLICTING on GitHub — needs `git push --force-with-lease fork feat/OSAC-1957`
+- osac-operator#375 (OSAC-1992, Will Gordon): CHANGES_REQUESTED (CodeRabbit, 2 actionable comments); Zoltan already left one COMMENTED review 2026-07-22, not a requested reviewer for next round (Akshay, José Hernández are)
+- enhancement-proposals#28: Quota management EP — CHANGES_REQUESTED, stale since 2026-06-03 (reference only)
+- enhancement-proposals#134 (OSAC-2872): merged 2026-07-22, no longer needs review
+
+### Milestones
+- v0.2 planning phase deadline: 2026-07-31 (8 days away)
+- OSAC-917 epics (incl. OSAC-3011/3012) targeted for 0.2-M2, end of August, per Akshay's 2026-07-22 Jira reorg
+
+### Notes
+- **Repo refresh**: osac-workspace merged 3 commits from upstream (evals/review harness added). All component repos rebased/updated cleanly. osac-installer showed the same benign stash-pop false-positive as before (submodule ref bumps only, nothing lost — confirmed via `git stash list` empty).
+- **No new meeting transcripts** — folder current (newest is the already-processed Jul 21 storage WG notes, 24h old).
+- **Slack (wg-osac-storage)**: no new activity since yesterday's Akshay epic-assignment message; Roy Golan asked about CSI helm chart / fulfillment-service client / installer wiring / CSI sanity tests work items pending OSAC-2872 epic breakdown. Sdanni (Pure Storage) posted a new PRD PR #148 (FlashBlade NFS provider) asking for reviewer assignment.
+- **Slack (wg-osac-eng)**: PR dashboard bot — 19 need review, 17 CI failing, 16 with conflicts, 15 stale (7+d) — improving from 2026-07-22's 27/21/5/17 on the CI-failing count but conflicts count is worse.
+- **Inbox**: no direct action items overnight; Google Cloud 2FA nag and a Digital Sovereignty Architecture Forum calendar re-invite (today's Jul 23 instance canceled, now recurring weekly) are FYI-only.
+
 ## 2026-07-22
 
 ### Active Tickets
