@@ -2,6 +2,38 @@
 
 ---
 
+## 2026-07-24 (session 2 — afternoon)
+
+### Focus Areas Active
+- Storage: OSAC-3011/3012/3013 design + PR work
+
+### Completed Today
+- PR #354 (OSAC-1957): force-pushed, conflicts resolved, now MERGEABLE — needs /lgtm
+- OSAC-3011 design: agreed on Akshay's AAP dispatcher approach; no proto field, no separate IG
+- OSAC-3012: confirmed LVMS operational on MOC (481d), scope = registration only
+- OSAC-3013 dependency: confirmed AAP half starts after PR #375 merges; bridge approach decided
+- KubeVirt worker disk: confirmed only root disk (64Gi filesystem) — CaaS LVMS deferred
+- /gm and /bye skills created at ~/.claude/skills/; focus-tracker.md and storage-status-summary.md created
+
+### In Progress
+- osac-operator#354: MERGEABLE, waiting /lgtm (Akshay or Will)
+- osac-operator#375: CHANGES_REQUESTED (CodeRabbit), Will addressing
+- enhancement-proposals#151: CHANGES_REQUESTED (10 comments), review comments drafted but not posted
+- OSAC-3011: design agreed, waiting on OSAC-3013 AAP half before implementation
+
+### Decisions Made
+- OSAC-3011: AAP dispatcher approach (not proto field); `local_lvms_storage` role; hub cluster only; bridge with n/a VAST creds
+- No separate `localStorageFulfillment` IG — OSAC-3013 will clean existing IG
+- CaaS guest cluster LVMS deferred (KubeVirt workers lack raw block devices)
+- Daily session workflow: /gm (opener) + /bye (closer) + focus-tracker.md
+
+### Blocked / Needs Follow-up
+- PR #354: needs /lgtm
+- OSAC-3011 CaaS scope: pending Akshay DM response on KubeVirt disk question
+- PR #151 review comments: not yet posted (Finding 2 + 4 drafted)
+
+---
+
 ## 2026-07-24
 
 ### Active Tickets

@@ -32,17 +32,15 @@
 
 **StorageTier and StorageBackend both named:** `local`
 
-**Instance group decision (July 24):**  
-Akshay clarified: no separate `localStorageFulfillment` IG needed — once OSAC-3013 removes VAST credentials from `storage-operations-ig`, the `local_lvms_storage` role can use the same IG.
+**Instance group decision (July 24, confirmed):**  
+No separate `localStorageFulfillment` IG. Once OSAC-3013 strips VAST credentials from `storage-operations-ig`, the `local_lvms_storage` role uses the same IG. Agreed by Akshay, Will, and Zoltan.
 
-**Bridge approach (needed until OSAC-3013 AAP half lands):**  
-Set `storageFulfillment.enabled: true` with `VAST_ENDPOINT/USERNAME/PASSWORD: n/a` in CI values files. IG Secret is created (pods can start), local role runs without using VAST credentials. Clean up after OSAC-3013's AAP half lands.
+**Dependency model (July 24):**  
+Will's PRs (#354, #375, then AAP half) must merge *before* OSAC-3011 PR merges — not before implementation starts. Implementation and testing proceed in parallel. If OSAC-3013 AAP half isn't ready by the time testing is needed, a WA will be decided then (not pre-committed). No bridge approach baked into the plan.
 
-**OSAC-3011 blocked on:** OSAC-3013 operator half (PR #375) must merge first; AAP half starts after that. Bridge lets us proceed in parallel.
+**CaaS scope decision (July 24):** Hub cluster only. KubeVirt guest cluster worker VMs on MOC have only root disk — LVMS needs a separate raw block device. Deferred.
 
-**CaaS scope decision (July 24):** Hub cluster only. KubeVirt guest cluster worker VMs on MOC have only root disk — LVMS needs a separate raw block device. Possible but requires extra automation. Deferred.
-
-**Open question with Akshay (unanswered):** KubeVirt disk for CaaS guest clusters — is this in scope? cluster-tool vmaas flavor likely has second disk already.
+**Note:** OSAC-3011 plan not yet approved. Implementation starts after approval.
 
 ---
 
@@ -79,10 +77,10 @@ Will's plan (status reply July 24): "Land #375, then kick off the osac-aap story
 
 ## Open Questions / Decisions Needed
 
-1. **CaaS KubeVirt disk for OSAC-3011** — is provisioning extra raw block PVCs per worker VM in scope? Pending Akshay's response in DMs.
-2. **OSAC-3011 bridge approach** — confirmed needed (OSAC-3013 AAP half not started). Use `storageFulfillment: enabled: true`, VAST creds as `n/a`.
-3. **PR #151 credential transit** — Option A (fix the claim, creds transit in-flight) vs Option B (server-side proxy, creds stay in fulfillment-service). Akshay discussing with Roy.
-4. **OSAC-3012 Jira description** — needs update: LVMS is already confirmed on MOC, framing should change from "investigate if LVMS works" to "register local StorageBackend+StorageTier". Comment already posted; description update pending.
+1. **CaaS KubeVirt disk for OSAC-3011** — is provisioning extra raw block PVCs per worker VM in scope? Pending Akshay's response in DMs. (KubeVirt workers confirmed: only root disk, 64Gi filesystem mode, no raw block device available.)
+2. ~~**OSAC-3011 bridge approach**~~ — **resolved**: use `storageFulfillment.enabled: true` with `VAST_ENDPOINT/USERNAME/PASSWORD: n/a` in CI values files. OSAC-3013 AAP half not started yet; bridge needed until it lands.
+3. **PR #151 credential transit** — Option A (fix the claim, creds transit in-flight) vs Option B (server-side proxy). Akshay discussing with Roy. Review comments drafted (Finding 2 + 4) — not yet posted.
+4. ~~**OSAC-3012 Jira description**~~ — **resolved**: comment posted July 23 confirming LVMS already on MOC. Description update still pending in Jira but low priority.
 
 ---
 
