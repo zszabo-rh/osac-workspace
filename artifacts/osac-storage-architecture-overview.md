@@ -1,7 +1,7 @@
 # OSAC Storage Architecture Overview
 
 **Purpose:** Living architecture document for OSAC storage — VMaaS, CaaS, vendor integration, and open questions.
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-24
 **Author:** Zoltan Szabo (with Claude Code research assistance)
 
 ---
@@ -250,7 +250,7 @@ These decisions were formally aligned on during the "OSAC Storage Provisioning: 
 
 | Area | Status | Assignee | Notes |
 |------|--------|----------|-------|
-| OSAC-3011: local backend+tier design | **Proposing** | Zoltan | Proposal posted July 22 (proto field approach). Akshay counter-proposed July 23 (AAP dispatcher approach). Design alignment needed before implementation. |
+| OSAC-3011: local backend+tier design | **In Progress** | Zoltan | AAP dispatcher approach agreed (Akshay's). Key update July 24: separate `localStorageFulfillment` IG likely not needed — OSAC-3013 (Will) will clean VAST credentials from existing `storage-operations-ig`. Dependency on OSAC-3013. CaaS KubeVirt disk question open (Q#27). |
 | OSAC-3012: MOC/Ceph investigation | **New** | Zoltan | Separate epic for MOC/hypershift1 storage. Investigation only for now. |
 | OSAC-2300: SNO storage-operations-ig Secret missing | **New** | Unassigned | PR #354 (when merged) fixes short-term; permanent fix via LVMS backend type. |
 | OSAC-1992: StorageTier operator integration | **In PR** | Will | PR #375 open (test phase). Validates tier coverage via labeled SCs; passes tier + backend connection details to AAP; absorbs OSAC-1957 backend connections AC. |
@@ -747,11 +747,13 @@ OSAC-882 (Storage Tier APIs)
 
 | PR | Repo | Title | Status | Last Updated |
 |----|------|-------|--------|--------------|
-| #354 | osac-operator | OSAC-1957: use Backend API to determine storage provisioning path | Open — **APPROVED** (CodeRabbit). Akshay asked Will to review; Zoltan asked to review PR #375 (cross-review). | 2026-07-15 |
-| #375 | osac-operator | OSAC-1992: wire Tier API into storage controller for validation and AAP extra_vars | Open — **CHANGES_REQUESTED** (CodeRabbit). Zoltan posted quota unit bug finding (QuotaGiB passed as bytes — needs ×1024³). Will addressing CodeRabbit comments. | 2026-07-22 |
+| #354 | osac-operator | OSAC-1957: use Backend API to determine storage provisioning path | Open — **APPROVED** (CodeRabbit). Akshay asked Will to review; Zoltan asked to review PR #375 (cross-review). | 2026-07-22 |
+| #375 | osac-operator | OSAC-1992: wire Tier API into storage controller for validation and AAP extra_vars | Open — **CHANGES_REQUESTED** (CodeRabbit). Zoltan posted quota unit bug finding (QuotaGiB passed as bytes — needs ×1024³). Will addressing CodeRabbit comments. | 2026-07-23 |
 | #2 | osac-csi-driver | Initial CSI driver migration (VAST-only, from PoC) | Open — Roy Golan. Self-approval enabled for now; CodeRabbit comments to address before merging. | 2026-07-21 |
-| #134 | enhancement-proposals | OSAC-2872: OSAC Storage Control Plane PRD | Open — Akshay. Wants quick review to proceed with design doc. | 2026-07-21 |
-| #137 | enhancement-proposals | OSAC-1710: ComputeInstance StorageTier Selection EP | Open — Carlo Lobrano. | 2026-07-21 |
+| #151 | enhancement-proposals | OSAC-2876: Storage Control Plane design | Open — Akshay. **CHANGES_REQUESTED** (10 comments, CodeRabbit). Credential transit concern raised: design claims credentials never leave hub but VAST creds transit through CSI driver gRPC response. Avishay: raised design division question (public API first vs CSI driver first). | 2026-07-24 |
+| #134 | enhancement-proposals | OSAC-2872: OSAC Storage Control Plane PRD | **Merged** — PR #134 merged (basis for design PR #151). | — |
+| #137 | enhancement-proposals | OSAC-1710: ComputeInstance StorageTier Selection EP | Open — Carlo Lobrano. Updated July 24 — ready for new review round. | 2026-07-24 |
+| #146 | enhancement-proposals | OSAC-1710: ComputeInstance StorageTier Selection Design | Open — Carlo Lobrano (draft). Updated July 24 — ready for new review round. | 2026-07-24 |
 | #901 | fulfillment-service | Add buf lint OSAC_OBJECT_SHAPE enforcement for proto spec/status convention | Open — Ygal Blum. | 2026-07-14 |
 | #373 | osac-aap | OSAC-1325: switches VAST storage paths to tenant-UID-hash convention | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
 | #363 | osac-aap | OSAC-1326: VAST RBAC Realm + restricted Role for CSI credential | Open — Will Gordon. CodeRabbit changes requested. | 2026-06-25 |
@@ -828,6 +830,8 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 | 22 | ~~Default StorageTier when none specified in ComputeInstance?~~ | **RESOLVED (July 20 meeting):** StorageTier is required — users must specify it. No per-org default in the short term; that is a future feature. |
 | 23 | **How should the controller handle local (LVMS/Ceph) backends?** | July 21 meeting agreed: name is `local`. Two competing approaches now in play. **Zoltan's proposal (OSAC-3011 comment, July 22):** add `storage_class_name` proto field to `StorageBackendSpec`; controller routes per-tier (Option A: shared SC directly, Option B: per-tenant SC without AAP). **Akshay's counter-proposal (OSAC-3011 comment, July 23):** no proto changes; register backend with `provider: local-lvms`, endpoint/credentials as `n/a`; new `local_lvms_storage` / `local_ceph_storage` AAP roles follow same 4-action dispatcher pattern as `vast_storage`; operator unchanged. **Open:** Akshay's approach requires AAP — does it cover Beaker/SNO environments without AAP? Resolution needed before implementation. |
 | 25 | **Does Akshay's AAP-based local storage approach work for no-AAP environments?** | Akshay's counter-proposal (July 23) routes LVMS provisioning through AAP roles, maintaining the dispatcher pattern. This works for CI (AAP present) but raises the question: what about Beaker/SNO deployments without AAP? The July 21 meeting noted "there may not be necessarily an AAP component here." Needs clarification — is Beaker always expected to have AAP? |
+| 26 | **Is a separate `localStorageFulfillment` IG needed for OSAC-3011?** | July 24: Akshay clarified that OSAC-3013 (Will) will remove VAST credentials from `storage-operations-ig`, making it vendor-agnostic. Akshay's view: no separate `localStorageFulfillment` IG needed — `local_lvms_storage` role can use the cleaned-up existing IG. Dependency: OSAC-3013 must land first. Zoltan/Will to coordinate. |
+| 27 | **OSAC-3011 CaaS E2E scope: KubeVirt worker disk availability?** | July 24: Verified on hypershift1 that KubeVirt HyperShift worker VMs have only one disk (64Gi RHCOS root, filesystem mode). LVMS requires a separate unformatted raw block device. For KubeVirt workers: extra raw block PVC must be provisioned and attached per VM before LVMS installation. For Agent/bare metal workers: works naturally. cluster-tool vmaas flavor likely includes second disk (LVMS pre-installed per README). Resolution needed: is CaaS E2E with LVMS on KubeVirt workers in scope for OSAC-3011? |
 | 24 | **OSAC-2300: SNO installs without VAST fail because storage-operations-ig Secret missing?** | July 20: Akshay flagged OSAC-2300 to Zoltan (OSAC-2520 thread). On SNO without VAST, storage controller launches AAP jobs that fail because `storage-operations-ig` Secret is not created by osac-installer. Related to OSAC-2520 investigation but separate angle — AAP is present but the Secret is missing, causing `CreateContainerConfigError`. |
 
 ---
@@ -1437,6 +1441,12 @@ Note: Operator PR #299, AAP PR #338, and fulfillment-service PR #728 are the OSA
 - Pure Storage: Danni Shi submitted PRD PR #148 (FlashBlade NFS provider)
 - ComputeInstance StorageTier Selection: Carlo Lobrano posted design PR #146 (draft; PRD #137 still pending merge)
 - Will Gordon: internet outage, availability spotty July 23
+
+### July 24, 2026 — storage-operations-ig future + Storage Control Plane design review
+- **storage-operations-ig pivot (wg-osac-storage thread)**: Akshay clarified that OSAC-3013 (Will's work) will remove VAST-specific credentials from `storage-operations-ig` — making it vendor-agnostic. Akshay concluded a separate `localStorageFulfillment` IG is likely not needed; Zoltan's OSAC-3011 work can use the cleaned-up existing IG once OSAC-3013 lands. Will/Zoltan to coordinate dependency. See Open Question #26.
+- **PR #151 review activity**: Avishay raised design division question (public Volume API first vs CSI driver first). Akshay defended CSI-driver-first approach for CaaS PVC support. CodeRabbit flagged credential transit concern: design claims "credentials never leave the hub" but VAST creds transit through tenant cluster CSI driver gRPC response (in-flight only, not persisted). Akshay discussing Option A (fix the claim) vs Option B (server-side proxy) with Roy.
+- Status bot fired in wg-osac-storage — reply pending.
+- Carlo Lobrano updated PR #137 (PRD) and PR #146 (design) for ComputeInstance StorageTier Selection — ready for new review round.
 
 ---
 

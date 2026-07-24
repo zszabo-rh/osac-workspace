@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-07-24
+
+### Active Tickets
+- OSAC-3011: Local/Dev/E2E CI Storage Setup — moved to **In Progress** (was "New" yesterday). Full design negotiation with Akshay overnight landed on an AAP-dispatcher approach (new `local_lvms_storage` role, `provider: local-lvms` StorageBackend, `local` naming) — reverses yesterday's proto-field plan. Two items explicitly deferred to today: CaaS guest cluster local storage, and (resolved) whether a separate `localStorageFulfillment` IG is needed (answer: no, pending OSAC-3013 landing).
+- OSAC-3012: MOC Developer Environment Storage Setup — still "New" but investigation posted: LVMS confirmed already fully operational on hypershift1 in production (481-day-old install). Scope narrowed to registration-only. Same CaaS-guest-cluster open item as OSAC-3011.
+- OSAC-1957: PR #354 — still DIRTY/CONFLICTING, now 10th day since 2026-07-15 approval, same unpushed-rebase root cause as the last two days.
+- OSAC-333: Finalize quota management EP — In Progress since 2026-07-01 (23d stale); ownership now with Ronnie Lazar's WG per yesterday's DM thread, ticket reassignment/closure not yet actioned.
+
+### Open PRs
+- osac-operator#354 (OSAC-1957): APPROVED, CI green, DIRTY/CONFLICTING — needs force-push (3rd day flagging this)
+- osac-operator#375 (OSAC-1992/OSAC-3013, Will Gordon): CHANGES_REQUESTED, new FAILURE check appeared 2026-07-23T16:15 — worth checking what broke, this PR is a dependency for OSAC-3011's IG assumption
+- enhancement-proposals#151 (Akshay, new): Storage Control Plane design doc draft posted 2026-07-23, open for comment
+
+### Milestones
+- v0.2 planning phase deadline: 2026-07-31 (7 days away)
+
+### Notes
+- **Repo refresh**: osac-workspace merged 1 commit from upstream (Claude hooks smoke test infra). All component repos rebased cleanly. osac-installer showed the same benign stash-pop false-positive as the last two days (submodule ref bumps only, confirmed nothing lost).
+- **No new meeting transcripts** — folder current, no new Gemini/weekly-report emails found today.
+- **Jira**: Akshay directly mentioned Zoltan in comments on both OSAC-3011 and OSAC-3012 overnight (2026-07-23 late evening) — full design back-and-forth, see project-storagebackend-schema-proposal.md memory for the condensed version.
+- **Slack (wg-osac-storage)**: Akshay opened a thread on the future of `storage-operations-ig` (credential removal via OSAC-3013 making it provider-agnostic) — concluded no new `localStorageFulfillment` IG needed, asked Will and Zoltan to coordinate directly. New `chai-bot` AI assistant enabled in the channel (indexes channel history for Q&A). PR dashboard bot: 18 need review, 20 CI failing, 15 with conflicts, 19 stale (7+d) — CI-failing count worsening (17→20).
+- **Inbox**: Jira mention notifications for OSAC-3011/3012 (already covered above); a "Monthly breakfast" calendar event for Jul 29 was canceled; no other action-required items.
+
+---
+
 ## 2026-07-23
 
 ### Active Tickets
