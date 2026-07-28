@@ -1,0 +1,275 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Apr 8, 2026
+OSAC ecosystem sync
+Invited Jason Kary Akshay Nadkarni Juan Hernández Oved Ourfali Trey West Zoltan Szabo Ethan Kim Ofer Bochan Omer Vishlitzky Ameya Sathe Crystal Chun Dakota Crowder Ilya Skornyakov Ori Amizur Siddarth Royapally Will Gordon Adrien Gentil Elad Tabak Alona Paz Avishay Traeger Eran Cohen Michael Hrivnak Dan Manor
+Attachments OSAC ecosystem sync 
+Meeting records Transcript Recording 
+
+
+Summary
+Summit demo planning document review occurred for VM and Cluster as a Service while the team organized for growth with ongoing integration and implementation work.
+
+Metal LB Implementation Confirmed
+Persona-based stories for the public IP pool were completed and the team is proceeding with the Metal LB implementation using L2 advertisement. Review is needed for the storage tier enhancement proposal, which will be publicly pinged if necessary.
+
+Onboarding and Backend Integration
+New team members are getting set up and starting work on assigned bugs while the IDB Client and Keycloak integration PR awaits final approval. Work is progressing on VM and GPU testing, with successful completion of the VM-based Nvidia NCP test.
+
+Summit Demo Planning Review
+A document outlining work streams for potential summit demos, including VM as a Service and Cluster as a Service, was shared for review. Team organization into specific working groups is necessary to manage the growing team and various projects.
+
+
+Details
+* Public IP Pool Implementation and Review Status: Akshay Nadkarni reported completing the persona-based stories document for the public IP pool and shared it with Michael and Lars, who had previously offered comments, but has not yet received feedback (00:00:00). Since no one has requested them to stop or wait, they are proceeding with the Metal LB implementation using L2 advertisement as the first pass, following the plan originally decided with Adrian and Iran (00:01:29). Oved Ourfali suggested that they ping Michael regarding the storage tier enhancement proposal review and, if needed, ping publicly in the channel to increase visibility (00:00:00).
+* Cluster Setup and Blockers: Ameya Sathe reported trying to set up a cluster either in the shared MOC cluster, where there is an issue with their computer instance being stuck in the starting state, or on their R_U to edge lab server. They are currently juggling resource limitations on the R_U to edge lab server to get the app component, which includes automation, the civil platform, and OpenShift, deployed (00:02:29). They are posting ongoing blockers regarding the MOC setup in a thread, noting that some issues, such as internet issues in the office, are outside of the team's control (00:04:13).
+* IDB Client and Keycloak Integration PR: Crystal Chun has an open Pull Request (PR) for adding an IDB client with a Keycloak specific client and is currently working on addressing the review comments received. They have started marginal work on integrating Keycloak with organization creation and beginning a users API, but these efforts are dependent on finalizing the open PR (00:05:16).
+* New Team Member Onboarding and Initial Tasks: Dakota Crowder and Siddarth Royapally have joined the team and are getting up to speed, with thanks extended to Akshay Nadkarni for their help with onboarding. Dakota Crowder is downramping their previous project and starting to dig into an assigned bug, which they can currently replicate (00:06:29) (00:09:55). Siddarth Royapally is focused on getting their setup running and hopes to start looking at a bug today (00:09:55).
+* Optimistic Locking and Leader Election Work: Juan Hernández updated the GPU pass-through PR and the catalog enhancement request and implementation, which are both awaiting review. They have also been working on adding support for optimistic locking to the API by implementing a new metadata version field and an optional lock parameter for update operations. This work is foundational to adding support for leases, which will enable a leader election mechanism for multiple controller replicas to work together (00:07:32).
+* VM and GPU Testing and Carbide Integration: Trey West finished testing the VM on GPUs on the GB200 VMs, and the VM-based Nvidia NCP test executed successfully. They are currently working on the Carbide API integration with OSAC, testing the changes today to hopefully publish PRs soon. Trey West is also working with Sasha from Quality Engineering (QE) to help them get ramped up on the project, including deploying VM as a service (00:11:04).
+* Summit Demo Planning and Review: Oved Ourfali shared a document regarding different work streams for potential demos at the summit booth, including VM as a service and Cluster as a Service, and is working with the UIX team on design and implementation (00:12:07). Trey West felt the Carbide section of the document looked structurally sound, though there are implementation limitations, such as with agent binding, that will require changing the approach. Oved Ourfali encouraged others to review the document to confirm accuracy, identify missing items, and check on current progress (00:13:16).
+* Subnet CIDR Range Immutability: Will Gordon is working on a bug fix that will make subnet C_I_D_R ranges immutable to resolve an issue where they could be changed to a conflicting range (00:15:14). Follow-on work will involve ensuring virtual network resources support multiple C_I_D_R ranges from which subnets can pull (00:16:03). Akshay Nadkarni helped to update the sprint with the appropriate cards for Will Gordon (00:15:14).
+* MOC 2.0 and Cluster as a Service Strategy: Akshay Nadkarni asked about the status of MOC 2.0 with a potential June deadline (00:17:20). Oved Ourfali explained that the MOC research team was maintaining infrastructure manually and the initial goal is to automate current cluster as a service offering to work with OSAC (00:18:36). Oved Ourfali noted that getting more pieces into use and consumed will allow the team to learn about gaps and how to productize them, even though it is not yet a product (00:19:39).
+* Team Organization and Backlog Management: Oved Ourfali noted the need to see how to organize the growing team, which may lead to specific calls for working groups on topics such as infrastructure, V_M as a service, cluster as a service, and networking. The team is currently dividing open items into smaller tasks to allow new members to contribute, become familiar with the codebase, and get up to speed (00:20:37).
+
+
+Suggested next steps
+* [Akshay Nadkarni] Ping Storage Reviewers: Ping Michael regarding the storage tier enhancement proposal review. Ping Lars or the channel publicly to increase visibility.
+* [Akshay Nadkarni] Check IP Pool Review: Ping Michael again to check if he reviewed the public IP pool persona user stories document.
+* [Trey West] Onboard QE: Work with Sasha from QE to ramp him up on the project including VM as a service deployment.
+* [Akshay Nadkarni] Review Assigned Tickets: Check why Will Gordons assigned tickets are not showing in the To-Do list.
+* [Will Gordon] Update Fulfillment Repo: Update the fulfillment CLI dependency to pull code from the fulfillment service repository instead of the archived CLI repository.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Apr 8, 2026
+OSAC ecosystem sync - Transcript
+00:00:00
+ 
+Akshay Nadkarni: Uh initially there was a P that had to be done uh which I completed yesterday. Uh I did post a document. I think a question about this had even come up in Monday's meeting. Uh and I did post a Google doc uh with information on the different persona based stories for public IP pool. I've pinged again Michael and Lars who mainly had comments during the meeting. Uh but I haven't heard anything from them. So I'm just proceeding right now with the implementation based on at least what was discussed. Um so that's where things are at basically uh like implementation for the public IP pool piece waiting on reviews uh for the storage tier uh enhancement proposal piece. Um and I think what we are
+Oved Ourfali: So you will ping Michael today on the storage one and also feel free if you need large input I mean
+Akshay Nadkarni: I
+Oved Ourfali: you can ping those uh you can ping even publicly uh like in the channel so that uh maybe to increase the visibility on that.
+ 
+ 
+00:01:29
+ 
+Oved Ourfali: Um,
+Akshay Nadkarni: okay okay I'll do
+Oved Ourfali: but but you mentioned you also need their input on the public IP pool or is it kind
+Akshay Nadkarni: that. So I think so um so Iran I and then I'd even discussed it with Adrian and I think what we had decided was at least to go ahead with the metal LB implementation um um and with L2 advertisement as the first pass. Um in Monday's meeting I think there were some questions raised regarding one of the messages I had put in Slack and at that time a request had come up to say can um like Michael actually mentioned can you produce some persona based user stories so I did create a document for that uh I can ping him again asking if he's taken a look but at least I haven't heard anyone say don't go ahead and implement it or wait until we reach some conclusion so at least I'm proceeding with the plan that I had initially with Iran and Adrian uh of going
+Oved Ourfali: Okay,
+Akshay Nadkarni: um both with that.
+Oved Ourfali: sounds good.
+ 
+ 
+00:02:29
+ 
+Akshay Nadkarni: Yeah.
+Oved Ourfali: And you've been working also with Dakota and uh
+Akshay Nadkarni: Yes.
+Oved Ourfali: and Mhm.
+Akshay Nadkarni: So yeah,
+Oved Ourfali: Yeah.
+Akshay Nadkarni: so I see both of them are on the call and I did assign tickets to them and I've been um
+Oved Ourfali: Yeah.
+Akshay Nadkarni: um checking in on their progress but yeah they can definitely update on what they are working on. I think uh uh that'll be good for them.
+Oved Ourfali: Okay, let's get to it and then I hope it's in the epic. I hope it's in the sprint. If not, we'll add those into the sprint as well. Uh uh are you here?
+Ameya Sathe: Yes, I am sorry.
+Oved Ourfali: Yes.
+Ameya Sathe: Uh yes. So in this regards I have been attempting to set up cluster uh either in the shared shared MOC cluster where there's issue of that my computer instance is in starting state uh but it is uh and the second attempt I'm trying to start cluster is on my uh the RU to edge lab server so is that SNO and and it uh the currently because limited CPU resources I'm trying to see how I can make it successful because everything is deployed except the app component uh that's automation and civil platform on it and the open shift part so I'm just trying to juggle that okay which one should I scale down and then install and installing it so there are two workflows you have to do it to get up and set cluster up and running for this
+ 
+ 
+00:04:13
+ 
+Oved Ourfali: So, do you need any assistance with that?
+Ameya Sathe: thing.
+Oved Ourfali: Um,
+Ameya Sathe: Oh yes.
+Oved Ourfali: or currently
+Ameya Sathe: So there's an ongoing on this ongoing thread which I've been posting my blockers in the thread with regards to the MOC part uh with regards to so the thing is I'm working in hal uh on that regards and I guess those those issues are actually outside of our means OSAC nonosac issues like internet issues in the office and some sometimes like yeah there was some internet issues in my office that this did not allow me. So yes I'm working step by step on getting the issues or trying to create a workarounds on the issues which are not in our
+Oved Ourfali: Okay. So, if you need help,
+Ameya Sathe: control.
+Oved Ourfali: uh you mentioned you reached out to Juan, but if you need anything else, uh uh any help, let us know. Okay. Um
+Ameya Sathe: Yeah. So just keep an eye on the thread which I'm right now going on and uh or the shared
+ 
+ 
+00:05:16
+ 
+Oved Ourfali: Okay. It said the thread is in the OAC channel.
+Ameya Sathe: demos cluster.
+Oved Ourfali: Okay.
+Ameya Sathe: Uh yes,
+Oved Ourfali: Okay.
+Ameya Sathe: thank you.
+Oved Ourfali: Okay. Aisha is out. Uh, crystal.
+Crystal Chun: Hello. Um, so right now I have a PR open for adding an IDB client um with a Keycloak specific client and I've got a lot of reviews on it which thank you all. Um, so I'm just working on fixing up the PR based on those review comments. I've also kind of started working on like the integration key integration with the organizations getting created from the key client but that will have to be redone after I fix up this PR. Um and I've marginally started adding a users API but that is also waiting on my PR. So that's all.
+Oved Ourfali: Okay, thanks sister Dakota. Welcome
+Dakota Crowder: Hello.
+Oved Ourfali: aboard.
+Dakota Crowder: I've met some of you before, but just I guess I'm just gonna do a brief blurb if that's okay of it. Yeah.
+ 
+ 
+00:06:29
+ 
+Dakota Crowder: Um me and Sedarth and some others are joining from a different team to kind of jump in. So big shout out to AI for helping us get onboarded so far. Um I've really kind of downramped the previous project um and and gotten at least starting to get up to speed this week. I'm out later this week. Um, so I'll see what I can get done today. Um, but yeah, at least have access to the mass hoping cloud cluster and this I have this bug that I've been assigned. Um, I guess I should move it to in progress, but I'm able to replicate it and and going to begin digging in soon. So, um, nice to meet everyone. Look forward to working with all you.
+Oved Ourfali: Yeah, thanks Lakota. Looking forward to working with you too. And again, thanks Sakshai for helping uh on board the folks uh during this week. Uh Dan is also out. Elad is also out. Is also out. Uh uh uh Jason is out.
+ 
+ 
+00:07:32
+ 
+Juan Hernández: Hi. So, regarding the GPU pass through,
+Oved Ourfali: Juan
+Juan Hernández: I updated the P request that I created to move it to the it used to be in the in the OSAC template repo which was deleted and I move it to the OSAC AP. So, it's now there waiting for review. And regarding the other thing, the catalog, it's also there waiting for review. both the handment request and implementation. In addition to that, I've been working on other things that you may be interested on. I've been trying to add support for optimistic locking to the API. So, I added a new metadata version field to all the objects of the API and a new optional lock parameter to all the update operations. So if you want you can use that if you want to use optimistic locking meaning that if you update an object and the version similar to what happens in Kubernetes the version that you are updating is not the latest one you will get an error and you can retry that's important because the next thing I want to add which is using that is add support for leases something similar to the listes that you have in Kubernetes and the reason to add that is to be able to have a to have a a leader election mechanism that we can use in the controller to have multiple replicas working
+ 
+ 
+00:08:59
+ 
+Juan Hernández: together. Currently when we deploy OSK, we have only one controller. Uh the the objective of all this work is to be able to have multiple instances of that controller. Um you may find it useful for that or for other things. That's it for
+Oved Ourfali: So you think there are existing flows we need to move to working with that as well I guess
+Juan Hernández: me.
+Oved Ourfali: Right.
+Juan Hernández: I think we will need to work all the flows that are managed by the controller. Currently we have only one instance.
+Oved Ourfali: Mhm.
+Juan Hernández: They need they will need to be moved to this flow. But uh there's nothing really to change in those flows. We will just need to change the controller so that only one instance is actually making the
+Oved Ourfali: Mhm.
+Juan Hernández: reconciliation and the others will just doing will be doing nothing.
+Oved Ourfali: Yeah,
+Juan Hernández: So we'll be mostly transparent for for the logic of the controllers.
+Oved Ourfali: by the way, is there any epic or task or story around that to to the sprint?
+ 
+ 
+00:09:55
+ 
+Juan Hernández: No, no,
+Oved Ourfali: Okay,
+Juan Hernández: there isn't.
+Oved Ourfali: great one.
+Juan Hernández: Okay.
+Oved Ourfali: Thanks. Uh, okay. Um, and thanks for helping as well. Um, okay. Sid, do you say your name? Is it harder or is it hard or how do
+Siddarth Royapally: Yeah. Sad is fine.
+Oved Ourfali: I
+Siddarth Royapally: All Yeah, our set is set is fine as well.
+Oved Ourfali: Okay,
+Siddarth Royapally: Uh yeah.
+Oved Ourfali: that's it. Yeah,
+Siddarth Royapally: Uh yeah.
+Oved Ourfali: welcome
+Siddarth Royapally: Uh hi. Yeah. Thank you.
+Oved Ourfali: aboard.
+Siddarth Royapally: Uh yeah, nice to meet everybody and uh yeah. So this week I've been mainly, you know, getting the setup uh up and running and, you know, just uh playing around with stuff. Uh yeah, I'm hoping to, you know, start looking at bug today. Uh and yeah, looking forward to working with everybody.
+Oved Ourfali: Thank you. Uh Trey, let's move to you.
+Trey West: So last week I finished up testing out the um VM on uh GB200 uh I mean GPUs on the GB200 VMs.
+ 
+ 
+00:11:04
+ 
+Trey West: Uh that worked well. We we finished executing the VM based Nvidia NCP test around that. Um I think we're just waiting to like clean up a few more tests, but none of them are related to VMs. Uh, so I'm kind of on a I guess standby until there's something else needed on that front. Um, then this week I'm mainly working on the Carbide API or the Carbide integration with OSAC. Um, I'm kind of going through the stuff that Iron sent and trying to use the AI SDLC approach to uh getting the changes in. So I did that some yesterday. Um, I think I have everything as clean as I can get it from what I can tell. Uh, so I'm going to test it out today and see how it goes. Um, then hopefully I can start publishing some PRs around that. Um, then as a side note, uh, I guess QE is trying to figure out how there can be more involvement from their side on the project. So I'm I'm working with Sasha from over there to try and get him ramped up on the project a little bit.
+ 
+ 
+00:12:07
+ 
+Trey West: Um, so deploying like VM as a service and just getting familiar with the fulfillment service and everything. Um, so just doing that on the side, but that's it for me.
+Oved Ourfali: Okay. And thanks for and I use the opportunity to mention the document I share. So I was asked to kind of look into the different work streams we have and trying to see okay what can we demo in each and we're also looking at I'm also working with Ethan from the UIX team to see how can we um basically have a UIX design and starting implementation. So there is one document on V as a service that we are trying to run with in order to demo something at the summit booth. Um I created another one for cluster as a service trying to see what can we demo. Um and I included carbide there as well. So thanks D for your review. I also wanted like a sanity check because uh I did get help from Claude in creating this document. I did go through it before uh before sending it to you, but I assume that there are some uh maybe um some pieces that are not accurate or maybe we should demo them.
+ 
+ 
+00:13:16
+ 
+Oved Ourfali: So, thanks for your input on that and I and uh others I I sent it on Slack today after uh uh after Trey reviewed it like um um so to so I'll be happy to get your feedback as well. Again the idea would be to use it as a okay if you're going to demo all these flows what's missing what exists already uh can we add also UI to that etc. So it's kind of more than a demo doc. It's more like to to get like a sanity check and uh and trying to kind of see okay what are the different things we did so far in each space like in the cluster one the VM one and others.
+Trey West: Yeah.
+Oved Ourfali: Um so I encourage you to take a look and share a little
+Trey West: Yeah. Structurally, I felt like the car by itself looked good.
+Oved Ourfali: deeper.
+Trey West: Like it made sense the way it flowed. Um my main questions were just I mean my main comments were mainly around like implementation stuff which I think we we will narrow down more once I actually open the PRs get this stuff merged
+ 
+ 
+00:14:12
+ 
+Oved Ourfali: Yeah.
+Trey West: because like the agent binding stuff like I'm finding there's some limitations in the carbide API that I thought we could go with but it seems like we're going to have to change the approach a little bit.
+Oved Ourfali: Cool.
+Trey West: Um, but yeah, I think I think once I can get a PR up and get some eyes on everything, we can we can uh nail it down a lot more.
+Oved Ourfali: Thanks again. Um, okay. There are so will come aboard as well.
+Will Gordon: Hey everyone. Um, I haven't really had a chance to meet uh most of y'all, but uh so I come from the Rosa side of the house from managed Open Shift. Uh joining the ecosystem team to kind of get ramped up on this. Looking forward to working on the project and working with all y'all. Um yeah, interestingly, I don't see the two cards that I was assigned in to-d do, but that's okay. Um,
+Oved Ourfali: I don't see one.
+Will Gordon: yeah, that's the one that's in progress,
+ 
+ 
+00:15:14
+ 
+Oved Ourfali: Yes.
+Will Gordon: but there was the other two that should be in to-do.
+Oved Ourfali: Okay.
+Will Gordon: I don't know why they're not there, but whatever.
+Oved Ourfali: Yeah,
+Akshay Nadkarni: I I just update I just added it.
+Oved Ourfali: we need to add it to the screen probably.
+Will Gordon: Um,
+Akshay Nadkarni: So maybe if you refresh it may show up. Uh but yeah,
+Will Gordon: oh,
+Akshay Nadkarni: it was added to the sprint.
+Will Gordon: okay.
+Oved Ourfali: Let's
+Akshay Nadkarni: Yeah,
+Oved Ourfali: see.
+Will Gordon: That's okay.
+Akshay Nadkarni: not yet.
+Will Gordon: I'm working on I got two other ones that are in to-do.
+Akshay Nadkarni: Okay, I'll take a look again.
+Will Gordon: Yeah, no worries. Um, but the one I'm working on and and actually I thank for your help.
+Oved Ourfali: Good.
+Will Gordon: Um, so subnet cider ranges really should be immutable. Um, the card here was actually specifically about resolving a bug about where you could change the site range to something that conflicted. Um, so ultimately the bug fixes there is going to just be making subnet site ranges immutable.
+ 
+ 
+00:16:03
+ 
+Will Gordon: And then kind of some of the follow- on work to that is to ensure that virtual network resources can support multiple citer ranges and then the subnets will pull from from those ranges. Um, so that that's what I'm working on. The other two I had Claude start on and then yeah, there we go. There's one of them. and Claude unfortunately decided to use the the fulfillment CLI repo, not realizing it was archived. Um, so I just got to get that updated to to pull in from the the fulfillment service repo.
+Oved Ourfali: Okay, thanks Will. And for those who don't know, will uh had a few roles he was doing in Reddit before. Um um I I worked with him a lot in the service delivery or uh together. Um but yeah, I'm looking forward to working with you more will and welcome aboard. Um, Zultan I see is a way I assume is finalizing quart. Okay. Yeah, I see it's actually calling called finalizing quota enhancement propos. I'm not sure whether it was merited or not but I guess it's uh close and probably will start implementing.
+ 
+ 
+00:17:20
+ 
+Oved Ourfali: I reached out to him to see if we can uh we might split some of the work on that epic. uh uh let's finalize the enhancement first and see if we can also have some of the folks that recently join the group to have some tasks around that as well. Um okay any anyone else wants to share anything? Okay I can say in high level that yeah go
+Akshay Nadkarni: So,
+Oved Ourfali: ahead.
+Akshay Nadkarni: so in the uh earlier meeting there was this mention of MOC 2.0 like what are we having any kind of delivery for MOC 2.0 with the June deadline or something like that? Just curious.
+Oved Ourfali: So um it's not really clear to me as well. I do see that MOC was kind of uh so the team the the research team was uh uh basically maintaining an infrastructure for the MOC. That's something that was happening for a while now like for a few years I guess. And uh when we started working with the research team, the idea was to see how what pieces can we automate and uh basically provide a new cluster as a service offering.
+ 
+ 
+00:18:36
+ 
+Oved Ourfali: Uh because because before they they were doing a lot of these by hand, right? They were creating the clusters by hand, etc. So I assume the first part that would would be interesting for the MOC was to move the current cluster as a service offering to the um basically to work with OSAC. I'm not sure about the complete timeline for that but that that's my understanding of what they need to do or what they
+Akshay Nadkarni: Okay.
+Oved Ourfali: want to do. Uh I know there is another working group around uh
+Akshay Nadkarni: Mhm.
+Oved Ourfali: um observability that has been doing some work but we've been less involved with that working group. Uh so I guess it's more to be discussed at this point. If I understood correctly VM as a service currently is not something they're keen on but will be in the future. Um,
+Akshay Nadkarni: Okay.
+Oved Ourfali: so it's it's kind of I would say it's a beard. It it's a bit weird because eventually even if there's going to be an offering we provide, it's not yet a product.
+ 
+ 
+00:19:39
+ 
+Oved Ourfali: So we need to see but but that kind of aligns with the previous offerings that Reddit gave the MOC team, right? So we'll need to see. Uh, on the other hand,
+Akshay Nadkarni: Mhm.
+Oved Ourfali: I do think it would be a good opportunity for us to get more pieces in production. uh that's what I we wanted to do with the IBM as well but uh for VM as a service but
+Akshay Nadkarni: Mhm.
+Oved Ourfali: um so I think I think the more we can get some of these pieces uh let's say maybe production is a big word but to be used and
+Akshay Nadkarni: Mhm.
+Oved Ourfali: consumed uh then we can learn more and how to productize it what are the gaps what things are uh important and missing etc
+Akshay Nadkarni: Okay,
+Oved Ourfali: so sure Um
+Akshay Nadkarni: sounds good. Thanks so much.
+Oved Ourfali: and currently you know there is the shutdown in TLV. They should some will be probably back on Sunday some tomorrow. But we we we're currently in the process of trying to you see many people are joining the team.
+ 
+ 
+00:20:37
+ 
+Oved Ourfali: So we're currently in the process of trying to see who should work on what like divide the different people between the different topics uh and also see how we should organize it. I assume maybe we should have uh um the more the team grows we might have specific uh calls for specific working groups like let's say on topics like the infrastructure like VM as a service like cluster as a service like networking we need to see how to organize things but we want to to start adding more and more pieces to the backlog so that uh we can get people working on the different topics uh I currently has the opportunity of uh um having on one hand folks joining but on the other some folks on shutdown to try and see what are the current open items and to divide those to smaller items where different people can contribute and get more familiar with the repo codebase the use cases etc. So um thanks a for the help with that. Um um so that's what we've been doing now. Um because I assume that even for example if Will Gordon's focus would be different than what he's doing now. Anyhow getting up to speed and understanding how things work in the repo etc. This these are good on boarding uh um these are good on boarding items to do.
+ 
+ 
+Transcription ended after 00:22:22
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

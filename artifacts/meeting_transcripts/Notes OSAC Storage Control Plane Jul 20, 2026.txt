@@ -1,0 +1,73 @@
+[PROCESSED 2026-07-21]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Storage Control Plane” Jul 20, 2026
+Date: Mon, 20 Jul 2026 13:52:39 +0000
+---
+Notes from “OSAC Storage Control Plane”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 20, 2026, 3:51 PM CEST and may  
+contain errors.
+
+
+Summary
+Storage control plane architecture review covering integration strategies  
+and authorization frameworks for tenant cluster security management.
+
+
+Storage Control Plane Architecture
+The storage control plane will integrate as a remote procedure call service  
+within the existing fulfillment service. This design supports volume  
+management through a unified volume application programming interface and  
+Container Storage Interface driver.
+
+Authentication and Authorization Strategy
+Authentication will utilize service accounts unique to each tenant cluster  
+integrated with OpenID Connect and Open Policy Agent. Authorization aligns  
+with cluster creator permissions using role based access control.
+
+Generic System Component Integration
+Inventory, auditing, and quota management are established as generic  
+components within the fulfillment service. A decision was made to utilize  
+simple file based auditing as the foundational implementation.
+
+
+Suggested next steps
+
+
+
+[Crystal Chun] Stakeholder Consultation: Discuss the storage control plane  
+requirements with relevant team members to identify potential alternative  
+approaches.
+
+[The group] Develop Volume API: Implement volume management capabilities  
+within the existing fulfillment service using public APIs and service  
+account authentication.
+
+[The group] Propose Generic Framework: Create a design proposal for  
+inventory management, quota tracking, and auditing that can be applied  
+across all services.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

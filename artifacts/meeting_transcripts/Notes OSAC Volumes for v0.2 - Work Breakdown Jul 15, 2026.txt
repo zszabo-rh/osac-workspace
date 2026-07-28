@@ -1,0 +1,115 @@
+[PROCESSED 2026-07-16]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Volumes for v0.2 - Work Breakdown” Jul 15, 2026
+Date: Wed, 15 Jul 2026 16:21:58 +0000
+---
+Notes from “OSAC Volumes for v0.2 - Work Breakdown”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 15, 2026, 6:19 PM CEST and may  
+contain errors.
+
+
+Summary
+The team defined architectural requirements for storage volumes via  
+controller deployment strategies and tenant onboarding procedures.
+
+
+Defining Storage Architecture Strategy
+The team prioritized cluster-as-a-service over virtual machine-as-a-service  
+while confirming controller deployment on the hub cluster. This  
+architectural foundation established necessary requirements for volume APIs  
+and basic quota management.
+
+Security and Volume Operations
+Authentication focuses on the creator's role-based access control to  
+simplify authorization within tenant clusters. Inventory tracking and  
+credential management ensure secure volume lifecycle management across  
+different storage vendors.
+
+Tenant Provisioning and Workflows
+Successful volume creation requires configuring storage classes and  
+deploying Container Storage Interface drivers during tenant onboarding. The  
+current model utilizes DaemonSets to handle volume attachment requests  
+efficiently.
+
+
+Suggested next steps
+
+
+
+[Roy] Prioritize Service Models: Determine if Cluster as a Service or VM as  
+a Service should be prioritized for the upcoming milestones.
+
+[Roy] Design RBAC Integration: Formulate a design strategy for handling  
+role based access control within the volume API architecture.
+
+[Ronnie, Akshay Nadkarni] Define Quota Strategy: Collaborate to determine  
+the quota management framework within the broader Ozac system architecture.
+
+[Roy] Determine Deployment Location: Decide whether to deploy vendor CSI  
+controllers on the hub cluster or alongside the storage logic layer.
+
+[Roy] Update AAP Template: Integrate the CSI driver deployment logic into  
+the AAP template configuration.
+
+[Someone in Ra'anana-Mercury-17s232] Reschedule meeting: Reschedule the  
+1-on-1 session to complete the storage backend discussion.
+
+[The group] Refactor provisioning workflow: Extract shared provisioning  
+workflow components into a single entry point. Avoid logic duplication  
+across entry points.
+
+[Someone in Ra'anana-Mercury-17s232] Resolve tenant credentials:  
+Investigate mechanisms for managing per-tenant credentials. Define how the  
+OSAC CSI driver handles these during storage operations.
+
+[The group] Consult CAS team: Contact the Cluster as a Service team.  
+Discuss authentication, forgery risks, and network requirements.
+
+[Someone in Ra'anana-Mercury-17s232] Find project info: Locate where  
+project information is stored.
+
+[Someone in Ra'anana-Mercury-17s232] Discuss quota PRD: Talk to Zultan  
+regarding the status of the quota service PRD.
+
+[Someone in Ra'anana-Mercury-17s232] Update documentation: Update the  
+documentation to specify that the Ozac controller should run on the hub  
+cluster.
+
+[Will Gordon] Research AWS states: Determine if AWS differentiates between  
+attached and in-use volume states for CSI integration.
+
+[Akshay Nadkarni] Schedule Follow-up: Organize a meeting for the team to  
+continue the discussion on workflows and design components.
+
+[Someone in Ra'anana-Mercury-17s232] Create PRD: Draft a product  
+requirements document by incorporating the design details and high-level  
+architectural flows reviewed.
+
+[Akshay Nadkarni] Refine Requirements: Coordinate with the team to align  
+project requirements with Jira feature structures and milestone planning.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

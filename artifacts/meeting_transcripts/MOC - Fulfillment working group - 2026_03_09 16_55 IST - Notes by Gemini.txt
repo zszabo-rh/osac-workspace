@@ -1,0 +1,298 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Mar 9, 2026
+MOC - Fulfillment working group
+Invited Hernandez, Juan Adrien Gentil alkaplan Lars Kellogg-Stedman Ourfalli, Oved Tzu-Mainn Chen Taj Salawu Thorsten Schwesig Jason Kary Nora Haxhidautiova Danni Shi Joachim Weyl Jason Schlessman Isaiah Stapleton Dylan Stewart Orran Krieger Austin Jamias Surbhi Kanthed Meera Malhotra Elior Erez Trey West Avishay Traeger Elad Tabak Cohen, Einav Akshay Nadkarni knikolla@bu.edu Ygal Blum Piotr Kliczewski Zoltan Szabo Dan Manor Michael Hrivnak Dmitry Tantsur Christopher Tate Jen Stacy Simone Ferlin-Reiter Heidi Dempsey Marek Grac Maor Friedman
+Attachments MOC - Fulfillment working group 
+Meeting records Transcript Recording 
+
+
+Summary
+Lars Kellogg-Stedman reported starting work on the network driver implementation for OpenStack Neutron and confirmed with Adrien Gentil that a pull request against the enhancement proposal is the acceptable process for non-substantial networking API updates. Tzu-Mainn Chen updated the group on the bare metal proposal, incorporating feedback from Michael, Trey, and Eran Cohen, while Dan Manor clarified that Netris will function as a network control plane and another implementation of the network API. Orran Krieger raised concerns about Netris’s implicit inventory system and the lack of an architectural description for sources of truth, prompting Lars Kellogg-Stedman to clarify the current assumption that inventory is primarily for bare metal hardware, and Eran Cohen confirmed that the private networking API has merged into the fulfillment service, with work starting on a default CNCDN implementation.
+
+
+Details
+* Initial Meeting Logistics and Project Updates: The meeting began with an attempt to discuss the Netris integration after Dan Manor joined and then temporarily left the meeting. Lars Kellogg-Stedman reported starting work on the network driver implementation to communicate with OpenStack Neutron, noting that they expect to have something to present by the following Monday. They are also planning to submit pull requests to the enhancement proposal repository to address necessary changes to the networking API.
+* Networking API Changes and Process: The group discussed the appropriate process for updating the networking API, concluding that a pull request against the existing enhancement proposal would be acceptable, provided the changes are not substantial. Adrien Gentil confirmed that new primitives are being added to the fulfillment service concerning the networking API, which Lars Kellogg-Stedman indicated they would investigate (00:01:39).
+* Bare Metal Proposal Update: Tzu-Mainn Chen provided an update on the bare metal proposal, noting a successful meeting with Michael and Trey that yielded valuable feedback on how to implement certain features in a more Kubernetes-native way. They are currently updating the proposal and specifically taking into account Eran Cohen's feedback regarding the importance of external provisioning for the custom host CR (00:02:30).
+* Netris Integration and Coordination: Lars Kellogg-Stedman expressed concern that the existing stack lacks a strong model for interacting with a backend inventory, which is critical for the Netris integration. Heidi Dempsey suggested that folks working with ACM have been discussing Netris, and they offered to find out who specifically is involved in those discussions on the ACM side to coordinate efforts (00:03:28). It was acknowledged that ACM's role in MOC 2.0 is different from its current use (00:05:36).
+* Clarification of Netris Role: Dan Manor, having returned to the meeting, confirmed that Netris is currently understood to be exclusively a network control plane (00:06:41). Therefore, Netris will serve as another implementation of the network API, aligning with the concept of the network class interface (00:05:36).
+* Inventory Management and Source of Truth: Orran Krieger raised concerns about Netris having an implicit inventory system and the lack of an architectural description detailing how sources of truth relate, especially since Netris only manages networking, unlike ESI which manages both networking and power (00:06:41). Lars Kellogg-Stedman clarified that the current assumption is that the inventory is primarily a source of truth for bare metal hardware and not for the network environment, though this may change as implementation progresses (00:07:59). They confirmed that switch configuration is performed through the OSAC AAP repository as part of the cluster bring-up workflow (00:08:55).
+* Fulfillment API and Networking API Interaction: Eran Cohen questioned if the cluster provisioning workflow would involve calling back to the fulfillment API to use the networking API, which would then trigger an AAP role (00:08:55). Lars Kellogg-Stedman stated that the expectation is not to call back at the fulfillment API layer internally, as the fulfillment service API is intended to be tenant-facing. The proposed model is to use a Kubernetes API for interacting with networking constructs like networks, attachments, and subnets, and this API will be used during processes such as cluster provisioning (00:10:06).
+* User Interaction with Networking API: Dan Manor asked if end users must explicitly create networking objects via the fulfillment service for tasks like cluster-as-a-service. Lars Kellogg-Stedman explained that while users will interact through the fulfillment service API—the only API exposed to them—some networking configurations, such as creating an isolated network for a cluster, will happen implicitly (00:11:11). They confirmed that a user-facing API is necessary for cases like deploying multiple things on the same network or requesting public IPs (00:12:12).
+* Networking Implementation Status and Strategy: Eran Cohen announced that the private API for the networking piece has merged into the fulfillment service, and they are currently working on a default implementation that creates a Cloud-Native Data Center Networking (CNCDN) setup. Eran Cohen noted the complexity of building the scaffolding with multiple controllers and servers (00:13:11). Lars Kellogg-Stedman questioned the assumption that all implementations would necessarily be in AAP, suggesting that a controller in Go may be more appropriate for API interactions. Eran Cohen noted that there were discussions about needing an AAP-based driver to easily allow cloud service providers to quickly implement a backend, even if a Go implementation is more performant (00:15:03).
+* IBM Multi-Cluster VM Demo: Adrien Gentil provided a heads-up about the work with IBM, specifically mentioning a demo that showed the multi-cluster functionality for VM-as-a-Service, where an operator on one cluster reconciles VMs on another. The demo included the networking piece using Virtual Extensible LAN (VXLAN) and Border Gateway Protocol (BGP), and Adrien Gentil offered to share the presentation slides and video (00:17:19).
+
+
+Suggested next steps
+* Lars Kellogg-Stedman will put in some pull requests to the enhancement proposal repository this week to make changes to the networking API, specifically adding missing objects needed for implementation.
+* Heidi Dempsey will find out who on the ACM side has been discussing Netris and get back to Lars Kellogg-Stedman to coordinate.
+* Adrien Gentil will send the slides and video of the multicluster demo for VM as a service.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Mar 9, 2026
+MOC - Fulfillment working group - Transcript
+00:00:00
+ 
+Eran Cohen: Okay.
+Lars Kellogg-Stedman: We have uh Dan Manor has joined to work on the Netris integration and I wanted to ask some questions about that but we have lost him. Is anyone else here?
+Eran Cohen: I'm I'll pay
+Lars Kellogg-Stedman: Oh sorry go ahead.
+Eran Cohen: him. Okay.
+Lars Kellogg-Stedman: Sure.
+Eran Cohen: I'm sorry. I have to drop.
+Lars Kellogg-Stedman: Go. Okay. Go ahead. Um other things that are going on. Um I have started working on the network driver implementation to talk to OpenStack Neutron and making some progress there. learning all about Go for Cloud and uh trying to figure out what that's going to look like. I don't really have anything to show for today, but I will hopefully um by next Monday. But uh that's going on and just trying to figure out uh what the how the API that we've defined translates into an implementation. Um I'm probably going to be putting in some pull requests to the enhancement proposal repository. And so actually here is a question for the group.
+ 
+ 
+00:01:39
+ 
+Lars Kellogg-Stedman: I think we need to make some changes to the networking API. Is the right thing to do to make pull requests against that enhancement proposal or to make a new enhancement proposal?
+Adrien Gentil: I think a pull request would be fine.
+Lars Kellogg-Stedman: Do we care? Okay,
+Adrien Gentil: No,
+Lars Kellogg-Stedman: it worked for me. I just wanted to double check if anyone had a strong opinion otherwise.
+Adrien Gentil: unless is very big.
+Lars Kellogg-Stedman: All right.
+Adrien Gentil: Your changes are very big
+Lars Kellogg-Stedman: No, they're not big.
+Adrien Gentil: or
+Lars Kellogg-Stedman: I just think um we're missing we're missing some objects that I think we're going to need in order to do an implementation. Um cool. I will do that then this week.
+Adrien Gentil: okay.
+Lars Kellogg-Stedman: Min, did you want to Sorry.
+Adrien Gentil: So by by the way yeah sorry I just wanted to update
+Lars Kellogg-Stedman: Go ahead.
+Adrien Gentil: that about the networking API that open up here. So uh in the fulfillment service so so we'll get some
+Lars Kellogg-Stedman: Okay. Awesome.
+ 
+ 
+00:02:30
+ 
+Adrien Gentil: uh primitives there.
+Lars Kellogg-Stedman: Fantastic. I will take a look at that. All right, men, did you want to talk a little about um bare metal
+Tzu-Mainn Chen: Uh, sure. I guess it's probably just worth mentioning that um you and me uh met with Michael and Trey last Friday to talk
+Lars Kellogg-Stedman: stuff?
+Tzu-Mainn Chen: about like uh the the sketch proposal that I had proposed in my document. Um it seemed to go pretty well. There seemed to be some broad agreement on some concepts and also some very valuable feedback from Michael um explaining like how certain things might be done in a more Kubernetes way um which we which it's definitely good feedback and which we will be taking into account. Um, so we're in the process of updating that proposal. Um, Iran, um, I did also note, um, I I I also did look at your feedback and did specifically note that your emphasis on external provisioning, which to be honest was not something that we had highly prioritized at first, but which, uh, I now recognize would probably be uh, something that's very valuable to consider when we uh, develop our custom host CR.
+ 
+ 
+00:03:28
+ 
+Tzu-Mainn Chen: So, um, your feedback is also definitely um, coming into play here. And that's it.
+Lars Kellogg-Stedman: All right. Does anyone else have something that they want to bring up? Work progress difficulties. Um, so without without the folks on I was hoping to have here, but I'll just say so if Dan is starting the Netris integration, my concern is that we don't really have a great model of how our stack interacts
+Eran Cohen: Nice.
+Lars Kellogg-Stedman: with the backend inventory right now and I feel like that's kind of where we need to start. I don't know if anyone has been involved in the discussions around integrating with Netris.
+Eran Cohen: Yeah. So, I guess that's what Alona wanted us to discuss, but since Dan isn't around, maybe we can just schedule a meeting, a different meeting just around that.
+Heidi Dempsey: I think that the uh folks who have been working with ACM have been uh talking about Netris with them because that was stuff that Chris and Isaiah originally were looking at. So I don't know if it's relevant to OSAC or not, but there's definitely some discussion in the ACM context of that.
+ 
+ 
+00:04:46
+ 
+Lars Kellogg-Stedman: Okay. Do you know who on the ACM side has been discussing that because it would be awesome to coordinate a little
+Heidi Dempsey: Yeah,
+Lars Kellogg-Stedman: bit.
+Heidi Dempsey: wouldn't that be great? Uh,
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: I can find out it it there's too many people on the ACM team for me to be sure which one it is, but I'll find out and get back to you. Um, that the reason that they were talking about it was because ACM was considering um using
+Lars Kellogg-Stedman: Okay.
+Heidi Dempsey: Netris. So,
+Lars Kellogg-Stedman: Right. and and there has been some talk about folks in ACM wanting to kind of talk to us a little bit about
+Eran Cohen: Watch.
+Lars Kellogg-Stedman: um bare metal in general and what they're thinking of doing and what we're doing and how it might be able to
+Heidi Dempsey: Right.
+Lars Kellogg-Stedman: um you know be the same thing ultimately.
+Heidi Dempsey: Right. Yep.
+Lars Kellogg-Stedman: Um,
+Heidi Dempsey: And also ACM in MOC 2.0 is a different thing than ACM as
+Lars Kellogg-Stedman: so
+ 
+ 
+00:05:36
+ 
+Heidi Dempsey: we use it now. So, Yep. Lots of lots of tendrils to this thing.
+Lars Kellogg-Stedman: okay. And hey, Dan, I see you've joined us.
+Dan Manor: Yeah. Sorry, I had an alert. I had to run to the shelter.
+Lars Kellogg-Stedman: I'm sorry. Are you able to Are you able to talk for a little bit?
+Eran Cohen: Thank
+Dan Manor: Yeah. Yeah, it's over now.
+Lars Kellogg-Stedman: Okay. Um, I just wanted to ask a little bit about um, so you said that you're working on the Netris integration and my my
+Dan Manor: Yes.
+Lars Kellogg-Stedman: big concern when I heard that was that we don't really have a great model for how our stack talks to a backend in any case and I was just wondering whether you're starting
+Eran Cohen: you.
+Lars Kellogg-Stedman: explicitly with Netris or whether you're starting with like what does that integration look like and then Netris would be kind of an instance of that.
+Dan Manor: So yeah actually if I remember correctly last time we talked I think you mentioned that you are implementing the network class thing would be which will be such an interface for for such backends right
+ 
+ 
+00:06:41
+ 
+Lars Kellogg-Stedman: Okay. So, so is Net just going to be exclusively a uh network control
+Dan Manor: um
+Lars Kellogg-Stedman: plane?
+Dan Manor: yeah as far as I understand the moment.
+Lars Kellogg-Stedman: Okay.
+Dan Manor: Yes.
+Lars Kellogg-Stedman: So then it will be another implementation of the network API.
+Dan Manor: Yes.
+Lars Kellogg-Stedman: Okay,
+Dan Manor: That's the idea at the moment.
+Lars Kellogg-Stedman: Oran.
+Dan Manor: Yeah.
+Lars Kellogg-Stedman: Okay, that helps out a lot. And Oran, you have a hand up, but you're muted,
+Orran Krieger: Um there's a part of it I mean that also it has an inventory system implicitly in there.
+Lars Kellogg-Stedman: right?
+Orran Krieger: I was trying to understand how that relates D or L or
+Dan Manor: So Netris inventory system is basically just for managing the
+Orran Krieger: something.
+Dan Manor: servers. It's not like including power management. Um so this part will be a bit different than what we do now with the ESI. I mean ESI uses OpenStack for doing both networking and uh and power management. Metric does only networking.
+Orran Krieger: I feel like in the right world we should have one source of truth that describes these things and then something that actually does power operation, something that does networking, but it should be in a common database that feeds all these other things.
+ 
+ 
+00:07:59
+ 
+Orran Krieger: I'm just like until we know I didn't see an architectural description of how those things relate. Is Netris a source of truth for what's in the inventory or is it just we replicate it from some other source of truth? And where is
+Lars Kellogg-Stedman: I will just mention Iran that right now I think our assumption is that the inventory is
+Orran Krieger: that?
+Lars Kellogg-Stedman: primarily um a source of truth about bare metal hardware and is not does not necessarily contain information
+Dan Manor: Yeah.
+Lars Kellogg-Stedman: about the network environment.
+Orran Krieger: But
+Lars Kellogg-Stedman: And maybe that will change going forward, but that's kind of what we're working with right now.
+Orran Krieger: the networking but the bare metal hardware has to include which switches like that has switch hardware in it too,
+Dan Manor: Close.
+Lars Kellogg-Stedman: the inventory does not right now is not a source of that information.
+Orran Krieger: right?
+Lars Kellogg-Stedman: Um, again, we'll I think that some of that may change as we actually start implementing some of these things and we realize, oh, hey, we're missing information here and we need to figure out where to get it from.
+ 
+ 
+00:08:55
+ 
+Lars Kellogg-Stedman: But that has not occurred yet because right now we don't we do not have an actual implementation of the network API at this point. I'm working on one. We'll be talking to OpenStack and Dan is going to be working on the Netris one. Um, but nothing exists right
+Dan Manor: L in the current environment in MOC,
+Lars Kellogg-Stedman: now.
+Dan Manor: do you configure inter uh switches or is it not part of
+Lars Kellogg-Stedman: Oh yeah. No, 100% we do. It's through it's through that whole um cloudkit uh sorry now OSAC AAP
+Dan Manor: the
+Lars Kellogg-Stedman: repository and it's part of um the workflow when we bring up a cluster is when we've selected agents we move them onto we create a private network for the cluster move the agents onto that network and then proceed with the cluster
+Dan Manor: Oh,
+Lars Kellogg-Stedman: install.
+Dan Manor: okay. No.
+Eran Cohen: So wait if that's the case then it means
+Dan Manor: Yeah.
+Eran Cohen: that it will call like during while it's performing the playbook in AAP it will then call back to the fulfillment API to use the networking API that will go ahead and eventually result in another playbook or role in AAP.
+ 
+ 
+00:10:06
+ 
+Lars Kellogg-Stedman: So I don't think it's our expectation that once a request comes through the
+Eran Cohen: Take
+Lars Kellogg-Stedman: fulfillment API that we're going to be calling back at that layer.
+Eran Cohen: a
+Dan Manor: Okay. Just check.
+Lars Kellogg-Stedman: I think our assumption is that it's our assumption has been that if there we're exposing an API through the fulfillment
+Dan Manor: There's
+Lars Kellogg-Stedman: service that that is primarily like tenant facing but that um internally we're not necessarily be going to be use that as an entry point for the network
+Eran Cohen: Okay,
+Lars Kellogg-Stedman: stuff.
+Eran Cohen: so we're thinking that while provisioning a cluster, you can just go and use the underlying building blocks that are
+Lars Kellogg-Stedman: So yeah, I mean the model that we're working on right now is that um kind of like we have done with things like cluster fulfillment and VM as a service is that
+Eran Cohen: there.
+Lars Kellogg-Stedman: there will be um a Kubernetes API for interacting with networking. So you'll be able to create networks and attachments and subnets and NAT gateways and things like that. And that that will be the API that we're using um as part of say the you know cluster provisioning process.
+ 
+ 
+00:11:11
+ 
+Dan Manor: It it will be mandatory, right? I mean users will have to create this this uh
+Lars Kellogg-Stedman: Users will interact through the fulfillment service.
+Dan Manor: object.
+Lars Kellogg-Stedman: Users don't get access to the management cluster. The only API that we exposed to end users is the fulfillment service API.
+Dan Manor: Yeah.
+Lars Kellogg-Stedman: They don't have access to open shift um at all.
+Dan Manor: Yeah. No, no. Yeah, I understand.
+Lars Kellogg-Stedman: Okay.
+Dan Manor: What I meant is I mean going forward with the network API, the new network API, users when they want to perform cluster as a service will have to via the fulfillment service create these objects of VPC and the subnets and all the other network objects, right?
+Lars Kellogg-Stedman: So I think that there's going to be a cases where the the end users are manipulating networking directly but I think there are other cases where some of that is going to be happening implicitly like when we deploy a cluster the assumption is we deploy that on an isolated network. We don't expect that the user has to pre-create that network and then we attach to it.
+ 
+ 
+00:12:12
+ 
+Lars Kellogg-Stedman: Um I think that's going to be an option. We'll say yes, if you have an existing network and you want to attach to that, you can provide that as part of the request. But if you don't do that, then each cluster goes on an isolated network because that's kind of a
+Dan Manor: That's
+Lars Kellogg-Stedman: requirement
+Dan Manor: it.
+Eran Cohen: Okay. So I need to think like is there a reason for having a userfacing API
+Lars Kellogg-Stedman: I think there there are lots of reasons for that.
+Eran Cohen: wrapping?
+Lars Kellogg-Stedman: Um, one of them is the case where, like I was just saying, if you want to be able to say deploy multiple things on a on the same network, then you're going to need an API for being able to create and manipulate networks. Um,
+Eran Cohen: Hold on.
+Lars Kellogg-Stedman: for handling things like publishing your things at a public IP, that's probably something that is going to have to be handled through a userfacing API to request those public IPs and attach them to things. So I think there are lots of cases where we do we're absolutely going to need that end userfacing API as
+ 
+ 
+00:13:11
+ 
+Eran Cohen: What?
+Lars Kellogg-Stedman: well.
+Eran Cohen: Okay, I do want to say that the private API for the networking piece has merged in fulfillment service. I'm currently working on adding some I want to say default uh implementation for some default network class that's just going to create a cudn and let's see it's a lot of code apparently um yeah because like you have a controller and then there's another controller and then there's the gpc server and then there's a an API server and there's like so many things that you need to build. Um but yeah,
+Lars Kellogg-Stedman: Yeah.
+Eran Cohen: let's see how it ends up and then once we have the scaffolding, then we can just add other network classes. Uh fairly easy, I
+Dan Manor: So Arran,
+Eran Cohen: hope.
+Dan Manor: are you working at the moment on converting the current implementation to network class? The current ESI implementation.
+Eran Cohen: No, so I'm doing it for the VMs.
+Dan Manor: Okay.
+Eran Cohen: Um but I think that once we have the the controller that handles the networking constructs then or CRS then it's just a matter of defining the network class and then adding the implementation in AAP and then that's it like that's like the network class has like an an implementation strategy that should say what is the role in AAP that you should call when
+ 
+ 
+00:15:03
+ 
+Eran Cohen: provisioning or deleting the network construct of this
+Lars Kellogg-Stedman: I am that's interesting because I am not assuming that um all of the implementation
+Eran Cohen: thing.
+Lars Kellogg-Stedman: is necessarily an AAP. I'm assuming that the network class is used to identify which controller is handling the network objects, but then how that is implemented may change. um like if if it's primarily just API interactions then it may make more sense just to have go code running it rather than um pushing it off to an
+Eran Cohen: I I agree. But then and this is how it started with but then Alona asked but wait like there's going to
+Lars Kellogg-Stedman: Okay.
+Eran Cohen: be more network classes and like we need a way to say that you're saying that maybe in the network class we can say okay this has its own
+Lars Kellogg-Stedman: Mhm.
+Eran Cohen: provisioner and it's implemented in go and there's no reason to go outside to AAP.
+Lars Kellogg-Stedman: Yeah. I mean, I think I think having an AAP based driver will make sense in the event that like a a cloud service provider needs to quickly implement a backend.
+ 
+ 
+00:16:17
+ 
+Lars Kellogg-Stedman: That's not something that we support. And having the ability to do that through AAP is maybe useful, but I think stuff that we're supporting natively, that's not necessarily the most performant or most manageable way to go about it.
+Eran Cohen: I I agree. It's just that I think we had lots of talks uh with Michael uh about this and we always came up with we need a way like like I I I I'm very happy if we can do it in just controller and go
+Lars Kellogg-Stedman: Okay.
+Eran Cohen: code but it seems that we always seem to want to have some kind of example or just give them like the users what they want but have a
+Lars Kellogg-Stedman: Sure.
+Eran Cohen: way to just add in their little thing that they want to do in the flow and just get a support exception. And if we do it all in go, then they don't know how to do it themselves. They don't know how to do stuff. Um I think we had lots of talks about this.
+Lars Kellogg-Stedman: Right.
+Eran Cohen: Um I don't know.
+ 
+ 
+00:17:19
+ 
+Eran Cohen: I guess I at some point we just said, "Okay, we're just going to keep doing it in a
+Lars Kellogg-Stedman: Okay. We'll see how that all turns
+Eran Cohen: Yep.
+Lars Kellogg-Stedman: out. All right. Do we have anything
+Adrien Gentil: Otherwise, yeah, just a heads up about IBM,
+Lars Kellogg-Stedman: else?
+Adrien Gentil: what we do we are doing with IBM. So, last week we had we had a demo demonstrating the multicluster thing uh that we did for VM as a service. So, basically you have the the operator running on one cluster and then it reconciles the VMs on the other cluster. Uh so it it's it's in the the uh in the operator now that that's set up. Uh, and if you want to see the demo, I had some slides and and a video.
+Eran Cohen: can
+Adrien Gentil: So, I can I can send it to you and and also
+Orran Krieger: I'd love to see that.
+Eran Cohen: also show the networking piece which
+Adrien Gentil: we we had the networking piece in place with VI flight and
+Eran Cohen: was
+Adrien Gentil: NBGP. So if you want to check out uh it's some this presentation that I'm sending sending on the chat.
+Lars Kellogg-Stedman: Okay.
+Adrien Gentil: Okay. See if it could. Yeah.
+Lars Kellogg-Stedman: I'm just going to take that and I'm going to stick it in the uh Slack channel in case folks don't catch it.
+Adrien Gentil: No.
+Orran Krieger: Thank you. Hello. So, does everybody have COD installed on their computer? COD installed on their computer? No, it's fraud directions. I'm about to ex I'm I will Oh, we lost Robbie. Robbie's back. You're about You're about to become a programmer. May as well wait for ID. Yes, you got a new job, Jen.
+ 
+ 
+Transcription ended after 00:30:42
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

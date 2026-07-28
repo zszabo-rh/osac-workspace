@@ -1,0 +1,105 @@
+[PROCESSED 2026-05-14]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC ecosystem sync” May 13, 2026
+Date: Wed, 13 May 2026 15:02:03 +0000
+---
+Notes from “OSAC ecosystem sync”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 13, 2026, 5:00 PM CEST and may  
+contain errors.
+
+
+Summary
+Team status updates covered infrastructure development and API integration  
+progress and project management and process improvements.
+
+
+Infrastructure and API Updates
+Development on catalog items and public IP management proceeds alongside  
+ongoing API integration tasks. A unified storage class strategy will be  
+finalized during a upcoming synchronization meeting.
+
+Authentication and Platform Progress
+Work transitions to tenant admin APIs and Keycloak organizations with  
+external IDP integration. Serial console implementation reached completion  
+while GPU pass-through review was prioritized for acceleration.
+
+Process and Development Standards
+Team members must maintain accurate board tracking and proper sprint  
+labeling for project visibility. Standardization on Helm charts for  
+fulfillment services was adopted as a core development practice.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Update Epic Deadline: Push the OSAC 18 public IP  
+management epic deadline out 1 or 2 weeks; coordinate changes with Alona  
+Paz.
+
+[Akshay Nadkarni] Schedule Storage Meeting: Set up a meeting to discuss the  
+unified storage class story and direction; include attendees Ygal Blum,  
+Liat Gamliel, and Alona Paz.
+
+[Ameya Sathe] Share Guest OS Roadmap: Create a decision file and roadmap  
+regarding Guest OS location (API versus template parameter); share document  
+on the Slack channel.
+
+[Juan Hernández] Add IDP Task: Add a Jira task to the relevant epic for  
+configuring external identity providers.
+
+[Elad Tabak] Fix Board Visibility: Resolve the issue preventing assigned  
+items from appearing on the task board.
+
+[Liat Berkovich] Create UI/UX Meeting: Schedule a discussion with UI/UX  
+regarding dashboard design, considering the current lack of backend data.
+
+[Elad Tabak] Review Console PR: Review the serial console installer  
+repository pull request opened by Ilya Skornyakov.
+
+[Akshay Nadkarni] Review GPU PR: Review Juan Hernándezs pull request  
+configuring QEMU for GPU pass-through.
+
+[Juan Hernández] Send PR Link: Send the Slack link for the GPU pass-through  
+configuration pull request to Akshay Nadkarni.
+
+[Juan Hernández] Contact Leor: Contact Leor to discuss his Helm chart work  
+and ensure acceleration of implementation.
+
+[Juan Hernández] Review Helm Chart PR: Review Leors pull request regarding  
+Helm chart implementation.
+
+[Akshay Nadkarni] Send Ticket Example: Send an example problematic ticket  
+to Alona Paz to investigate board visibility filter issues.
+
+[Trey West] Provide BCM Update: Provide an update on availability to start  
+BCM inventory integration work next week.
+
+[Ori Amizur] Ping Reviewer: Select and ping either Akshay Nadkarni or Elad  
+Tabak to review the network attachment and decommission pull requests.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

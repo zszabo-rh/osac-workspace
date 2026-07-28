@@ -1,0 +1,94 @@
+[PROCESSED 2026-05-21]
+warning: unknown output format 'text'; falling back to json (valid options: json, table, yaml, csv)
+Using keyring backend: keyring
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - group sync” May 20, 2026
+Date: Wed, 20 May 2026 16:15:35 +0000
+---
+Notes from “OSAC - group sync”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 20, 2026, 6:13 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting discussions centered on authorization implementation strategies and  
+project visibility requirements via refined architectural approaches.
+
+
+Authorization Architecture Implementation
+Architectural adjustments shift authorization checks to post-database fetch  
+processes. The team decided to prioritize project-level authorization over  
+individual object-level checks to optimize performance.
+
+Project Visibility and Syncing
+Participants explored hierarchical naming structures to resolve project  
+visibility concerns. The proposal to sync projects to OpenShift hubs was  
+rejected due to strict namespace character limitations.
+
+Identity and Integration Updates
+Ongoing pull requests for policy servers and identity provider  
+standardization remain in draft pending continuous integration  
+compatibility resolutions. Future research will focus on mapping Keycloak  
+groups to projects.
+
+
+Suggested next steps
+
+
+
+[Crystal Chun] Research Keycloak: Perform a deep dive into mapping  
+authorization resources to Keycloak groups and hierarchical structures.  
+Determine if group claims in tokens can provide project visibility data.
+
+[Crystal Chun] Close PR: Close the existing pull request for syncing  
+projects to OpenShift hubs. Abandon the project syncing effort as suggested.
+
+[Crystal Chun] Consult Abishai: Initiate a discussion with Abishai to  
+clarify the requirements for project syncing. Address the concerns  
+regarding namespace management.
+
+[Crystal Chun] Research Authorization: Research the feasibility of  
+Authorino performing authorization checks directly through the Keycloak  
+API. Confirm if the current architecture supports this integration.
+
+[Juan Hernández] Add Project Field: Update the database schema to add a  
+project field for all system objects. Ensure this field correctly captures  
+the relationship between objects and projects.
+
+[Juan Hernández] Implement Claim Retrieval: Retrieve project information  
+from the group claims within the Authorino token. Use this data to populate  
+the project fields for system objects.
+
+[Crystal Chun] Review PRs: Review the pull requests for the Keycloak client  
+and the policy server. Acknowledge the potential for CI breaks due to  
+command line flag changes.
+
+[Crystal Chun] Finalize PR: Resolve merge conflicts in the resource manager  
+pull request. Submit the finalized code for review once conflicts are  
+addressed.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

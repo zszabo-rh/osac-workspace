@@ -1,0 +1,82 @@
+[PROCESSED 2026-06-04]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Full Team Weekly” Jun 3, 2026
+Date: Wed, 03 Jun 2026 14:10:16 +0000
+---
+Notes from “OSAC Full Team Weekly”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 3, 2026, 4:07 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting participants standardized documentation processes and resource  
+naming conventions while optimizing large-scale meeting attendance for  
+decision-making efficiency.
+
+
+Enhancement Process and Documentation
+The team adopted a split documentation strategy, separating product  
+requirements from architectural implementation to improve clarity and  
+review efficiency. This new structure enables consensus on project goals  
+before technical design discussions begin.
+
+Resource Naming Standards
+Participants established a standard requiring human-friendly names for  
+resource identification across projects to ensure predictability and ease  
+of use. Annotations will serve as the mechanism to maintain necessary  
+metadata and avoid character length limitations.
+
+Meeting Structure Optimization
+To address concerns regarding meeting size and efficiency, attendance for  
+weekly design reviews is now mandatory only for working group leads. This  
+change ensures key decision-makers remain present while allowing general  
+participation to remain optional.
+
+
+Suggested next steps
+
+
+
+[Avishay Traeger] Update Proposal Process: Draft a Slack message to  
+coordinate the adoption of a split format for enhancement proposals,  
+separating requirement documents from design specifications. Update the  
+documentation and relevant skills to reflect this new process.
+
+[Vladik Romanovsky] Adopt Automation Agent: Collaborate with relevant team  
+members to adapt and replicate the project organization agent currently  
+used in the Cubert project for use in the OSAC project. Facilitate the  
+transition to this new automation system.
+
+[The group] Update meeting settings: Set this meeting as optional for  
+general attendees while maintaining mandatory attendance for working group  
+leads. Keep the meeting invitation on the team calendar.
+
+[Alona Paz] Open Monday meeting: Invite external community members to  
+attend the open Monday meetings. Ensure these sessions remain accessible to  
+participants from outside the organization.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

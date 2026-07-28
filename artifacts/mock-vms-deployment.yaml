@@ -1,0 +1,78 @@
+---
+# Mock VMS (VAST Management Server) for storage E2E tests.
+# Deploys the mock_vms_server.py as a Pod with self-signed TLS.
+# AAP storage playbooks connect to this instead of a real VAST appliance.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mock-vms-server
+data:
+  mock_vms_server.py: |
+    # This will be replaced by the actual script content at deploy time.
+    # Use: oc create configmap mock-vms-server --from-file=mock_vms_server.py=<path> -n osac
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mock-vms
+  labels:
+    app: mock-vms
+spec:
+  initContainers:
+  - name: generate-certs
+    image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+    command:
+    - sh
+    - -c
+    - |
+      microdnf install -y openssl && \
+      openssl req -x509 -newkey rsa:2048 \
+        -keyout /certs/tls.key \
+        -out /certs/tls.crt \
+        -days 365 -nodes \
+        -subj "/CN=mock-vms.osac.svc.cluster.local" \
+        -addext "subjectAltName=DNS:mock-vms,DNS:mock-vms.osac,DNS:mock-vms.osac.svc,DNS:mock-vms.osac.svc.cluster.local"
+    volumeMounts:
+    - name: certs
+      mountPath: /certs
+  containers:
+  - name: mock-vms
+    image: registry.access.redhat.com/ubi9/python-311:latest
+    command:
+    - sh
+    - -c
+    - |
+      sed 's/127.0.0.1/0.0.0.0/' /app/mock_vms_server.py > /tmp/server.py
+      python3 /tmp/server.py 18443 --tls --cert /certs/tls.crt --key /certs/tls.key
+    ports:
+    - containerPort: 18443
+      name: https
+    volumeMounts:
+    - name: server-script
+      mountPath: /app
+    - name: certs
+      mountPath: /certs
+      readOnly: true
+    readinessProbe:
+      exec:
+        command: ["python3", "-c", "import urllib.request,ssl;urllib.request.urlopen('https://localhost:18443/api',context=ssl._create_unverified_context())"]
+      initialDelaySeconds: 2
+      periodSeconds: 5
+  volumes:
+  - name: server-script
+    configMap:
+      name: mock-vms-server
+  - name: certs
+    emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mock-vms
+spec:
+  selector:
+    app: mock-vms
+  ports:
+  - port: 18443
+    targetPort: 18443
+    name: https

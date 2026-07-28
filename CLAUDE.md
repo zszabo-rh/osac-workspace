@@ -1,29 +1,135 @@
 # CLAUDE.md
 
-@AGENTS.md
+## Project Context
+
+OSAC (Open Sovereign AI Cloud) is a fulfillment system for provisioning Kubernetes clusters and compute instances with networking capabilities. Primary languages: Go, YAML, Python. Primary tools: kubectl, jira CLI, gh CLI.
 
 ## Critical Rules
 
 - **`osac-workspace/` is the project root** — all work happens from here; component `CLAUDE.md` files are loaded via progressive disclosure
-- **Read component `CLAUDE.md` first** before making changes in any component repo (progressive disclosure). Where a component also has `AGENTS.md`, it holds tool-agnostic conventions; `CLAUDE.md` remains the Claude entry point.
+- **Read component CLAUDE.md first** before making changes in any component repo
+- **Never skip tenant isolation metadata** (`osac.openshift.io/tenant`, `osac.io/owner-reference` annotations) in new resources
+- **Always `buf lint` before committing** proto changes; regenerate with `buf generate`
+- **Fork-based workflow**: always push to `fork` remote, never to `origin`. PRs go from `fork/<branch>` to `origin/main`
+- When debugging Kubernetes operators, check for stale vendor directories and cached images before rebuilding
+
+## Repository Structure
+
+Meta-workspace — run `./bootstrap.sh` to clone/update all component repos to latest `main`.
+
+| Component | Description | CLAUDE.md |
+|-----------|-------------|-----------|
+| [`fulfillment-service`](https://github.com/osac-project/fulfillment-service) | gRPC server + REST gateway, PostgreSQL, integrated API definitions | Yes |
+| [`osac-operator`](https://github.com/osac-project/osac-operator) | Kubernetes operator for OpenShift clusters via Hosted Control Planes | Yes |
+| [`osac-aap`](https://github.com/osac-project/osac-aap) | Ansible Automation Platform roles for network provisioning | Yes |
+| [`osac-installer`](https://github.com/osac-project/osac-installer) | Installation manifests and prerequisites | — |
+| [`osac-test-infra`](https://github.com/osac-project/osac-test-infra) | Integration testing infrastructure | — |
+| [`enhancement-proposals`](https://github.com/osac-project/enhancement-proposals) | Design documents and RFCs | — |
+| [`docs`](https://github.com/osac-project/docs) | Architecture docs and guides (see `docs/architecture/`) | — |
+
+Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-service`.
+
+## Deployment Coordination
+
+`osac-installer/setup.sh` pins component versions (AAP collections, fulfillment-service images) via submodule refs. When making changes that cross component boundaries, always update `osac-installer` to match:
+
+- **Proto field additions** in `fulfillment-service` → update CI overlays in `osac-installer` to use the new image version
+- **New AAP roles or collections** in `osac-aap` → bump the submodule ref in `osac-installer`
+- **New CRD types** in `osac-operator` → register in the fulfillment-service reconciler
+
+Failing to update `osac-installer` after cross-component changes causes CI failures and deployment mismatches. See `.planning/codebase/CONVENTIONS.md` for the full cross-repo dependency table.
+
+## Common Fix Locations
+
+Use this table to go directly to the right file for common bug patterns instead of grepping from scratch:
+
+| Bug pattern | File(s) to check |
+|-------------|-----------------|
+| `unknown object type` or unhandled type in switch | `internal/servers/generic_server.go` — `setPayload()` switch statement |
+| Public API missing field (Create/Update not persisting a field) | `internal/servers/*_server.go` — `Create()` and `Update()` methods |
+| Table rendering missing or incorrect column | `internal/rendering/tables/*.yaml` — table definition files |
+
+## Quick Reference Commands
+
+```bash
+# fulfillment-service
+cd fulfillment-service
+go build                              # Build
+ginkgo run -r internal                # Unit tests (excludes integration)
+ginkgo run it                         # Integration tests (requires kind)
+IT_KEEP_KIND=true ginkgo run it       # Preserve kind cluster for debugging
+buf lint && buf generate              # Proto lint + codegen
+
+# osac-operator
+cd osac-operator
+make image-build image-push IMG=<registry>/osac-operator:tag
+make install                          # Install CRDs
+make deploy IMG=<registry>/osac-operator:tag
+```
+
+## Operator Architecture (osac-operator)
+
+The osac-operator uses controller-runtime to reconcile OSAC custom resources on Kubernetes. Key patterns:
+
+- **All controllers follow the same reconciliation pattern**: finalizer → status update → provisioning/deprovisioning lifecycle
+- **Shared provisioning lifecycle**: Controllers use `provisioning.RunProvisioningLifecycle()` for provision and manual deprovision handling
+- **CRD types**: ClusterOrder, ComputeInstance, Tenant, VirtualNetwork, Subnet, SecurityGroup, PublicIPPool, PublicIP
+- **Multi-cluster support**: Controllers use `multicluster-runtime` for management/workload cluster separation
+- **Management-state annotation**: All controllers should check `osac.openshift.io/management-state` and skip reconciliation when set to `Unmanaged`
+- **Namespace isolation**: Networking controllers filter to a configured namespace via `NetworkingNamespacePredicate`
+
+When fixing bugs or adding features, **check all controllers** that follow the same pattern — a bug in one controller likely exists in others. A missing feature in one controller is also a bug if all controllers are expected to behave consistently.
 
 ## Detailed Rules (auto-loaded from `.claude/rules/`)
 
 - **`protobuf-conventions.md`** — Proto naming, API structure, field guidelines, type/service patterns
 - **`cross-repo-workflow.md`** — Git worktrees, cross-component changes, PR rules
 - **`architecture-patterns.md`** — Multi-tenancy, resource hierarchy, service stack, integration testing
+- **`gsd-jira-integration.md`** — GSD lifecycle hooks for automatic Jira epic/task creation, status transitions, and commit prefixing
 
-## Claude Command Syntax
+## Reference Documentation
 
-Workflows from AGENTS.md are invoked with `/skill:phase` syntax in Claude Code:
+| Location | Content |
+|----------|---------|
+| `.planning/codebase/ARCHITECTURE.md` | System design and layers |
+| `.planning/codebase/CONVENTIONS.md` | Naming and coding patterns |
+| `.planning/codebase/STACK.md` | Technology stack |
+| `.planning/codebase/TESTING.md` | Test patterns and frameworks |
+| `.planning/codebase/STRUCTURE.md` | File organization |
+| [`docs/architecture/`](https://github.com/osac-project/docs/tree/main/architecture) | High-level diagrams and design documents |
+| [`enhancement-proposals/`](https://github.com/osac-project/enhancement-proposals) | RFCs and design proposals |
 
-- **bugfix:** `/bugfix:assess`, `/bugfix:reproduce`, `/bugfix:diagnose`, `/bugfix:fix`, `/bugfix:test`, `/bugfix:review`, `/bugfix:document`, `/bugfix:pr`
-- **implement:** `/implement:ingest`, `/implement:plan`, `/implement:code`, `/implement:validate`, `/implement:publish`
-- **PRD:** `/prd:ingest`, `/prd:clarify`, `/prd:draft`, `/prd:publish`, `/prd:respond`
-- **Design:** `/design:ingest`, `/design:draft`, `/design:publish`, `/design:respond`, `/design:decompose`, `/design:sync`
-- **EP (legacy):** `/ep.create`
-- **E2E:** `/e2e`, `/debug-e2e`
+## GSD Workflow
 
-## PRD and Design Configuration
+This project uses the GSD workflow system. Planning artifacts live in `.planning/`.
 
-See **Feature Dimensions Context** in `AGENTS.md` — both `/prd:ingest` and `/design:ingest` must read all files in `.design/context/` during their ingest phase.
+- Use `/gsd:progress` to check project status
+- Use `/gsd:plan-phase` for planning, `/gsd:execute-phase` for implementation
+- Use `/jira-sync status` to check Jira mapping, `/jira-sync link-epic OSAC-XXXXX` to link
+- GSD operates at workspace level and coordinates across component repos
+
+## E2E Test Skills (from osac-test-infra)
+
+The `osac-test-infra` repo provides skills for writing and debugging E2E tests. These skills are available from the `osac-workspace/` root:
+
+- `/e2e` — Write a pytest E2E test from a description or Jira ticket
+- `/debug-e2e` — Debug a failing Prow CI job using build logs and gathered OSAC artifacts
+
+## Development Workflows
+
+- `/bugfix` — Systematic bug fix: assess → reproduce → diagnose → fix → test → review → document → pr
+- `/implement` — Task-to-code: ingest Jira task → plan → code (TDD) → validate → publish PR
+- OSAC uses Jira **Tasks** (not Stories) — the implement workflow's "story" references mean Tasks in this project
+- Use `jira` CLI for Jira access (e.g., `jira issue view OSAC-1234 --plain`), not Jira MCP
+
+Both workflows are phase-based — you can jump to any phase directly (e.g., `/bugfix:fix`, `/implement:code`). Installed via `bootstrap.sh` from [flightctl/ai-workflows](https://github.com/flightctl/ai-workflows).
+
+## OpenShift Deployment
+
+```bash
+kubectl annotate ingresses.config/cluster ingress.operator.openshift.io/default-enable-http2=true
+kubectl apply -k fulfillment-service/manifests
+export token=$(kubectl create token -n osac client)
+export route=$(kubectl get route -n osac fulfillment-api -o json | jq -r '.spec.host')
+grpcurl -insecure -H "Authorization: Bearer ${token}" ${route}:443 fulfillment.v1.VirtualNetworks/List
+```

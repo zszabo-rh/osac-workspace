@@ -1,0 +1,75 @@
+[PROCESSED 2026-06-17]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jun 16, 2026
+Date: Tue, 16 Jun 2026 13:39:02 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 16, 2026, 3:37 PM CEST and may  
+contain errors.
+
+
+Summary
+Storage project status review covers development progress and resource  
+challenges while establishing critical design review processes.
+
+
+Storage Development Status
+Storage backend designs are published and integrated, while tenant storage  
+onboarding refactoring remains in the testing phase.
+
+Technical Blockers and Constraints
+Resource shortages hinder cluster provisioning, necessitating a reliance on  
+new cluster tooling for testing. The team decided to adopt paired reviews  
+to accelerate design approvals.
+
+Future Roadmap Planning
+Milestone 2 planning focuses on multi-backend support and improved secret  
+management for admin credentials.
+
+
+Suggested next steps
+
+
+
+[Roy Golan] Review Design: Notify the storage group once the backend  
+storage design is ready for review. Remove the draft status from the  
+document.
+
+[Roy Golan] Develop Tier API: Schedule a session with Will Gordon to  
+collaborate on the tier Application Programming Interface development and  
+Product Requirements Document.
+
+[The group] Update Calendar: Add all planned time off dates to the  
+Kubernetes Native Infrastructure edge pillar calendar.
+
+[Roy Golan] Share Thread: Post the link to the thread regarding secret  
+storage to the project Slack channel.
+
+[The group] Expedite Reviews: Ping team members on Slack to ensure design  
+and pull request reviews are completed within 1 to 2 days.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

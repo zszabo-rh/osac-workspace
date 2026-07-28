@@ -1,0 +1,77 @@
+[PROCESSED 2026-07-13]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - weekly demo” Jun 29, 2026
+Date: Mon, 29 Jun 2026 16:05:26 +0000
+---
+Notes from “OSAC - weekly demo”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 29, 2026, 6:04 PM CEST and may  
+contain errors.
+
+
+Summary
+The meeting established standardized development workflows and reviewed  
+infrastructure capabilities for cluster management and testing automation.
+
+
+OSAC development workflow standardization
+Standardized development processes were established using an AI workspace  
+and defined Product Requirements Document phases. Jira workflows now guide  
+teams through these structured development stages.
+
+Review standards and scope
+The team decided to prioritize human reviews on Product Requirements  
+Documents and designs rather than coding implementation. Strategies for AI  
+context management were established to handle 1,000,000 token sessions.
+
+Infrastructure tool capabilities
+New automation tools for bare metal machines and cluster deployments were  
+introduced to improve efficiency. Integrating cluster and test environment  
+tools was prioritized to centralize development efforts.
+
+
+Suggested next steps
+
+
+
+[The group] Follow Workflow: Assign features to team members for milestone  
+2 and ensure they follow the new workflow steps for scoping and  
+implementation.
+
+[Eran Cohen] Share Continue Command: Identify and share the specific  
+command to continue a workflow session from a previous thread.
+
+[The group] Report Tool Bugs: Open a bug report on IBI if the OSA cluster  
+tool fails to work.
+
+[The group] Report Test Infra Bugs: Open a pull request or notify Dan Manor  
+if bugs are found while using the Netris test infrastructure.
+
+[Eran Cohen, Alona Paz, Ygal Blum, Rom Freiman] Discuss Review Process:  
+Coordinate offline to discuss the human review requirements for  
+implementation versus planning.
+
+[Dan Manor] Avoid Redundancy: Align schedules with Trey to prevent  
+overlapping efforts on cluster as a service end to end tests and  
+environments.
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

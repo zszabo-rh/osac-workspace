@@ -1,0 +1,69 @@
+[PROCESSED 2026-05-14]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Full Team Weekly” May 13, 2026
+Date: Wed, 13 May 2026 14:08:14 +0000
+---
+Notes from “OSAC Full Team Weekly”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 13, 2026, 4:06 PM CEST and may  
+contain errors.
+
+
+Summary
+Meeting reviewed storage provisioning automation and cluster installation  
+tools with a decision against moving toward monorepos.
+
+
+Storage Provisioning and Integration
+The team reviewed a cloning-based storage provisioning model but identified  
+gaps in isolation and security for Cluster as a Service. Development  
+efforts will now balance standard cloning with direct vendor integrations.
+
+Cluster Tool Implementation
+Developers introduced a tool that reduces cluster installation time from 45  
+minutes to 20 minutes using snapshots. This utility successfully optimizes  
+CI pipelines by replacing 32 jobs with 4.
+
+Monorepo Proposal Outcome
+The team decided to pause the monorepo adoption plan due to maintenance  
+concerns and repository complexity. They will instead prioritize improving  
+coordination between existing, separate repositories.
+
+
+Suggested next steps
+
+
+
+[Zoltan Szabo] Schedule Storage Meeting: Schedule meeting to continue  
+discussing storage tenant onboarding direction. Include all involved  
+participants.
+
+[Lars Kellogg-Stedman] Update MLC Status: Check and report if Cluster as a  
+Service is operational on the MLC demo environment.
+
+[Oved Ourfali] Ping PR Reviewers: Ping required reviewers for the Helm  
+Chart migration pull request. Follow up if no reply is received.
+
+[Alona Paz] Send Proposal Link: Send the proposal link to the engineer  
+groups.
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

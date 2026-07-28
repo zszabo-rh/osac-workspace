@@ -1,0 +1,968 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Mar 16, 2026
+MOC - Fulfillment working group
+Invited Hernandez, Juan Michael Hrivnak alkaplan Lars Kellogg-Stedman Ourfalli, Oved Tzu-Mainn Chen Taj Salawu Thorsten Schwesig Jen Stacy Jason Kary Nora Haxhidautiova Danni Shi Joachim Weyl Jason Schlessman Isaiah Stapleton Dylan Stewart Orran Krieger Austin Jamias Surbhi Kanthed Meera Malhotra Elior Erez Trey West Avishay Traeger Cohen, Einav Akshay Nadkarni knikolla@bu.edu Ygal Blum Piotr Kliczewski Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Adrien Gentil Dmitry Tantsur Christopher Tate Simone Ferlin-Reiter Heidi Dempsey Marek Grac Maor Friedman Elad Tabak
+Attachments MOC - Fulfillment working group 
+Meeting records Transcript Recording 
+
+
+Summary
+The team debated the bare metal host assignment architecture, agreed on the bare metal operator's role, and reviewed open enhancements.
+
+Bare Metal Proposal Consensus
+The team confirmed general agreement on the bare metal proposal, but the core disagreement persisted over whether the bare metal operator or the host operator should handle inventory interaction. Participants ultimately agreed that the bare metal operator must set the management class on the Host CR to avoid a “chicken and egg problem.”
+
+Enhancement and PR Review
+The review of 11 open enhancements led to the closure of several superseded or erroneous proposals, including the quota and serial console enhancements. The team reviewed open pull requests, with Eran Cohen and Lars Kellogg-Stedman volunteering to look at a large Ansible code reorganization PR.
+
+Networking Implementation Status
+Eran Cohen confirmed that basic networking functionalities are working, but the critical next steps include adding network attachment functionality to the compute instance and implementing security groups. The team discussed the need for network abstractions that support parallelism and do not overcomplicate integrations like Netris.
+
+
+Details
+* Proposal Discussion and Enhancement Conversion: The team discussed the bare metal proposal, confirming general agreement from a previous Thursday meeting, but noted a sticking point regarding where host assignment should be performed. Tzu-Mainn Chen prefers keeping the proposal in a Google Doc for broader discussion before converting it to an enhancement proposal on GitHub (00:00:00). Alona Paz agreed to proceed with the Google Doc review (00:01:11).
+* Disagreement on Host Assignment Component: The core disagreement centers on whether the bare metal operator or the host operator is responsible for interacting with the inventory (00:01:11). Lars Kellogg-Stedman asserts that the bare metal operator should interact with the inventory. They explained that the bare metal operator is the higher-level component that receives host requests, while the host operator reconciles Host Custom Resources (CRs) and communicates with the bare metal management back end (00:02:15).
+* Argument for Bare Metal Operator Handling Inventory: The argument is that the bare metal operator must interact with the inventory before creating a host CR because it needs to determine the management class (e.g., Ironic or Carbide) required for reconciliation. The bare metal operator should specify an appropriate management class on the host CR so the correct host operator can pick it up; otherwise, a "chicken and egg problem" arises if the host operator tries to do the inventory interaction (00:03:21).
+* Counterargument and Kubernetes Conventions: Michael Hrivnak's perspective, as summarized by Lars Kellogg-Stedman, favored the host operator handling inventory because it is common in Kubernetes for a single operator to reconcile a resource in its entirety (00:04:37). Eran Cohen questioned the proposed model where different host operators reconcile the same CR, but Lars Kellogg-Stedman likened this approach to Kubernetes storage classes, where different subsystems manage classes based on criteria set in the resource (00:05:42).
+* Conclusion and Follow-up on Host Assignment: The participants generally agreed with the proposed model where the bare metal operator sets the management class, aligning it with standard Kubernetes practices like storage classes (00:05:42). Lars Kellogg-Stedman and Tzu-Mainn Chen plan to proceed with their intended design but will follow up with Michael Hrivnak to see if they can convince them otherwise (00:06:39). Tzu-Mainn Chen will follow up in Slack with Michael Hrivnak regarding the conversation (00:07:36).
+* Acceleration and Coordination of Development Efforts: Orran Krieger suggested accelerating development by involving other people, specifically from Ecosystem Engineering, given the need for multiple backends (00:07:36). Tzu-Mainn Chen confirmed that coordination is already happening in a bare metal meeting that Trey from Carbide attends. Alona Paz requested that Dan Manor be added to the bare metal meeting because they are working on metrics that will require inventory and host management (00:08:27).
+* Moving Forward with Proposal and Implementation: Alona Paz summarized that the team agrees with the proposed model and plans to seek final agreement from Michael Hrivnak. Once the proposal is settled, it will be moved to a GitHub enhancement proposal to initiate implementation (00:08:27). Alona Paz also mentioned that the work should be broken down into tasks, and Ecosystem Engineering personnel will be assigned to assist (00:09:47).
+* Discussion with Michael Hrivnak on Inventory: Michael Hrivnak joined the meeting, and Lars Kellogg-Stedman reiterated the assertion that the bare metal operator must handle the inventory interaction to determine the correct management backend before creating the host CR (00:10:51). Michael Hrivnak questioned why the bare metal operator must be the *only* component to talk to the inventory, but Lars Kellogg-Stedman explained that in an environment with multiple backends, the inventory is the source of truth for which backend manages a particular host (00:11:54).
+* Defining Host Intent and Acquisition Process: Michael Hrivnak inquired about the intent used when requesting hosts, which Lars Kellogg-Stedman clarified includes match expressions on host attributes like model, GPU, or memory (00:14:04). Lars Kellogg-Stedman described the proposed process: the bare metal operator receives the request, contacts the inventory, selects and marks hosts as assigned, and then creates the host CRs with the appropriate management class for the host operator to reconcile (00:15:23).
+* Alternative Model for Management Class Determination: Michael Hrivnak suggested an alternative where the host CR is created with intent, and a host controller finds a matching host in the inventory and sets the management class (00:16:28). This led to a discussion of how multiple host operators would then know who gets to reconcile the CR, which Lars Kellogg-Stedman argued is solved more easily by setting the management class at the higher bare metal operator level (00:17:54).
+* Review of Open Enhancements and Closures: Alona Paz led a review of 11 open enhancements, starting with old ones for possible retirement. The quota enhancement was closed as superseded, and the bare metal observability enhancement was closed temporarily since Austin Jamias is working on the bare metal cluster operator (00:26:21). The enhancement for adding SLURM on OpenShift remains blocked pending feedback from Michael Hrivnak (00:27:43).
+* Enhancements Actioned and Reviewed: The Dependabot enhancement was merged, and the serial console enhancement proposal was closed because it was created in error and was not related to Zultan's implementation (00:30:18). The feature tracking storage class was noted as already implemented and close to being merged (00:31:18). Lars Kellogg-Stedman volunteered to review the new Carbide and quota enhancements. Kristi Nikolla also confirmed they would review the quota enhancement, and Akshay Nadkarni confirmed that the implementation for the tenant storage class is underway (00:32:30).
+* Review of Open Pull Requests (PRs): The team reviewed open pull requests, and Eran Cohen volunteered to review a large PR focused on reorganizing Ansible code, with Lars Kellogg-Stedman also volunteering to look at the Ansible PR (00:35:01). The three open networking PRs were confirmed as already reviewed and merged (00:36:05).
+* Networking Implementation Status and Next Steps: Eran Cohen reported that basic networking, including CUDN, generic API, network class, virtual network, and subnets, is working, though the implementation of security groups is partial. The next critical step is adding network attachment functionality to the compute instance and security groups, as well as registering network classes (00:36:05). Lars Kellogg-Stedman agreed to review the current implementation to ensure their bare metal plans for networks and network attachment resources align (00:37:28).
+* Discussion on VLANs and Network Abstractions: Heidi Dempsey raised the topic of VLAN management, and Lars Kellogg-Stedman clarified that the adopted OpenStack terminology uses "network" to mean a layer 2 segment, typically an isolated VLAN in their bare metal environment, and tenants do not directly manage VLAN IDs (00:38:58). Eran Cohen confirmed that the network class helps determine whether a virtual network is a VLAN or another abstraction based on the environment (00:41:14).
+* Networking Requirements for Bare Metal: Lars Kellogg-Stedman specified that bare metal requires networks and network attachment resources to specify connectivity between hosts and networks (00:37:28) (00:41:14). Orran Krieger emphasized that for physical hosts, the abstraction needs to account for which physical network interface card (NIC) is connected to which switch port (00:42:01). Lars Kellogg-Stedman clarified that the network attachment resource is a container for the information needed to link a network to a particular NIC on a host (00:44:14).
+* Concerns about Networking API Complexity (Netris): Dan Manor expressed concern that the new central networking API might over-complicate things for integrations like Netris, which currently automates many network provisioning steps (VPC, subnets, IP allocation) through a single "server cluster" concept (00:45:20). Orran Krieger supported the idea of designing a high-level, parallel abstraction that can handle batch operations, recognizing that serializing network operations limits concurrency (00:48:47).
+* Conclusion on Batch Operations and API Scope: Lars Kellogg-Stedman acknowledged the goal of batch operations but noted that the current API design focuses on single machine allocation and does not natively support bulk operations (00:51:11). Dan Manor agreed and stated they did not want to change plans but proposed considering a higher-scope API for future efficiency. Orran Krieger stressed that for physical machines, the API should reflect that resources already exist and should aim for concurrency by utilizing vector-based, bulk operations (00:52:28) (00:56:11).
+* Discussion on enabling new behavior: The participants acknowledged that enabling certain behaviors, such as the one referenced by Eran Cohen, is a long-term consideration. Lars Kellogg-Stedman suggested that this requires deeper thought about how to facilitate this kind of functionality. However, Heidi Dempsey emphasized that this planning should not impede the immediate deployment of current tasks (00:57:07).
+* Network API Review Assignment: Due to time constraints, Alona Paz requested that Dan Manor review the network API. Specifically, they asked him to investigate how the API maps to the network, nodes, and what they map, followed by a discussion with Orran Krieger and potentially Lars Kellogg-Stedman (00:57:07).
+* Emphasis on Parallelism in Interfaces: Orran Krieger discussed the importance of incorporating parallelism into the interface design. They asserted that expressing processes as parallel is always beneficial because it allows for serialization underneath the interface if necessary, while neglecting to express parallelism prevents its exploitation. Orran Krieger concluded that leveraging existing proper parallel interface classes is a valuable opportunity (00:57:07).
+* Meeting Conclusion and Adjournment: The meeting concluded as the participants ran out of time. Alona Paz confirmed the time constraint and thanked the participants for attending. Dan Manor and Lars Kellogg-Stedman also offered their thanks before the meeting adjourned (00:57:07).
+
+
+Suggested next steps
+* Tzu-Mainn Chen will schedule a follow-up meeting with Michael Hrivnak for the afternoon to discuss the inventory back end and host assignments.
+* Tzu-Mainn Chen will follow up in the Slack thread to mention what people said and see if Michael Hrivnak has further feedback regarding the host assignment disagreement.
+* Tzu-Mainn Chen will add anyone from ecosystem engineering, including Dan Manor, who should be contributing to the bare metal meeting.
+* Alona Paz will assign ecosystem engineering people on tasks after the proposal is broken down.
+* Alona Paz will ask Evan if they can close the "Availability zone" enhancement for now.
+* Lars Kellogg-Stedman will plan to take a look at the current networking implementation to understand it and see if changes are needed in their thinking about things.
+* Dan Manor will go over the network API to see how it maps to network nodes and discuss it with Orran Krieger and Lars Kellogg-Stedman.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Mar 16, 2026
+MOC - Fulfillment working group - Transcript
+00:00:00
+ 
+Eran Cohen: I broke it.
+Lars Kellogg-Stedman: Yeah, I think I think helping to make sure that the proposal is solid and accurately captures the features that you think you need would be tremendously helpful in making sure that, you know, we're not wasting effort or having to redo a bunch of
+Alona Paz: Mhm. Okay. So,
+Lars Kellogg-Stedman: work.
+Alona Paz: we discussed the proposal on Thursday like I think we are on the same page. Uh we of course we will review it. Uh are you going to convert it to enhancement on GitHub or like keep it on uh Google doc? Whatever you prefer.
+Tzu-Mainn Chen: Um,
+Alona Paz: I don't really care.
+Tzu-Mainn Chen: I think for broad agreement I would prefer to Google doc just to see if there's any other comments because I feel like it's easier to have discussions on that. Um, but like I I'm I'm happy to convert it to an enhancement proposal if that's actually easier for people.
+Alona Paz: Okay. So let's say uh if we go over the enhancement on the Google docs and it looks fine.
+ 
+ 
+00:01:11
+ 
+Alona Paz: Uh like generally it looks fine although I think we have general agreement we had on
+Tzu-Mainn Chen: Yeah,
+Alona Paz: Thursday.
+Tzu-Mainn Chen: there's again there's like that one sticking point that um that uh where I think Marsh and I kind of disagree with Michael on where host assignment should be performed. Um and that's the that's a big thing because that um that affects where the logic actually ends up. So that's a that's a part that I'm really interested in getting resolved as soon as
+Lars Kellogg-Stedman: Yeah.
+Tzu-Mainn Chen: possible.
+Alona Paz: Okay. What is the disagreement? Because I didn't get it on
+Lars Kellogg-Stedman: So we were talking about which component is responsible for interacting with the
+Alona Paz: Thursday.
+Lars Kellogg-Stedman: inventory. Um, and the two choices there were the bare metal operator doing it kind of before creating host CRS and Michael uh was arguing that the host operator itself should do it and we think that there are fundamental problems with that second option.
+Alona Paz: You think it's the bare metal operator that that is interacting with the inventory.
+ 
+ 
+00:02:15
+ 
+Lars Kellogg-Stedman: Yes. And I am happy to go into details right now if you would like to.
+Alona Paz: We can that's a technical meeting.
+Lars Kellogg-Stedman: Okay. So, sure.
+Alona Paz: We can
+Lars Kellogg-Stedman: Let's um actually man, do you happen to have that doc up already?
+Tzu-Mainn Chen: Uh yeah. Do you want me to share my screen?
+Lars Kellogg-Stedman: Yeah.
+Tzu-Mainn Chen: You can doc.
+Lars Kellogg-Stedman: Go to the relevant picture so we have something to stare at.
+Tzu-Mainn Chen: Okay, sorry my mouse broke
+Lars Kellogg-Stedman: That's okay. Technology is
+Tzu-Mainn Chen: abruptly.
+Lars Kellogg-Stedman: terrible.
+Tzu-Mainn Chen: Uh, so yeah, it was it is basically this
+Lars Kellogg-Stedman: Is it okay?
+Tzu-Mainn Chen: question.
+Lars Kellogg-Stedman: So in in the model that we've proposed there are there are kind of two operators in play. There's the bare metal operator which you can think of as the higher level operator. It's the thing that gets the request for hosts. And then there's the host operator which is responsible for reconciling host CRS and it's the thing that actually communicates with a bare metal management back end.
+ 
+ 
+00:03:21
+ 
+Lars Kellogg-Stedman: Um our argument is that the only place we can meaningfully interact with inventory is in the bare metal operator because um before we create a host CR we need to know what the management class is whether it's being managed by ironic or carbide or something entirely different. And so if we try doing that in the host operator itself there's a chicken and egg problem. Um because in our model you can have multiple host operators one per backend and so there's no clear way to figure out who's responsible for any given host CR whereas what we are seeing is that the bare metal operator should make the inventory uh interactions and when it creates the host CR it should specify an appropriate management class on that CR so that the appropriate operator can pick it up and be responsible for reconciling that host That is our assertion.
+Orran Krieger: What's the argument against that?
+Lars Kellogg-Stedman: So the argument against that and and I'm going to see if I can express this um since I'm arguing against myself now.
+Eran Cohen: Thank
+Lars Kellogg-Stedman: The argument for having the host operator do it was that
+ 
+ 
+00:04:37
+ 
+Eran Cohen: you.
+Lars Kellogg-Stedman: it is more common in Kubernetes to have a single operator responsible for reconciling in its entirety or particular resource. Um, which would make sense if we had a monolithic model, but we're not proposing that.
+Alona Paz: So in your case one operator will create the CR and another one will reconcile it.
+Lars Kellogg-Stedman: Yes.
+Tzu-Mainn Chen: I I think in both cases um the some another operator creates a CR um and and the host operator reconciles it.
+Lars Kellogg-Stedman: Right.
+Tzu-Mainn Chen: Sorry. Go ahead.
+Lars Kellogg-Stedman: I was just going to say that. Right. In in both cases, the bare metal operator is creating a host CR.
+Tzu-Mainn Chen: What?
+Lars Kellogg-Stedman: But in the model we were that that Michael was kind of pushing, the host operator is the thing that does the inventory interactions. And we are saying that there's not really a way to do that um with the model that we're proposing. Um, Iran, you have a hand
+Eran Cohen: No, I'm sorry.
+Orran Krieger: Oh, I
+Eran Cohen: I think I think what Michael Wait,
+ 
+ 
+00:05:42
+ 
+Lars Kellogg-Stedman: up.
+Eran Cohen: okay, I'm not sure,
+Orran Krieger: think
+Eran Cohen: but I think it's strange that different operators reconcile the same CR. I think that's
+Lars Kellogg-Stedman: Well, the bare metal operator isn't reconciling the CR.
+Eran Cohen: the
+Lars Kellogg-Stedman: It is creating it just
+Eran Cohen: No, that's fine.
+Lars Kellogg-Stedman: Yeah.
+Eran Cohen: But then you have different host operators like one for OpenStack, one for Carbide all working on the same
+Lars Kellogg-Stedman: Well, that's exactly like you have with storage in uh Kubernetes where you have uh storage
+Eran Cohen: CR.
+Lars Kellogg-Stedman: classes where each storage class is managed by an entirely different subsystem, but when you create a PV uh PVC, then you just say here's the storage class that manages it. It's exactly that model.
+Eran Cohen: Okay.
+Alona Paz: Yes, you have like filtering on the CR.
+Eran Cohen: Yes,
+Lars Kellogg-Stedman: Yeah.
+Alona Paz: It's pretty common.
+Eran Cohen: that sounds good. to
+Alona Paz: Even like the reconcile when you configure it,
+Eran Cohen: me.
+Alona Paz: it has this filter option.
+Orran Krieger: So, so if you go to that analogy,
+ 
+ 
+00:06:39
+ 
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: don't you end up allocating your storage, you know, outside and then reconciling it. So, wouldn't the case you're doing be consistent with the way it's normally done? L just
+Lars Kellogg-Stedman: I So I would assert that what we're doing is relatively standard.
+Orran Krieger: Okay. So, um I guess is there like I hate to just I mean Michael isn't here so it doesn't seem fair. you guys brought up the conversation. Obviously, you're representing him, but this makes sense that we should be how do we get do you guys are still going to connect with him and just sort of see if he can convince you otherwise? But is that
+Lars Kellogg-Stedman: probably I think given given the the feedback here,
+Orran Krieger: cool?
+Lars Kellogg-Stedman: no one seems to be telling us that we're crazy people. Um I I think man we should probably plan on doing what we think needs to be done,
+Eran Cohen: I think it needs to
+Lars Kellogg-Stedman: but we should touch base with Michael um as we can over the next couple of days just to
+ 
+ 
+00:07:36
+ 
+Eran Cohen: be
+Tzu-Mainn Chen: Yeah. Yeah. After this call,
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: Okay.
+Tzu-Mainn Chen: I'll just I'll just follow up in the sack in the Slack already started and just mention mention what people said here and see if if he has further
+Orran Krieger: Okay.
+Tzu-Mainn Chen: feedback.
+Orran Krieger: So, so L you were asking about accelerating things.
+Lars Kellogg-Stedman: Yep.
+Orran Krieger: I mean I think coming to a decision quickly is the right thing is going to happen but then after
+Eran Cohen: is great.
+Orran Krieger: that the development of this you know it does it makes sense to throw other people especially
+Eran Cohen: That's different.
+Orran Krieger: because we want to have multiple backends for this. So do this is a joint thing with Phil engineering working on it lush or is
+Lars Kellogg-Stedman: Um,
+Orran Krieger: that oh it just feels like it would be good to
+Lars Kellogg-Stedman: sorry. Say that again.
+Orran Krieger: have one team work on this where folks from ecosystem engineering are doing the carbide are like we're doing it for all the different backends and stuff
+ 
+ 
+00:08:27
+ 
+Tzu-Mainn Chen: Yeah. So like um I'm going to point out that we already have a like a bare metal meeting that we initially was just Red Hat research but uh Trey started joining it last Tuesday and Trey as I understand is a person working on Carbide. Um, so I was hoping that we just coordinate that and just make sure that like we're on the same path. Um, and if there's anyone else from ecosystem engineering that um that that uh you think should be contributing to this effort, I can add them to the meeting as well.
+Alona Paz: If you can add Dan Manor as well because he's working on metrics and we will need some kind of
+Lars Kellogg-Stedman: Sure.
+Alona Paz: inventory and uh host management there as well. I don't know what it will be. I maybe the ironic or what we said BH I don't know but we need
+Tzu-Mainn Chen: Okay.
+Alona Paz: to
+Lars Kellogg-Stedman: Yep.
+Alona Paz: uh okay so uh if you can like uh from my side it it sounds okay what you propose I didn't hear any disagreement anyone here has any opinion about it no okay so uh for me it's fine And so just get agreement with Michael and put the proposal on the enhancement in the GitHub and uh let's let's move on.
+ 
+ 
+00:09:47
+ 
+Alona Paz: Let's start implementing it.
+Lars Kellogg-Stedman: Okay.
+Alona Paz: Let's break it into tasks and uh feel free to uh ping me and we will assign a ecosystem engineering people on
+Tzu-Mainn Chen: Definitely.
+Alona Paz: task as well.
+Tzu-Mainn Chen: Uh,
+Lars Kellogg-Stedman: Okay.
+Tzu-Mainn Chen: and I'll just emphasize again,
+Alona Paz: So
+Tzu-Mainn Chen: there's there's people on our team that have been working on it and they're they're producing like de like internal demos just to
+Alona Paz: Mhm.
+Tzu-Mainn Chen: just as a proof of concept that what we're doing could work. So, um, hopefully this this work should go fairly fast once everyone's in agreement.
+Alona Paz: Perfect. Because we really need like net work end to end. We want carbide work end to end. So we're uh for now we are using what we have. So it's like for for nutri is adding the agents manually like you do with the the MOC and uh uh for carbide uh it's also just tensible without uh any kind of obstruction. So uh it would be great if we can help u pushing it forward faster if it's possible.
+ 
+ 
+00:10:51
+ 
+Tzu-Mainn Chen: Yep. Um, Michael just joined. Do we want to have that discussion now?
+Alona Paz: Ah, Michael,
+Michael Hrivnak: Hi. So,
+Alona Paz: it's fine.
+Lars Kellogg-Stedman: Hi Michael.
+Michael Hrivnak: sorry for being late.
+Alona Paz: Yes.
+Lars Kellogg-Stedman: So we were we were just discussing um continuing the discussion from Thursday about uh who gets to talk to the inventory back end and who gets to make um who gets the job of doing host assignments kind of and I
+Michael Hrivnak: Mhm.
+Lars Kellogg-Stedman: will reiterate what I said earlier so everyone gets to hear this a second time which is that um so in our model we assume that there are multiple host operators um each one specific to a back end. So you have the ironic host operator and the carbide host operator and so forth. Um given that model, our assertion is that the only place we can meaningfully interact with the inventory is at the bare metal operator when it before it creates the host CRS because that is the that needs to set an appropriate management class on the host CR so that it could pick gets picked up by the um appropriate operator.
+ 
+ 
+00:11:54
+ 
+Lars Kellogg-Stedman: So that all has to happen before a host CR starts reconciling the resource.
+Michael Hrivnak: So you have to know which inventory those hosts are going to come
+Lars Kellogg-Stedman: You have to know which well you have to know which backend will be managing the
+Michael Hrivnak: from.
+Lars Kellogg-Stedman: host before you're able to create the host
+Michael Hrivnak: Yeah.
+Lars Kellogg-Stedman: CR.
+Michael Hrivnak: Okay. But then talking to that back end can
+Lars Kellogg-Stedman: To be clear,
+Michael Hrivnak: happen.
+Lars Kellogg-Stedman: that's what we were already proposing is that the host se the host operator is the thing that talks to the management back end. The contention was around who gets to talk to the inventory back end. And we're saying that there's not really a sane way of doing that at the host operator level and that has to happen at the bare metal operator.
+Michael Hrivnak: I don't I'm just not connecting the dots on why those two things are the case. Like I understand that we may need to know which inventory system is going to be used to get the host, but why does one particular thing need to be the only thing that talks to that inventory?
+ 
+ 
+00:12:57
+ 
+Lars Kellogg-Stedman: Well, our what we're saying is that you have an environment where there are multiple backends and that information comes from the inventory.
+Michael Hrivnak: H.
+Lars Kellogg-Stedman: Like that's how you know what which backend will manage a particular host.
+Michael Hrivnak: Oh, I see.
+Lars Kellogg-Stedman: like there's there is there's no other way of knowing that in an environment where you have multiple backends.
+Michael Hrivnak: Okay.
+Lars Kellogg-Stedman: So that is an attribute of the inventory or possibly it is implied by which inventory backend you're talking to. I'm not sure we figure that one out yet. But in either case, that's something that has to happen first. And then you can say here's a host CR and it's, you know, it's got the uh OpenStack management class. And so the OpenStack host operator will take take over and be responsible for reconciling it and interacting uh with the back end.
+Michael Hrivnak: So maybe let's start from the beginning of the story. Uh something expresses that it needs a group of hosts and there's some description of what those hosts should look
+Lars Kellogg-Stedman: Yes.
+ 
+ 
+00:14:04
+ 
+Michael Hrivnak: like.
+Lars Kellogg-Stedman: Yes.
+Michael Hrivnak: What does what is what's included in that intent?
+Lars Kellogg-Stedman: Um I think right now we're assuming that that intent can include basically a match expression on you know host attributes. I need, you know, uh, this model or it needs to have a GPU or, um, you know, potentially more granular things like it needs to have at least such and such amount of memory. Those kinds of things.
+Michael Hrivnak: Okay. All right. So, normal compute characteristics. Um,
+Lars Kellogg-Stedman: Yes.
+Michael Hrivnak: now
+Orran Krieger: So like locality and networking and topology things would that be in there
+Michael Hrivnak: there's
+Orran Krieger: as well.
+Lars Kellogg-Stedman: potentially certainly locality things could be assuming that that in assuming that information is expressed in the inventory then sure you could match on that too.
+Michael Hrivnak: Okay, so now we need to understand it's time to talk to an inventory and go find available hosts that
+Lars Kellogg-Stedman: Yes.
+Michael Hrivnak: match whatever criteria have been expressed. Is that more or less right?
+Lars Kellogg-Stedman: Yes.
+ 
+ 
+00:15:23
+ 
+Michael Hrivnak: uh and and once we have identified and assigned specific hosts, now it's time to manage them. And so now we need to understand what tool or interface or API or whatever we're going to use
+Lars Kellogg-Stedman: Right.
+Michael Hrivnak: to actually interact with each specific
+Lars Kellogg-Stedman: Right.
+Michael Hrivnak: host.
+Lars Kellogg-Stedman: And so those steps there we are claiming happen in the bare metal operator. It receives the request that's expressing expressing the you know attributes that it needs for hosts. The bare metal operator um contacts the inventory um figures out what hosts are available and picks them. um probably marks them as being assigned. Then it creates the corresponding host CRS with the appropriate management class um attribute and it's done and all of the remaining work to reconcile that host CR. When I say it's done, I'm lying, but for these purposes, it's done. Um at that point, the host operator picks up the host CR and is responsible for making the actual machine match whatever state has been requested in the OCR.
+Michael Hrivnak: Okay.
+Alona Paz: I think it's one question.
+ 
+ 
+00:16:28
+ 
+Michael Hrivnak: Enough.
+Alona Paz: Uh it's like for the scenario that you have hosts with GPUs and you want to manage them with carbide and other hosts that are x86 and maybe you want to manage them with another tool like is that a real scenario?
+Orran Krieger: Yeah, in our
+Michael Hrivnak: It's a fair question.
+Orran Krieger: answer.
+Lars Kellogg-Stedman: Okay, there there's your answer straight from the customer.
+Michael Hrivnak: Um so why can we
+Alona Paz: Okay.
+Michael Hrivnak: not all right host class that host class defines what management tool? Okay. Yeah. So,
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: um, and we're assuming that the inventory is going to somehow tell us that or it'll be implicit in,
+Lars Kellogg-Stedman: Yes.
+Michael Hrivnak: uh, I don't think that so that doesn't necessarily imply that we have to know that information when we create the host CR. Like we could create host CRs that include the intent of this is what we're looking for. This is the criteria that we need this host to match. And then have a host controller that for each record goes and finds with within an inventory a real host that matches and and figures out what host class it is.
+ 
+ 
+00:17:54
+ 
+Michael Hrivnak: Great. Sets the host class any other information that that it it needs to set and then the appropriate management tooling is activated and carries on with managing it.
+Alona Paz: So we will have one host operator for all the management tools.
+Michael Hrivnak: No,
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: not necessarily. It can still
+Lars Kellogg-Stedman: When you said sorry when you say host controller there you are talking about a an operator that
+Michael Hrivnak: be.
+Lars Kellogg-Stedman: is responsible for reconciling the host CRS and so
+Michael Hrivnak: Yes.
+Lars Kellogg-Stedman: you have let's say three of them each responsible for a particular backend. How do they figure out who gets that host CR?
+Michael Hrivnak: It's a good question. Um,
+Lars Kellogg-Stedman: And which is why I think that doing this at the higher level makes that question much easier to answer
+Michael Hrivnak: so the way this is this was solved for example in like cluster API and maybe a couple other
+Lars Kellogg-Stedman: and and sorry just just as a as a as a and as an example here like when you create
+ 
+ 
+00:18:50
+ 
+Michael Hrivnak: places.
+Lars Kellogg-Stedman: a PVC in Kubernetes you don't just create it without a storage class and assume that the storage classes are going to duke it out and figure out who can manage it. You say ahead of time this is the storage class when you create the PVC and so that it only gets managed by the particular operator for that storage class which is the model that we're kind of trying to
+Michael Hrivnak: the system you can uh have
+Lars Kellogg-Stedman: follow here.
+Michael Hrivnak: defaults.
+Lars Kellogg-Stedman: You can have a default.
+Michael Hrivnak: So you can have a default storage class. You can create a,
+Lars Kellogg-Stedman: Sure.
+Michael Hrivnak: you know, without a storage
+Lars Kellogg-Stedman: But but in that in that case what you're you're you're saying that your your your storage class is implicit because you've you've set a default
+Michael Hrivnak: class,
+Lars Kellogg-Stedman: somewhere but
+Michael Hrivnak: right?
+Orran Krieger: Is
+Michael Hrivnak: Um, yeah, there's not a concept baked in of I want a storage class with these
+Lars Kellogg-Stedman: but
+Michael Hrivnak: characteristics. Go find me any one of potentially several that meet these characteristics.
+ 
+ 
+00:19:48
+ 
+Michael Hrivnak: That's not a thing.
+Lars Kellogg-Stedman: right if you wanted to do that you'd probably have a higher level tool that was able to perform those um kind of assessments And which is what in this case the bare metal operator
+Michael Hrivnak: uh or the other direction which is um like in
+Lars Kellogg-Stedman: is
+Michael Hrivnak: the machine set and machine world uh you end up having uh an AWS machine and an Azure machine and like a VMware machine. And I'm probably getting the not getting the names exactly right, but like each m the machine resource is the generic this I need a I need a machine that looks like this. And it has something that is like a machine class. Uh and if it's in
+Lars Kellogg-Stedman: Wait, who sets that up? Who's where does that machine class come
+Michael Hrivnak: Amazon,
+Lars Kellogg-Stedman: from?
+Michael Hrivnak: uh it's implicit in the machine set.
+Lars Kellogg-Stedman: So the machine machine set specifies a machine
+Michael Hrivnak: So yeah,
+Lars Kellogg-Stedman: class.
+Michael Hrivnak: and maybe this is a little simpler because in general a cluster is only configured for one in
+ 
+ 
+00:20:46
+ 
+Lars Kellogg-Stedman: Sure,
+Michael Hrivnak: one platform at a time.
+Lars Kellogg-Stedman: but it still sounds like you are explicitly setting that machine class ahead of time and
+Michael Hrivnak: Uh
+Lars Kellogg-Stedman: then things flow from there, which is again I think the model that we're
+Michael Hrivnak: that's that's true.
+Lars Kellogg-Stedman: proposing.
+Michael Hrivnak: But the separation at least of logic is okay general machine things happen in a generic machine controller and then platform specific things that are how do I manage that particular thing happen in a different CR which is like a a sibling CR sitting next to it. So, a machine and an Amazon machine are now coupled to each other. And the Amazon machine CR comes with the Amazon machine operator and it does all of that specific management stuff for Amazon. So,
+Alona Paz: So you're saying instead of having a host class having a separate CR per each
+Michael Hrivnak: we could do that.
+Lars Kellogg-Stedman: So if yeah,
+Alona Paz: class.
+Michael Hrivnak: That's an option.
+Lars Kellogg-Stedman: but so in this case we're still saying that the thing that sets the management class would still not be the thing that is doing the management.
+ 
+ 
+00:21:55
+ 
+Lars Kellogg-Stedman: Here you're basically introducing an intermediate step which is the you know bare metal operator receives the request create some host CRS then you have a host controller that would talk to the
+Michael Hrivnak: Mhm.
+Lars Kellogg-Stedman: inventory and figure out the management class and set that and then that would trigger some other you know uh backend specific
+Michael Hrivnak: Mhm.
+Lars Kellogg-Stedman: operator to or it would it would either it would create a backend specific CR that would then get handled by the specific backend And so you still have what have we gained? It sounds like we have gained complexity, but what are the what have we gained
+Alona Paz: And you lose and you lose a flexibility because if you want to have a generic operator that
+Lars Kellogg-Stedman: advant
+Alona Paz: invokes whatever anible for a host class that we don't
+Lars Kellogg-Stedman: you could still do that in in Michael's model,
+Alona Paz: have you will
+Lars Kellogg-Stedman: but I guess I I it seems to me like we've introduced an additional step.
+Michael Hrivnak: Yeah.
+Alona Paz: introduce a new CRD like okay it's harder than just implementing whatever
+ 
+ 
+00:22:51
+ 
+Lars Kellogg-Stedman: Yeah.
+Alona Paz: univil
+Lars Kellogg-Stedman: So,
+Michael Hrivnak: Yeah. And we don't have to
+Lars Kellogg-Stedman: but so right right but but just like in your mind what's the advantage that we're getting with with that
+Michael Hrivnak: have like the main thing I'm trying to move us toward or away from is
+Lars Kellogg-Stedman: model.
+Michael Hrivnak: just in the Kubernetes API ecosystem. It's quite unusual to have a controller that acts on and reconciles a group of stuff at a time. Controllers reconcile one thing at a
+Lars Kellogg-Stedman: But is that is isn't that what we I mean here we are talking about
+Michael Hrivnak: time.
+Lars Kellogg-Stedman: a controller that reconciles one thing which is the bare metal requests and it transforms that into a bunch of host CRs which it's not responsible for
+Michael Hrivnak: Mhm.
+Lars Kellogg-Stedman: reconciling. The host operators are responsible for doing that. They each get, you know, they're each responsible for, you know, individual host CRS.
+Michael Hrivnak: There's also I guess the does the intent come first like it's also a bit unusual to say uh grant and we've done it in some places but to say I know that something exists in the world so I'm going to make a CR that reflects it versus I want this thing.
+ 
+ 
+00:24:17
+ 
+Michael Hrivnak: I have an intent for this thing. Now I'm going to go out in the world and and fulfill that intent. So to say like I want 10 hosts like just the general crew API design like if I want
+Lars Kellogg-Stedman: All right.
+Michael Hrivnak: 10 things I I make 10 CRs each one says I want one of these things. Now a controller goes to work making sure that thing exists doing whatever is necessary to create or find or enable that thing.
+Lars Kellogg-Stedman: But again, if we look at the storage class model, isn't that not actually the case? Because either there you have a specific uh default that you're using or you are being explicit in the CR. So you create 10 CRs um you you're you're being explicit one way or the other about which thing is actually going to manage those.
+Michael Hrivnak: So there's
+Lars Kellogg-Stedman: And that's the best model I found here to for for this because it's the the kind of the one clear case where
+Michael Hrivnak: there
+Lars Kellogg-Stedman: you have this idea of a common resource that can actually be managed by a variety of backends.
+ 
+ 
+00:25:22
+ 
+Michael Hrivnak: So, here's an a difference in that that scenario. If I make a pod that needs like,
+Lars Kellogg-Stedman: Okay.
+Michael Hrivnak: you know, 10 PVCs for some reason, uh, 10 PVC resources get created, but when that pod is getting created, there's nothing that says before this pod gets created, I'm going to go talk to the storage back end. And I'm going to talk to NetApp and see do you have 10 do you have capacity for these 10 things? Can you go ahead and dele and like identify these 10 things and give me identifiers for them? And now I'm going to create 10 PVCs where I've already filled in the details from NetApp. That is not a thing that
+Lars Kellogg-Stedman: Well, that's true,
+Michael Hrivnak: exists.
+Lars Kellogg-Stedman: but that's because here we either require the end user to know ahead of time what storage back end they want or they have to accept a single default.
+Michael Hrivnak: Yes. Yeah.
+Lars Kellogg-Stedman: And here we are trying here I think we don't want the end user to have to
+Michael Hrivnak: So
+ 
+ 
+00:26:21
+ 
+Lars Kellogg-Stedman: know what backend is going to be used. We want them to simply be able to specify an intent. I want this kind of host and then be able to acquire that and give it to them. um kind of regardless of which backend ends up handling
+Michael Hrivnak: I agree with that.
+Lars Kellogg-Stedman: that.
+Michael Hrivnak: I think I have to go talk to our blue friends in one minute. Uh zero minutes now. I'm sorry. Um but we can talk about this more maybe this afternoon.
+Lars Kellogg-Stedman: Our time is yours within reason.
+Tzu-Mainn Chen: Do you want me to schedule something then uh for this afternoon? Okay. Yep.
+Lars Kellogg-Stedman: Okay, sounds
+Alona Paz: Thank you. And next topic,
+Lars Kellogg-Stedman: good.
+Alona Paz: we have a lot of enhancement if I count 11 open enhancements. I don't know. There are like really old ones from like September 2025 that maybe we should the quarter.
+Lars Kellogg-Stedman: Well, the quota one I think is going to be retired because it's been superseded,
+ 
+ 
+00:27:43
+ 
+Alona Paz: But we have a new one. Yes,
+Lars Kellogg-Stedman: right?
+Alona Paz: you can close.
+Lars Kellogg-Stedman: So,
+Alona Paz: Yes.
+Lars Kellogg-Stedman: I think I think we should probably close the old one.
+Alona Paz: So, okay, I'm closing it now.
+Lars Kellogg-Stedman: Yeah.
+Alona Paz: Um, now we have 10. I will share my screen and let's see who can review them. Let's go from here from old to new. still relevant. Add bare metal observability
+Austin Jamias: Uh that one's that one's on pause because I've been working on
+Alona Paz: enhancement.
+Austin Jamias: the uh bare metal cluster
+Alona Paz: Okay.
+Austin Jamias: operator.
+Alona Paz: So
+Lars Kellogg-Stedman: Is it on pause like we should close it or it's on pause like we should leave it there for
+Alona Paz: not
+Lars Kellogg-Stedman: now?
+Tzu-Mainn Chen: I would close it for now is my thought.
+Austin Jamias: Yeah.
+Alona Paz: okay so efficient. Now we have eight. Okay. Add slarm on open shift enhancement
+Lars Kellogg-Stedman: So, I see that one still has uh No,
+Alona Paz: proposal.
+Lars Kellogg-Stedman: that's just that's a failure there.
+ 
+ 
+00:29:10
+ 
+Lars Kellogg-Stedman: Um, have are there any unopen questions left on that one?
+Alona Paz: So slow.
+Lars Kellogg-Stedman: Yeah.
+Alona Paz: Sorry
+Lars Kellogg-Stedman: What's going on there?
+Alona Paz: rockets. Uh, okay. There are seems
+Orran Krieger: Yeah,
+Alona Paz: that
+Orran Krieger: I pinged Michael and can can we track this down and get I think Michael was the only one that that was blocking it.
+Alona Paz: Mhm.
+Orran Krieger: Um I this is not mission critical,
+Alona Paz: Okay.
+Orran Krieger: but it's getting another team contributing something that would add a lot of value um for some use
+Alona Paz: So,
+Orran Krieger: cases. So, I'd love to see that happen. Heidi, do you have any other perspective on
+Heidi Dempsey: Uh yeah,
+Orran Krieger: this?
+Heidi Dempsey: don't touch it.
+Lars Kellogg-Stedman: Okay.
+Heidi Dempsey: It's still in progress. And the fact that no one can work on it is definitely
+Alona Paz: okay.
+Orran Krieger: What What's that?
+Heidi Dempsey: blocking.
+Orran Krieger: Sorry, it's still in progress. We don't want to approve this request.
+Heidi Dempsey: I don't want it closed.
+ 
+ 
+00:30:18
+ 
+Heidi Dempsey: It's still in progress.
+Orran Krieger: No, no, no. The question is, can we open it?
+Heidi Dempsey: Yeah.
+Orran Krieger: Um, can we can we approve it?
+Lars Kellogg-Stedman: Well,
+Orran Krieger: Is
+Lars Kellogg-Stedman: Alona has just left a question for Michael since you mentioned that you were waiting for some responses from him.
+Heidi Dempsey: That's not up to me. That's up to Right.
+Orran Krieger: there
+Lars Kellogg-Stedman: So, I think we have to wait at this point.
+Heidi Dempsey: Yeah.
+Alona Paz: Okay.
+Heidi Dempsey: But if he never spends any time on it,
+Alona Paz: What is this?
+Heidi Dempsey: we don't get anywhere on it.
+Lars Kellogg-Stedman: That's all
+Heidi Dempsey: And that's a problem. No, it's not.
+Lars Kellogg-Stedman: right.
+Heidi Dempsey: All right.
+Orran Krieger: no request can work on
+Heidi Dempsey: It's a problem.
+Alona Paz: Mhm.
+Orran Krieger: it?
+Lars Kellogg-Stedman: Um, Alona,
+Alona Paz: Um.
+Lars Kellogg-Stedman: I'm merging the uh the dependabot one.
+Alona Paz: Okay. uh univil template catalog. I still think it was a really good proposal. Uh waiting for what?
+ 
+ 
+00:31:18
+ 
+Alona Paz: Who knows? Um, okay. On me to assign somebody to work on it.
+Lars Kellogg-Stedman: stuff.
+Alona Paz: I think Michael is really busy,
+Lars Kellogg-Stedman: Okay.
+Alona Paz: so maybe somebody else to continue it. Availability zone. We'll wait for now. Evan, are you here? No. Uh, okay. I will ask him if we can close it for now. Uh we will get to it later. Uh serial console Zultan is not here but he already implemented uh is anybody who reviewed it is here. Adrian
+Austin Jamias: We can we can just close it for
+Alona Paz: Adrian
+Tzu-Mainn Chen: Uh,
+Austin Jamias: now.
+Tzu-Mainn Chen: Aluna, this is a different one. There was one that was um that Austin created like a couple months ago. So, it's different from what uh Sultan's been doing.
+Alona Paz: Okay. So I'm just closing it.
+Austin Jamias: Yeah.
+Alona Paz: Sorry, I didn't I didn't notice it's not the same person. Okay, close this one. Perfect. Okay, this one is also waiting for Michael.
+ 
+ 
+00:32:30
+ 
+Alona Paz: The feature is already like merged. I just I cannot merge it because my class changes um proposal for tracking storage class. AI this one was already implemented as well right Ashai are you
+Orran Krieger: Actually,
+Alona Paz: here? cannot hear Ashai.
+Orran Krieger: it's there. I see
+Alona Paz: Yes, if you're talking, we are not we cannot hear
+Orran Krieger: him.
+Alona Paz: you.
+Lars Kellogg-Stedman: Well, let's come
+Alona Paz: Let's come back. Okay.
+Lars Kellogg-Stedman: back.
+Alona Paz: Um again it's like it was already implemented and will be merged like today tomorrow.
+Lars Kellogg-Stedman: Which which one?
+Alona Paz: So I think we can the yes the storage class.
+Lars Kellogg-Stedman: The one you're pointing at.
+Alona Paz: Okay.
+Lars Kellogg-Stedman: Okay.
+Alona Paz: And those two those two are pretty new
+Lars Kellogg-Stedman: Yes.
+Alona Paz: carbide and quota who can review it.
+Lars Kellogg-Stedman: I can I can take a look at both.
+Alona Paz: We need two people.
+Lars Kellogg-Stedman: Um, looks like Carbide's already got a couple approvals on
+Alona Paz: Okay.
+Lars Kellogg-Stedman: it.
+Alona Paz: So, Carbide, we have Min and we have Juan.
+ 
+ 
+00:34:01
+ 
+Alona Paz: So, why isn't it merged?
+Lars Kellogg-Stedman: because nobody has clicked this.
+Alona Paz: Why is it automerged?
+Lars Kellogg-Stedman: Well, we don't have auto merge here.
+Akshay Nadkarni: Any
+Alona Paz: Just Okay.
+Lars Kellogg-Stedman: Somebody has to somebody has to click the button.
+Alona Paz: So, it was easy and qu
+Lars Kellogg-Stedman: That one that one is very
+Alona Paz: Okay. Uh I see. Yes.
+Lars Kellogg-Stedman: new.
+Alona Paz: Yes. It's pretty new. So we have review from Aishai and Lash. You can review it as
+Lars Kellogg-Stedman: Yes.
+Alona Paz: well.
+Orran Krieger: I think Christy Christiey's reviewing it too, right?
+Kristi Nikolla: Yes,
+Orran Krieger: I
+Kristi Nikolla: I will be reviewing it.
+Orran Krieger: think
+Alona Paz: Large and crispy.
+Kristi Nikolla: Uh, K N I K O L A.
+Akshay Nadkarni: other
+Alona Paz: K. What?
+Kristi Nikolla: Uh, K N I K O L A.
+Akshay Nadkarni: guys?
+Alona Paz: K.
+Kristi Nikolla: I don't think I'm part of the or, so I probably won't. Um,
+Alona Paz: Okay,
+Kristi Nikolla: L.
+Alona Paz: I will. Okay,
+ 
+ 
+00:35:01
+ 
+Kristi Nikolla: I'll write it in chat if it's easier.
+Alona Paz: just review it
+Kristi Nikolla: Yeah.
+Alona Paz: and
+Lars Kellogg-Stedman: should we add you to the organization, Christie?
+Kristi Nikolla: Well, I attend the meeting, so sure.
+Lars Kellogg-Stedman: All right.
+Akshay Nadkarni: Can you guys hear me
+Alona Paz: Perfect.
+Akshay Nadkarni: now?
+Lars Kellogg-Stedman: Yes.
+Alona Paz: Yes,
+Akshay Nadkarni: Okay. Yeah. Sorry,
+Alona Paz: actually.
+Akshay Nadkarni: I was having microphone issues. So, the tenant storage class one, the implementation is underway. I think u it'll get wrapped by the end of the week. I am in touch with Michael on that one. And uh we're going back and forth on a few uh things related to tenant specific storage classes. But uh if Michael doesn't have the time to update that, I can take it over and add um um uh information to it based on how the implementation is turning out. So that's the plan for that one.
+Alona Paz: Yes, please do. Thanks.
+Akshay Nadkarni: Okay.
+Alona Paz: Okay, perfect. So, uh Oh, it's a good cleanup.
+ 
+ 
+00:36:05
+ 
+Alona Paz: And now we have six uh with some kind of a plan for most of them. Perfect. Great. Now uh what we al have in the agenda PRs waiting for a review okay um it's a huge PR it's reorganized andible but we need it touches cluster as a service VM as a service and all the generic flows so uh we need people from
+Lars Kellogg-Stedman: Mhm.
+Alona Paz: all over to take a look who is uh volunteering to review it.
+Lars Kellogg-Stedman: I am volunteering to look at the anible one.
+Eran Cohen: I can take a look as
+Alona Paz: Okay. Okay. So, I'm writing
+Eran Cohen: well.
+Alona Paz: here. Okay. Networking. We have three PRs.
+Eran Cohen: No, no, I think all of them merge by now.
+Alona Paz: Ah, already well reviewed. Merged. Perfect. Mered perfect. Merged. Wow.
+Eran Cohen: So,
+Alona Paz: Perfect.
+Eran Cohen: so now we have basic networking like CDN uh
+Alona Paz: and the generic
+Eran Cohen: it's yeah and like we have uh
+ 
+ 
+00:37:28
+ 
+Alona Paz: API.
+Eran Cohen: network class and we have virtual network and subnets that's it partial security groups and all of those in the private API.
+Alona Paz: Mhm.
+Eran Cohen: So there are lots of follow-ups I guess but that's working. Uh but there's no VMs attached to that because we don't have the network attachment still. Uh but if you go to the tenant CR and you put in the the subnet or the name space for the CUDN subnet then it will run with CUDN. But I guess next steps is adding the network attachment uh on the compute
+Alona Paz: Mhm.
+Eran Cohen: instance and security groups and other network classes and maybe registering the network classes the same way as we do for templates today. Like if we can get the anible anible job to register the network classes we have on the API that would be nice. Um, that's where this
+Alona Paz: Is it in a phase that large can implement?
+Eran Cohen: stands.
+Alona Paz: I think he's already working on it, but implement the ESI network.
+Eran Cohen: So if if you know like what we have is essentially subnet and like the virtual network.
+ 
+ 
+00:38:58
+ 
+Eran Cohen: Uh other than that we don't have like the the framework for the framework the the the operators that pass for different types and I guess for for bare metal you need like you need the subnets but you need more than that.
+Lars Kellogg-Stedman: Yeah, let me I will plan just to take a look at it so that I understand what the current implementation looks like and see whether um that means I need to change the way I was thinking about things.
+Eran Cohen: Okay. But what like constructs do you need for cluster
+Lars Kellogg-Stedman: So for bare metal we initially would need networks um we would
+Eran Cohen: resistance?
+Lars Kellogg-Stedman: need network attachment resources to specify information about connecting machines to networks. Um, then on top of that, we would start needing some of the same things like subnets and NAT gateways and things like that. But I think the the only one that's not in the original spec is the network
+Eran Cohen: Yeah.
+Lars Kellogg-Stedman: attachment.
+Eran Cohen: So on like on the network proposal that so the network attachment was like on the spec of the compute instance.
+ 
+ 
+00:40:18
+ 
+Eran Cohen: It wasn't its own thing. Do we want it as as
+Lars Kellogg-Stedman: So one second, Heidi, you just said VLANs in chat. Do you want to expand on that a
+Eran Cohen: a
+Lars Kellogg-Stedman: bit?
+Heidi Dempsey: Well, I'm haven't been looking at this for a week, but um if we're talking networking, we're talking managing VLAN IDs,
+Lars Kellogg-Stedman: Well,
+Heidi Dempsey: correct?
+Lars Kellogg-Stedman: so when we say so we've we've kind of adopted the OpenStack networking terminology. So when we say network, we mean a layer 2 segment, which in our bare metal environment typically means an isolated VLAN.
+Heidi Dempsey: Okay,
+Lars Kellogg-Stedman: So tenants don't get direct access to managing VLAN IDs.
+Heidi Dempsey: good.
+Lars Kellogg-Stedman: That all happens kind of behind the scenes. The tenant just says, "I need a network." And then we handle allocating that and doing whatever needs to be done in terms of attachments.
+Alona Paz: Villain is a subnet in our case,
+Heidi Dempsey: No,
+Alona Paz: right?
+Heidi Dempsey: a villain is not
+Eran Cohen: No,
+Lars Kellogg-Stedman: Well,
+Eran Cohen: it's a virtual network.
+ 
+ 
+00:41:14
+ 
+Eran Cohen: Let's call it
+Heidi Dempsey: a
+Lars Kellogg-Stedman: yeah. Yeah.
+Alona Paz: You're trying
+Lars Kellogg-Stedman: A VLAN is a network.
+Eran Cohen: that.
+Alona Paz: to
+Lars Kellogg-Stedman: A subnet is typically um an IP allocation on top of a network.
+Heidi Dempsey: Yeah.
+Alona Paz: Okay.
+Heidi Dempsey: So,
+Eran Cohen: Yeah.
+Heidi Dempsey: as long as we're separating all the clients by VLAN,
+Lars Kellogg-Stedman: Yeah. Yeah. Yes.
+Heidi Dempsey: then that's fine.
+Eran Cohen: Yeah.
+Lars Kellogg-Stedman: Absolutely.
+Eran Cohen: So,
+Heidi Dempsey: Thanks,
+Eran Cohen: so that's like the network class is what helps this like for bare metal there's going to be some network class where virtual network is a vlan and then you can have subnets on that van and for
+Lars Kellogg-Stedman: Yeah.
+Eran Cohen: cudn like virtual network is a no it's just going to anible and saying okay I'm not doing anything going back uh and I guess for the cudn with the vrf light it will go and make sure that we have the vlan configured I don't know host and something like that.
+Orran Krieger: What was the connection point you said you needed,
+ 
+ 
+00:42:01
+ 
+Eran Cohen: Um
+Orran Krieger: Lars, that wasn't there?
+Lars Kellogg-Stedman: So we have a way of specifying networks and we have a way of creating hosts but we need a way of um specifying connectivity between hosts and networks.
+Eran Cohen: network attachment and I guess for security groups as well. And maybe our not those
+Lars Kellogg-Stedman: Yeah.
+Eran Cohen: two that
+Orran Krieger: But but I mean the thing is that that if you you have is that actually connection point?
+Lars Kellogg-Stedman: Heat.
+Orran Krieger: It's just if you you definitely have to connect it to it. But when you cut but here we also need to talk about the physical devices right like the neck or the virtual function that we're putting that thing on. Why I'm just I mean that's not relevant to the virtual case but in in this in the physical host you need to do go all the way to to which nick you're putting that thing on or which port I should say of
+Lars Kellogg-Stedman: Yes.
+Eran Cohen: Yeah.
+Orran Krieger: the
+Lars Kellogg-Stedman: Well, no. Yes. Which which nick really is is?
+ 
+ 
+00:43:15
+ 
+Lars Kellogg-Stedman: So, you're connecting a nick to a switch port.
+Orran Krieger: Sorry, the nick is a priority connected to the switch port and I mean you're not changing the wiring,
+Lars Kellogg-Stedman: Right.
+Orran Krieger: right?
+Lars Kellogg-Stedman: But you are but you're changing the switchport configuration to match the
+Orran Krieger: So,
+Lars Kellogg-Stedman: network to which you are attaching the
+Orran Krieger: right.
+Lars Kellogg-Stedman: host.
+Orran Krieger: Right. Yeah. So, so I I was just Okay. I just I mean it's not just like I remember there was really strange abstractions when I was dealing with OpenStack and physical networking that were introduced to emulate the virtual space. Um so it was actually adding extra things that we need and I I don't remember what the
+Lars Kellogg-Stedman: All right.
+Orran Krieger: details were now but I want to make sure we don't go down this path. There's a physical topology of things being connected and we should just be cognizant of
+Lars Kellogg-Stedman: Sure.
+Orran Krieger: it when it's at the physical layer, right? I
+Lars Kellogg-Stedman: I I I guess I I I'm not I don't I'm not getting anything actionable from your comments other than um
+ 
+ 
+00:44:14
+ 
+Orran Krieger: was.
+Lars Kellogg-Stedman: don't create unnecessary abstractions, which I think is a reasonable goal.
+Orran Krieger: So at the end once I get a physical machine and I have a VLAN I don't need an extra thing because I I know that that physical machine is connected to certain ports of certain switches and I need to know what the nicks are. I don't need I like I need to say which nick am I going to propagate this VLAN onto or which port of the switch. So it's either ports.
+Lars Kellogg-Stedman: Yes,
+Orran Krieger: So, and it it felt like there was another abstraction you were adding which confused me, but I'll shut
+Lars Kellogg-Stedman: we are adding a network attachment which is the thing that provides that information.
+Orran Krieger: up.
+Lars Kellogg-Stedman: It's not a new it's not another abstraction.
+Eran Cohen: Yeah.
+Lars Kellogg-Stedman: It is just the container for that information.
+Orran Krieger: Okay. Okay. So, it's a container for a port and which Nick gets connected to. We're not creating it where it's actually exists in some sense already.
+Lars Kellogg-Stedman: Yes.
+ 
+ 
+00:45:20
+ 
+Eran Cohen: This is what going to say we want VLAN 101 on this board and not something
+Lars Kellogg-Stedman: Well, something like that. Yes,
+Eran Cohen: else
+Lars Kellogg-Stedman: it is the thing that says I want to attach a network named this to a host identified by this and and it'll have specific metadata in it that that
+Eran Cohen: and then get details.
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: is able to um you know link that network to a particular nick on the host.
+Orran Krieger: Okay.
+Lars Kellogg-Stedman: When we have an implementation or a proposal for the implementation, I can point you at it and you can decide whether it um seems reasonable or not.
+Orran Krieger: Okay,
+Alona Paz: Dan, did you want to say anything?
+Orran Krieger: thanks.
+Dan Manor: Uh yeah well I just wanted to say that uh I mean I I understand the importance of having a a central API for networking for the networking aspect of of b basically handling the the environment but I mean for netric for example it basically just makes things more complicated um because netric has their own concepts of basically automating a lot of these parts.
+ 
+ 
+00:46:34
+ 
+Dan Manor: So now for example when when I deploy a cluster with Netris I just create their concept of server cluster uh which basically handles the the the creation of the VPC and the subnets and the the network and the uh the IP allocation and all of this stuff. And now that we going to have to basically fulfill the new API we have to do it ourselves which will be more complicated. Um but uh yeah, I just wanted to add that.
+Eran Cohen: Wait, you're saying they have like a compound operation that goes and do like five
+Dan Manor: Um
+Eran Cohen: different things.
+Dan Manor: yeah, exactly. Yeah.
+Eran Cohen: Okay. But still like you have to provide like which subnet, which VLAN, which like so at the end it is calling those five different
+Dan Manor: Yeah. Yeah.
+Eran Cohen: APIs.
+Dan Manor: I mean I mean I I understand the importance again. This is why I also I I unraised my hand later on. But basically I mean you don't you don't uh the the whole how it works under the the surface.
+ 
+ 
+00:47:48
+ 
+Dan Manor: It's not exposed to you in I mean you don't handle the villains or the VXL or this stuff. You just configure what you want to happen and then Netris does it. Um,
+Eran Cohen: No, but you you have your own API to create a subnet then move a host to that subnet.
+Dan Manor: so yeah,
+Eran Cohen: No.
+Dan Manor: I mean it basically just creates the server cluster with the host already inside and then it just generates everything for you. So I mean everything besides NAT and the load
+Orran Krieger: So
+Dan Manor: balancing. Yeah, I don't know if we have these concepts in the enhancement. I need to have a look. But yeah, I think we'll leave it as well.
+Orran Krieger: no, but I I guess that that that's so so saying I want this which is a group of physical hosts configured in a set of switch like with a set of networks between them and a set of subnets and stuff like that. That is what you're saying it does, right?
+Dan Manor: Yeah.
+ 
+ 
+00:48:47
+ 
+Dan Manor: I mean I I'm not the thing I wanted to say is that I'm not sure we need to I mean I mean it's it's a bit too late but I don't think that we necessarily need to to have an API that we implement each of these phases separately. I mean eventually we have the the the like the outer goal of having host connected to to a virtual private cloud or an isolated environment. If we're going to to basically enforce implementing it uh step by step then it's just going to be more complicated for NIS but it's not impossible. I just wanted to add it but
+Eran Cohen: I guess you're saying for Netris there's an optimization there's a shortcut we can take and
+Dan Manor: yeah.
+Eran Cohen: we can just say okay provision this and it's
+Dan Manor: Yeah. Yeah.
+Eran Cohen: already
+Dan Manor: Yeah. I don't know if there is something similar in ESI or uh in other networking integrations that we're going to have, but yeah.
+Orran Krieger: I mean certainly th this is something we've talked about a lot.
+ 
+ 
+00:49:48
+ 
+Orran Krieger: I I think large conversations you and and Jonathan and I had about doing batch operations. We want to allocate 50 machines together but all these 50 machines on this network and then the point is if the abstraction of the service we're requesting does those things in a batch. So, so maybe that's a really good question like I like that idea a lot of saying we have if if we it you know maybe I hadn't thought about it like this but then at the end we still need to reconcile it and and verify but it could be done we create this entire batch of of that operation in bulk. I do think that we can do that in parallel and this is something he talked about a lot is the networking operations are inherently have a degree of parallelism to it but they get serialized by the way we say for example do them with open stack so the fact that we're serializing things today doesn't mean that it should be serialized in the interface if we say this is the thing to allocate a bare metal cluster in bulk we do that then underneath that interface that could go to Netris as a bulk operation or to open stack maybe as a serial it we have to serialize it because that's the stack we're using is but we should definitely have the highest level parallel abstraction that we can I mean Lars is there
+ 
+ 
+00:51:11
+ 
+Dan Manor: Yeah, sure. I
+Orran Krieger: something is that is that implicitly something you're problematic
+Dan Manor: agree.
+Orran Krieger: with the way you were thinking about
+Lars Kellogg-Stedman: I don't think that that intersects much with um the things I've been um working on recently. I am aware of your goal to do batch operations like that. I don't think our current API really lends itself to that in particular. Um, but that is a thing that we could look at. The the networking API is proposed really is so fundamentally our unit of allocation is typically individual machines whether that's a virtual machine or a bare metal node. And so the API right now really reflects that that we're operating on single things.
+Eran Cohen: So
+Lars Kellogg-Stedman: We don't have an API that really lets us express that kind of batch operation right now. And there may be some ways with particular backends to um aggregate information and perform them in a batch
+Eran Cohen: back
+Lars Kellogg-Stedman: fashion, but I don't think we've gotten there yet.
+Dan Manor: Yeah, I agree.
+ 
+ 
+00:52:28
+ 
+Dan Manor: I didn't want to change uh the plans. I just want to add it up and maybe propose having maybe possibly like a more higher scope API that Yeah.
+Orran Krieger: Well, well, I think that I think that the point that I really love the point you made, Dan, because at the end when you do things in the virtual infrastructure,
+Eran Cohen: Yeah.
+Orran Krieger: you're sort of doing a bunch of you're creating each of these VMs. They don't exist ahead of time. You're creating all these networking abstractions, they don't exist ahead of time. You're doing that all in software, right? in and what we've what we're what we're doing is I I
+Eran Cohen: Sorry.
+Orran Krieger: think a mistake if we're applying that abstraction how we're managing the physical machines there this is you know we want to say and for the physical machines these things already exist let me now pull this together as an aggregate and the fact that we're using the same networking and physical and abstractions at both layers really means we can't get the concurrency that we could get at the physical layer I really
+ 
+ 
+00:53:29
+ 
+Eran Cohen: I I want to say that for the virtual like it's not only virtual like if when we have integration with the network fabric then no we go we publish like we still need VLANs on uh nodes we need like BGP advertisement we need like router configuration so and I think that's going to be what people actually use like that's going to be the main like mainstream use for virtual network for computer instances um but I think we did account for that when Adrian came up with the network API Right.
+Dan Manor: Everything I said is is only reference to to cluster as a service.
+Eran Cohen: And
+Dan Manor: I don't I'm not familiar yet with the VM as a service. vote.
+Eran Cohen: so maybe like I think I've seen like the the demo of like metrics. Maybe I'm not getting like how is it that they have a flow that is doing exactly what we need like that's or maybe this is something you define once and then you can just reuse it.
+Dan Manor: So, so J just created I don't know I mean I don't know if we want to waste people time I I can take it offline but just in few words they basically created this concept they call server cluster which basically you you say I want this spiritual network um to and I want these holes to be inside and then it just take care of creating their their uh VPC object and their IP allocation and their virtual network and their subnets
+ 
+ 
+00:55:11
+ 
+Dan Manor: um and probably other stuff that I not remember. Uh but yeah, and eventually it does just a batch of things for you.
+Eran Cohen: So maybe
+Dan Manor: It's not like we can't it's not like we can't do it
+Orran Krieger: But the again they have the abstraction of giving me the whole cluster
+Eran Cohen: we
+Dan Manor: separately.
+Orran Krieger: right one of the things though that but but also internal to that and I've worked with other systems that do this is all operations are intrinsically on vectors right it's not like put put this V this VM onto this network or create this VM and put this VM onto this network. It would be create 20 VMs, right? And put those 20 VMs onto this network and this network,
+Dan Manor: Yeah,
+Orran Krieger: right?
+Dan Manor: there you can do how many servers you want in one uh server cluster basically.
+Orran Krieger: Right. And so, so it's defining a whole cluster. So, so the question is if we're I do I do think this is a really good point where an external thing pushes us.
+ 
+ 
+00:56:11
+ 
+Eran Cohen: This
+Orran Krieger: I I you know this is what Jonathan was was was was pounding on us last year all the
+Eran Cohen: is
+Orran Krieger: time is everything should be about a vector of we should never talk about singular operations of doing one thing because at the switch level you know it's like a switch configuration is often
+Eran Cohen: Yeah.
+Orran Krieger: one thing like doing it operation by operation we're just when we start from the virtual we we intrinsically limit our parallelism
+Heidi Dempsey: You You're reinventing HPC around.
+Orran Krieger: Yeah.
+Heidi Dempsey: I think you're going way beyond the scope of this.
+Orran Krieger: No, it's not it's not all HP.
+Heidi Dempsey: It is HBC.
+Orran Krieger: This is this is we're creating these.
+Heidi Dempsey: HBC is all parallel like that and it has it does exactly what you're
+Orran Krieger: Yeah,
+Lars Kellogg-Stedman: So I think I I think that those requests are not unreasonable,
+Heidi Dempsey: saying.
+Orran Krieger: exactly.
+Lars Kellogg-Stedman: but I think that the ability to do what you're asking right now has not been a big focus in the design of the APIs that we have right now.
+ 
+ 
+00:57:07
+ 
+Eran Cohen: Valley's out right
+Heidi Dempsey: Right.
+Lars Kellogg-Stedman: So this is something that I think we will need to think about longer term about how to enable behavior like
+Eran Cohen: now.
+Lars Kellogg-Stedman: that.
+Heidi Dempsey: But not at the expense of getting this stuff
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: Right?
+Heidi Dempsey: deployed.
+Lars Kellogg-Stedman: It's not and and certainly not right now because it is now 12 o'clock.
+Alona Paz: Uh yes. So we are out of time.
+Heidi Dempsey: Yeah.
+Orran Krieger: Yeah.
+Alona Paz: Just a request for Dan. Can you please go over the the network API and see if it like somehow maps to network? What maps? What nodes? And like uh then talk about it with run and maybe
+Orran Krieger: Yeah,
+Alona Paz: large.
+Dan Manor: Yeah, sure.
+Orran Krieger: I think pushing that parallelism down like wherever we can um expressing things that parallelism you know it it never hurts us to have it there um in the sense that we can always serialize underneath the interface but if we haven't
+Eran Cohen: You
+Orran Krieger: expressed things as paral vision can't exploit it so I think it's an opportunity for us to take somebody
+Eran Cohen: can't
+Orran Krieger: that has done proper parallel interface
+Eran Cohen: be sure.
+ 
+ 
+Transcription ended after 00:58:37
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

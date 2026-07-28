@@ -1,28 +1,11 @@
 # OSAC Project
 
-Development workspace for the Open Sovereign AI Cloud (OSAC) project. This repo provides a meta-workspace that bootstraps all OSAC components for cross-component development and testing, with AI-assisted workflows for Claude Code, Cursor, and Gemini CLI.
+Development workspace for the Open Sovereign AI Cloud (OSAC) project. This repo provides a meta-workspace that bootstraps all OSAC components for cross-component development and testing, with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [GSD workflow](https://github.com/cyanheads/gsd) integration pre-configured.
 
 ## Prerequisites
 
-Choose one of the two development setups:
-
-### Option A: Distrobox (recommended)
-
-All dev tools are packaged in a container — no need to install toolchains on your host.
-
-- **git**
-- **make**
-- **[podman](https://podman.io/)** and **[distrobox](https://distrobox.it/)**
-
-See [Distrobox Dev Environment](#distrobox-dev-environment) to get started.
-
-### Option B: Local toolchain
-
-Install tools directly on your host.
-
 - **git**
 - **[gh CLI](https://cli.github.com/)**: Install and authenticate with `gh auth login` (required for fork workflow; use `--no-fork` if you only need read-only access)
-- Go, Node.js, buf, kubectl, kind, jira CLI (see [Setup](#setup) for details)
 
 ## Getting Started
 
@@ -53,13 +36,8 @@ Use `--no-fork` if you only need read-only access or are running in CI.
 | [osac-aap](https://github.com/osac-project/osac-aap) | Ansible Automation Platform roles and playbooks for VM and network provisioning |
 | [osac-installer](https://github.com/osac-project/osac-installer) | Installation manifests, prerequisites, and demo scripts |
 | [osac-test-infra](https://github.com/osac-project/osac-test-infra) | Integration testing infrastructure |
-| [osac-ui](https://github.com/osac-project/osac-ui) | OSAC UI web console for managing cloud resources |
 | [enhancement-proposals](https://github.com/osac-project/enhancement-proposals) | Design documents and enhancement proposals |
-| [docs](https://github.com/osac-project/docs)[^1] | Architecture documentation, diagrams, and design guides |
-| [host-management-openstack](https://github.com/osac-project/host-management-openstack) | Bare metal host management via OpenStack |
-| [bare-metal-fulfillment-operator](https://github.com/osac-project/bare-metal-fulfillment-operator) | Kubernetes operator for bare metal fulfillment |
-
-[^1]: Cloned into a subdirectory as `osac-docs`
+| [docs](https://github.com/osac-project/docs) | Architecture documentation, diagrams, and design guides |
 
 ## What's Included
 
@@ -67,48 +45,12 @@ This workspace provides a pre-configured AI-assisted development environment:
 
 | File | Purpose |
 |------|---------|
-| `bootstrap.sh` | Clones or updates all component repos, installs ai-workflows, and wires agent skill symlinks — re-run anytime to sync |
-| `osac-helpers.sh` | Developer shell helpers — source to get worktree and workflow utilities |
-| `AGENTS.md` | Tool-agnostic project instructions (Claude, Cursor, Gemini, Copilot) — build commands, architecture; bootstrap-linked skills for Claude/Cursor/Gemini; Copilot reads this file for conventions only |
-| `CLAUDE.md` | Thin wrapper that loads `AGENTS.md` plus Claude-specific command syntax |
-| `tools/link-agent-skills.sh` | Links `.claude/skills`, `.cursor/skills`, and `.gemini/skills` to canonical `skills/` |
+| `bootstrap.sh` | Clones or updates all component repos to latest `main` — re-run anytime to sync |
+| `CLAUDE.md` | Project instructions Claude Code reads automatically — build commands, architecture patterns, conventions |
 | `.claude/settings.json` | Pre-approved shell commands (git, ls, cat, etc.) so Claude doesn't prompt for routine operations |
-| `AI-assisted-development-workflow.md` | AI-assisted development workflow: Feature → PRD → Design → Jira sync → Implement |
-| `skills/` | Canonical OSAC skill definitions (Jira, PRs, design review, release, demos) plus bootstrap-managed ai-workflows symlinks |
-| `.gitignore` | Ignores cloned repos, `.planning/`, `.claude/`, `.cursor/`, `.gemini/`, credentials, editor files, and build artifacts |
-
-## Distrobox Dev Environment
-
-A containerized development environment is provided via [distrobox](https://distrobox.it/), packaging all required tools (Go, Node.js, buf, kubectl, kind, gh, jira, Claude Code) in a Fedora 42-based container. This gives you a reproducible environment without installing toolchains on your host.
-
-```bash
-# Build the image and enter the distrobox
-make enter
-
-# Or run Claude Code directly inside the distrobox
-make claude
-
-# Pass flags to Claude Code
-make claude ARGS="--resume"
-
-# Check status of image and distrobox
-make status
-
-# Rebuild from scratch
-make rebuild
-```
-
-The distrobox shares your home directory by default (override with `HOME_DIR`). All host files, SSH keys, and credentials are available inside the container.
-
-| Target | Description |
-|--------|-------------|
-| `make image` | Build the container image |
-| `make enter` | Enter the distrobox (creates on first run) |
-| `make claude` | Run Claude Code inside the distrobox |
-| `make stop` | Stop the running container |
-| `make rm` | Remove the distrobox |
-| `make rebuild` | Rebuild image from scratch and enter |
-| `make status` | Show image and distrobox status |
+| `.planning/config.json` | GSD workflow configuration (parallelization, verification, auto-advance) |
+| `skills/` | AI skills for Claude Code — EP generation, Jira management, bug fix workflows, demo recording |
+| `.gitignore` | Ignores cloned repos, `.planning/`, `.claude/`, credentials, editor files, and build artifacts |
 
 ## Setup
 
@@ -117,49 +59,13 @@ After running `./bootstrap.sh` to clone all repos:
 1. **kubeconfig**: Place your cluster kubeconfig at `./kubeconfig` (gitignored)
 2. **Tools**: `buf`, `grpcurl`, `kubectl`, `jq`, [`rg`](https://github.com/BurntSushi/ripgrep)
 3. **Jira CLI**: `go install github.com/ankitpokhrel/jira-cli/cmd/jira@latest` (or `brew install ankitpokhrel/jira-cli/jira-cli`)
+4. **GSD workflow**: `npx get-shit-done-cc@latest` (run from workspace root)
+   - GSD hooks in `.claude/settings.json` are already configured and will no-op if GSD is not installed
+
 To update all repos to latest `main` at any time, simply re-run:
 ```bash
 ./bootstrap.sh
 ```
-
-## Developer Helpers
-
-`osac-helpers.sh` provides shell functions for common development workflows. Source it in your terminal to make them available:
-
-```bash
-source osac-helpers.sh
-```
-
-### `osac-new-worktree <branch-name>`
-
-Creates an isolated git worktree for development:
-
-```bash
-osac-new-worktree feat/storage-qos
-osac-new-worktree fix/login-bug
-osac-new-worktree OSAC-1234
-```
-
-This will:
-1. Create a new branch with the given name
-2. Set up a worktree at `../osac-workspace-<basename>` (e.g., `../osac-workspace-storage-qos`)
-3. Switch into the new directory
-4. Run `bootstrap.sh` to clone all component repos
-5. If the branch name contains an OSAC Jira ticket (e.g., `OSAC-1234`), fetch the ticket summary and append it to `.claude/CLAUDE.md`
-
-Each worktree is a fully independent workspace — you can work on multiple features in parallel without stashing or switching branches.
-
-**Clean up** when you're done (run from the original osac-workspace directory):
-
-```bash
-# First, exit the worktree if you're still in it
-cd ~/path/to/original/osac-workspace
-git worktree remove ../osac-workspace-storage-qos
-```
-
-**Note:** Git will refuse to remove a worktree with uncommitted changes. Commit or stash your work first, or use `git worktree remove --force` if you're certain you want to discard the changes.
-
-**Tip:** Add `source /path/to/osac-workspace/osac-helpers.sh` to your `~/.bashrc` or `~/.zshrc` so the helpers are always available.
 
 ## Quick Reference
 
@@ -184,12 +90,64 @@ curl -sk -H "Authorization: Bearer $TOKEN" "https://$ROUTE/api/fulfillment/v1/co
 grpcurl -insecure -H "Authorization: Bearer $TOKEN" $ROUTE:443 osac.public.v1.VirtualNetworks/List
 ```
 
-## AI-Assisted Development Workflow
+## GSD Workflow
 
-See [`AI-assisted-development-workflow.md`](AI-assisted-development-workflow.md) for the full workflow: Feature → PRD → Design → Jira sync → Implement.
+Once you have Claude Code running in this workspace, use GSD commands to plan and execute work:
 
-**Prerequisites:** `./bootstrap.sh` (installs ai-workflows and links agent skill directories), `gh` (authenticated), `jira` CLI, `rg`
+```
+/gsd:new-project     # Initialize project with requirements gathering
+/gsd:plan-phase      # Plan the next phase of work
+/gsd:execute-phase   # Execute a planned phase
+/gsd:progress        # Check current project status
+/gsd:next            # Advance to the next logical step
+```
 
-After bootstrap, OSAC repo-local skills and ai-workflows (`bugfix`, `implement`, `prd`, `design`, `e2e`) are discoverable via `.claude/skills/`, `.cursor/skills/`, and `.gemini/skills/` (each symlinked to `skills/`). See `AGENTS.md` for agent-specific paths and the full skill list.
+| Task Type | GSD Command | When to Use |
+|-----------|-------------|-------------|
+| Epic / new feature | `/gsd:new-project` | Starting a multi-phase initiative |
+| Jira ticket | `/gsd:quick` | Single-ticket work with commit tracking |
+| Tiny fix | `/gsd:fast` | One-file fixes, no planning overhead |
+| Check status | `/gsd:progress` | See where you are in the project |
+| Next step | `/gsd:next` | Auto-advance to the next logical action |
 
-See `AGENTS.md` and `CLAUDE.md` for detailed development instructions and conventions.
+GSD manages all state under `.planning/` — milestones, phases, plans, and verification are created as you work.
+
+## Enhancement Proposals
+
+This workspace includes skills for drafting and submitting OSAC Enhancement Proposals with Claude Code.
+
+**Create an EP from requirements or meeting notes:**
+
+```
+/ep.create
+```
+
+Provide rough requirements, meeting notes, or a Jira ticket (e.g., `OSAC-XXXXX`) and the skill will:
+
+1. Explore the OSAC codebase and existing proposals for context
+2. Ask clarifying questions before drafting
+3. Generate a template-compliant EP under `enhancement-proposals/enhancements/<feature-slug>/README.md`
+4. Submit a PR to [osac-project/enhancement-proposals](https://github.com/osac-project/enhancement-proposals) on approval
+5. Iterate on reviewer feedback
+
+**Convert an approved EP into Jira work items:**
+
+```
+/ep.to-jira
+```
+
+This creates a Jira epic with ordered sub-tasks (proto, backend, controller, tests, docs) and a complexity assessment.
+
+**Prerequisites:** `gh` (authenticated), `jira` CLI, `rg`
+
+## Architecture
+
+```
+NetworkClass (platform-defined)
+  └── VirtualNetwork (tenant L2 network with CIDR)
+        ├── Subnet (CIDR range within VirtualNetwork)
+        └── SecurityGroup (firewall rules)
+              └── ComputeInstance (KubeVirt VM, attached to Subnet + SecurityGroups)
+```
+
+See `CLAUDE.md` for detailed development instructions and conventions.

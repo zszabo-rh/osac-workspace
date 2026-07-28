@@ -1,0 +1,197 @@
+[PROCESSED 2026-06-19]
+From: Alona Paz <alkaplan@redhat.com>
+To: Heim, Itamar <iheim@redhat.com>, Levy, Ohad <olevy@redhat.com>, Jeff Lo <jlo@redhat.com>, Scott Berens <sberens@redhat.com>, Stephen Cuppett <scuppett@redhat.com>, Orran Krieger <okrieger@redhat.com>, Steve Gordon <sgordon@redhat.com>, Ryan King <rking@redhat.com>, Mike Evans <mevans@redhat.com>, Tushar Katarki <tkatarki@redhat.com>
+Cc: rfreiman-all@redhat.com, Michael Hrivnak <mhrivnak@redhat.com>, Avishay Traeger <atraeger@redhat.com>, Liat Berkovich <lberkovi@redhat.com>, Trey West <trwest@redhat.com>, Hochman, Omri <ohochman@redhat.com>, Chuzhoy, Sasha <schuzhoy@redhat.com>, Kyle Baker <kybaker@redhat.com>, Andrea Hudson <ahudson@redhat.com>, Lucy Kerner <lkerner@redhat.com>, Vincent Caldeira <vcaldeir@redhat.com>, Liming Tsai <ltsai@redhat.com>, Chris Butler <chbutler@redhat.com>, Scott England-Sullivan <scottes@redhat.com>, Erwan Gallen <egallen@redhat.com>, Justin Hibbard <jhibbard@redhat.com>, Lars Kellogg-Stedman <lars@redhat.com>, Heidi Dempsey <hdempsey@redhat.com>, Tzu-Mainn Chen <tzumainn@redhat.com>, Isaiah Stapleton <istaplet@redhat.com>, Abigael Donahue <adonahue@redhat.com>, Ethan Kim <ekim@redhat.com>, Ronen Sde-Or <ronen@redhat.com>, Sachin Mullick <smullick@redhat.com>, Laura Franch <lfranchd@redhat.com>, Matt Carleton <mcarleto@redhat.com>, Thorsten Schwesig <tschwesi@redhat.com>, Darren Orzechowski <dorzecho@redhat.com>, Jeff Picozzi <jpicozzi@redhat.com>, Richa Srivastava <risrivas@redhat.com>, Bradford Nichols <bradnichols@redhat.com>, Karanbir Singh <kbsingh@redhat.com>, Piotr Kliczewski <pkliczew@redhat.com>, Chen Yosef <cyosef@redhat.com>, Ygal Blum <yblum@redhat.com>, Asayag, Moti <masayag@redhat.com>, Michal Zasepa <mzasepa@redhat.com>, Idan Levi <ilevi@redhat.com>, Jonathan Zarecki <jzarecki@redhat.com>
+Subject: OSAC weekly report - June 18
+Date: Thu, 18 Jun 2026 21:21:33 +0300
+---
+Executive Summary
+
+This week, OSAC advanced multi-tenancy foundations and networking
+architecture. The team demonstrated project management APIs using Keycloak
+organizations for authorization hierarchies, and showcased VLAN-based
+tenant isolation through the new networking backend. Key technical
+discussions focused on extending the Public IP API for cross-service use
+and exploring a generic catalog architecture for improved resource
+consistency.
+
+0.1 Roadmap: details <https://redhat.atlassian.net/issues/?filter=111276>
+
+0.2 Initial Roadmap: details
+<https://redhat.atlassian.net/issues?filter=111912>
+
+This Week's Demos (June 8, 2026)Networking
+
+Public IP Network Attachments  (Recording
+<https://drive.google.com/file/d/1SPG1nQxD1IDJIE6ytZgDhbElt2BzmAwp/view>
+06:50 - 50:15)
+
+   -
+
+   Public IP allocation was already demonstrated a few weeks ago. This demo
+   focused on the next step: attaching allocated IPs to tenant workloads, not
+   only to ComputeInstances, and managing them throughout their lifecycle.
+   -
+
+   The team presented the updated IP model, including a dedicated
+   attachment concept that allows IPs to be associated with different workload
+   types such as compute instances, clusters, or bare metal servers. The demo
+   covered the main user flow: pool management, IP allocation, attachment,
+   connectivity validation, detachment, and cleanup.
+   -
+
+   The discussion also covered customer-facing terminology, since “Public
+   IP” may be misleading when the IP is not necessarily internet-routable.
+   Alternatives such as “External IP,” “Floating IP,” or “Virtual IP” were
+   suggested.
+
+
+   -
+
+   Follow-up actions:
+   -
+
+      Align on customer-facing terminology.
+      -
+
+      Explore simplified one-shot workflows.
+      -
+
+      Public IP backend integration: extend Public IP support across
+      additional networking backends, including Netris and Ansible-based VLAN
+      networking.
+
+Ansible VLAN Networking (Recording
+<https://drive.google.com/file/d/1YrMQ_RbvpHJ8SmvT0ssyxedEts_IWLsH/view?usp=drive_link>
+28:24 - 01:05:05)
+
+   -
+
+   Demonstrated a new Ansible-based networking backend that can provide
+   tenant network isolation as an alternative to Netris/MOC.
+   -
+
+   The solution uses Ansible networking to configure both the switches and
+   the router: switch access ports are assigned to tenant-specific VLANs, and
+   the router uses a separate namespace per tenant.
+   -
+
+   The demo showed how different tenants can be placed on separate VLANs,
+   ensuring that workloads from one tenant cannot communicate with another
+   tenant.
+   -
+
+   Follow-up actions:
+
+
+   -
+
+   Integrate the networking backend into the Cluster as a Service workflow.
+   -
+
+   Explore the BMO(BareMetalOperator) multi-tenancy solution, as they may
+   have a similar VLAN-based approach.
+
+Core
+
+Project Management APIs (Recording
+<https://drive.google.com/file/d/1YrMQ_RbvpHJ8SmvT0ssyxedEts_IWLsH/view?usp=drive_link>
+06:06 - 28:12)
+
+   -
+
+   Demonstrated new project management APIs that provide multi-tenancy
+   support in OSAC, where a project acts as a boundary within a tenant,
+   similar to an OpenShift namespace.
+   -
+
+   The demo showed a tenant admin creating a project through the OSAC CLI,
+   verifying it in Keycloak, and confirming that unauthorized users cannot
+   access it.
+   -
+
+   The model supports nested projects and project-level access control,
+   including manager and viewer roles.
+   -
+
+   Projects will be used to scope OSAC resources, with a default project
+   per tenant. Shared/global resources will reside under a shared tenant
+   project.
+   -
+
+   Follow-up actions:
+   -
+
+      Add support for assigning and removing users from projects.
+      -
+
+      Implement resource filtering by project.
+      -
+
+      Complete tenant admin APIs for identity provider and role management.
+      -
+
+      Enable resources to be assigned to multiple projects.
+
+Upcoming Demos:
+
+   -
+
+   VMaaS & CaaS tenant user UI - provide a self-service UI for creating and
+   managing virtual machines and clusters.
+   -
+
+   Infrastructure admin UI (Enclave) - provide an administrator-facing
+   interface for OSAC setup and infrastructure configuration, including DNS,
+   network classes, and Netris integration.
+   -
+
+   BareMetalInstance: support self-service bare metal machine provisioning
+   through MOC-backed infrastructure.
+   -
+
+   Graphical console (VNC) for VM access - add VNC-based access that allows
+   users to connect to and manage VMs directly from the console.
+   -
+
+   External IDP support - API to add external IDPs.
+   -
+
+   ClaaS integration with Ansible networking VLANs network class - Add
+   support for isolating cluster worker nodes using VLAN-based network classes.
+   -
+
+   VM Instance Types - Provide predefined VM instance types (flavors) with
+   standardized CPU, memory, and disk configurations for simplified VM
+   provisioning.
+   -
+
+   Netris integration with OSAC Networking API - Update the existing Netris
+   integration to use the standard OSAC Networking API, aligning it with the
+   common networking flow.
+
+
+👉 Weekly Demo Schedule: View Schedule
+<https://docs.google.com/document/d/1V7uxuxJNyK2pkoaTQ3TJngnNp2ktvZzTAJMUESv0U4M/edit?tab=t.c91kd825w3xm>
+
+
+Key Integrations
+
+AI Grid Integration - MaaS on OSAC
+
+
+   -
+
+     Kicked off integration work to enable OSAC's automated AI cluster
+   provisioning capability. When complete, OSAC will transform bare OpenShift
+   clusters into fully functional AI environments—automatically installing Red
+   Hat OpenShift AI, configuring authentication, deploying model serving
+   infrastructure, and pre-registering shared AI models for immediate tenant
+   use.
+
+
+
+Thanks,
+
+Alona
+

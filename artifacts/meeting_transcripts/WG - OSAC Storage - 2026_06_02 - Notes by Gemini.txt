@@ -1,0 +1,93 @@
+[PROCESSED 2026-06-03]
+warning: unknown output format 'text'; falling back to json (valid options: json, table, yaml, csv)
+Using keyring backend: keyring
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jun 2, 2026
+Date: Tue, 02 Jun 2026 14:13:11 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 2, 2026, 4:10 PM CEST and may  
+contain errors.
+
+
+Summary
+The session defined the infrastructure roadmap and strategic focus for the  
+0.1 release through automation integration.
+
+
+Cluster as a Service focus
+Development effort is pivoting to support Cluster as a Service with a VAST  
+backend for the 0.1 release. Storage tiers are now defined through the  
+Application Programming Interface.
+
+Ansible automation workflows
+Automated installation of Container Storage Interface drivers and storage  
+classes integrates into existing cluster provisioning playbooks. This  
+architecture avoids deprecated event-driven components to maintain  
+configuration stability.
+
+Tenant storage architecture
+Storage information resides independently from the tenant custom resource  
+to prevent future compatibility issues. This modular structure supports the  
+dedicated lifecycle management of storage components.
+
+
+Suggested next steps
+
+
+
+[Roy Golan] Ask about upgrade: Inquire if the Vast OVA image can be updated  
+to version 5.4 or if a new deployment image is required.
+
+[Will Gordon] Extend Ansible playbooks: Modify the current setup and  
+storage class provisioning scripts to support Cluster as a Service  
+environments.
+
+[The group] Define trigger mechanism: Determine the specific event or  
+status update that will initiate the playbook for installing CSI drivers  
+and storage classes after cluster creation.
+
+[Will Gordon] Evaluate Cloud Storage: Assess cost and accessibility of Vast  
+on cloud on Amazon Web Services for production-like testing.
+
+[Roy Golan] Review Backend Proposal: Analyze the submitted enhancement  
+proposal regarding backend generic application programming interface  
+support.
+
+[Akshay Nadkarni] Summarize Meeting: Send a summary of the storage  
+discussion and action items to the storage communication channel.
+
+[Akshay Nadkarni] Update Jira: Align milestones and features in Jira by the  
+end of the day.
+
+[Avishay Traeger] Propose Storage Tiers: Draft an enhancement proposal for  
+database storage tiers by tomorrow morning.
+
+[Akshay Nadkarni] Schedule Meeting: Coordinate calendars and organize a  
+meeting for tomorrow to review the storage tier proposal.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

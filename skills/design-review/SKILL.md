@@ -15,9 +15,8 @@ description: |
 
 ## Overview
 
-This skill reviews a design document against the OSAC design template at
-`enhancement-proposals/guidelines/design_template.md` and author guide at
-`enhancement-proposals/guidelines/design_guide.md`, architectural conventions, and patterns learned from past reviewer feedback.
+This skill reviews a design document against the [OSAC design template](../../.design/templates/design.md),
+architectural conventions, and patterns learned from past reviewer feedback.
 Design documents describe HOW — architecture, APIs, implementation. User stories
 and persona coverage belong in the PRD (`prd.md`), not the design.
 It uses calibrated 0-2 scoring across 4 dimensions with hard pass/fail
@@ -52,8 +51,8 @@ Before reviewing, read these files if they exist:
 
 1. `.design/context/osac-dimensions.md` — services, personas, cross-cutting dimensions
 2. `.design/context/review-patterns.md` — reviewer feedback themes, anti-patterns, design reference library
-3. `reference/ARCHITECTURE.md` — system architecture for technical grounding
-4. `osac-docs/personas.md` — canonical OSAC persona definitions
+3. `.planning/codebase/ARCHITECTURE.md` — system architecture for technical grounding
+4. `docs/personas.md` — canonical OSAC persona definitions
 
 ## Scoring Rubric
 

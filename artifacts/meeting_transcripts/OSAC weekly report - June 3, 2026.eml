@@ -1,0 +1,268 @@
+[PROCESSED 2026-06-04]
+From: Alona Paz <alkaplan@redhat.com>
+To: Heim, Itamar <iheim@redhat.com>, Levy, Ohad <olevy@redhat.com>, Jeff Lo <jlo@redhat.com>, Scott Berens <sberens@redhat.com>, Stephen Cuppett <scuppett@redhat.com>, Orran Krieger <okrieger@redhat.com>, Steve Gordon <sgordon@redhat.com>, Ryan King <rking@redhat.com>, Mike Evans <mevans@redhat.com>, Tushar Katarki <tkatarki@redhat.com>
+Cc: rfreiman-all@redhat.com, Michael Hrivnak <mhrivnak@redhat.com>, Avishay Traeger <atraeger@redhat.com>, Liat Berkovich <lberkovi@redhat.com>, Trey West <trwest@redhat.com>, Hochman, Omri <ohochman@redhat.com>, Chuzhoy, Sasha <schuzhoy@redhat.com>, Kyle Baker <kybaker@redhat.com>, Andrea Hudson <ahudson@redhat.com>, Lucy Kerner <lkerner@redhat.com>, Vincent Caldeira <vcaldeir@redhat.com>, Liming Tsai <ltsai@redhat.com>, Chris Butler <chbutler@redhat.com>, Scott England-Sullivan <scottes@redhat.com>, Erwan Gallen <egallen@redhat.com>, Justin Hibbard <jhibbard@redhat.com>, Lars Kellogg-Stedman <lars@redhat.com>, Heidi Dempsey <hdempsey@redhat.com>, Tzu-Mainn Chen <tzumainn@redhat.com>, Isaiah Stapleton <istaplet@redhat.com>, Abigael Donahue <adonahue@redhat.com>, Ethan Kim <ekim@redhat.com>, Ronen Sde-Or <ronen@redhat.com>, Sachin Mullick <smullick@redhat.com>, Laura Franch <lfranchd@redhat.com>, Matt Carleton <mcarleto@redhat.com>, Thorsten Schwesig <tschwesi@redhat.com>, Darren Orzechowski <dorzecho@redhat.com>, Jeff Picozzi <jpicozzi@redhat.com>, Richa Srivastava <risrivas@redhat.com>, Bradford Nichols <bradnichols@redhat.com>, Karanbir Singh <kbsingh@redhat.com>, Piotr Kliczewski <pkliczew@redhat.com>, Chen Yosef <cyosef@redhat.com>, Ygal Blum <yblum@redhat.com>, Asayag, Moti <masayag@redhat.com>
+Subject: OSAC weekly report - June 3, 2026
+Date: Wed, 3 Jun 2026 20:17:20 +0300
+---
+Executive Summary
+
+This week, OSAC made significant progress on roadmap planning and
+infrastructure
+foundations. The team formalized release planning with three milestones:
+0.1, 0.2, and 0.3, and organized features by release in Jira.
+
+Planning for 0.1 is currently focused on core CaaS, VMaaS, and BMaaS
+capabilities, while 0.2 and 0.3 are still in the initial planning stages
+and will be expanded with additional features as the roadmap progresses.
+
+Key demos included profile-based bare metal fulfillment for dynamic host
+provisioning, catalog items for flexible cluster configuration, the new Enclave
+UI wizard for simplifying disconnected environment setup, BCM integration
+for server inventory management, and the new Helm-based OSAC installer for
+OSAC installation.
+
+The project also established a new workflow structure: Features contain
+requirements and link to enhancement proposals on GitHub, which are then
+broken down into Epics and Tasks. A new RFE ticket type will be added to
+track external inputs from field teams before grooming them into formal
+features.
+
+Release 0.1: details
+<https://redhat.atlassian.net/projects/OSAC/versions/105910/tab/release-report-all-issues?sortBy=STATUS>
+
+0.1 Release Focus
+
+   -
+
+   Core capabilities: Multi-tenancy using Keycloak Organizations, tenant
+   onboarding, and RBAC management.
+   -
+
+   VMaaS: VM lifecycle management, including create, delete, and restart;
+   GPU passthrough; Windows VM support; dedicated VM clusters; graphical
+   console access; and networking based on CUDN, with MetalLB used for public
+   IPs.
+   -
+
+   CaaS: Cluster provisioning API, catalog items, DNS API, automatic agent
+   provisioning, and networking integration. This includes integration with
+   BCM for inventory, Netris for L3 tenant network isolation, Ansible
+   Networking for worker VLAN isolation, Metal3 for provisioning, and VAST for
+   storage.
+
+
+------------------------------
+
+This Week's Demos (May 11, 2026)BMaaSBare Metal Fulfillment with Profiles (
+Recording
+<https://drive.google.com/file/d/1DhkKFw45Ze4YBOsgjTwgPdvcY4bIiMeC/view>
+15:48 - 46:25)
+
+   -
+
+   Introduced Ansible-driven host provisioning, replacing hardcoded logic
+   with a dynamic profile parameter in the bare metal pool resource.
+
+
+   -
+
+   Profile Components: Host selectors (filtering), persistent labels
+   (inventory tagging), and templates (AAP lifecycle roles).
+   -
+
+   Demonstrated Types: Agent Selection (allocates and networks hosts), Agent
+   Provisioning (moves hosts to agent-managed state), and Agent
+   Deprovisioning (resets hosts to bare metal).
+   -
+
+   Visibility: OpenStack inventory is now tagged with pool, host, and
+   profile IDs to track OSAC resource usage.
+   -
+
+   Follow-up Actions
+
+
+   -
+
+   Expose pools and leases in the fulfillment service for admin visibility.
+   -
+
+   Extend the HostLease API for image provisioning and network attachments.
+   -
+
+   Integrate multiple backends (e.g., BCM for inventory, Metal3 for
+   provisioning) using the new API.
+
+CaaS
+
+Catalog Items (Recording
+<https://drive.google.com/file/d/1DhkKFw45Ze4YBOsgjTwgPdvcY4bIiMeC/view>
+46:50 - 53:55)
+
+   -
+
+   Catalog items allow multiple deployment configurations to share the same
+   underlying template while supporting user-defined overrides.
+   -
+
+   Demonstrated creating both a developer sandbox (one worker) and
+   production cluster (three workers) from a single shared OCP 4.17 template.
+   -
+
+   Catalog items can lock specific fields (like release image) or make them
+   editable with validation rules.
+   -
+
+   VM catalog items are work in progress, currently implemented for
+   clusters only.
+   -
+
+   Follow-up Actions
+   -
+
+      Complete VM catalog item implementation.
+      -
+
+      Expose Catalog Items in the UI.
+
+
+NVIDIA BCM (Base Command Manager) Integration (Recording
+<https://drive.google.com/file/d/1l3g6nO6ZKHptqUKgU4ToLqElj-2qtTDa/view>
+22:45 - 34:36)
+
+   -
+
+   Demonstrated importing server inventory from NVIDIA BCM into OSAC to
+   support cluster provisioning.
+   -
+
+   Uses an import playbook to discover BCM nodes, create BareMetalHost
+   resources, and register agents.
+   -
+
+   Labels nodes based on resource classes and periodically syncs with BCM
+   to remove stale inventory.
+
+
+   -
+
+   BCM joins OpenStack and file-based inventory as a supported backend.
+   -
+
+   Follow-up actions:
+
+
+   -
+
+   Integrate with BM generic API.
+
+EnclaveEnclave UI Configuration Wizard (Recording
+<https://drive.google.com/file/d/1DhkKFw45Ze4YBOsgjTwgPdvcY4bIiMeC/view>
+54:05 - 58:05)
+
+   -
+
+   Built a web wizard that runs in the landing zone to simplify Enclave
+   configuration and reduce deployment errors.
+   -
+
+   The wizard provides an interface for configuring:
+   -
+
+      Landing zone settings
+      -
+
+      Storage, including VAST
+      -
+
+      Quay mirrors
+      -
+
+      Hub cluster node management
+      -
+
+   Performs backend validation before deployment.
+
+
+   -
+
+   Includes a demo mode that replays a captured real installation at 40x
+   speed.
+   -
+
+   Follow-up actions:
+
+
+   -
+
+   Integrate the Enclave UI with OSAC features beyond basic infrastructure
+   setup.
+   -
+
+   Add official documentation for Enclave and the installer.
+
+Infrastructure
+
+Helm-Based OSAC Installer (Recording
+<https://drive.google.com/file/d/1l3g6nO6ZKHptqUKgU4ToLqElj-2qtTDa/view>
+3:25 - 22:22)
+
+   -
+
+   Demonstrated the transition from Kustomize-based installation to Helm
+   charts for OSAC.
+   -
+
+   Improves production readiness by replacing a hard-to-configure,
+   development-focused installer.
+   -
+
+   Uses an umbrella chart with separate charts for the OSAC operator, AAP,
+   and CRDs.
+   -
+
+   Encourages production-grade management of dependencies such as Keycloak
+   and Postgres instead of bundling development-oriented prerequisites.
+
+
+------------------------------
+
+Upcoming Demos:
+
+   -
+
+   Public IP attachment management - Extend the Public IP API so it can be
+   used across OSAC services, including VMaaS, CaaS, BMaaS, and future
+   consumers, instead of being limited to VM use cases.
+   -
+
+   Netris integration with OSAC Networking API - Update the existing Netris
+   integration to use the standard OSAC Networking API, aligning it with the
+   common networking flow.
+   -
+
+   Admin APIs - Add administrative APIs for role management, identity
+   provider management, and project management.
+   -
+
+   External IDP support - API to add external IDPs.
+   -
+
+   Ansible networking VLANs network class - Add support for tenant network
+   isolation using VLANs.
+   -
+
+   VM Instance Types - Provide predefined VM instance types (flavors) with
+   standardized CPU, memory, and disk configurations for simplified VM
+   provisioning.
+
+
+👉 Weekly Demo Schedule: View Schedule
+<https://docs.google.com/document/d/1V7uxuxJNyK2pkoaTQ3TJngnNp2ktvZzTAJMUESv0U4M/edit?tab=t.3nl8xrjatv13>
+
+
+Thanks,
+
+Alona
+

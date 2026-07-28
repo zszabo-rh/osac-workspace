@@ -1,0 +1,641 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Mar 11, 2026
+innabox full team weekly 
+Invited Juan Hernández Rom Freiman Danni Shi Adrien Gentil Isaiah Stapleton Taj Salawu Jen Stacy Daniel Erez Thorsten Schwesig Michael Hrivnak Christopher Tate Dylan Stewart Orran Krieger Surbhi Kanthed Alona Paz Lars Kellogg-Stedman Oved Ourfali Tzu-Mainn Chen Red Hat Research Program Calendar Jason Schlessman Nora Haxhidautiova Daitzman, Michael Ansari, Mohhamad Naved Quan Pham Weyl, Joachim Munakami, Milson Austin Jamias Meera Malhotra Trey West Nikolla, Kristi Avishay Traeger Elior Erez Elad Tabak Akshay Nadkarni Omri Hochman Eran Cohen Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Heidi Dempsey Dmitry Tantsur Simone Ferlin-Reiter Marek Grac Jason Kary Bradford Nichols Maor Friedman
+Attachments innabox full team weekly  innabox - 2025  Notes - innabox full team weekly   
+Meeting records Transcript Recording 
+
+
+Summary
+Slurm proposal comments require review, bare metal architecture issues discussion postponed, and a decision made to use automation for integrating Jira and GitHub issue tracking.
+
+Slurm Proposal and Architecture
+The Slurm enhancement proposal was introduced with a plan for Lars Kellogg-Stedman and Orran Krieger to review and respond to final comments regarding the proposal. The bare metal architecture issues discussion was postponed until Michael can attend the meeting.
+
+Issue Management Tooling Integration
+The group decided to use automation to create and connect GitHub issues to Jira to merge internal Red Hat tools with public-facing tools, ensuring all work is public. Crucial issues for the rollout of cluster as a service and bare metal as a service will be made visible as GitHub issues.
+
+Pluggable Inventories and Integration
+Progress on pluggable inventories is urgently needed for integration with Carbide and Netris, though the API cannot be finalized until bare metal work is complete. The group agreed on the value of creating a common API before integrating Carbide or Netris to inform the design.
+
+
+Details
+* Slurm Enhancement Proposal Discussion: The Slurm enhancement proposal was introduced, but the person who added it to the agenda was absent from the meeting. Orran Krieger agreed to review and respond to the final comments directed toward them and Lars Kellogg-Stedman regarding the proposal (00:00:00). Lars Kellogg-Stedman expressed continued unhappiness with the state of the template model but did not see this as a reason to delay approving the Slurm proposal if it is otherwise correct (00:00:58).
+* Bare Metal Architecture Issues Scheduling: The bare metal architecture issues discussion was postponed because Michael was not present on the call. The participants decided it would be better to reschedule the discussion when Michael could attend (00:02:02).
+* MLC Involvement and Issue Management: Orran Krieger asked about involving MLC folks and clarified where issues and tasks are visible, noting that issues in Jira are not visible in GitHub (00:02:02). Alona Paz clarified that Jira primarily contains tasks related to cluster as a service and VM as a service, while GitHub holds bare metal as a service tasks. Alona Paz offered to add new members to the organization to allow them to view Jira issues or to assign tasks (00:02:59).
+* Public Nature of Development Work: Lars Kellogg-Stedman emphasized the need for all work to be public, preferring GitHub for issue management so people do not need to request access to Jira to see what is happening (00:02:59). Orran Krieger inquired whether it was possible to make Jira content generally available, but Alona Paz noted that enhancement proposals, documentation, and pull requests are already public, viewing Jira as a convenient management tool for sprints and subtasks (00:03:58).
+* Merging Internal and External Tools: Orran Krieger sought a way to merge the two worlds of internal Red Hat tools and public-facing tools to accommodate people comfortable with different systems. Alona Paz suggested that automation could be implemented to auto-create and connect GitHub issues to Jira and vice versa (00:05:08). The group decided to identify crucial issues relevant to the rollout of cluster as a service and bare metal as a service and make those visible as GitHub issues (00:06:11).
+* Roadmap Visibility and Tooling: Orran Krieger suggested that exposing the roadmap publicly would help external groups with planning (00:07:18). Lars Kellogg-Stedman suggested using a GitHub project for roadmapping, which could set milestones and feed into the planning process. Joachim Weyl (referred to as Kim) noted they have previously used links to tie in projects not directly within the internal workspace (00:08:26).
+* Discussion on Pluggable Inventories: Alona Paz raised the need for progress on pluggable inventories, citing an upcoming integration with Carbide, an inventory solution for Nvidia. Lars Kellogg-Stedman explained that the ongoing bare metal work will define the necessary inventory interface, and they cannot yet finalize what that interface will look like (00:10:33). Tzu-Mainn Chen noted that they had presented a proposal to Michael and Trey and would try to secure further discussion this week to gain consensus (00:11:43).
+* Integration Strategy for New Inventories: Orran Krieger expressed nervousness about pushing integrations before the pluggable inventory API is settled but acknowledged the benefit of having multiple pushing interfaces to inform the design. Alona Paz and Orran Krieger agreed on the value of creating a common API before integrating Carbide or Netris, and then working to implement the existing system under these new APIs (00:12:45). Alona Paz stressed the need to move quickly on this, as the Carbide integration is needed soon due to potential customers being interested in using Nvidia hardware and tools (00:13:55).
+* Clarification on Carbide and Netris: Alona Paz explained that they are integrating with both Netris and Carbide because customers will likely use one or the other, and Carbide is an Nvidia tool used to manage multi-tenancy and inventory (00:13:55) (00:16:20). The participants noted that they have access to an Nvidia lab for testing Carbide and a simulated environment for Netris (00:17:07). It was clarified that Netris primarily focuses on networking and does not handle power management or possess BMC information, thus requiring another inventory solution like the proposed use of BMH and ACM provisioning (00:23:12).
+* Roadmap and Epic Management for MOC Integration: Joachim Weyl asked about visibility into development timelines for the MOC reboot efforts, which prioritize rolling out OSAC for NIST compliance and scaling (00:31:42). Alona Paz shared a link to Jira Epics, which represent their current roadmap, noting they are either closed, rejected, or in progress (00:39:38). Joachim Weyl confirmed they would link to Alona Paz's epics/projects for detailed information but would provide a high-level view on their side, indicating MOC assistance for Red Hat is their priority (00:37:32).
+
+
+Suggested next steps
+* Orran Krieger will take a look at the last couple of comments on the slurm enhancement proposal.
+* Alona Paz will add people to the organization to allow them to view the J issues if provided with the names.
+* Alona Paz will make sure Joachim Weyl has access to the link Alona Paz shared on the chat.
+* Joachim Weyl will dig through the epics and get a better idea of who is involved.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Mar 11, 2026
+innabox full team weekly  - Transcript
+00:00:00
+ 
+Lars Kellogg-Stedman: All right, here we are in another Wednesday. We have two items on the agenda today plus anything um anyone else wants to bring up. But uh let's just get into it. The first item there is the slurm enhancement proposal. Um who wanted to speak to that? Well, this is going to be a short meeting.
+Orran Krieger: Sorry. Do we not have anybody Do people know that this was coming up?
+Lars Kellogg-Stedman: Well, somebody put it on somebody put it on the agenda.
+Orran Krieger: I
+Lars Kellogg-Stedman: Um, that was not me. So, I was hoping that whoever that was would be here at the meeting um to bring up their concerns. I know that there are a couple of comments there on for you that were directed to you that I don't think you've responded to.
+Orran Krieger: Oops. Thanks.
+Lars Kellogg-Stedman: Um they're they're directed to both you and I,
+Orran Krieger: I'll do
+Lars Kellogg-Stedman: but I'm not really in a position to comment on motivations for this alarm proposal.
+Orran Krieger: that.
+ 
+ 
+00:00:58
+ 
+Lars Kellogg-Stedman: I think you have all of the information about um that
+Orran Krieger: Okay. Um Okay, I'll do that then.
+Lars Kellogg-Stedman: Okay. And my only real concern with the enhancement proposal is just that um I think I I am I am still unhappy with the state of our template model, which means that I think at some point we will probably have to restructure this, but I think that's no reason not to go ahead with it right now. So, if if the if the proposal as it's written seems correct, I think we should just go ahead and approve it. But I will let you on take a look at those last couple of comments
+Orran Krieger: Okay. Okay. I'll do that today. Yeah. I mean,
+Lars Kellogg-Stedman: there.
+Orran Krieger: I think it would just it would be tremendously valuable if we can stand up a slur environment alongside the other ones. It's um but um it's it's a real it's a nice to have. It's also I love the fact of having another team building something here.
+ 
+ 
+00:02:02
+ 
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: Um,
+Lars Kellogg-Stedman: All right. So, the the second thing we had today was to talk over some bare metal architecture issues. But, um, man, we do not have Michael on the call today. Do you think it's worth um going forward or you just want to try to schedule something uh at a different point?
+Tzu-Mainn Chen: I think maybe it's better just to try schedule something with him at some point.
+Lars Kellogg-Stedman: Okay.
+Orran Krieger: Okay, let me raise one other quick thing because we do have a fair number of MLC folks here. I don't know if Alona Alone is on. Good. So, just how do we get people involved? Alona, you said that they could look at issues. Um, do we do we have a I mean I just like to start getting more with with with sort of the expansion of things going on through RPH and these other things. I expect more folks to be involved externally. Um, is everything in Jira it's not visible in the GitHub issues, right?
+ 
+ 
+00:02:59
+ 
+Alona Paz: it's not visible. Uh in Jurro we mostly have cluster as a service and VM as a service rel related tasks I think in GitHub are the bare metal as a service. Uh I can add if you give me the names I can add them to the organization. So uh whoever whoever you pass me the names will be able to view the J issues or just ping me and I can assign tasks and uh if if there are people
+Lars Kellogg-Stedman: Yeah. And I will just say that you will also find cluster as a service issues in GitHub as we move forward.
+Alona Paz: available.
+Lars Kellogg-Stedman: Um, Min and I were just talking yesterday about um trying to bring some new life to the GitHub
+Alona Paz: Mhm.
+Lars Kellogg-Stedman: organization um in terms of managing the issues and making that work a little bit more uh relevant to what we're currently doing.
+Alona Paz: Um, don't you want to use the Jira as well?
+Lars Kellogg-Stedman: No, no, no. So,
+Alona Paz: Okay.
+Lars Kellogg-Stedman: so there are a couple reasons for one biggest reason is that we do want all of our work to be public.
+ 
+ 
+00:03:58
+ 
+Lars Kellogg-Stedman: We don't want to have we don't want people to have to come and request access to Jira in order to see what's happening. Um it is that is a big part of what we do in research is making sure that we are participating in open source communities and to make it accessible to people who may want to contribute in the
+Orran Krieger: Is is it possible alone to make the to like everything in here?
+Lars Kellogg-Stedman: future.
+Orran Krieger: Is it correct that um is is very is a very public thing that we would have in this repository like can we make it generally available to anybody or is it
+Alona Paz: Yes, but again I think the enhancements are public the documentation is public all the PRs are public it's just a convenient way to manage the work to manage a sprint h it's not that we are hiding anything any work it it's just tasks I'm not sure it interests anybody like how we split to subtasks uh some enhancement we are working on like the enhancement is public the PRs on the enhancement are public it's that we are hiding from the
+ 
+ 
+00:05:08
+ 
+Orran Krieger: Yeah, I I'm trying to No, I I I get that totally.
+Alona Paz: community.
+Orran Krieger: I mean it's um it isn't something that um a lot of at least the the MOC folks are are using that try to do all that stuff even in even the sprint management and stuff in the public which is which is great. I don't I don't personally but I don't think I think that if you as a manager inside Red Hat want to manage the team that you're managing using tools that you're really familiar with and the rest of Red Hat really understands and you can then assign tasks other group in Red Hat that also makes sense to I'm just trying to figure out how we can merge these two worlds so that, you know, people don't have to use tools they're really unfamiliar with. Um,
+Alona Paz: And we can have uh some automation that like autocreates uh autoconnect the GitHub to the Jira if it makes sense like if you add some issue to GitHub it will automatically create the Jira and the other way around maybe h it is doable.
+ 
+ 
+00:06:11
+ 
+Alona Paz: I don't know if it if it will be beneficial but uh we can consider
+Orran Krieger: So Kim, what's Kim,
+Alona Paz: it.
+Orran Krieger: you're the one that um in part of this is about tracking things. So maybe maybe the right way to do this is not to force people to sort of move away from tools they're comfortable with and used to and stuff, but as things start hitting us, we're trying to move to um to for example deadlines of what's going on with the state here or other things like that that we identify kind of key issues that we want to make visible externally and we do them primarily in the GitHub issues. Whereas, you know, I also feel a little uncomfortable because I know there's internal Red Hat collaborations with um other companies and stuff that are using some of the same code base and I don't I don't know if we want to make all that public and stuff. So maybe if we identify crucial issues that are that are um
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: relevant to the roll out of the cluster as a service and the bare metal as a service um and sort of make those visible as GitHub issues but not try to do everything.
+ 
+ 
+00:07:18
+ 
+Orran Krieger: Does that make sense?
+Lars Kellogg-Stedman: So Ron, I think that a lot of the work that we'll be doing in terms of MOC integration is going to be exposed in GitHub anyway because that's primarily I think going to be the research team working on that. So that the stuff that is directly relevant to um MOC planning I think will already
+Orran Krieger: Mhm.
+Lars Kellogg-Stedman: be you know there where they might expect to find it.
+Alona Paz: Whatever.
+Lars Kellogg-Stedman: Um that's again just where Min and I were talking about trying to return to um something like a sprint model um and put some dates and deadlines in there to help with that aspect of things.
+Alona Paz: I'm not using Jira for managing the road map. I don't put dates there. So we can have some other tool you can suggest whatever to have a shared
+Lars Kellogg-Stedman: Mhm.
+Alona Paz: road
+Lars Kellogg-Stedman: Okay.
+Orran Krieger: Yeah,
+Alona Paz: map.
+Orran Krieger: I I think that road that that makes a lot of sense is like putting the road map out there at least for all the things that everybody feels comfortable doing publicly that would really help sort of in the planning for for the external thing groups that are We want to have us use
+ 
+ 
+00:08:26
+ 
+Joachim Weyl: What
+Alona Paz: Okay.
+Joachim Weyl: happened?
+Alona Paz: Do doesn't make sense to have it in the enhancements proposal uh repo to have
+Lars Kellogg-Stedman: I do not think we want that to be a No,
+Alona Paz: some No.
+Lars Kellogg-Stedman: I think the enhancements proposal repository should just be the enhancement proposals. Um well I
+Alona Paz: So where should we put it? Just Google sheet. Where?
+Lars Kellogg-Stedman: so I guess my inclination would be to you know use a GitHub project for for that. Um some of the work that we're doing can be exposed there directly and we can use it for if we need to setting milestones and things like that that may feed into the planning process a little bit. That would be my inclination if
+Joachim Weyl: Yeah. And in the past, I've used a link to the projects that were being used before as a way to sort of tie in the that projects that are not directly within our Zenhub
+Lars Kellogg-Stedman: Yeah.
+Joachim Weyl: workspace.
+Lars Kellogg-Stedman: And so that my my my thought yesterday was that we would go ahead and try to set something up that was really focused on kind of the stuff that would be touching the so that that would be a place that Kim or Iran or whoever could look at for that aspect of things.
+ 
+ 
+00:09:38
+ 
+Lars Kellogg-Stedman: I wasn't trying to think I wasn't trying to come up with a solution for road mapping the entire project. Um, so I don't know if that makes sense.
+Orran Krieger: Yeah. So,
+Lars Kellogg-Stedman: Maybe
+Orran Krieger: so does it make sense? So, maybe a good way to do this is have Alona, does it make sense to kind of have you and Kim sort of brainstorm a little bit about it or maybe I can even join that? Actually, if the rest of the meeting is done, I think these project management stuff probably aren't interesting to most people.
+Lars Kellogg-Stedman: Sure.
+Orran Krieger: So, should we let people go and just whoever can stick is interested in sticking around for that?
+Lars Kellogg-Stedman: Would you like to continue recording as we talk about project management stuff?
+Orran Krieger: Probably
+Lars Kellogg-Stedman: Okay.
+Alona Paz: I just had a question before everyone drops.
+Orran Krieger: not.
+Michael Daitzman: The the only reason I would suggest you I was going to say the only reason you may want to
+Alona Paz: Yes, sorry.
+Michael Daitzman: record it is in case you think Heidi is going to uh want to listen back to it.
+ 
+ 
+00:10:33
+ 
+Orran Krieger: Sir, I have no objections recording.
+Lars Kellogg-Stedman: Okay.
+Alona Paz: Uh the question before everyone drops. Uh I know that um Juan in the past had some proposal about how to make pluggable inventories and they know that Min proceeded it with another proposal. Uh where does it stand because like we we need it. uh we are going now to integrate with uh carbide which is another some kind of inventory for uh Nvidia uh maybe with
+Lars Kellogg-Stedman: So,
+Alona Paz: other inventories as well. So like what's the stake
+Lars Kellogg-Stedman: so the bare metal work that Min and I are in the middle of right now is really
+Alona Paz: here?
+Lars Kellogg-Stedman: going to inform what that inventory interface looks like. And we're not at the point that I think we can say, "Yes, this is exactly what we need." because this is going to tie into how the bare metal workflows work and how they interact with both inventory and um host management aspects like power control and things like that. So yeah,
+Tzu-Mainn Chen: Let me uh let me just add that um um we did like uh Lars and I did kind of uh present a
+ 
+ 
+00:11:43
+ 
+Lars Kellogg-Stedman: go ahead.
+Tzu-Mainn Chen: proposal talk about proposal over with Michael and uh Trey last Friday. Um and there's some aspects that we all agreed upon and there's some aspects that um turns out need some further discussion which is one of the things that we're hoping to talk about today with uh with Michael. Um but um we're we are we are interested in uh gain consensus sooner rather than later. So we're going to try and um try and get that discussion going uh this week.
+Alona Paz: Okay. So,
+Lars Kellogg-Stedman: Sure,
+Alona Paz: I would love to join. If you have a discussion with Michael,
+Tzu-Mainn Chen: Not
+Alona Paz: please invite me as well.
+Lars Kellogg-Stedman: we can do
+Alona Paz: Uh because it's like uh uh we really need to move on and to integrate
+Lars Kellogg-Stedman: that.
+Alona Paz: carbide and they don't want it to be like carbide integration. I want it to be part of this plugable inventories effort.
+Orran Krieger: Yeah, this is a this is maybe a good point. I don't think we're I I sort of feel like the the it makes sense to me that the bare metal layer, right?
+ 
+ 
+00:12:45
+ 
+Orran Krieger: knowing what computers we have, what networks they're attached, like what switches they're attached to, what the physical inventory is ties very closely to the bare metal management um and and what we're doing there. So to me, I'm I'm a little nervous that to be pushing integrations with things until we've settled it. On the other side, maybe the best way to do it, right, is to actually have two or three things in front of us that are pushing slightly different interfaces so we're cognizant of all of them. And we have people from all those teams. But it feels like we should before integrating on those things,
+Lars Kellogg-Stedman: Sure.
+Orran Krieger: we should quickly have somebody from each of those teams representing it in those discussions. If that makes does that make
+Alona Paz: Yes, really makes sense.
+Orran Krieger: sense?
+Alona Paz: And have some common API to represent the entities in a gen generic way. Yes.
+Orran Krieger: and then work together to to implement the common API before we start
+Alona Paz: Mhm.
+Orran Krieger: integrating other before we integrate the carbide or other things because you know so we're doing we're taking the the existing things and putting it under those APIs at the same time I'm
+ 
+ 
+00:13:55
+ 
+Alona Paz: Totally agree. But we cannot wait for it like for a month.
+Orran Krieger: just
+Alona Paz: We need it like pretty soon. So we need to
+Lars Kellogg-Stedman: So what's the what's what is driving that Alona?
+Alona Paz: push
+Lars Kellogg-Stedman: Who need who needs carbide and what are the dates associated with that?
+Alona Paz: uh well I will Yes.
+Orran Krieger: if you can talk about it. I don't know if she
+Alona Paz: Let's talk about it
+Lars Kellogg-Stedman: Okay. So skip skip the who,
+Alona Paz: later.
+Lars Kellogg-Stedman: but like what are the what's the schedule look
+Orran Krieger: can
+Lars Kellogg-Stedman: like?
+Alona Paz: Uh I don't really have a date but as soon as possible we
+Lars Kellogg-Stedman: Okay.
+Alona Paz: need to have a carbide integration because a lot of our potential customers are uh willing to be NCP Nvidia cloud partner meaning they're using Nvidia
+Lars Kellogg-Stedman: Okay,
+Alona Paz: hardware and Nvidia tools and carbide is the tool to manage
+Lars Kellogg-Stedman: sure.
+Alona Paz: multi tenency uh for uh for Nvidia and uh to manage the inventory in some cases it can even manage the network.
+ 
+ 
+00:14:57
+ 
+Alona Paz: Uh so um that's what what drives
+Orran Krieger: I I was curious if if Nvidia has their own internal tool,
+Alona Paz: us.
+Orran Krieger: why are they also promoting that that company we're talking to in California. Is that is that non-conlict or is that a
+Alona Paz: Uh,
+Lars Kellogg-Stedman: Do you mean nitrous?
+Alona Paz: yes. Yes.
+Orran Krieger: what's
+Alona Paz: No, I don't know.
+Lars Kellogg-Stedman: Okay.
+Alona Paz: Maybe a I don't know which one of the two companies
+Orran Krieger: um I keep saying Tetris, but that's probably that's not it.
+Lars Kellogg-Stedman: Netris
+Orran Krieger: Metress.
+Alona Paz: are from Armenia.
+Orran Krieger: Yes.
+Alona Paz: I think, not California. I I think they're Armenian.
+Orran Krieger: No. Well, sorry. They might be Armenian people. Um I think they are their their corporate office is in is in California. So that's
+Alona Paz: Ah okay maybe maybe uh yes that's a good question
+Orran Krieger: where
+Alona Paz: uh how they will combine because uh because yes carbide also have some kind of networking like carbide with combination with something that is called DPF can provide networking solution for multi-tenant networking uh we still need to find out when this and when that will be needed I'm I'm not sure there is a use case where both carbide and netric will be needed but I think we for sure will have customers that will
+ 
+ 
+00:16:20
+ 
+Alona Paz: use net race and others that will use carbide so we we are integrating with both and we'll
+Lars Kellogg-Stedman: Uh-huh.
+Alona Paz: see
+Orran Krieger: Okay. I' I'd love to actually have at least one place where we have access to all three like even a trivial scale even one switch with a few computers on it so that we can do regression we can we can test it in one spot is that um um yeah I'm curious we should try to see if we can get a switch from each of them
+Alona Paz: We don't own
+Orran Krieger: if there's some I can talk to folks if well or at least at
+Lars Kellogg-Stedman: Do we need to get a switch from each of them or do we just need
+Orran Krieger: least yeah well Netris is just software.
+Lars Kellogg-Stedman: software?
+Orran Krieger: Carbide though, I think is only works with Nvidia switches. Mind you,
+Lars Kellogg-Stedman: Okay.
+Orran Krieger: we have Nvidia switches, so but they're freaking expensive.
+Lars Kellogg-Stedman: Right.
+Alona Paz: We have we have we have access to Nvidia lab and that's where
+ 
+ 
+00:17:07
+ 
+Orran Krieger: So,
+Alona Paz: uh we test carbide and uh we have
+Orran Krieger: okay.
+Alona Paz: simulate simulated environment that Netris gave us and that's where we test the net like not with real switches and routers but
+Orran Krieger: Okay.
+Alona Paz: we don't have the combin combination of the two.
+Orran Krieger: Um
+Alona Paz: I'm not sure we should have because I don't think there will be customers that will use
+Orran Krieger: well I I think that I mean at least in environments say like the
+Alona Paz: both.
+Orran Krieger: MOC or Duke University other things like that what we'll have is we'll have a whole bunch of hardware already accessed and then we're going to buy you know say u the the new state initiative we'll buy whatever 100 servers with the new Nvidia switch And and it doesn't seem unreasonable to me that we would have a common we would have OSAC managing things on both of those. That doesn't seem unreasonable, does it?
+Alona Paz: I'm not sure currently we target uh if the networking is managed by netis we target like the the missing pieces that net doesn't give us which is I I think the power management and the BMC credentials we aim to use I think Clar suggested it to use BMH and use um the ACM uh uh the ACM provisioning uh we're not at the moment trying to combine the
+ 
+ 
+00:18:45
+ 
+Alona Paz: two again I think carbide can be beneficial for networking only if you have DPU nicks with the HPN on them like it's not for all the use cases. Uh again if we'll get to customer that needs the tool we will try but that's not currently that's not the the plan. Currently Netis will have a different inventory simpler like what
+Orran Krieger: Okay.
+Alona Paz: ACM provides.
+Orran Krieger: I I guess let's let's just try to keep in mind that there there might be there that it may be that people will it it when we have green field and people are starting AI initiative from scratch it's fine to go have a single solution but I think there might be scenarios which we will want to we will want to be heterogeneous um and but again we don't at least let's keep it in mind as we're designing things so we're not limiting ourselves that someday we we might shift to that even though we don't want to invest in it right now.
+Alona Paz: Yes,
+Orran Krieger: I get that. Um
+Alona Paz: we we keep it in mind and we know that there are overlaps and we are trying to understand what each solution gives us and um how to give end to end solution with
+ 
+ 
+00:19:54
+ 
+Orran Krieger: okay.
+Alona Paz: each one of
+Orran Krieger: Okay.
+Alona Paz: them.
+Lars Kellogg-Stedman: Right.
+Orran Krieger: I think I took it off on attention. I'm sorry. Um I I think this is this is great. So we should so so it sounds like we're going to have um Larson Min and Michael and team kind of come up with a quick timeline and understanding that there's pressures on this to define the common API and and to do a realization of something of of moving what we have today to that and then plugging in these alternative APIs. And so there should be on that a representative from every group that knows about the carbide the Netra stuff. So we we kind of inform the new API by by that. Is that accurate? Is that a good summary?
+Lars Kellogg-Stedman: I think that's broadly accurate. Yes.
+Orran Krieger: Okay, Alona, that makes sense to you.
+Alona Paz: Yes. Yes.
+Orran Krieger: So let's try to find the API in the next
+Lars Kellogg-Stedman: And we'll put together shortly.
+ 
+ 
+00:20:54
+ 
+Alona Paz: So for the network we are working.
+Orran Krieger: week.
+Lars Kellogg-Stedman: Sorry,
+Alona Paz: Yes.
+Lars Kellogg-Stedman: we're just we're going to try to get a meeting shortly that and Alona will make sure that you are able to attend
+Alona Paz: For the network is right. For the networks we have the networking API that Adrian presented the run already
+Lars Kellogg-Stedman: that.
+Alona Paz: start merging parts of it. uh L I think you is working on uh aligning ESI solution with this uh API. Dan is working like it's in progress but uh we we still
+Lars Kellogg-Stedman: Uhhuh.
+Alona Paz: need parts of the API to be merged but uh Dan is working on aligning the network with this API. So we will have two uh examples of the usage of this API. one for ESI, one for entries and and the same I think with the bare metal we are in in a worse situation because we don't we still don't have a a grid API and uh not even PR and of course not PRs on top of
+Orran Krieger: So, so right.
+ 
+ 
+00:21:58
+ 
+Alona Paz: it.
+Orran Krieger: So, so Alona at least, sorry, let me just check my my belief on and and so I think that what I'm thinking at least and L tell me if I've gotten off on a tangent is that there's a very tight coupling between the networking the low-level networking thing and the the bare metal, right? um and that we're we're abandoning ESI but we're moving to OpenStack and replacing it.
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: So and alone it ju just to verify there is no other thing that's product today that Red Hat supports that has the C that's an open- source thing right I mean I assume that is if there's anything else we should go at least last time I talked with Michael you know we have these various proprietary solutions or vendor specific solutions and that our only general open source solution is the OpenStack one is that accurate or is there something else in that way.
+Alona Paz: I'm I'm not familiar with anything else, but I didn't investigate it in I didn't uh investigate ated
+Orran Krieger: Sorry.
+Alona Paz: in it.
+ 
+ 
+00:23:12
+ 
+Alona Paz: So I'm I'm not familiar with any other solution. Uh so uh I I don't have the answer. I know that uh we do split it to two different topics. one is the networking and the other is inventory. Even if the same h solution is given the like for you if it's ASI open whatever h we still split it to two different topics and net race is on the networking side carbide is on the inventory side and in your case ESI is both I don't know of any
+Orran Krieger: Yeah, Netris is definitely Yeah,
+Alona Paz: alternative open source alternative that you can use
+Orran Krieger: Netris is definitely both as well. Um, they
+Alona Paz: I'm not sure no they don't have inventory of the the servers. They have inventory of the switches. They don't have the credentials of uh like the the BMC information. So, it cannot be used as the inventory. We need another solution there for the inventory. And as Lars suggested, we are going to use the B&H
+ 
+ 
+00:24:18
+ 
+Orran Krieger: Yeah, it it's it's weird. You're right. Um, thanks for clarifying that is is they do have a full inventory of the physical computers and the nicks on them because as part of networking they're wiring those nicks to and to that they're they're defining which computers are attached to which networks and stuff. So, so at least they have a copy of the entire inventory that they're doing the networking for.
+Alona Paz: But Dan, maybe you can elaborate in this issue. You verified with them and they don't have the BMC info,
+Orran Krieger: Dead.
+Dan Manor: No, they don't have a they don't do power management.
+Alona Paz: right?
+Dan Manor: They do have a concept of inventory which they are basically uh it's just one of three types either a server or a switch or a soft gate. Um so it's not inventory in the sense that we that we use this word because we can't use it for power management like we use open stock. Ironic.
+Orran Krieger: Okay. All right. This makes a ton of sense to me then that we at least have to think about those things at the same time, but because they're all going to be using it.
+ 
+ 
+00:25:33
+ 
+Orran Krieger: All right. And and do you know Dan if they're obtaining the information from something um I know that they said they could obtain from net box I assume they can then obtain it you know from carbide Okay.
+Dan Manor: Sorry, I didn't understand the
+Alona Paz: We we didn't try to do this matching between carbide and metric.
+Dan Manor: question.
+Alona Paz: We we don't have the answers.
+Orran Krieger: Okay. Um, good. So, should we switch that? That's sort of just how we're going to do the planning stuff.
+Dan Manor: I just want just want to add something and with all that being said uh I mean the current implementation of cluster as a service doesn't do really power management so I don't know
+Lars Kellogg-Stedman: So cluster as a service the power management happens through the uh agent acquisition workflow right now which underlies the cluster as a service. So it does um just not directly because we rely on the pre-provisioned agents when we are um doing the cluster installs. But the way those get there requires power control and the ability to trigger
+ 
+ 
+00:26:47
+ 
+Orran Krieger: Okay.
+Dan Manor: Yeah, I mean I guess I mean I joined L I joined late but is this is for a reason,
+Lars Kellogg-Stedman: provisioning
+Dan Manor: right? Because we say that we I mean it's not really actually part of the flow. I mean it's we assume that the the provider which will use OSAC will do this in advance as a
+Lars Kellogg-Stedman: No,
+Dan Manor: prerequisite and
+Lars Kellogg-Stedman: we don't. Um, we assume that OSAC will be responsible for maintaining a pool of pre-provisioned agents. And, um, we also want the ability to for a tenant to request access directly to bare metal resources, which will require um, power control in a more um, front and center position as well.
+Dan Manor: But do we want the agent registration to be essentially eventually part of OSAC?
+Lars Kellogg-Stedman: Yes.
+Dan Manor: Okay. Okay. So this is a different thing.
+Alona Paz: for the PC that Juan did with the some company. Uh he did read the back then there was no carbide. There was another uh uh Nvidia inventory that is called BCM.
+ 
+ 
+00:28:08
+ 
+Alona Paz: And uh he took the inventory info, the servers info from this inventory and added them as
+Lars Kellogg-Stedman: Uhhuh. Yeah.
+Alona Paz: agents.
+Lars Kellogg-Stedman: Is um Nvidia not using BMC? Are they using Carbide by preference? Do they also use BMC? Do we need to support both of those?
+Alona Paz: No, no, there is BMC and there is BCM.
+Lars Kellogg-Stedman: Sorry, the Nvidia BCM. But yes, are they using that?
+Alona Paz: Yes, Nvidia BCM is it is complicated.
+Lars Kellogg-Stedman: Okay.
+Alona Paz: Apparently, Nvidia BCM is not designed for multi-tenency. It is designed for one tenant and
+Lars Kellogg-Stedman: Well, that's okay. We don't require multi-tenency at that level because we provide the multi-tenency.
+Alona Paz: the
+Lars Kellogg-Stedman: I guess my my question was do we need to support BCM as well as carbide.
+Alona Paz: I don't think so. I think we should support only carbide because that's the tool they
+Lars Kellogg-Stedman: Okay.
+Alona Paz: uh recommend to use if you have servers on different network
+Orran Krieger: I must be spelling it wrong.
+ 
+ 
+00:29:09
+ 
+Alona Paz: tenants.
+Lars Kellogg-Stedman: Okay.
+Orran Krieger: How do you spell carb?
+Alona Paz: Yes. C A C A R B I D E
+Lars Kellogg-Stedman: is so I was just going to say if Aron you're having trouble fighting it so
+Tzu-Mainn Chen: It's a Oh, sorry. Go ahead, L.
+Lars Kellogg-Stedman: did I
+Tzu-Mainn Chen: Yeah,
+Orran Krieger: I can't see anything on Nvidia Carbide anywhere.
+Tzu-Mainn Chen: you have to look for
+Orran Krieger: They is
+Alona Paz: I think it's part of the partnership.
+Lars Kellogg-Stedman: yeah
+Orran Krieger: that
+Alona Paz: They not they're still not like publishing it to the world, but that's what
+Orran Krieger: Wait a minute. Is this a public
+Alona Paz: they
+Lars Kellogg-Stedman: Robbie just posted a link there that has the project I was speaking with someone recently who said that there was
+Orran Krieger: Okay.
+Lars Kellogg-Stedman: some like renaming going on um possibly away from carbide or they were going to return to calling it carbide. I don't know how what the state of things is there.
+Orran Krieger: Okay. But they do it is called carbide here.
+ 
+ 
+00:29:59
+ 
+Orran Krieger: Thank you. Okay. At least we're not exposing proprietary video
+Alona Paz: Ah, no. No, it's not that.
+Orran Krieger: information.
+Alona Paz: It's a secret. I think it's pretty new and not still not like widely published.
+Orran Krieger: Okay. Okay.
+Alona Paz: Okay. Do we want uh whoever is not relevant to drop and to continue talking about uh the road map where we will uh we manage it?
+Lars Kellogg-Stedman: I think that sounds like a good plan.
+Alona Paz: Okay.
+Orran Krieger: I don't know about whoever is not relevant. Everybody's relevant, but whoever would be born.
+Lars Kellogg-Stedman: Whoever's not interested in road map
+Orran Krieger: Yes. Whoever would really not like to listen to this.
+Lars Kellogg-Stedman: discussions
+Orran Krieger: Um so so just um yeah we were talking about the so Luna there's there's um in there's planning now there's several Red Hat consultants being ramped up on kind of reboot of the MOC for the compliance stuff and the RPH and the data commons and all this stuff and Kim was say and so initially basically the goal is to do things um set up these compliant uh clusters um as well as VMs in some situations kind of manually through CIS admins as we're ramping up the new team um operations team the professional team but um but the goal is to roll out OSAC as soon as we possibly can here is that Michael Kim do you agree with that
+ 
+ 
+00:31:42
+ 
+Orran Krieger: statement
+Michael Daitzman: Yeah, I think that that's the only way that we get to the NIST compliant containers or n compliant clusters.
+Orran Krieger: well We'll have a NIST compliant NIST 8001 171 compliant cluster just manually set up. But in order to support any scale uh for a whole bunch for many hospitals and groups doing independent projects, we're going to need we want to rely on OSAC for that.
+Michael Daitzman: Right.
+Orran Krieger: So, so um so I I guess the the goal would be to sort of identify gaps and then um and how we roll this out here at at a certain scale with with Red Hat consulting and stuff as well as Red Hat research. Um so I think Kim was asking how does he get visibility into into the development timelines and roadmap and stuff and I don't know. Um, I I guess I guess I feel like I'm I'm not I mean I feel like I'm I'm not entirely sure of some of these things too, although I do have access to to the internal stuff. So, what do you have a suggestion on how to how to make this work?
+ 
+ 
+00:32:51
+ 
+Alona Paz: You can tell me where you put your road map and I will add over there like Uh for me I don't really have an a road map.
+Orran Krieger: Okay.
+Alona Paz: I just have epics. I can share the link. Whoever has access will see it. Uh and for me that's my road map.
+Michael Daitzman: So, one quick question.
+Alona Paz: Um
+Michael Daitzman: Iran, do you want to So, so I suspect Iran is seeing four or five or eight different road maps every month or maybe every every week. Um, one of the ones we show him is stuff that we know about that we're tracking in GitHub and Zenhub. And Kim pulls that into a spreadsheet that includes links. And the benefit there is that folks don't have to actually go into Zenhub and learn a new tool. I don't know if that's the place that we should gather it. So I'm asking you or Ron,
+Alona Paz: like a small question.
+Michael Daitzman: where do you want to see it?
+Alona Paz: Who is Kim?
+ 
+ 
+00:33:54
+ 
+Joachim Weyl: You're welcome,
+Michael Daitzman: I'm
+Alona Paz: Ah, Kim.
+Joachim Weyl: Kim.
+Alona Paz: Okay.
+Orran Krieger: Yeah,
+Alona Paz: No, I didn't realize your name is Kim.
+Orran Krieger: it is.
+Alona Paz: It's written Joanna
+Joachim Weyl: Yeah.
+Alona Paz: him.
+Orran Krieger: Um, yeah, I actually maybe that's a a good question. So there's a lot of um what we haven't sort of there's flexibility on what gets rolled out with the MOC with the primary needs being the uh compliant clusters. Um we'd like to roll out VMs as soon as that makes sense, right? Or VM as a service um and other capabilities as well and then integrate with the compliance stuff. So, and Alona, is that interesting to the E team to also have the the VM as a service rolled out here? Um, because there's users that would use this very rapidly. But, um, but I guess the the question is,
+Alona Paz: I
+Orran Krieger: do we want to do we want to expose everything for potential use or do we want to focus on the things that are kind of mission critical for the MOC?
+ 
+ 
+00:35:03
+ 
+Alona Paz: don't mind like it's not that long road map. I can add the items and expose it. It's like not not an issue for me. Um it's not a
+Orran Krieger: No, it's not so much that. It's like what do we want to get?
+Alona Paz: secret.
+Orran Krieger: I mean, so the value of of putting things out there in a place here is so we get the feedback of the operations staff and users and a group of facilities that are working with
+Alona Paz: Yes.
+Orran Krieger: them, right? So, so the point is we'll get rapid feedback on the capabilities we're building here. I think is is what I view it from certainly what we're doing cluster level and everything is getting real users feedback hopefully, you know, much more aggressively than something that will be integrating with sort of a third party product and stuff and um so we'll get that feedback earlier. Does that make sense? I I think that's
+Alona Paz: Yes, of course. If uh that would be perfect if uh they will use the features but the road map will be our way to announce like that the feature is released.
+ 
+ 
+00:36:12
+ 
+Orran Krieger: Yeah, I mean the feature when it's released here just Michael and Kim I want you to understand this. This is not any commitment by Red Hat on product um at this point. It's more that we feel from engineering teams in ecosystem engineering and research that the feature is ready for somebody to use it. Um, I don't I think that there's still some questions about how this turns into either products or into a supported thing, but but I think you can feel confident that this will somehow be a part of it. Sorry, Ala, do you is that are you comfortable with that caveat? Is that okay?
+Alona Paz: Yes, no problem.
+Orran Krieger: So, so let's let's then um I don't think we have to have visibility into all the development. I think that the cluster stuff um I don't know Lars I think this is you and Min a question um I think it's fine to to sort of say that the things you want to do on GitHub you should do in GitHub and um the things that you want to do in Jira because there's a lot of people from ecosystem engineering work on that should go there but we should expose a set of roadmap features um that both ecosystem engineering research want to be exposed here so that there's an understanding of when it goes in and then if um there's MC engineers that we want to jump on or that you want to jump
+ 
+ 
+00:37:32
+ 
+Orran Krieger: on Michael and Kim to accelerate certain things or to integrate it then then that becomes a conversation between them and whoever is the group that's really kind of leading that effort
+Michael Daitzman: So, I think I I think that if we can Sorry,
+Lars Kellogg-Stedman: Okay.
+Michael Daitzman: Kim, you you went off mute, so I'm going to let you talk.
+Joachim Weyl: I I was just going to say that uh really any way to look into what's happening I will just link to in our road map and then I will provide uh expected uh engineers that will be on it. I will provide the size that we expect it to be and how far along we think we are so that we can easily get a high level but then I will link to whatever road map or epics or project that Alona has put together that uh will tell the story so that we can get the detail if we need it but it will just do the high level from our side and it is currently priority one so that means that if we're looking for engineers from the side uh this is our priority.
+ 
+ 
+00:38:41
+ 
+Joachim Weyl: So we will be working on making sure that Red Hat has the assistance they need when they need
+Alona Paz: Kim,
+Joachim Weyl: it.
+Alona Paz: do you have access to the link I shared on the
+Joachim Weyl: Uh let me take a
+Alona Paz: chat?
+Joachim Weyl: look. Uh no issues were found
+Alona Paz: Okay.
+Joachim Weyl: to match your search.
+Alona Paz: So,
+Joachim Weyl: I'm going to guess that means no.
+Alona Paz: we don't have Okay. I will make sure you have
+Lars Kellogg-Stedman: So, actually before um Kim, do you do you have a Red Hat account?
+Alona Paz: access.
+Lars Kellogg-Stedman: Are you logged in?
+Joachim Weyl: I do.
+Lars Kellogg-Stedman: There's a login button in the upper right there.
+Joachim Weyl: I am not. One sec.
+Lars Kellogg-Stedman: Yeah.
+Joachim Weyl: I thought I was because I was logged into the calendar, but uh that's clearly a slightly different login. Authentication redirect. All right, we'll give it a second. Yes, now I see it. Thank you, Lars.
+Lars Kellogg-Stedman: All
+Joachim Weyl: Good catch.
+ 
+ 
+00:39:38
+ 
+Alona Paz: So,
+Joachim Weyl: So I see the first item is
+Lars Kellogg-Stedman: right.
+Alona Paz: uh
+Joachim Weyl: MGMT22620.
+Alona Paz: you should see a list of
+Joachim Weyl: Yep.
+Alona Paz: epics.
+Joachim Weyl: Uh oh, these are all epics. Okay. Uh yes. Type Epic.
+Alona Paz: Mhm. So the closed one are the ones that we already done or rejected like you you
+Joachim Weyl: Yep.
+Alona Paz: would need to to to look inside and the in progress are the ones that we are now working on. So those ones have multiple tasks tasks inside. So if you have anybody that want that can join the effort and help with those it can be great but I need like that to uh to inform me before you start.
+Joachim Weyl: Yeah. Uh what I will do is I
+Alona Paz: It's not that like you can take tasks stand alone work on it because there are some kind of plans
+Joachim Weyl: will
+Lars Kellogg-Stedman: Huh?
+Alona Paz: around it.
+Joachim Weyl: right now do these have any representation in GitHub?
+ 
+ 
+00:40:31
+ 
+Joachim Weyl: Are they linking to GitHub issues or are they fully in Jira?
+Alona Paz: No. No. But most of them have enhancements in
+Joachim Weyl: Fully in Jira.
+Lars Kellogg-Stedman: Um,
+Alona Paz: GitHub.
+Lars Kellogg-Stedman: and Elena,
+Joachim Weyl: Okay.
+Lars Kellogg-Stedman: we don't need to worry about the content of any of these.
+Alona Paz: No.
+Joachim Weyl: And do you have a sizing feature in these epics that gives a concept
+Lars Kellogg-Stedman: Okay.
+Joachim Weyl: of how much effort is expected to be required for each epic? No. Okay.
+Alona Paz: No,
+Joachim Weyl: The item. Okay.
+Alona Paz: but none of them is like a year of work,
+Lars Kellogg-Stedman: Perfect.
+Alona Paz: three weeks per epic, let's say.
+Joachim Weyl: Okay. All right.
+Alona Paz: Feel
+Joachim Weyl: I will dig through this a little bit more and get a better idea of who's involved. And uh
+Alona Paz: free to ping me or to schedule a meeting and we can try to understand how we
+Joachim Weyl: yeah, we'll do
+Orran Krieger: May maybe maybe a good thing we should do is a you know do this offline with it but
+ 
+ 
+00:41:33
+ 
+Alona Paz: collaborate.
+Orran Krieger: having you know figuring out the things we want to we want to from ecosystem engineering research roll out on the MOC like what would be the most useful things that we would want to get real visibility into and um and then kind of you know suggest those to Kim as the highest priority tasks that we're talking about um to to have folks inv engaged in.
+Joachim Weyl: Another question. Are these epics prioritized?
+Orran Krieger: Um
+Joachim Weyl: As in is the top one the most important one 22620?
+Alona Paz: No, no, it's uh it is ordered by in progress or not. All the epics that are in progress are priority
+Joachim Weyl: Okay. All right.
+Alona Paz: one
+Joachim Weyl: So yeah, then I would need to have a better understanding of which are the current priorities in this list.
+Alona Paz: again. whatever epic anybody from MOC can uh give a hand the help and help
+Lars Kellogg-Stedman: Cool.
+Alona Paz: there uh welcome it's not that we have like it's a new project that we are building all the things are priority one and you need all of them to have something working I would uh start with the things that are in progress
+ 
+ 
+00:42:57
+ 
+Joachim Weyl: Okay.
+Alona Paz: and not the things that we didn't start yet
+Michael Daitzman: So,
+Joachim Weyl: All right.
+Michael Daitzman: so just to set expectations correctly, we're also ingesting a lot of the stuff going on with NIST. Even though in theory we're not doing the day-to-day work, the group that we're handing off to is still coming up to speed. And so, I just wanted to set realistic expectation that our our desire to participate may be larger than our current capacity.
+Orran Krieger: Yeah. I think that the the things that I feel like are going to be really valuable are going to be um things like quota stuff which have hit a lot of stuff. things like billing which have hit a lot of things like I would love to see if we can use you know the new capabilities from ACM for example for that are doing charging again I haven't looked at the epics now but but these are these are things where where where we can they will both
+Michael Daitzman: Yep.
+Orran Krieger: accelerate um efforts and then they would transition the MOC to using things that are have a broader support um but I think this might be something where we yeah I It'd be great to dig into it and sort of say what are places where we can get rid of of um parallel investments. Um the more we can be fully using the stack rather than having parallel investments, the
+Michael Daitzman: Yeah. No,
+Orran Krieger: better.
+Michael Daitzman: I think I think you're right. I I I just am I just didn't want to set unrealistic expectations for Alona.
+Orran Krieger: Yeah. No,
+Michael Daitzman: I I know
+Orran Krieger: it's just it's going to be happening.
+ 
+ 
+Transcription ended after 00:57:30
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

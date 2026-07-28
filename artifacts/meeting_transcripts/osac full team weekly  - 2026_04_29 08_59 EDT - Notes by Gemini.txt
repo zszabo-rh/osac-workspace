@@ -1,0 +1,904 @@
+[PROCESSED 2026-04-30]
+﻿📝 Notes
+Apr 29, 2026
+osac full team weekly 
+Invited Juan Hernández Rom Freiman Danni Shi Adrien Gentil Isaiah Stapleton Taj Salawu Daniel Erez Thorsten Schwesig Michael Hrivnak Christopher Tate Dylan Stewart Orran Krieger Surbhi Kanthed Alona Paz Lars Kellogg-Stedman Tzu-Mainn Chen Red Hat Research Program Calendar Jason Schlessman Nora Haxhidautiova Michael Daitzman naved001@bu.edu Quan Pham joachimw@bu.edu mmunakami@g.harvard.edu Austin Jamias Meera Malhotra Bradford Nichols Trey West knikolla@bu.edu Avishay Traeger Elior Erez Elad Tabak Akshay Nadkarni Omri Hochman Eran Cohen Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Will Gordon Jen Stacy Heidi Dempsey Oved Ourfali Dmitry Tantsur Simone Ferlin-Reiter Marek Grac Jason Kary Maor Friedman
+Attachments osac full team weekly  innabox - 2025  Notes - innabox full team weekly  
+Meeting records Transcript Recording 
+
+
+
+
+Summary
+The meeting addressed workspace tooling integration and defined architectural strategies for bare metal agent provisioning and environments.
+
+Workspace Tools and Automation
+Participants discussed the OSAC workspace agentic tools and the PR notify function for tracking status. The team agreed to integrate a GitHub bot for automated Jira bug remediation.
+
+Bare Metal Provisioning Architecture
+The group aligned on using host lease Custom Resources for inventory management and bare metal lifecycle operations. This ensures consistent integration across heterogeneous backend network and provisioning systems.
+
+Stable Integration Environment
+The team determined that a dedicated single node OpenShift cluster will provide the necessary stability for user interface development. This setup isolates testing resources from shared development clusters.
+
+
+
+
+Next steps
+* [Eran Cohen] Review PR Tool: Investigate the PR Notify tool included in the repository and provide feedback to Lars Kellogg-Stedman.
+* [Eran Cohen] Coordinate GitHub App: Reach out to necessary personnel regarding the GitHub application required for the autofix or bugs body bot.
+* [Tzu-Mainn Chen, Dan Manor] Diagram Cluster Flow: Meet to diagram the full cluster as a service flow. Include bare metal pool application, host provisioning, and networking using file inventory, OpenShift Bare Metal Operator, and Netris.
+* [Dan Manor, Alona Paz] Write Agent Playbook: Create a customized Ansible playbook to provision agents quickly. Base this on the existing ESI provisioning system.
+* [Adrien Gentil] Create Setup Ticket: Create a ticket requesting the stable integration environment setup. Assign this ticket to Lars Kellogg-Stedman.
+* [Lars Kellogg-Stedman] Setup Integration Environment: Set up a dedicated stable integration environment for the UI team. Use a single node OpenShift cluster on a large machine, such as an 830.
+* [Lars Kellogg-Stedman] Add to Meeting: Add Robby Stahl to the calendar invitation for the Monday demo meeting.
+
+
+
+
+Details
+* Discussion of OSC Workspace and Agentic Tools: Eran Cohen presented the OSAC workspace, a meta Git repository that contains agentic skills, workflows, hooks, and architectural components (00:03:05). This workspace utilizes the GSD workflow (requiring GSD to be installed by the user) which defines a development cycle starting with discussion, research, and planning, followed by execution, verification, and shipping a pull request (PR) (00:04:20). The workspace also features Jira synchronization to transition tasks between statuses and a useful `bug fix` slash command which automates opening a Jira issue, creating a PR with the fix, writing the test, and assigning the task (00:05:44).
+* Query Regarding PR Notify Tool: Lars Kellogg-Stedman inquired about the functionality of the `PR notify` tool included in the repository, as it was not documented. Elad Tabak confirmed that they were responsible for the tool, which generates a daily status of pending or stuck PRs (00:07:08). The intent is for this status to be posted on Slack to encourage reviews or provide individuals with tasks to do (00:08:05).
+* PR Notify Tool Operation and Output: Elad Tabak explained that the `PR notify` tool currently posts to Slack by default, but there is a dry run option to display the output on the console (00:08:05). The tool is running on Elad Tabak's machine currently, and Lars Kellogg-Stedman noted that if run locally, it likely would not have Slack credentials (00:09:14). The purpose of the tool is to address an accumulation of unhandled PRs (00:10:14).
+* Request for GitHub App for Bot Integration: Eran Cohen mentioned receiving a request to add a bot, called `autofix` or `bugs body`, to the project, similar to those on other projects. This bot would be used to automatically fix straightforward Jira bugs assigned to it, but they require a GitHub app on the organization for it to function (00:10:14). Lars Kellogg-Stedman confirmed that this could be accommodated and Eran Cohen would follow up later (00:11:27).
+* Follow-up Discussion on Bare Metal Fulfillment and Agent Provisioning: Dan Manor initiated a discussion following up on the bare metal enhancement proposal, noting that the current plan does not solve the issue of automatic provisioning of servers for clusters using the discovery ISO (00:11:27). Dan Manor suggested the need for generic APIs for inventory and bare metal lifecycle management. Alona Paz emphasized that they require a cluster-as-a-service demo which necessitates agents being automatically added and synced based on an inventory before a cluster is requested (00:13:00).
+* Agent Pre-Provisioning Requirements: Lars Kellogg-Stedman affirmed that automatic agent provisioning is a required part of the cluster-as-a-service plan. Alona Paz expressed confusion over how this is accomplished with the new Custom Resources (CRs) in the enhancement proposal, as the current understanding is that actions only begin when a cluster is requested, which is too late for agent provisioning (00:14:27). Tzu-Mainn Chen explained that the original design documents covered generic workflows, including templates and host leases, but noted that the Netris workflow, which requires the host to be on the correct network before provisioning, may complicate things (00:15:26).
+* Planned Solution for Agent Provisioning: Alona Paz requested clarification on the plan for adding agents before cluster creation, as they need to understand how to implement this without conflicting with future API concepts (00:16:27). Tzu-Mainn Chen explained the overall bare metal fulfillment idea, which involves creating bare metal pools and host leases to expose APIs for host manipulation (00:17:21). The process relies on templates for bare metal pools and host leases that allow automated actions, such as putting the host on a specific network or provisioning an image (00:19:30).
+* Triggering the Agent Provisioning Flow: Lars Kellogg-Stedman clarified that the flow is triggered when someone submits a request for a bare metal pool tagged with a specific profile (00:19:30). This mechanism allows the Cloud Service Provider (CSP) to dedicate a portion of their hardware inventory to serve as a general-purpose agent pool for cluster installation (00:20:33). Michael Hrivnak suggested that this should be automated as part of the install flow, where the system connects to the CSP inventory and provisions the requested amount (00:21:31).
+* Bare Metal Inventory and Management Components: Dan Manor inquired if there would be a common interface for inventory and lifecycle management, noting that their current implementation would use different components like OpenShift Bare Metal Operator. Lars Kellogg-Stedman explained that the common interface is the `host lease` CR, which is used for allocating hosts (00:24:12). Tzu-Mainn Chen clarified that the Bare Metal Fulfillment Operator has a Host Inventory Controller that takes the `host lease` CR, talks to the backend inventory (which is pluggable), and assigns a host to the lease (00:25:21).
+* CSP Role in Agent Pre-Provisioning: Oved Ourfali summarized the CSP's role: they need to create the bare metal inventory and a bare metal pool CR specifying the number of agents and the ISO image for pre-provisioning (00:26:21). The Bare Metal Pool Operator then creates host CRs based on the available inventory. Lars Kellogg-Stedman added that the assumption is that the inventory already exists (e.g., Netbox, OpenStack, or a file), and the project must provide credentials for an inventory connection (00:27:33).
+* Current Backend and Networking Integration: The current inventory backend being developed is OpenStack, which uses the Ironic API for both inventory and bare metal management (00:28:47). Oved Ourfali raised the question of how to handle networking, specifically since Dan Manor is working with Netris for network isolation. Lars Kellogg-Stedman confirmed the goal is to handle network isolation through the OSAC network API, with backends supporting the target technology (e.g., Netris or Ironic/Neutron) (00:30:16).
+* Concerns Over Operator Implementation for Backends: Rom Freiman voiced strong concerns that implementing separate operators for every small integration, such as for different inventory backends, would be unacceptable due to the overhead of productization and resource consumption (00:39:58). Lars Kellogg-Stedman defended the current design, stating it follows Kubernetes conventions, like storage classes, which use different operators to support different types of backend hardware (00:40:57). Rom Freiman argued that a single operator could support multiple backends, which is the model used for the Inventory Operator (00:42:03).
+* Decision on Starting Agent Provisioning and Documentation: Alona Paz suggested that since the new template integration is not yet in place, the fastest path forward is to write a playbook similar to the existing ESI playbook for provisioning agents (00:49:57). Lars Kellogg-Stedman agreed that this is the best path if the goal is to have a working solution within a week (00:50:59). Alona Paz requested that Tzu-Mainn Chen and Dan Manor meet to create a sequence diagram detailing the full cluster-as-a-service flow using the new APIs, including a file for inventory, OpenShift Bare Metal Operator for provisioning, and Netris for networking (00:52:29).
+* Integration Environment Stability for UI Team: Adrien Gentil highlighted the need for a stable and isolated integration environment for the UI team's development work, as the current development cluster is unstable due to shared, cluster-wide resources being overwritten (00:54:25). Lars Kellogg-Stedman agreed on the need for a stable deployment for testing (00:55:49). Orran Krieger suggested that while a virtual cluster might be sufficient, it should ideally run on a separate, dedicated environment to ensure stability (00:56:50).
+* Proposed Solution for Stable Integration Environment: Lars Kellogg-Stedman proposed setting up a single node OpenShift cluster on a large machine (e.g., an 830) with virtualization enabled, to be used as the stable target. Orran Krieger agreed that this approach is in scope, provided it does not use GPUs (00:57:42). Adrien Gentil was asked to create a ticket for this task and assign it to Lars Kellogg-Stedman (00:58:33).
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 29, 2026
+osac full team weekly  - Transcript
+00:00:00
+ 
+Will Gordon: Morning.
+Robby Stahl: Hello.
+Lars Kellogg-Stedman: Hello.
+Will Gordon: Well, I guess the first agenda item is done already.
+ 
+ 
+Session ended after 00:00:45
+ 
+00:03:05
+ 
+Lars Kellogg-Stedman: There we go. So, we don't have a lot on our uh the specific agenda for this meeting, but my recollection is that we had a couple of things that got pushed off of the Monday meeting. Um, which I have here in front of me right now. Um, do we have the folks here who wanted to um cover any topics?
+Eran Cohen: I think I had something about working with the OSC workspace.
+Lars Kellogg-Stedman: Yes, you do.
+Eran Cohen: Okay.
+Lars Kellogg-Stedman: Go for
+Eran Cohen: So, so okay to to be honest I made some changes.
+Lars Kellogg-Stedman: it.
+Eran Cohen: Some of them are working less than optimal but still I hope that I can make it. Uh I I just decided to move out the the actual skills and use them from the upstream marketplace. Unsure it was a wise decision but still uh reviewing. In any case, as most of you know, we have the OSAC workspace which is a meta git repo with all our agentic skills and workflows and hooks and architecture and whatnot.
+ 
+ 
+00:04:20
+ 
+Eran Cohen: all bunch of MD files that should help plot or in the future other agents coding agents to work with OSET components and help us deliver. Um so I try to get us bootstrapped uh with that repo and I'll be happy if you start using it and starting uh back to it. I can tell you about few very nice features it has uh that I use. Uh so first one is is the workflow. It's it's using GSD workflow or it's initialized to to work with GSD. You do need to install GSD on your own. Uh mainly because it's not straightforward to put that in the in that grip. But once you start then you have uh I guess the the main value of the GSD thing is that there's a your development cycle is very well defined. It's not that you can you're going to ask cloud for something and you're going to hope you get a valuable output. On the other end when you are working with the GSD workflow it will start with a discussion some research planning.
+ 
+ 
+00:05:44
+ 
+Eran Cohen: Once you're happy with that, it's going to execute and then verify. So on the other end, you get a very and then you can ship it, which is posting a PR. So the PRs are usually good and you don't get garbage on the other end. Uh the other thing you have is a Jira synchronization. So when you're working on a task, it will move and transition it between the Jira statuses, which takes that that load off of you. Um, we also have a generate enhancement proposal and enhancement project to Jira uh commands that help you set up uh enhancement proposal or move it to Jira once it's merged. Uh we have a skill for recording demos and essentially we have a bunch of stuff that are useful. The one I like the most is bug fix. If you ever go through some uh steps working with cloud and you see like a bug or it says oh that happened because we have this then you can have a slash command which will do a bug fix it will open a jab issue a bug with what happened why it's a bug how to fix it it will assign it to you it will create a PR with the fix it will write the test it will do all that post a PR and then you with all the
+ 
+ 
+00:07:08
+ 
+Eran Cohen: information once it's done all that is happening in the background while you keep working on what you're actually working on. So, we have all that good stuff. Try to use it. If you have any questions or stuff aren't working for you, ping me or just post to the channel or fix it. Um, and I hope we can make it a lot better uh as we go. That's all I had. Thanks, guys.
+Lars Kellogg-Stedman: I have a question for you, Aron.
+Eran Cohen: Yes.
+Lars Kellogg-Stedman: The PR notify tool that is included in the repository, what is what is that exactly? Because it's not documented in the readme or um in the unit file at least.
+Eran Cohen: I'm not sure. I'm going to look and I'll get back to you.
+Lars Kellogg-Stedman: Oh, is that not something you put there?
+Eran Cohen: I'm going to
+Lars Kellogg-Stedman: Eli, do you have a hand
+Eran Cohen: check.
+Elad Tabak: Yeah, that's uh me actually.
+Lars Kellogg-Stedman: up?
+Elad Tabak: Uh it's a request that Iran uh posted on Jira and sent it my way.
+ 
+ 
+00:08:05
+ 
+Eran Cohen: Oh
+Elad Tabak: So it's eventually it generates a daily uh PR
+Eran Cohen: yeah.
+Elad Tabak: status of uh pending PRs, PRs that are stuck, either CIS blocking them or they've been hanging for a long time.
+Lars Kellogg-Stedman: the the intent is that it is run by individuals or the intent is that it would ultimately run
+Elad Tabak: Um,
+Lars Kellogg-Stedman: via a workflow or something like it is it is your PRs or it is project CR PRs.
+Eran Cohen: No. So, so we have two option. Like initially I figured it's good if we can post that thing on Slack and people will see their name and say, "Oh s***, I have this PR for eight days now. I should do something about it." Or people can see, okay, this PR is looking for a review and go take a look at I know it did made me go and
+Lars Kellogg-Stedman: right?
+Eran Cohen: review some stuff. on the other end like it's good for you is like if you're looking for something to do then you can run this and you it was I hope it will just show it on your output
+ 
+ 
+00:09:14
+ 
+Lars Kellogg-Stedman: Okay.
+Elad Tabak: So you were breaking um what was that?
+Eran Cohen: is it posting on Slack by default okay so
+Elad Tabak: It is but we can change that.
+Eran Cohen: don't run it locally
+Lars Kellogg-Stedman: Well, it presumably it doesn't have credentials to post on Slack if I run it locally,
+Eran Cohen: Yeah.
+Lars Kellogg-Stedman: right?
+Eran Cohen: All right. But it's gone. We might get
+Lars Kellogg-Stedman: But I agree that having having it having it display console output by default would be would be interesting but
+Eran Cohen: them.
+Lars Kellogg-Stedman: not
+Elad Tabak: It it has a dry run options.
+Lars Kellogg-Stedman: critical.
+Elad Tabak: Uh you you can get all the output uh on console. So yeah,
+Lars Kellogg-Stedman: Where where is it running for reals right now? On someone's machine or somewhere.
+Elad Tabak: mine give me give me a VM.
+Eran Cohen: Yeah.
+Lars Kellogg-Stedman: Okay.
+Elad Tabak: No, I'm just kidding. Anyone anywhere
+Lars Kellogg-Stedman: I was going to say we have a service for that. All
+Elad Tabak: That's dog fooding.
+Eran Cohen: Hopefully it will cleaned up.
+ 
+ 
+00:10:14
+ 
+Eran Cohen: It will get cleaned up.
+Lars Kellogg-Stedman: right.
+Eran Cohen: I I guess we just accumulated a lot of unhandled PRs.
+Lars Kellogg-Stedman: Sure.
+Eran Cohen: So hopefully this should help us get around that.
+Lars Kellogg-Stedman: Okay,
+Will Gordon: Any thoughts on removing the truncation?
+Lars Kellogg-Stedman: awesome. I
+Elad Tabak: there's a limit of on the the size of the message.
+Lars Kellogg-Stedman: didn't
+Elad Tabak: So we like if if we resolved if if we actually get to review these tickets, it will get fixed automatically.
+Lars Kellogg-Stedman: Well, that was passive aggressive. No, I'm okay. fair enough.
+Eran Cohen: Oh, wait.
+Lars Kellogg-Stedman: Um,
+Eran Cohen: One more thing. Actually, this is I think for so I get a request from from EMR to
+Lars Kellogg-Stedman: Sure.
+Eran Cohen: add a bot that we have on other projects. It's called autofix or bugs body. Essentially, it's a bot that we can assign Jirro bugs that are straightforward and easy to fix. We can assign it to the bot and it goes and fix them and the PR. Uh, but I need a GitHub app on the organization for that.
+ 
+ 
+00:11:27
+ 
+Eran Cohen: So, I posted on Slack.
+Lars Kellogg-Stedman: Okay,
+Eran Cohen: Uh, so I'll reach out later.
+Lars Kellogg-Stedman: sounds good. We can do
+Eran Cohen: Cool. Legs.
+Lars Kellogg-Stedman: that. All right. Any other Monday topics that we still want to cover? I think there were a few things that we wanted to discuss that we haven't gotten to yet. Do we have Adrian here? Did you want to talk about um integration environments?
+Adrien Gentil: Uh yeah, it's saying
+Oved Ourfali: I think let's maybe first do the I think that Dan's topic required some followup. Um um Dan,
+Lars Kellogg-Stedman: Sure.
+Oved Ourfali: do you want to Dan or Alona or I don't know who wants to shoot the discussion on that?
+Dan Manor: Sure. Alana, you want want me to go ahead
+Alona Paz: Yes, I also posted the question on the Slack channel.
+Dan Manor: or
+Alona Paz: So basically, Van, you can go ahead.
+Dan Manor: Yeah. Uh so as a followup from uh from the Monday's call I think we need to I mean after uh carefully reading the the bare metal enhancement again um at least I reached the conclusion that this the plan for bare metal fulfillment is not going to uh solve the issue for uh basically automatic provisioning of servers for uh clusters and service with the discovery ISO.
+ 
+ 
+00:13:00
+ 
+Dan Manor: So um part of these things to make it work I think is having a a generic uh utility for inventory or gen generic API for inventory and a generic API for bare metal life cycle management which I guess it will also be part of the permetal service flow. Um and we also need it for the uh provisioning of the the servers with the discovery. So I just wanted to open it and to open it for discussion and to see how we can reach an agreement on which path to go um because I don't want to uh step on anyone's toes going forward.
+Alona Paz: Yes, basically we want to just if one sentence to the end uh we want to find we need to have a cluster as a service demo to demonstrate to uh customers and uh not we want to use the net risk for the networking piece. But we need the full story to have uh some inventory and the agents automatically added based on this inventory and automatically synced the u and the rest of the story what what what we already have uh in the
+ 
+ 
+00:14:27
+ 
+Lars Kellogg-Stedman: Yeah,
+Alona Paz: project.
+Lars Kellogg-Stedman: I mean I think that having automatic agent provisioning is absolutely part of the
+Alona Paz: Mhm.
+Lars Kellogg-Stedman: plan. It's required by cluster as a service. So there's no no question that we need that.
+Alona Paz: Yes,
+Lars Kellogg-Stedman: Um.
+Alona Paz: we don't understand reading the enhancement what the full plan for doing it with with the new CRS that are added.
+Lars Kellogg-Stedman: Mhm.
+Alona Paz: Like we understand that with the new enhancement uh things start happening only when uh cluster is requested and then bare metal pool is created and all the things happen. you sync with the host and the you the host list and you do the management but it's too late for us because we need the agents to be there at this
+Lars Kellogg-Stedman: So I thought and and men you correct me if I'm wrong.
+Alona Paz: phase
+Lars Kellogg-Stedman: I thought that you had talked about the agent workflow in the enhancement proposal. Am I
+Tzu-Mainn Chen: Um I'm seeing an enhancement proposal.
+Lars Kellogg-Stedman: misremembering
+Tzu-Mainn Chen: I might not cover that exact workflow.
+ 
+ 
+00:15:26
+ 
+Tzu-Mainn Chen: I I cover like the more generic how it should work, but um how how templates should work along with um host leases. um the original Google doc has has um more details about how each specific um how each specific um workflow should work. So that that would cover it. Um but I think the added complication is that I think that the Netris uh workflow can work the way um it would work for us in uh with like with like a with open stack because Netris requires the a Netris requires the agents to be provisioned before sorry uh Netris requires if I understand correctly the the host to be put on the right network before being provisioned and you can't switch the you can't switch the networks afterwards
+Alona Paz: No, I don't think
+Tzu-Mainn Chen: Uh, sorry.
+Alona Paz: so.
+Tzu-Mainn Chen: That's something I thought I heard on Monday.
+Trey West: That's that's carbide.
+Oved Ourfali: That was not n that was carbide.
+Tzu-Mainn Chen: Oh, okay.
+Oved Ourfali: Yeah.
+Tzu-Mainn Chen: Sorry. Okay. Okay. Yeah. Then like um
+ 
+ 
+00:16:27
+ 
+Alona Paz: So it's not relevant for for network because that's priority one for us. Can maybe mean or large walk through us uh also is installed. Now we need the agents to be somehow added to the system before a cluster is created like we know we need the agents to be pre-provisioned.
+Lars Kellogg-Stedman: So the work on okay I was going to say you you can't do that yet
+Alona Paz: I is going to solve it.
+Lars Kellogg-Stedman: because the the work to implement those features is is still going on. So right now the answer is you know you can't if your goal was to do like a demo tomorrow.
+Alona Paz: Yes, of course. But what's the plan?
+Lars Kellogg-Stedman: Um,
+Alona Paz: Because we want to implement it and we want to understand like how we uh do it with
+Lars Kellogg-Stedman: sure.
+Alona Paz: your intention and not like in invent something different that will have to be
+Tzu-Mainn Chen: Sure.
+Alona Paz: removed.
+Lars Kellogg-Stedman: Sure. Man, since he wrote up that workflow in the doc, do you want to talk about
+ 
+ 
+00:17:21
+ 
+Tzu-Mainn Chen: I can I can share my screen. I can
+Lars Kellogg-Stedman: it?
+Tzu-Mainn Chen: uh
+Alona Paz: like we we want to understand do we need to introduce new API concepts or the API concepts are already somewhere written and we just don't see them in the enhancement.
+Tzu-Mainn Chen: Okay. Um, can you see my screen?
+Alona Paz: Yes.
+Tzu-Mainn Chen: Okay. So, basically, um, the the diagram you see here is kind of like our our overall idea for how bare mail fulfillment can can can supply what's needed for various for various like for various workflows. So on the left you have like tenant workflows and on the right you have like CSP workflows. um tenant. So on the left there's like tenant bare mail provisioning or tenant cluster provisioning and on the right side you have agent provisioning. Um so this is kind of like the the general idea but the general idea is basically this that we are creating um bare mail pools and host leases that um that expose of various APIs to that that can be used to manipulate the host.
+ 
+ 
+00:18:29
+ 
+Tzu-Mainn Chen: So like the hostly for example um if you look at the details of the CR it has things like you know power like power control or like network attachment or image provisioning and those are things that can be called and the added layer
+Alona Paz: So the CSP the CSP the CS a cluster of OLSAC
+Tzu-Mainn Chen: sorry.
+Alona Paz: was created. Now the CSP wants the agents to be added. He needs to create a bare metal pool.
+Tzu-Mainn Chen: um he needs the first step is actually to create um a profile that dep that that defines how that sorry I'm I'm I'm so uh let me just explain a little yeah sorry I'm very bad at speaking
+Lars Kellogg-Stedman: I was going to say stop and take a breath.
+Tzu-Mainn Chen: off off the cuff um so the added so the added thing that I think I haven't gotten to yet that um it is described in this document though is that there is a template for both bare mail pools and for host leases is that allow additional automated actions to happen to either the bare mail pool or the host lease.
+ 
+ 
+00:19:30
+ 
+Tzu-Mainn Chen: And so those automatic actions might be to put the host onto a particular network or to provision the host with a particular image. And the idea there is that that template the mechanism for running that template is exactly the same as the way we've been running templates for everything else like from clusters to virtual networks to things like that. Um and those templates would the expectation is that they would use the host lease API in order to manipulate the host. Um so if you wanted to if you wanted like a a workflow that attaches that that um provisions the host with a image with like the discovery ISO and then puts it onto a network then that's where you would define it. Um so um is is
+Alona Paz: But what triggers what triggers all this
+Tzu-Mainn Chen: automatic. So um
+Alona Paz: flow?
+Lars Kellogg-Stedman: Well, wait, wait. So that's the the answer to what triggers the flow is somebody submits a request for a bare
+Tzu-Mainn Chen: when
+Lars Kellogg-Stedman: metal pool that is um tagged with the specific profile.
+ 
+ 
+00:20:33
+ 
+Lars Kellogg-Stedman: Is that correct,
+Tzu-Mainn Chen: Yeah,
+Lars Kellogg-Stedman: man?
+Tzu-Mainn Chen: that's that. Yes,
+Alona Paz: Okay.
+Tzu-Mainn Chen: that that's that's a that's a more precise
+Lars Kellogg-Stedman: That that is what triggers all of this.
+Alona Paz: So this the C so the CSP needs because there is an
+Lars Kellogg-Stedman: Yes.
+Alona Paz: inventory and in my vision it was like all the servers in the inventory are automatically agents agent added as agents. So no the CSP needs to create a bare metal pool and select what host types and like whatever pool he puts in the bare metal pool. And the count of them he
+Lars Kellogg-Stedman: Yes,
+Alona Paz: was
+Lars Kellogg-Stedman: the CSP the CSP says I want to have an agent pool of this
+Tzu-Mainn Chen: Yes.
+Lars Kellogg-Stedman: size,
+Alona Paz: over of five nodes of type H100 and six nodes of type
+Lars Kellogg-Stedman: right? The the point is it is a general purpose agent pool.
+Alona Paz: whatever.
+Lars Kellogg-Stedman: It's not for a specific cluster. It is the CSP saying these are the machines that will be available as agents to people requesting
+ 
+ 
+00:21:31
+ 
+Alona Paz: Mhm. Okay.
+Michael Hrivnak: I assume this would be automated as part of the install flow.
+Lars Kellogg-Stedman: clusters.
+Michael Hrivnak: Like these are the mechanics for how we get it done. But I assume,
+Alona Paz: Okay.
+Michael Hrivnak: you know, during the installation experience, like the enclave landing zone kind of thing, there's going to be some connection to, okay, here tell us about your inventory. Great, we can see it. How much of this do you want us to go ahead and light up right now?
+Lars Kellogg-Stedman: Sure.
+Michael Hrivnak: And and that we would use these constructs to do it.
+Dan Manor: I'm
+Alona Paz: Okay.
+Lars Kellogg-Stedman: I mean, we could absolutely could do something like that,
+Alona Paz: So
+Dan Manor: done.
+Lars Kellogg-Stedman: although um there's not necessarily an API for that would expose the inventory in that fashion. Um the idea is that they would say we want X machines matching these criteria and that the CSP would already be familiar with what hardware they have on site.
+Oved Ourfali: But the CSP would create
+Lars Kellogg-Stedman: It's not it's not it's not meant to be like it's not meant to be a tenant facing thing that's like here is a list of all
+ 
+ 
+00:22:21
+ 
+Oved Ourfali: this.
+Michael Hrivnak: No, no, no, no.
+Lars Kellogg-Stedman: the available
+Michael Hrivnak: Well, the install it
+Oved Ourfali: The CSP will need to create it ahead of time so that when you create a cluster,
+Lars Kellogg-Stedman: hardware.
+Michael Hrivnak: it
+Oved Ourfali: you can already write. I mean, so who who creates what?
+Lars Kellogg-Stedman: Yes.
+Oved Ourfali: I guess that's the question.
+Michael Hrivnak: Okay. So,
+Oved Ourfali: The CSP.
+Michael Hrivnak: yeah.
+Oved Ourfali: Yeah.
+Lars Kellogg-Stedman: Yeah, exactly. We've answered that. The CSP creates the agent pool. They decide how much of their inventory they want to dedicate to being an agent pool for cluster installation.
+Dan Manor: So if bare metal pool CR is used to create the the pool of a servers for the agent right. So what is used during the cluster installation?
+Alona Paz: another bare metal PCR that is attached to another profile, right?
+Tzu-Mainn Chen: Yes,
+Lars Kellogg-Stedman: Thank
+Tzu-Mainn Chen: that that's that's exactly right.
+Alona Paz: Mhm.
+Dan Manor: So the profile is what profile is like saying what what is should be
+ 
+ 
+00:23:07
+ 
+Lars Kellogg-Stedman: you.
+Alona Paz: Anible roll.
+Dan Manor: done.
+Tzu-Mainn Chen: Yes. So the the profile will say so on my screen the profile will say like how should we match the host?
+Dan Manor: Okay.
+Tzu-Mainn Chen: So for example, if you're doing image provisioning then you're going to match hosts that are managed by that that that have a given provision state or managed by none. If this profile was supposed to match match agents, then the match host might say I want I want hosts that are managed by agents and whose provision stays active. Um so it tells you so again the profile will say what kind of host am I looking for and then it'll also specify uh templates for um for when you set the bare mail pool and for when you set up each individual host. Um this one in this example it's it's um it's uh it's it is for image provisioning but there might be um other profiles for um for adding uh adding an agent to a to a cluster.
+Dan Manor: and the Yes.
+Alona Paz: Okay.
+Dan Manor: and the the concepts of inventories and uh the life cycle
+ 
+ 
+00:24:12
+ 
+Alona Paz: Sorry.
+Dan Manor: management for you like in ESI concept ASI doing doing both but you wrote something about it could be done with also for example net plan and open shoot bare metal operator is this going to have uh a common interface are you working on common interface for interacting with such inventories
+Lars Kellogg-Stedman: the Yes.
+Tzu-Mainn Chen: Sorry. Were you about to say
+Lars Kellogg-Stedman: Well, I was just going to say that that that the common the common interface is there's the host lease
+Tzu-Mainn Chen: something?
+Lars Kellogg-Stedman: which is the thing that you use to allocate hosts and there is the bare metal operator which also has visibility into into the inventory. the bare metal operator and men tell me if I am lying here. The the bare metal pool operator is the thing that um has a actually no man I'm going to let you talk about this because I may be confusing myself who talks to the
+Tzu-Mainn Chen: Uh yes. So you're talking about like what what what actually right so
+Lars Kellogg-Stedman: inventory because that's changed a couple of times which is why I'm stopping
+ 
+ 
+00:25:21
+ 
+Tzu-Mainn Chen: scrolling Okay.
+Lars Kellogg-Stedman: before I say something that is no longer true.
+Tzu-Mainn Chen: So, um it's a bare mail what we call the bare mail fulfillment operator which um in this diagram is kind of like mislabeled but the bare mail fulfillment operator has a bare mail pull controller and a host inventory controller. It's a host inventory controller that talks that sees a hostly CR and talks to the backend bare mail inventory and does the assignment of a of a of a given host to a hostly CR.
+Alona Paz: So we have host CR.
+Tzu-Mainn Chen: And once that um is
+Alona Paz: Your your enhancement doesn't have host CR. It has just post list and
+Tzu-Mainn Chen: a is it yes that um I I haven't been keeping this Google document up to date
+Alona Paz: yes.
+Tzu-Mainn Chen: um with um with the discussions that happened after I submitted the enhancement proposal um but this diagram had but this doc has easier diagram so that's why I'm using it right
+Dan Manor: and the bare metal inventory and the bare metal management components are going to be pluggable.
+ 
+ 
+00:26:21
+ 
+Dan Manor: I mean different backends could
+Tzu-Mainn Chen: Yes. Yes.
+Dan Manor: work.
+Tzu-Mainn Chen: Um so um I think I think the way we we portion it out um and I I might not be able to I I don't quite remember the explanation for this but like the host inventory operator it's um it's coded so that it supports specific inventories. So like what we will demo on Monday will only support OpenStack but we will show how you can add additional how we can add additional um uh inventory backends um to um that can be supported. Um the host management operator I believe like the idea was that there would be a specific host management operator for each uh bare mail management back end.
+Lars Kellogg-Stedman: Yes.
+Oved Ourfali: So the so the CSP will need to create the bare metal inventory basically and then um and if we want to create uh to have some agent agents to be pre-provisioned we will need to create uh bare metal pulsia that specifies how many agents we want uh to be preprovisioned and with what ISO we want them to be preprovisioned with.
+ 
+ 
+00:27:33
+ 
+Oved Ourfali: the bare metal pool operator or whatever its new name is will look at this bare metal pool CR then create host CRS based on the uh uh available inventory and what we requested and so that would be like the flow. Did I did I describe it correctly?
+Tzu-Mainn Chen: Yes.
+Lars Kellogg-Stedman: That sounds that sounds broadly correct.
+Tzu-Mainn Chen: Um um and I guess sorry.
+Oved Ourfali: So that so that means that we somewhere in the
+Tzu-Mainn Chen: Go
+Lars Kellogg-Stedman: Yes.
+Tzu-Mainn Chen: ahead.
+Oved Ourfali: uh whether it's the um bootstrapping flow whatever we'll need to create uh an inventory and a an initial pool and the and these two should result in uh having preprovisioned agents to be used for cluster as a service as well.
+Lars Kellogg-Stedman: That is broadly correct. Although you say you say create an inventory um we would have to provide credentials for an inventory connection.
+Oved Ourfali: Yeah,
+Lars Kellogg-Stedman: We ex
+Oved Ourfali: I'm trying to say let's say now I have so there are a few options I have like bare metal nodes that I need I have all the details about these nodes and the IPMI of the nodes I mean what
+ 
+ 
+00:28:47
+ 
+Orran Krieger: You
+Oved Ourfali: so that's the question assuming I have a list of
+Lars Kellogg-Stedman: The assumption here is that you have an inventory already,
+Oved Ourfali: nodes
+Orran Krieger: can't
+Lars Kellogg-Stedman: whether that is something like Netbox or something like OpenStack or Carbide or something like that, but that you have an inventory.
+Alona Paz: or a file or a file.
+Lars Kellogg-Stedman: What's that, Elena?
+Alona Paz: Or a
+Lars Kellogg-Stedman: Yes. Or or or or a file. Sure. You've got them all in a Google spreadsheet,
+Alona Paz: file
+Lars Kellogg-Stedman: but the point is that you have some kind of inventory and it's got to be one that there is an existing backend for. And if there's not an existing backend,
+Oved Ourfali: Mhm.
+Lars Kellogg-Stedman: then we need to develop one.
+Oved Ourfali: And the back ends we'll have at the moment are uh ESI only like as a result of means war.
+Lars Kellogg-Stedman: That is the that's the fir that's the one we're starting with because that's the one that we can deploy against right now.
+Oved Ourfali: Okay.
+Lars Kellogg-Stedman: Um, the goal is obviously to support more probably something like Carbide being the the next
+ 
+ 
+00:29:37
+ 
+Alona Paz: No,
+Lars Kellogg-Stedman: one.
+Alona Paz: like for us not carbide.
+Lars Kellogg-Stedman: No.
+Alona Paz: Iron ironic I guess
+Lars Kellogg-Stedman: Okay. Well,
+Alona Paz: ironic.
+Lars Kellogg-Stedman: ironic is what ironic is what we we're using as the back end already.
+Tzu-Mainn Chen: Open sack. Uh,
+Alona Paz: But are you talking with the the ESI API or like directly with
+Lars Kellogg-Stedman: That's
+Tzu-Mainn Chen: no. No.
+Lars Kellogg-Stedman: just just regular ironic.
+Tzu-Mainn Chen: Ironic API. Yeah, just
+Lars Kellogg-Stedman: Yeah.
+Dan Manor: No,
+Tzu-Mainn Chen: ironic.
+Alona Paz: your
+Dan Manor: but you you are talking about bare metal management, right? This is what ironic is used for, not the
+Lars Kellogg-Stedman: Oh no,
+Tzu-Mainn Chen: For us it's the
+Lars Kellogg-Stedman: we are talking about both. Yes,
+Dan Manor: inventory.
+Lars Kellogg-Stedman: at the at the MOC environment is used for both and that's fine. It could be it there's no assumption that the same thing is performing both services. So just in this case, ironic is the inventory of available
+Dan Manor: Yeah, I think
+ 
+ 
+00:30:16
+ 
+Oved Ourfali: But how do we handle network? I mean uh ESI also does the network uh the network isolation and in in here Dan is
+Lars Kellogg-Stedman: hardware.
+Alona Paz: Okay.
+Dan Manor: ironic.
+Oved Ourfali: working with the net. So we will probably want to leverage the ironic pieces for the preprovisioning but the network config to be done on net and not size. So will that flow supported or do we need to I mean how does network fit in that's the question and how can we do our own implementation of the network isolation.
+Lars Kellogg-Stedman: So the goal is that network isolation will be handled through the OSAC network API. And there needs to be backends that support whatever the target is, whether that is Netris or Ionic plus Neutron or, you know, something entirely different.
+Tzu-Mainn Chen: right?
+Lars Kellogg-Stedman: But the the idea is that the network API is the way that we communicate the
+Tzu-Mainn Chen: So,
+Lars Kellogg-Stedman: connectivity of
+Tzu-Mainn Chen: so I mean if you want we want if you want like a very mechanical example,
+Lars Kellogg-Stedman: hosts.
+Tzu-Mainn Chen: the idea is that we would have a we would have an AAP template that um for for example that applies to a host lease and when a host lease is created if the correct profile was specified that specifies that template that template is called against each host lease and that template would likely manipulate the hostly CR in order to change the networking um in order to attach it to a network.
+ 
+ 
+00:31:38
+ 
+Tzu-Mainn Chen: um as an intermediate step that uh that playbook is sorry that template is likely going to use like whatever we currently use in AP in order to manipulate networks which is direct direct open sack commands in order to in order to um in order to create uh create the network isolation and that's kind of that's kind of our intermediate plan while we uh also work on the networking API
+Lars Kellogg-Stedman: Oran, you've got a hand up
+Orran Krieger: Yeah,
+Lars Kellogg-Stedman: there.
+Orran Krieger: I think I think there's an interesting point I hadn't realized is that so ironic we're using it both for inventory and for bare metal management and then we got a different path for network isolation.
+Lars Kellogg-Stedman: Yes.
+Orran Krieger: I think what I I just want to make clear OED was making the comment that we they want to probably use ironic for the bare mal management but I think you're using Netris both for the inventory and for the network isolation or are you using ironic because you said ironic for the inventory but that surprised me I would thought that would be
+ 
+ 
+00:32:36
+ 
+Alona Paz: We don't have inventory at the moment.
+Orran Krieger: Netus
+Alona Paz: We don't know what we will
+Dan Manor: No, there is no there's no sorry or I'm
+Alona Paz: use.
+Dan Manor: finished.
+Orran Krieger: well there's something that's the source source of truth, right? That's populating um and and Netris has its own concept of all the nodes that are in the data center as I remember it because it's connected to the network. So, it's what what's the source of truth? Is it Netus or is it what would you be using for
+Dan Manor: So, so the inventory is is inventory for the purpose of networking.
+Orran Krieger: inventory?
+Dan Manor: It's not an inventory as we say it's when we need to keep credentials of BMC and
+Orran Krieger: I
+Dan Manor: some things like that. So, it's not good for it's not good enough for us. Um and just just one clarification about the ironic you said you are using ironic for both
+Orran Krieger: see.
+Dan Manor: inventory and bare metal management but you are using ironic via open stack ESI right it's not
+ 
+ 
+00:33:28
+ 
+Tzu-Mainn Chen: Uh,
+Lars Kellogg-Stedman: Well, via Open
+Dan Manor: like that yeah via open stack it's not the same as we intend to use it we
+Lars Kellogg-Stedman: Stack.
+Tzu-Mainn Chen: via
+Dan Manor: we don't intend on using open stack we we won't use ironic via the open sheet bare metal operator um uh the metal operator basically the the the like the operator that installed on bare metal clusters uh via BMHC CR. So it's not the same. It's not like we can use your mechanism at the moment even though both are using ironic in the
+Tzu-Mainn Chen: I see.
+Dan Manor: background.
+Tzu-Mainn Chen: So it sounds like you're essentially using the bare metal host as both the both the inventory and like the management uh bare mail management platform.
+Dan Manor: So, so,
+Tzu-Mainn Chen: Is that correct?
+Dan Manor: so bare metal holes for the bare metal management and for the inventory we currently I want to start working with a file but yeah I just I just trying to understand
+Oved Ourfali: But eventually uh eventually it will be uh like whether we use a file or not eventually it will populate the BMHs on the management cluster.
+ 
+ 
+00:34:33
+ 
+Dan Manor: Yes. But I mean we don't want the BMH, we don't want ETCD to be the inventory, right? We want actually application that stores all the data that we want about the servers.
+Alona Paz: Yes, it it will be maybe BCM, maybe carbide, maybe networks. We don't know yet. But we will start with let's say a file just to start things rolling. Uh mean we want to start working on it like today. Uh so uh the question is what and we want let's say in a week or two our uh network cluster as a service story to be full. So once all suck is installed the operator creates I don't know what let's say bare metal pool and then all the agents are added and when the cluster is requested uh the cluster is selected and all the network and things happen. So all the things that are happening after the cluster is uh requested the cluster order is requested we already have in place not using the new API but it is like working good enough for a demo all the part that of provisioning the agents we don't have and we want to start implementing it without breaking the concept that you're going to introduce.
+ 
+ 
+00:35:50
+ 
+Alona Paz: So what do you suggest us to start with writing a template to uh preprovision the agents?
+Tzu-Mainn Chen: Do do you already have um do you already have like uh uh so right now when we provision agents we
+Alona Paz: This
+Tzu-Mainn Chen: use like a we use a playbook that's like checked into OSAC AP in order to provision those agents. Um, I'm so I'm just curious. Do you have like a similar playbook that you guys use in order to um to pre-provision
+Dan Manor: Yeah,
+Tzu-Mainn Chen: agents?
+Dan Manor: I think what we want is to generalize this playbook so it will work not only with ESI but also for any inventory and bare metal management.
+Lars Kellogg-Stedman: Yeah.
+Tzu-Mainn Chen: Yep.
+Dan Manor: The question is do you have already I think any interfaces for the inventory and parameter management that general interfaces that we can just implement a back end for
+Lars Kellogg-Stedman: Heat.
+Dan Manor: or do you recommend us to create template like I mentioned before to be used with bare metal corner.
+Tzu-Mainn Chen: So, the template integration is is not in place yet.
+ 
+ 
+00:36:44
+ 
+Dan Manor: I think this
+Tzu-Mainn Chen: It's um it's our next priority after the stuff we're going to show on the Monday demo that um that that we're planning on showing on on Monday. Um so, creating those templates might be a little difficult um to be honest because it's not hooked in right now. um what is available right now is like the um the host inventory operator selecting from a particular uh backend that that's that code's in place. So that might be like a good place to start in order to be able to in order to be able to grab those hosts. So like I I would say like the first the first uh easier step to do would be to um implement support for um whatever whatever inventory backend you guys are using. I um the support for that can be added now. Um and and yeah and then you should be able to demonstrate creating a bare metal pool um that grabs that grabs uh hosts from that um from that inventory and assigns it to a bare metal pool. Um after that like um again like the the template support is something that we're planning on adding um after after Monday.
+ 
+ 
+00:37:52
+ 
+Tzu-Mainn Chen: So it might take a little more time for that part to be ready.
+Alona Paz: Okay. So,
+Oved Ourfali: Sorry really if I'm jumping is there so is there something here that's ESI specific in the
+Alona Paz: just under
+Oved Ourfali: flow you're mentioning me I mean let's say that we implement the bare metal inventory will all of it work assuming you create the bare metal pool
+Tzu-Mainn Chen: It should. Yes,
+Oved Ourfali: Um okay
+Tzu-Mainn Chen: it should.
+Oved Ourfali: and the network piece we can we need to have uh uh to handle the um to create a network class for netric in order to um to be able
+Alona Paz: But that that happens after let's not relate it to the flow. It happens when the
+Oved Ourfali: yeah right it's maybe listed here as the network operator
+Alona Paz: cluster
+Oved Ourfali: I don't know but anyway um So we need to implement an So in order to implement another inventory, what is your suggestion? I mean uh what should we look at now in the codebase that would allow us to create an inventory?
+ 
+ 
+00:38:53
+ 
+Tzu-Mainn Chen: Um yeah, there's a there's a host inventory operator. Um I think previously uh Austin had um actually tagged Trey on it to um to look at the to look at the interface because um uh we had the impression that uh Trey was uh was a prime was the only person who was working on um integrating like something that you guys needed uh inventory that you guys needed. Um, I didn't quite realize that Dan was working in parallel and not quite like together. Um, so we can we can we Dan, we can point you at that and that that would be the place to
+Rom Freiman: So,
+Tzu-Mainn Chen: start.
+Rom Freiman: so,
+Alona Paz: But the host inventory operator is mature
+Lars Kellogg-Stedman: No,
+Alona Paz: enough.
+Rom Freiman: so
+Lars Kellogg-Stedman: I would I would say it hasn't been we haven't deployed any of
+Tzu-Mainn Chen: Um,
+Lars Kellogg-Stedman: this standalone yet. We're planning on doing a demo on Monday and that'll be the first time some of this all operates together.
+Rom Freiman: So we're basically suggesting so there is now one operator and then Dan going to implement another operator and Trey going to implement Third operator just to prove it just to have some
+ 
+ 
+00:39:58
+ 
+Oved Ourfali: Need a cup.
+Tzu-Mainn Chen: um the host the host inventory operator no the host inventory operator is that's um
+Rom Freiman: to.
+Tzu-Mainn Chen: different backends are would be supported in the same in the in the same in the same host inventory controller so no no there um for the host management operator Then the answer I think would be
+Rom Freiman: So it means that we're going to go through productization of two
+Tzu-Mainn Chen: yes.
+Rom Freiman: operators just to integrate with whoever. I don't think it's acceptable guys. I don't think it's a valid valid option. We'll never deliver anything. It will have to go if for every small integration we'll have to go through full productization of of operators like I think everyone shifting out of operators now we we have AP in the back end it's I don't think it's acceptable the the the
+Oved Ourfali: It will also make it harder for partners to add their own
+Lars Kellogg-Stedman: That is an interesting opinion and we should have a discussion about that at some point I think.
+Rom Freiman: over not some
+ 
+ 
+00:40:57
+ 
+Alona Paz: What are you doing now?
+Lars Kellogg-Stedman: Uh but we can't just declare it not acceptable because we've already invested a fair amount of time into this whole project which is built on top of operators and we are trying to follow um existing Kubernetes uh conventions like storage classes,
+Rom Freiman: It's it's
+Lars Kellogg-Stedman: ingress classes which are all implemented you know different operators to support different types of backend hardware. And so that's kind of the model that inspired this
+Rom Freiman: right. So, but again theoretical discussion is great. I agree with that. practically if we'll have to deliver stuff and we do see now for partners they it's it's too much of an overhead to implement operators the overhead of resource consumption is also very high I don't understand why I would say it's a viable option really I mean what what is the resource overhead for that to have like two containers just orchestrator container to do stuff. What's the release
+Lars Kellogg-Stedman: Well, I mean a container is just a process, right?
+Rom Freiman: overhead?
+Lars Kellogg-Stedman: So you're asking what's the resource overhead of the process?
+ 
+ 
+00:42:03
+ 
+Lars Kellogg-Stedman: And I think the answer there is in most cases it's fairly minimal. I mean these are not CPU or memory intensive operations.
+Rom Freiman: Go to go go go to go to go talk to telco
+Lars Kellogg-Stedman: Sorry.
+Rom Freiman: and ask them what are the consequences of running operators. I mean it's it's again theoretically it's great
+Lars Kellogg-Stedman: So So what are they using?
+Rom Freiman: practically
+Orran Krieger: You know, Choco
+Lars Kellogg-Stedman: What are they what are they using as an alternative to operators for reconciling
+Orran Krieger: is
+Lars Kellogg-Stedman: resources in
+Rom Freiman: No, so first of all it can be controller doesn't have to be a separate operator for each
+Lars Kellogg-Stedman: Kubernetes,
+Rom Freiman: and every integration right as a like as a
+Lars Kellogg-Stedman: right?
+Rom Freiman: start.
+Lars Kellogg-Stedman: And that's and so for example for the inventory operator that's the model we're taking where those there's multiple backends integrated into a single operator.
+Rom Freiman: Exactly.
+Lars Kellogg-Stedman: Um the the idea for the host management tooling though was to make it possible for someone to
+Rom Freiman: Right.
+Lars Kellogg-Stedman: independently write a management a controller for a certain backend without needing to um integrate directly with our project or our code in the same way that you can have a vendor come in and write a storage class operator to op to work against their storage without needing to you know
+ 
+ 
+00:43:11
+ 
+Lars Kellogg-Stedman: contribute code to Red Hat or integrate with a particular project. That was that was the idea is to enable that kind of integration externally to our
+Orran Krieger: So, so, so it sounds it sounds like there's lar I'm sorry I'm bringing new in this space.
+Rom Freiman: 10.
+Lars Kellogg-Stedman: project.
+Orran Krieger: So, sounds like there's a bunch of alterations. One is if you standardize an interface like we define anybody that wants to do something has to do it behind this interface. Another one is to have an operator for it and another one is for us to in our operator actually support their their backend or their interface. Right? Those are three potential approaches for it. Right? where operator is the most general because then you can have the reconciliation of the
+Lars Kellogg-Stedman: Iron, I only heard two options
+Orran Krieger: specific sorry one option is that every
+Lars Kellogg-Stedman: there.
+Orran Krieger: storage or every sort of thing we want to plug to they have their own interface and we operate against their interface in our operator right so we have a generic operator that can talk to multiple backends another one is if we define an interface that other people have to support in order to integrate with And the third is an operator that reconcile that actually can be really customized and reconciled to to a specific thing.
+ 
+ 
+00:44:13
+ 
+Lars Kellogg-Stedman: Okay.
+Orran Krieger: that third category I don't Ram I think that the whole thing is that
+Rom Freiman: So, so Or or look at what look at look at what Aisha just showed. We based all the solution on the certified whatever validated
+Orran Krieger: that
+Rom Freiman: playbooks or I don't know how it's been called. It's a very valid option and this is one one of the reasons why we chose anible which for sure reduces all the overheads that I like was were mentioned before. Okay. Again, we have to weigh in whether it's like consider whether the gap is there or not. But I mean operational
+Orran Krieger: Yeah. I I I think that the part that I really love about when we're going and doing things properly in the
+Rom Freiman: wise
+Orran Krieger: Kubernetes operator approach is is to actually reconcile in the case of failures, right? When as soon as we when we we have an operator in a first class way that will allow us to recover from failures in the way these other approaches won't as
+ 
+ 
+00:45:20
+ 
+Rom Freiman: I mean maybe I don't
+Lars Kellogg-Stedman: I don't I don't I don't understand.
+Orran Krieger: easily
+Will Gordon: So,
+Lars Kellogg-Stedman: I mean I I think that we are we are making taking advantage of anible as part of this work
+Rom Freiman: know
+Lars Kellogg-Stedman: but using AAP versus an operator I don't see a a big difference in resource utilization there. I mean every time you execute a workflow in AAP it's spinning up a pod also. So you have a very similar amount of overhead and arguably with AP you have you're incurring startup costs every time you're running a workflow which you might not if you just have a traditional operator
+Rom Freiman: So I think the decision was to use the AP. Whether I agree with it or not something this is kind of but we already decided we're going to use AP,
+Lars Kellogg-Stedman: right and and if as we are we are taking advantage of AAP in this
+Rom Freiman: right? So you have an operator that orchestrates AP.
+Lars Kellogg-Stedman: work.
+Rom Freiman: So instead just orchestrate AP from like in more standard API but again the the the overhead is also operational releases I don't know like it's certificate whatever right like to to to ask partners to write operators that they don't know how to is also a huge overhead but this is the reality right like you can disagree with them but uh like you you you know as a developers we say okay why is so complex to implement the operators.
+ 
+ 
+00:46:40
+ 
+Rom Freiman: You as a developer, but when
+Will Gordon: This might be a really simple this might be a really simple question and maybe the answer is it's not generalized enough but is there a reason
+Rom Freiman: we
+Will Gordon: we can't use anible inventory
+Rom Freiman: this is one of the sub.
+Will Gordon: like yeah like they already have like extensible dynamic backends that you can
+Rom Freiman: Yes. Mhm. Dynamic dynamic inventory.
+Will Gordon: right stuff for. And like I said,
+Rom Freiman: Yes.
+Will Gordon: maybe it's not generalized enough to deal with the full inventory of stuff that we need.
+Lars Kellogg-Stedman: I I so I think part of I mean I think part of the problem with using ant inventory would be that that typically that is a mostly a readonly source of data right and our one of our assumptions is that the inventory does provide us a right path to set metadata on hubs. Is that something we can do?
+Will Gordon: I believe that Ansible Inventory lets you add labels, tags to inventory that it has
+Lars Kellogg-Stedman: Okay.
+Will Gordon: discovered.
+ 
+ 
+00:47:38
+ 
+Lars Kellogg-Stedman: Okay.
+Will Gordon: So like we we would own the discovery code, whatever makes it extensible. I don't know all the inventory backends that it supports, but we could potentially own that or have vendors write the discovery code. Um, and like I said,
+Lars Kellogg-Stedman: Sure.
+Will Gordon: I I believe that there is a path to to label and tag things that are discovered.
+Lars Kellogg-Stedman: You can certainly look at that.
+Dan Manor: I I think that the anible inventory concept is more for running anible not for uh having a inventory of servers that we are going to install clusters on. So maybe it could work but I'm not
+Lars Kellogg-Stedman: I well I think so typically an anible inventory is a way of getting a list
+Dan Manor: sure.
+Lars Kellogg-Stedman: of hosts um potentially you can do metadata discovery against those hosts and present that also but um it's not it's not like uh typical inventory backend like net netbox or ironic or something where you have kind of a dynamic query interface. Um, and
+Orran Krieger: Well,
+Lars Kellogg-Stedman: it's
+Orran Krieger: but I mean the bigger thing is it's got to identify for every nick which port on which switches it's connected to.
+ 
+ 
+00:48:49
+ 
+Orran Krieger: And that
+Lars Kellogg-Stedman: well that that's that would be discovery information about hosts. I mean if that's stored if we're using Ansible as kind of the lingua franaco between um
+Orran Krieger: just
+Lars Kellogg-Stedman: our services and whatever backend is in use then whatever backend is actually in use has to have that data available and we'd have to expose that somehow.
+Oved Ourfali: mean can you can you perhaps share again the diagram and uh walk us through what's required to create what do we need to do in order to create another inventory because you you mentioned that might be the only thing required to support this flow. Uh, can you, you know,
+Tzu-Mainn Chen: Um, I I I think I I I'm I think what I say is I think that's a that's a place where you guys could potentially start at where it's the part that's most complete on um on uh on our end. Um so when when you say like create an inventory, do you mean like how you would integrate an inventory into
+Oved Ourfali: Yeah,
+Tzu-Mainn Chen: this
+Oved Ourfali: I mean that's uh because you mentioned currently you're working with um that that there is anything there's nothing here that's ESI specific in the flow assuming that we create our own bare metal inventory uh that is like uh in this
+ 
+ 
+00:49:57
+ 
+Lars Kellogg-Stedman: That's
+Oved Ourfali: example we'll take it from a file later on we'll take it from something some place else.
+Lars Kellogg-Stedman: it.
+Oved Ourfali: But what's required in order to create this England
+Tzu-Mainn Chen: So I Okay. So I I can walk you through um the the documentation that Austin wrote. Um so actually actually let me just link this. There's
+Dan Manor: Can I just Yes. Sorry. I just want to add something before I mean even if we could do it I mean it's eventually
+Tzu-Mainn Chen: a
+Dan Manor: it's also a question of how urgent is for us to have something that is working for provisioning agents on servers because I don't know how mature this is even if we add our own inventory maybe it will take I don't know a month until the uh these components actually go on to production
+Alona Paz: Can we start with the playbook like yes I have to provision the agents. Does it make sense to start with something like this?
+Lars Kellogg-Stedman: I'm not sure exactly what you're asking.
+ 
+ 
+00:50:59
+ 
+Tzu-Mainn Chen: What's
+Lars Kellogg-Stedman: I mean, so there is a there is an anible playbook that can provision agents um utilizing
+Tzu-Mainn Chen: that?
+Lars Kellogg-Stedman: the OpenStack APIs and that that
+Alona Paz: So maybe we should write similar playbook for our inventory
+Lars Kellogg-Stedman: exists
+Alona Paz: provisioning system and uh and then try to integrate it with the new CRS that are not yet in place and operators. are not yet in place. So I think if we want it to be ready like let's say in a week
+Lars Kellogg-Stedman: I think if your goal is in a week,
+Alona Paz: uh
+Lars Kellogg-Stedman: then that is probably the best path
+Alona Paz: Mhm.
+Lars Kellogg-Stedman: forward.
+Alona Paz: Okay. Can you please also write in the dock or somewhere how the because the doc is very dedicated to bare metal as a service and at least for me it was really hard to understand how cluster as a service will look like how the prep provisioning will look like. So maybe you can work together mean and done and uh try to write some sequence diagram of that the cloud provider is applying bare metal pool and then what happens later what happens next and what happens when the cluster order is created uh to have the full flow of cluster as a service and not just the bare metal as a service because it's very hard for me at least now to understand
+ 
+ 
+00:52:29
+ 
+Alona Paz: how it converges. is especially with the enhancement in the GitHub which is like half has half of the
+Tzu-Mainn Chen: we no we we can definitely do that. Um so I think the part of reason why I left it out of the of the specific enhancement proposal was that
+Alona Paz: information.
+Tzu-Mainn Chen: my thought was that it that was something that could potentially be different for each CSP. like I I didn't want to say that there was like one solution that would be in place that everyone would have to use. Um, so that that's so that's why that's why I favored like the more just like generic like this is how things can work and this is how like but I can give like
+Alona Paz: So just you and Dan can you please meet together and to diagram how
+Tzu-Mainn Chen: a
+Alona Paz: the flow will look like with the uh let's say file for inventory bare metal operator of open shift for uh uh provisioning and net risk for networking like to to show like how uh Uh eventually it will look like with all the new APIs.
+ 
+ 
+00:53:32
+ 
+Dan Manor: Yeah.
+Alona Paz: Thank you. But for now we will just uh do something similar to the playbook you have to add the agents. I think that's the fast thing we can do and it should not collide with what you have with what you have in mind. Make sense?
+Tzu-Mainn Chen: Yeah, that make
+Alona Paz: Done. Makes sense.
+Dan Manor: Yeah,
+Tzu-Mainn Chen: sense.
+Dan Manor: sure. I mean, we need to think how much we want to generalize this, but if we just want to get something as quick as possible and we don't mind duplicating some code, then we can get something really fast.
+Orran Krieger: Well,
+Alona Paz: Mhm. Yes. I
+Orran Krieger: it sounds like you have a demo coming up immediately and we I I think we should treat it as storeway,
+Alona Paz: think
+Orran Krieger: but we should go to But it's important to document where we're going because this has to I mean, we're we're going to have to have things that are meeting compliance regimes by the end of the summer and are being used in semi-production.
+ 
+ 
+00:54:25
+ 
+Orran Krieger: And so I we need to go towards a hard solution by
+Alona Paz: That's why I want Dan and mean to have this meeting and uh to create a diagram of
+Orran Krieger: then.
+Alona Paz: what it will how it will look like like with all the APIs and the end result and not the quick
+Tzu-Mainn Chen: Dan,
+Alona Paz: solution.
+Tzu-Mainn Chen: will you have time today?
+Orran Krieger: Yep.
+Tzu-Mainn Chen: I'm actually LMP PTO tomorrow and Friday.
+Dan Manor: Yeah, sure.
+Tzu-Mainn Chen: Yeah.
+Alona Paz: Okay. Anything else you want to discuss
+Lars Kellogg-Stedman: How much time are we at now?
+Alona Paz: today?
+Lars Kellogg-Stedman: Uh Adrian, did you want to talk about um integration environments at
+Orran Krieger: 6 minutes.
+Adrien Gentil: Uh I think yeah it's related to the to the question I asked on the on the channel because yeah we have
+Lars Kellogg-Stedman: all?
+Adrien Gentil: the UI team starting to develop the the UI they need a stable environment uh in our IP shift one cluster it's great but uh we we are sharing some crystal wide um resources and even for me was doing the demo for the virtual machine it was completely a bit complicated because sometimes the are disappearing or sometimes the the CRDs are overwritten and then
+ 
+ 
+00:55:49
+ 
+Lars Kellogg-Stedman: Yeah,
+Adrien Gentil: it's it's it's quite hard to get to stable.
+Lars Kellogg-Stedman: that was exciting, wasn't it?
+Adrien Gentil: Yeah. Yeah. Or painful. Uh so yeah, the the what I would like is to probably build some kind of an integration environment that would be at least in sync with the latest development that we have. and isolated from changes that are happening from on the on the development cluster. So yeah, the main user would be the the I mean yeah, the main user would be the UI team for them to develop, but it could be useful for us also for like doing
+Lars Kellogg-Stedman: absolutely it would be useful to have a stable deployment that could be tested against
+Adrien Gentil: the
+Orran Krieger: Yeah,
+Lars Kellogg-Stedman: um
+Orran Krieger: I mean this this just to confirm um for the environment we want a stable environment doesn't
+Adrien Gentil: Yeah.
+Orran Krieger: necessarily have to have GPUs allocated to it, right? It could be just on arbitrary stuff or do do you feel it needs
+Lars Kellogg-Stedman: It does.
+Orran Krieger: GPUs?
+ 
+ 
+00:56:50
+ 
+Lars Kellogg-Stedman: It does not need GPUs.
+Adrien Gentil: No, it's just a place where we
+Lars Kellogg-Stedman: One of a Adrienne's original question in Slack had been whether or not we could just deploy a
+Orran Krieger: Okay,
+Adrien Gentil: have.
+Lars Kellogg-Stedman: virtual cluster on top of the existing hardware. Um, Adrian, would that be a sufficient solution or would there still be a worry about the fact that that was running on top of the development
+Adrien Gentil: Um,
+Orran Krieger: I I I would Yeah.
+Adrien Gentil: no, no, I think it's enough for me.
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: environment?
+Adrien Gentil: Um,
+Orran Krieger: Okay.
+Adrien Gentil: yeah. I virtual cluster is enough. I tried it for with virtual for VMS.
+Orran Krieger: No, no, but Adrian, I think Lar L is bringing up a really good point is that a virtual cluster might be fine and
+Adrien Gentil: Nice.
+Orran Krieger: but the virtual cluster on top of a development environment where the development environment might have issues. Question is, do we want to put this on a separate, you know, environment so it's not reliant on things that are under development?
+ 
+ 
+00:57:42
+ 
+Orran Krieger: And I sort of feels to me it should be.
+Lars Kellogg-Stedman: I mean yes absolutely that is a better decision technically. Um if we have hardware we can dedicate to that that would be super.
+Orran Krieger: Okay. I think so we should I mean Robbie Blush maybe we can talk about
+Lars Kellogg-Stedman: I Heidi had raised some concerns about budgets which I have absolutely no
+Orran Krieger: the Yeah.
+Lars Kellogg-Stedman: visibility into. If we have the option,
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: I would say let's grab Oh,
+Orran Krieger: So I mean if this isn't using
+Lars Kellogg-Stedman: let me just finish real quickly. Ron, if we have the option,
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: I would say that a simple solution will be to grab like an 830, which is for other folks on the call, that is a machine that has gobs of memory and processors, and use that as set up like a single node open shift cluster with virtualization on it and use that
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: as the target.
+Orran Krieger: Yeah. I I I think um I think that's in scope.
+ 
+ 
+00:58:33
+ 
+Orran Krieger: Um let let's uh we could talk about that offline. Just set up a separate cluster. Um, I I'd like to also demo this because I mean it's really interesting that having the UI and stuff would I'd like to show that to the CIO of BEu and stuff. So I think this is just an MOC effort. We don't need to fund this as long as it's not using
+Lars Kellogg-Stedman: Okay. So then my question for you Adrian,
+Orran Krieger: GPUs.
+Lars Kellogg-Stedman: does does my idea there setting up a a single node open shift cluster on a large machine seem like
+Adrien Gentil: Yeah,
+Lars Kellogg-Stedman: that would be an appropriate target?
+Adrien Gentil: sure. Sure.
+Lars Kellogg-Stedman: Okay,
+Adrien Gentil: Would be good.
+Lars Kellogg-Stedman: we can do that.
+Adrien Gentil: Okay. Okay. Great. Who Who uh should I create a ticket or something or will you take care of
+Lars Kellogg-Stedman: Yeah, go ahead. Create a ticket. Um,
+Adrien Gentil: it?
+Lars Kellogg-Stedman: create a ticket. Sign it to me and um I will make sure that gets
+Adrien Gentil: Okay, cool.
+Lars Kellogg-Stedman: done.
+Adrien Gentil: Thanks.
+Lars Kellogg-Stedman: All right. And uh we are pretty much at time now. So,
+Robby Stahl: Could I be added to the Monday meeting for the
+Lars Kellogg-Stedman: thank you everyone.
+Robby Stahl: demo?
+Lars Kellogg-Stedman: You are always welcome at the Monday meeting.
+Robby Stahl: Could it be on my calendar?
+Lars Kellogg-Stedman: I can absolutely add you.
+Robby Stahl: Thank you.
+Lars Kellogg-Stedman: All righty. See you folks.
+Robby Stahl: Yeah.
+ 
+ 
+Transcription ended after 01:00:01
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

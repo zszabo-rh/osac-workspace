@@ -1,0 +1,725 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Apr 6, 2026
+MOC - Fulfillment working group
+Invited Juan Hernández Michael Hrivnak Lars Kellogg-Stedman Tzu-Mainn Chen Taj Salawu Jason Kary Nora Haxhidautiova Danni Shi Joachim Weyl Jason Schlessman Isaiah Stapleton Dylan Stewart Orran Krieger Austin Jamias Surbhi Kanthed Meera Malhotra Elior Erez Trey West Akshay Nadkarni knikolla@bu.edu Piotr Kliczewski Zoltan Szabo Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Siddarth Royapally Ilya Skornyakov Dakota Crowder Ori Amizur Will Gordon Omri Hochman Adrien Gentil Alona Paz Oved Ourfali Dmitry Tantsur Christopher Tate Thorsten Schwesig Jen Stacy Simone Ferlin-Reiter Heidi Dempsey Marek Grac Maor Friedman Avishay Traeger Elad Tabak Eran Cohen Ygal Blum Dan Manor
+Attachments MOC - Fulfillment working group 
+Meeting records Transcript Recording 
+
+
+Summary
+Policy updates dominated the meeting with focus on human review necessity for AI code and immediate compliance deadlines.
+
+Policy Document Style and Scope
+Feedback indicated the Agentic Life Cycle Policy needed a more aggressive adoption tone, emphasizing style over substance. There was strong consensus to create a separate document outlining best practices for using agentic tools within the repository.
+[a]
+Human Review for AI Code
+The team agreed that the current policy must require at least 1 or 2 human reviews for code changes, asserting that relying solely on AI for code writing and acceptance is questionable. This stance is based on the technical risk of massive, human-unreadable AI-generated changes, emphasizing the policy must be treated as a living document.
+
+IP Management and MOC 2.0
+The team needs to structure APIs and assign responsibilities for public IP management, starting with a Metal LB implementation as a prioritized use case. The OSAC team must be included in the development cluster of the first MOC 2.0 build by June 1st, with the larger compliance goal being HIPPA and NIST 800-171 certification by the end of the summer.
+
+
+Details
+* Discussion on Document Updates and Absent Members: Orran Krieger provided updates on comments added to the policy document, specifically including a link to the policy and raising a question about best practices, noting they had expected Erin to join the meeting. The absence of Erin and Idomar was discussed, with Heidi Dempsey noting that Erin was on holiday and a target to finish all related work was set for the following week (00:00:00). Lars Kellogg-Stedman also noted that Idomar had several outstanding responses to comments, suggesting that they might also be out of office (00:01:16).
+* Comments on the Agentic Life Cycle Policy Document: Orran Krieger expressed satisfaction with the document but agreed with Idomar's sentiment that the policy may not be "aggressive enough," suggesting an introduction advocating for aggressively adopting agentic life cycle tools while meeting required standards (00:01:16). They suggested that this was mostly a matter of style (00:02:27).
+* Suggestion for Best Practices Documentation: Orran Krieger recommended that a separate document be created outlining best practices for how some people are using these agentic tools within the repository to make this information broadly available. Lars Kellogg-Stedman agreed with the idea of creating a separate document for best practices (00:02:27).
+* Policy on Internal vs. External Tools: Orran Krieger disliked the document's distinction between tools being internal to Red Hat versus external, particularly concerning AI tools (00:02:27). They expressed a preference for putting all information, especially regarding AI tools and common usage skills, into the public repository unless it is proprietary (00:03:45).
+* Discussion on Human Review of AI-Generated Code: Tzu-Mainn Chen sought clarification on Orran Krieger's comments regarding not limiting code reviews, which touched on whether AI could legitimately be better than humans at code reviews (00:03:45). Orran Krieger agreed with Lars Kellogg-Stedman's sentiment that relying solely on AI for code writing and acceptance is questionable, asserting that they should maintain a near-term policy requiring at least one or two human reviews for changes (00:04:53).
+* Rationale for Human Review and Policy as a Living Document: Orran Krieger supported the necessity of human review, citing technical reasons, as current evidence shows that large, non-bite-sized changes done by AI can be very dangerous. They emphasized that the policy document should be treated as a "living document" that reflects current comfort levels and technical realities, meaning they are uncomfortable with massive, human-unreadable pull requests for the present time (00:06:02).
+* Clarifying the Intent of Document Comments: Lars Kellogg-Stedman and Tzu-Mainn Chen agreed that the nuanced rationale for human review was not fully clear in Orran Krieger's original comment within the document. Heidi Dempsey suggested that providing specific wording would be the fastest way to resolve the ambiguity (00:07:03).
+* Application of Basic Coding Principles to PRs: Ameya Sathe brought up the "KISS principle" (Keep It Simple, Stupid), emphasizing that pull requests (PRs) should remain short and sweet, typically involving the fixing of only one thing at a time. This basic coding tenet is relevant to the policy document (00:07:03).
+* Concerns about Fully Automated AI Pull Request Merges: Will Gordon sought confirmation that the document does not propose automated AI pull request merges. Lars Kellogg-Stedman explained that this discussion stems from Idomar's comments, which suggested that the proposed policies might limit a fully AI software development life cycle (00:08:06). Will Gordon stated that automated full life-cycle AI is currently "scary as hell" without a human in the loop (00:09:13).
+* The Importance of Developer Review in Agentic Workflows: Orran Krieger recounted a podcast observation from Anthropic, where developers were found to not carefully review artifacts, leading to increased automated testing to compensate (00:09:13). They concluded that the expectation remains for developers to carefully review every pull request. Will Gordon agreed on the importance of human oversight, suggesting that an AI could handle merging after a human provides an "approved" label (00:10:23).
+* Emphasizing the Document as a Living Policy: Lars Kellogg-Stedman reinforced the idea that the document is a "living document" meant to represent the current feeling and will change as AI capabilities and comfort levels evolve. Heidi Dempsey suggested adding a revision history block to the document, which Orran Krieger liked, to be explicit about policy changes and the reasons for those changes (00:11:21). Lars Kellogg-Stedman cautioned against trying to reproduce the full revision history, preferring to use existing tools like Git for that, but agreed on the need for verbiage explaining why major decisions were made (00:12:13).
+* Synchronization of Enhancement Proposals and Documentation: Orran Krieger questioned if the team was consistently transitioning changes from enhancement requests into the project's actual documentation upon pull request completion (00:13:54). Akshay Nadkarni and Michael Hrivnak agreed that this process has not been executed as well as it could be, but they should make it a requirement (00:14:59). Michael Hrivnak clarified that enhancement proposals set up the necessary details to write user-facing documentation but are not typically the documentation itself (00:15:57).
+* Discussion on Public IP Pools and Metal LB Implementation: Lars Kellogg-Stedman initiated a discussion about using Metal LB for public IP pools and the complexities of exposing public networks directly to worker nodes, which is difficult in environments like the development cluster (00:17:12). Akshay Nadkarni explained that Metal LB, potentially starting with L2 advertisement, was planned for use, but they were not yet in implementation (00:18:21).
+* Public IP Abstraction and Cloud Provider Integration: Akshay Nadkarni clarified that "public" IP in their context does not always mean internet-accessible, but rather accessible within the cloud provider's network, requiring external mapping for full public access (00:19:23). The question was raised whether OSAC should reference pre-existing public IP pools defined by a cloud provider (e.g., OpenStack) or require the recreation of new resources (00:20:26).
+* OSAC's Role in IP Management and Mapping: Lars Kellogg-Stedman stated that if a mapping is required (as in the MOC environment), OSAC needs integration with the mapping service to automatically expose clusters or VMs publicly, but does not necessarily need to own the entire IP pool (00:21:51). Michael Hrivnak compared the issue to a host inventory problem, asking if OSAC should manage the IP inventory itself or delegate more heavily to an external system to assign and map IPs on demand (00:23:50).
+* Public IP Pool as a Reference or Class: Akshay Nadkarni and Will Gordon discussed whether the public IP pool resource should contain the actual CIDR blocks or serve as a reference to an external IP management system (00:37:45). Lars Kellogg-Stedman favored the idea of treating the pool as a "black box" reference from which an IP address can be retrieved (00:38:49). Will Gordon suggested that the public IP pool could be a class, with Metal LB being one implementation of that class (00:40:39).
+* Prioritizing Implementation and Use Cases: Michael Hrivnak stressed that the team should prioritize specific use cases, starting with Metal LB for public IP pools, to structure APIs and assign responsibilities (00:39:42). Akshay Nadkarni agreed to draft documentation on the Metal LB implementation as a first pass for agreement (00:40:39).
+* Scope of Public IP Pool Usage: Trey West inquired whether public IP pools would apply mainly to compute instances (VMs) or extend to cluster-as-a-service (00:41:36). Akshay Nadkarni confirmed that the current scope starts with compute instances, with the possibility of later expansion to cluster-as-a-service (00:42:50). Michael Hrivnak noted that the initial simple use case involves mapping one IP address to one compute instance, with clusters being a subsequent, more complex step (00:44:05).
+* MOC 2.0 Timeline and Compliance Requirements: Tzu-Mainn Chen confirmed a meeting with Lars Kellogg-Stedman to discuss bare metal fulfillment and asked Orran Krieger and Heidi Dempsey for confirmation on the MOC 2.0 deadline and desired features. Heidi Dempsey clarified that there is no specific MOC 2.0 deadline, but OSAC must be included in the dev cluster of the first 2.0 build by June 1st (00:44:59). Orran Krieger added that the larger goal is to achieve HIPPA and NIST 800-171 compliance for self-service clusters by the end of the summer, as the June date is only for inclusion in the build, not for full compliance commitments (00:46:00).
+* Discussion on Compliance and Documentation Responsibility: Will Gordon asked about the specific compliance requirements, which Orran Krieger identified as HIPPA and NIST 800-171 for the ARPAH program (00:48:03). The compliance work entails ensuring that the OSAC cloud and deployed clusters meet the necessary configuration and procedures (00:49:01). Orran Krieger emphasized the need for a prescriptive story and runbooks that clearly define what OSAC automates versus what the customer must do to achieve compliance (00:51:11).
+* Integrating Compliance with Existing Red Hat Solutions: Heidi Dempsey brought up the use of ACM (Advanced Cluster Management) as Red Hat's standard solution for compliance, suggesting that integrating features into ACM might be preferred over having OSAC fully take on the responsibility. Will Gordon clarified that ACM might handle cluster compliance, but OSAC would need to address compliance for elements it manages, such as bare metal and virtual networks (00:52:10).
+
+
+Suggested next steps
+* [Orran Krieger] Clarify Review Wording: Improve comment wording in the policy document thread concerning required human reviews of pull requests.
+* [Orran Krieger] Document History: Add verbiage to the document explaining how revision history is maintained. Detail where users can locate the document revision history.
+* [The group] Implement EP Policy: Formalize the requirement to transition documentation from enhancement proposals into the project feature documentation.
+* [Akshay Nadkarni] Draft IP Pool Plan: Write a 1st pass implementation plan for the public IP pool resource using Metal LB. Share the plan draft with Lars Kellogg-Stedman for review.
+* [Lars Kellogg-Stedman, Tzu-Mainn Chen] Discuss Bare Metal: Talk before the morning bare metal meeting to confirm expectations for the agenda.
+* [Tzu-Mainn Chen] Schedule EP Meeting: Request a separate meeting with Michael Hrivnak to discuss the bare metal enhancement proposal. Schedule this if significant discussion points arise from review.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Apr 6, 2026
+MOC - Fulfillment working group - Transcript
+00:00:00
+ 
+Orran Krieger: What? This is Oh, I think people might have assumed. Okay. Okay. I added stuff after Erin's comment because I think he said he was going to be working on talking about that. So, I didn't look at the date. My fault.
+Lars Kellogg-Stedman: So, what did you add,
+Orran Krieger: Oh,
+Lars Kellogg-Stedman: Aron?
+Orran Krieger: just um I just wanted to put a link to the policy document that Aaron wrote and then um and I wanted to ask about best practices, but um yeah, so just is because I think Erin said he was going to join this meeting, but maybe I misunderstood.
+Heidi Dempsey: He did say he was going to try and join, but he also was on holiday. So,
+Orran Krieger: again.
+Heidi Dempsey: um,
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: Everything's close to
+Heidi Dempsey: we we had a target of the next week to finish all that. So,
+Lars Kellogg-Stedman: Yeah. Is is Idimar is is out um also right now.
+Orran Krieger: Okay.
+Lars Kellogg-Stedman: Is that correct?
+Orran Krieger: I I don't I don't know if he is
+ 
+ 
+00:01:16
+ 
+Lars Kellogg-Stedman: because he had some there were several responses to his comments that um he hasn't been able to respond to in several days and I thought maybe he was out and we were just waiting for him to come back for some of that.
+Orran Krieger: do not know.
+Lars Kellogg-Stedman: We don't know.
+Michael Hrivnak: Yeah,
+Lars Kellogg-Stedman: Okay,
+Michael Hrivnak: I'm not sure.
+Lars Kellogg-Stedman: fair
+Orran Krieger: We can historically it's been the first day and the last day that are holidays in
+Lars Kellogg-Stedman: enough.
+Orran Krieger: Israel. Um but now it tends to be a national holiday the whole week but for people that are outside the country they don't usually take off the whole week. So I don't know what it
+Lars Kellogg-Stedman: Okay, Aron, did you have anything you wanted to discuss about the document
+Orran Krieger: Um,
+Lars Kellogg-Stedman: here?
+Orran Krieger: no. I was actually pretty pleased with it. I guess my my only comments was I do think it's I I sort of got why um Idomar sort of felt it wasn't sort of aggressive enough. Um, so I just tried to add a little bit of an introduction to it is, you know, I I I like the what Erin was saying, but I just think saying that we want to be adopting aggressively these agentic life cycle tools, but um, but we have to meet these standards.
+ 
+ 
+00:02:27
+ 
+Orran Krieger: Um, so I think that it is it just that's just style. Um, and I guess that the other thing is um, in reading through this maybe one I I assume we're going to also have in our repo um, at least some best practices on how some of the people are are using these tools so that that that we make that available for broader use for people that want
+Lars Kellogg-Stedman: I think that makes sense.
+Orran Krieger: to.
+Lars Kellogg-Stedman: Although I do think that will probably be a separate
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: document.
+Orran Krieger: Uh yes, I I I just want to say I think it's worthwhile us developing that separate document at the same time and just outlining here that we have that separate document. And I I would also um I also would really like I I didn't like the only thing I didn't really didn't like that Aaron had here had here is that he talks about things as being internal to Red Hat versus external. And I would like that you know as much as Jira is of course just internal I don't care about that but but for all these AI tools I think everything that we are we we try to put it out there as much as we can everything you know our own skills that we find common usage and stuff like that.
+ 
+ 
+00:03:45
+ 
+Orran Krieger: Um, I would be surprised if there's anything proprietary for any of these things. And I'd like to try to say that we're we're we put it all in the repo.
+Lars Kellogg-Stedman: That
+Orran Krieger: And um,
+Lars Kellogg-Stedman: all sounds reasonable. Have you put those comments in the document?
+Orran Krieger: yep, those are the main comments I made in
+Lars Kellogg-Stedman: Okay,
+Orran Krieger: there.
+Lars Kellogg-Stedman: great.
+Tzu-Mainn Chen: Oran um can I just ask about one comment you um you placed in the document?
+Orran Krieger: Sure.
+Tzu-Mainn Chen: Um it's it's a thread about like not limiting not limiting reviews to sorry's comment that you know reviewable for humans is different from reviewable by AI tools or humans using AI tools. Um and L mentioned that you know uh he thinks that we do want to block our options here that we want to make sure that like that there's like a human component in reviews. um your comment in that thread I couldn't fully understand if you kind of were going in the opposite direction of large whether you whether you thought that there were that that code reviews that AI might legitimately be better at code reviews than humans and that might be an option we want we might want to pursue.
+ 
+ 
+00:04:53
+ 
+Orran Krieger: I think that I think that I really liked Lush's comment that is if if we have AI writing the code and we don't review it as the author and we have AI accepting the thing, you know, what the heck are we doing? I I I actually I think we should say it should be one there might be scenarios where where we can imagine doing it. I'm not yet ready to to be adamant about it. But I think that right I think that the comment wasn't even speaking to that. It was saying that it is reviewable by human being. I actually think we should have a comment saying that for now we need at least one or two human reviews of stuffing with because um I I just feel we should we should make that our near-term policy. Um but the the point of being something is reviewable by a human being. So, Idomar sort of made a comment that he doesn't know that he wants to agree with that. And I because and I'm like, well, I think that for now, we know that breaking things down into chunks that a human can review and do, it does a very good job for AI.
+ 
+ 
+00:06:02
+ 
+Orran Krieger: We know that if they start doing massive sets of things, evidence today is it could be very very dangerous like you know and so I I actually I really think there's good technical reasons for doing that and I also think we should have a human at least blessing it and doing a review even at some level for everything. So I I'm agreeing but I think we should have a reason for doing it. I think if saying well geez do we want this to be the case maybe someday in the future things will be different I think we should be referring to this document as a living document which is our current set of policies based on what we're comfortable with right now and right now I am faking uncomfortable
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: with um having a massive pull request that a human being could not read I think that's the case 10 years from now I don't know but it's just like I don't I
+Tzu-Mainn Chen: Okay. Yeah. No, I
+Orran Krieger: I think saying well are we limiting ourselves no we're Not because we know this is this bite-siz thing is the right thing right
+ 
+ 
+00:07:03
+ 
+Tzu-Mainn Chen: Okay, that makes perfect sense.
+Orran Krieger: now.
+Tzu-Mainn Chen: I I just wasn't clear from your comment that that that was what you meant,
+Lars Kellogg-Stedman: Yeah,
+Tzu-Mainn Chen: but um
+Lars Kellogg-Stedman: I I agree that that what you just said now doesn't necessarily shine through in the comment that you
+Orran Krieger: Okay.
+Lars Kellogg-Stedman: left.
+Orran Krieger: Um I will try to to
+Heidi Dempsey: Yeah,
+Orran Krieger: be shinier.
+Heidi Dempsey: suggest some wording would probably be the fastest path or
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: on
+Ameya Sathe: So uh like in all this discussion one thing which came to my mind was about that you always say keep the pas short and sweet the kiss principle correct the review is also going to be like 100 lines of review. So that that principle should also be applicable to PR and which is like a basic tenet of our coding world that keep it simple one thing it needs to be fixed at one time in a PR and not fixed 10 files or 150 files beyond it. So I saying that we are not forgetting those principles of of coding like the very basic principle
+ 
+ 
+00:08:06
+ 
+Lars Kellogg-Stedman: Yeah,
+Ameya Sathe: which we started to coding stuff.
+Lars Kellogg-Stedman: I think that's all true. Yeah. Um Will, you've got a hand up there.
+Will Gordon: Hey all. Um, so I I just wanted to confirm like reading through the document, it doesn't sound like we're proposing automated AI pull request merges, correct?
+Lars Kellogg-Stedman: Well,
+Will Gordon: Like we'll have AI review it
+Lars Kellogg-Stedman: so what what what Ron was responding there too were some comments from Itar that
+Will Gordon: and
+Lars Kellogg-Stedman: suggested that the the the policies that we were setting forth in the document were maybe limiting our ability to have a fully AI software development life cycle. And there's some questions there about what exactly he envisions that to mean and does that include, you know, having AI responsible for kind of all aspects of a change from implementation to review to acceptance. And so there's some questions about exactly what Edomar was had in his head when making some of those comments. And that's kind of what we're waiting on, I think, is some responses
+Will Gordon: Yeah,
+ 
+ 
+00:09:13
+ 
+Lars Kellogg-Stedman: there.
+Will Gordon: that's fair. I mean, just throwing in my own two cents, like I I I that that sounds scary as hell with with the the current level of capabilities of AI to have them do the full life cycle without um you know, an an a human in the loop. Um,
+Orran Krieger: I was actually listening to a podcast from um actually New York Times one
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: with the one of the kind of leads of Anthropic and who was talking about how Enthropic is is using really aggressively these agentic things and what they they found is um and and and it was actually funny the way he expressed it. He said they found that developers are too often not carefully reviewing the um the the artifacts after a certain period of time with an existing model where they get confidence with it. and and so they do a whole bunch of automated tests more aggressively to compensate for the fact that they know that that developers aren't doing the thing they're expected to do, which sort of meant to me that they really do expect a developer to review fairly carefully every every pull request.
+ 
+ 
+00:10:23
+ 
+Orran Krieger: Um, and doing that and you know, I I certainly feel we should be
+Will Gordon: Yeah, absolutely.
+Lars Kellogg-Stedman: And I think Sorry.
+Will Gordon: I mean I I was going to say for my own development like I know I rely heavily on like AI just
+Lars Kellogg-Stedman: Go ahead. Will
+Will Gordon: write a s*** ton of tests so I actually have confidence in this going forward and you know usually my PRs are like 2/3 tests one third code um maybe maybe a quarter code um because I want to make sure that like you know this change is good now and then any changes in the future you know I can have some amount of confidence in it. Um, but yeah, I agree. Just ensuring that we have someone looking at these things and even if you know there's there's a human applied approved label and then AI can can merge it and integrate it later like that's fine. But still having something I agree is important.
+Lars Kellogg-Stedman: Yeah. I think also um it's what you said earlier on about this being a living document.
+ 
+ 
+00:11:21
+ 
+Lars Kellogg-Stedman: I think we should probably emphasize that this is not meant to set a policy for the entire foreseeable future but to represent our feeling right now and that you know as as the capabilities of agents change as our comfort level changes as the industry changes that this document will change along with it.
+Orran Krieger: Yeah, I tried to put something um some wording around that at the very beginning of She look
+Heidi Dempsey: Yeah, the the standard way to do that though is to put, you know,
+Lars Kellogg-Stedman: Okay.
+Heidi Dempsey: revision history on the document.
+Orran Krieger: good.
+Heidi Dempsey: Even though I know that's in the repo, but it's not in the document. And that's how you tell people, I'm looking at this document. Is it up to date or not? You look at the revision history block. So that would be wise to add if that's what we
+Orran Krieger: Yeah, I I I like that.
+Heidi Dempsey: want.
+Orran Krieger: I like that a lot is why we're changing our policy as we go along. Like we should have that.
+ 
+ 
+00:12:13
+ 
+Orran Krieger: This is probably I I just think we're going to be very visible and and so I think it's really I I like that idea. We often don't do that because we know it's in the GitHub history, but but this is maybe a case where we want to be explicit on why we made decisions.
+Lars Kellogg-Stedman: So those are two different things. I think I don't want to get into an implementation discussion about documents here, but I do not want to try to reproduce revision history in the document and ended up being skewed from what actually happened because something got updated and someone didn't put it in or we changed something. I mean, we have a tool to track revisions to a document. Let's use that for tracking revisions, but I think it makes sense to have verbiage.
+Heidi Dempsey: No, That's That's not what I meant, Lars.
+Lars Kellogg-Stedman: No, but but what I was Okay,
+Heidi Dempsey: That's not what I meant.
+Lars Kellogg-Stedman: but let me finish. Um what I wanted to say is that I think it's a really good idea to have verbiage in there about why decisions are
+ 
+ 
+00:13:04
+ 
+Heidi Dempsey: Okay.
+Lars Kellogg-Stedman: made. And I think that makes a lot of
+Heidi Dempsey: Right. So for large programs, even if they're using Git,
+Lars Kellogg-Stedman: sense.
+Heidi Dempsey: they have a revision history which is recorded by date when revisions were approved by the engineering change board. basically. So, it's not recording every, you know, every change that somebody might make to the text, but it's saying here's a point where we actually made a substantive change and we all agreed to it. And you don't get that out of git, right? Git just tells you when you made changes.
+Lars Kellogg-Stedman: Well, it tells you why the change was made and who approved it.
+Heidi Dempsey: It doesn't give you any idea.
+Lars Kellogg-Stedman: You can you can put all of that information in there and I guess we can
+Heidi Dempsey: It does if you do it all right, but we don't always do it all right.
+Lars Kellogg-Stedman: Right. Well,
+Heidi Dempsey: So,
+Lars Kellogg-Stedman: but if we can't do it all right there, then we can't do it all right in the document either.
+ 
+ 
+00:13:54
+ 
+Lars Kellogg-Stedman: So, We either are capable or we're not. And we'll figure that out, I guess.
+Heidi Dempsey: Well, okay then. Say that in the in the writing that the revision history is kept and how to
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: find it.
+Lars Kellogg-Stedman: Okay, you've got a hand
+Orran Krieger: By the way,
+Lars Kellogg-Stedman: up.
+Orran Krieger: there was the another there was a discussion just in the chat slack channel about um about keeping the um the revision um requests or or changes into up to date and stuff is and it was
+Lars Kellogg-Stedman: Sorry, you're talking about enhancement proposals.
+Orran Krieger: something what's that yeah enhancement proposals and and and uh and I think
+Lars Kellogg-Stedman: You're talking Okay.
+Orran Krieger: that that was just something where I realized we I don't know how good we've been at this one of our goals was to as a part of when a pull request once you made the change to and you got enhance requests in there that things would transition from the enhancement request into the actual documentation of the project and I'm realizing I don't think we've really been doing that um but maybe I'm wrong.
+ 
+ 
+00:14:59
+ 
+Orran Krieger: Have we been doing that
+Lars Kellogg-Stedman: Have we been updating the project documentation as the enhancement
+Orran Krieger: kind of putting updating the documentation?
+Lars Kellogg-Stedman: proposals are being implemented?
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: Is that the question?
+Orran Krieger: So moving them from enhancement request to actually more of a feature description in the documentation.
+Lars Kellogg-Stedman: I don't know the answer to that off the top of my head. I don't know if there are folks here
+Akshay Nadkarni: Yeah, I don't I don't think uh the docs may be up to date in u
+Lars Kellogg-Stedman: who
+Akshay Nadkarni: um few areas. So I think that's something that will have to be done.
+Orran Krieger: I mean that's the whole advantage of how we've been doing these enhancement requests is that we've written the documentation there that once it's accepted we go implement it then we actually have the documentation that
+Akshay Nadkarni: Mhm.
+Orran Krieger: that it'll be slightly worded differently but really defines the a characteristic of our our system and I think we should try to make that a requirement for
+Akshay Nadkarni: I think Michael,
+ 
+ 
+00:15:57
+ 
+Orran Krieger: People.
+Akshay Nadkarni: you were saying something.
+Michael Hrivnak: Uh, you basically said what I was going to say. I I think we've not done as good a job certainly as we could in that regard, but we definitely should. Um, and to that latter point, there are different personas here. Uh, we even talk about our own ourselves as personas. There's engineering focused documentation and user focused documentation. An enhancement proposal presumably sets up everything you need to then go write userfacing documentation but may not itself be userfacing documentation.
+Lars Kellogg-Stedman: I think in general is not.
+Orran Krieger: Yeah. So,
+Michael Hrivnak: Yeah.
+Orran Krieger: it does take another change,
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: but it's where it should live.
+Michael Hrivnak: Yeah. Especially the user stories should make it very clear what needs to be documented for the users.
+Lars Kellogg-Stedman: All right. Anything else on this topic? If not, I've got a question for Ashe. You were asking in Slack about public IP pools and referencing um existing public IP IP pools in cloud
+ 
+ 
+00:17:12
+ 
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: providers. Um I didn't know if you wanted to talk about that a little bit here.
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: If I understand what you are asking, my inclination is to say no, we don't need to integrate with that but don't know if folks have other I know that Michael you had asked for some clarification there.
+Akshay Nadkarni: Okay.
+Lars Kellogg-Stedman: Do you feel clarified from A's response?
+Michael Hrivnak: I have not read it yet. I got to read it right now.
+Lars Kellogg-Stedman: Go for it.
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: And while Michael's reading that, I had a question about how we are using how we are planning to use Metal LB for public IP pools. uh because in the past that has been tricky because to get public IPs with metalb meant exposing a public network directly to all of the worker nodes on which metalb was running and that had that had some a variety of implications and I was curious what the what the mechanism looks like that we're implementing
+Akshay Nadkarni: So it's still in the works.
+ 
+ 
+00:18:21
+ 
+Akshay Nadkarni: I mean like the implementation hasn't started but I think when I had spoken with uh Iran and uh Adrian last right I think the metal lb operator is what I was told uh is what allows you to create like um a pool resource like we'll have our public IP pool uh OSAC CR sitting at top some underlying Kubernetes u um available um resource that's there and I think metal LB operator is what was supposed to be used and I think Metal LB has this capability of I think L2 advertisement and BGP and there was discussion around at least initially starting with L2 and then figuring out like just getting the end to end go ahead you were saying something Nars
+Lars Kellogg-Stedman: right the problem with the problem at least with the L2 model is like I was saying it requires those networks to be directly attached to the worker node so if you like you look at our development cluster which is a fairly common deployment model all of the worker nodes are on private networks they don't have
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: direct access to public IPs period.
+ 
+ 
+00:19:23
+ 
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: So while you can use Metal LB to create virtual IPs and assign them to pods and virtual machines and things like that, those addresses still aren't public to expose those things to uh on public addresses. You need some mapping external to the cluster that does the forwarding.
+Akshay Nadkarni: Yes.
+Lars Kellogg-Stedman: And I was curious if we had a MEDLB based solution that doesn't require that or if we're still assuming some kind of external mapping capability.
+Akshay Nadkarni: So this is my current understanding, right? So I think that's why even in the um message that I wrote I said like I'm saying public only because that's how it's referenced in the enhancement right but I think when
+Lars Kellogg-Stedman: Right.
+Akshay Nadkarni: I was talking with folks the understanding I got that public doesn't necessarily mean it's going to be accessible to the internet the cloud provider may decide
+Lars Kellogg-Stedman: Okay.
+Akshay Nadkarni: that it's only available from a certain internet to an network that the cloud provider is managing right and if there is another level of external IPs that's required because I think that's what MOC has currently wherein there's this floating IP which is being
+ 
+ 
+00:20:26
+ 
+Lars Kellogg-Stedman: Yeah.
+Akshay Nadkarni: managed by OpenStack. So at least in my last conversation with Adrian it was like okay so the public IP pool which Metal LB will support will give an IP that will have to be mapped to an OpenStack uh resource in order to actually get full end toend public support. Right.
+Lars Kellogg-Stedman: Okay.
+Akshay Nadkarni: And that is what the cloud provider can determine like what from Mosak's perspective what we need to be is like okay you can create a public IP pool resource you control how public that IP is actually going to be depending on your networking configuration right and that is where this question had popped up in my discussion with Adrian which is what if the cloud provider already has an existing public IP pool that they've created and defined and that they're using. Should OSAC support referencing that or is OSAC saying you have to create now your own thing? You can't directly reference that. You see what I'm saying?
+Lars Kellogg-Stedman: Yes, I think so.
+Akshay Nadkarni: Okay? Like if if a cloud provider already has a public IP pool that they've created by some other means outside OSAC, then should OSAC have a way of referencing that pool?
+ 
+ 
+00:21:51
+ 
+Akshay Nadkarni: Because at the end of the day, the purpose of the pool is to give away public IPs, right? To be able to access these public IPs. So it's like
+Lars Kellogg-Stedman: So I guess my answer would be that if it's an environment
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: like the MOC where you have to map your your you have to map what we're calling a public IP to an actual address that OSAC should have an integration with whatever that service is so that if you desire to expose a cluster or a virtual machine to the public internet that you have a
+Akshay Nadkarni: Okay.
+Lars Kellogg-Stedman: way of doing so automatically. Um whether it owns that mapping that is like we
+Akshay Nadkarni: Okay.
+Lars Kellogg-Stedman: assume uh at the MSC that we kind of own that we we own a public IP space and we own the control over that mapping.
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: So I would say that's not an example of a provider having an a pre-existing pool. That's kind of a pool that's been defined along with the cluster that we own and we're able to create the mapping.
+ 
+ 
+00:22:53
+ 
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: We definitely I think need to support something like that.
+Akshay Nadkarni: Okay.
+Lars Kellogg-Stedman: I don't know if there's a different model where there's some existing pool that's we don't own but there's presumably some mechanism for creating those mappings and I guess we do want to have the ability to do that.
+Akshay Nadkarni: Maybe Michael,
+Heidi Dempsey: So um that is a that is a mechanism that you would see at some
+Lars Kellogg-Stedman: Yeah.
+Akshay Nadkarni: did you Yeah. Go ahead.
+Heidi Dempsey: universities lush um where the the university owns the pool but
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: the uh departments or organizations own subsets of the pool but they don't own them themselves.
+Lars Kellogg-Stedman: is but but in in those models would we would we assume or require a some kind of automated mechanism that we can use to create those mappings or do you think in those
+Heidi Dempsey: Yeah,
+Lars Kellogg-Stedman: environments it would really be like a manual process where like hey I've got this internal IP and I wanted to expose it to publish to the public so I file a ticket
+ 
+ 
+00:23:50
+ 
+Heidi Dempsey: that's what I was trying to say is I believe that there are scenarios like that in some universities like Columbia University as an example where they wouldn't let you automate
+Lars Kellogg-Stedman: right I I agree I think there right ex yes I think I think
+Akshay Nadkarni: H.
+Heidi Dempsey: that.
+Lars Kellogg-Stedman: there are absolutely places where there's not going to be that automated mechanism in place and that will be in some sense that's like a customer problem that's that's at that point it's not our problem because like you just say we can't automate that all we can do
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: is say here's your virtual IP that's attached to your services how you map that is out of our control in this environment
+Akshay Nadkarni: Hey.
+Michael Hrivnak: So this sounds a lot like just another inventory problem similar to our a host
+Lars Kellogg-Stedman: Yeah.
+Akshay Nadkarni: Mhm.
+Michael Hrivnak: inventory. It sounds like the question is somebody has a source of truth for what IP addresses are available to give out. Do we take ownership of that and manage that ourselves with a system that we have or are we delegating more heavily to an external system so that we just ask it on demand?
+ 
+ 
+00:24:49
+ 
+Michael Hrivnak: Hey, we need an IP address and we need you to map it to this endpoint and it has the source of truth and takes care of it. Is that more or less the question actually you're getting
+Akshay Nadkarni: I think so.
+Michael Hrivnak: at?
+Akshay Nadkarni: Yeah, because I think like we will have certain functions right like related to let's say I want a VM and assign it a public IP. So our workflow may be something like get the public IP where to get it from look at the public IP pool resource. Okay. Okay, now this public IP pool resource if the cloud provider hasn't created like a public IP pool resource then there is nothing but if they already have something that we need to be able to reference then that mapping needs to exist right otherwise basically what it means is that oh in this setup you can't really assign public IPs using OSAC you see what I'm saying so to what you asked Michael I think yes like if there is a certain source of truth for public IPs, then should we be able to reference that through our public IP pool resource for OSAC or do the cloud providers have to recreate a public IP pool resource with the exact cider blocks for OSAC to work?
+ 
+ 
+00:26:05
+ 
+Akshay Nadkarni: Did I confuse you? Sorry.
+Michael Hrivnak: No, it's uh it's a good question. Um I think it's very reasonable to expect that a provider is going to pick a subnet and delegate that subnet to a use case. And it's not like they're going to have an inventory like a subnet and be assigning some of the IP addresses to OSAC and some of the IP addresses to something else and like we need to let them decide you know what's available at any given time like that just doesn't seem like a problem we should have to worry about or that should exist.
+Akshay Nadkarni: Mhm.
+Michael Hrivnak: So whe who does the actual work of of plumbing of exposing or attaching a public IP to some particular endpoint is a different question I think I don't know I my gut is I feel pretty comfortable with the idea that we can just take as essentially
+Akshay Nadkarni: Mhm.
+Michael Hrivnak: configuration that here's a subnet all these IPs are available for OSAC to hand out and OSAC can manage and track what purpose and who has what IP at any given time and then when it comes to the work of actually doing something with that IP address then you might need to call some external system to do it but I don't feel like we need to let something else manage the inventory of IPs does anybody else see it differently
+ 
+ 
+00:27:30
+ 
+Akshay Nadkarni: Okay.
+Lars Kellogg-Stedman: Um,
+Will Gordon: I mean it sound like we're talking about two different things,
+Lars Kellogg-Stedman: I
+Will Gordon: right? Like when you're talking about like you you know a provider is going to assign a subnet like wouldn't that be the virtual network and
+Michael Hrivnak: Those
+Will Gordon: typically the subnet would be for private addresses but the public IP pool would would be a separate thing
+Michael Hrivnak: could be two different subnets.
+Lars Kellogg-Stedman: I I think those are going to be two different things.
+Akshay Nadkarni: Thanks.
+Michael Hrivnak: Yeah.
+Lars Kellogg-Stedman: I think to what Michael was saying,
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: I don't know that we care I don't think that we I don't think OSAC needs to know about the range of public IP addresses. I think that OSAC just needs to know how to get a public IP and how to establish the mapping. So I don't necessarily I think it actually wouldn't be uncommon for a single public cider range to cover both OSAC and other things and that wouldn't impact us at all. We would just say I need an IP address and they would say here is an IP address and now we know that we own that IP address.
+ 
+ 
+00:28:40
+ 
+Lars Kellogg-Stedman: we don't own the entire range and we can take that IP address and you know we integrate with something that performs the mapping but at no point do we assert ownership over the entire cider range and we don't actually need to know what's been assigned or what's not because that's um there's another system managing
+Akshay Nadkarni: But um so to what you said Lars like I think um for the mapping um wouldn't in every cloud provider's environment they maybe use something different just you know worst case right um and so the whole point of the public IP pool resource The custom resource within OSAC is to say that these are the allowed public IP address ranges, right, that OSAC can use,
+Lars Kellogg-Stedman: Right.
+Akshay Nadkarni: right?
+Lars Kellogg-Stedman: But like you were saying those aren't necess so those aren't necessarily public which is exactly the model we would see for example in our development cluster. So that's fine. We get some subnetss that we call public IP pools, but they're not actually,
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: which means we need to have a mechanism that also says, I need to map a routable address to this, and I don't own the pool, but I need to get a mapping configured so that I can access my service externally.
+ 
+ 
+00:30:00
+ 
+Lars Kellogg-Stedman: And so I don't I wouldn't I'm a little bit leerary about calling these things public IP pools
+Akshay Nadkarni: Okay.
+Lars Kellogg-Stedman: because I don't necessarily think that that's going to be how they are in many cases because it is very common to want to keep your actual internet routable addresses as far as possible away from your internal machine so that you don't accidentally expose things that you didn't mean to expose which
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: is relatively easy to do um if you've got them directly attached to worker nodes.
+Akshay Nadkarni: So,
+Lars Kellogg-Stedman: So a model that assumes that public IPs are managed somewhere else and we have an integration
+Akshay Nadkarni: Mhm.
+Lars Kellogg-Stedman: for that and here are the things we support and if you have something we don't support here is how you implement um a driver for that. Kind of the same model we're talking about using for other components where we have things that we support but we also have a mechanism for the provider to say here is our own uh mechanism for
+Akshay Nadkarni: Okay.
+Lars Kellogg-Stedman: implementing this feature.
+Akshay Nadkarni: So I think to the point of integration that you mentioned right like that integration can look be different for different cloud providers right so depending on their environment so from a standpoint of where do we start at right because like in the uh networking enhancement that has been what have emerged and there there's this concept of public IP pool public IP an ad gateway everything that requires some allocation of a public IP and And I think over there there's this uh uh u thing you
+ 
+ 
+00:31:30
+ 
+Akshay Nadkarni: mentioned about integrating with the a specific cloud provider depending on how they are managing it right so there's a little bit of an unknown there will I see your hand is raised so maybe you want to say something in this respect go
+Will Gordon: Yeah, sorry. Didn't didn't want to just jump in,
+Akshay Nadkarni: ahead
+Will Gordon: but like in in my mental model, and obviously this is early since I'm I'm kind of just getting into it, but you know, it seems like Lars to your point, the actual routability makes sense to be outside of our our domain, right? We we shouldn't care about how those IPs are getting to us. If a customer defines a public IP pool, we can just assume that they've been routed to us or or we should be able to assume that and we can pull from that pool and return to that pool as needed. And I also think it can be opt in. I mean, a customer can just say, I want a public IP and they could give us an IP address and not necessarily need to pull from a pool.
+ 
+ 
+00:32:31
+ 
+Lars Kellogg-Stedman: from the OSAC side. Um, what would that look like? Would that be you create a public IP resource that's not associated with a pool and that gets handled by some mechanism as yet to be defined? Is is that
+Will Gordon: I think it could just it could optionally accept the actual IP address, right? A
+Lars Kellogg-Stedman: So again, this is a model where customers don't know what IP addresses are available until they've been assigned
+Will Gordon: customer,
+Lars Kellogg-Stedman: one. Just like with Amazon or any other service, you don't say, "I want a specific IP." You say, "Give me a public IP." And then you know what it is after you've received it.
+Will Gordon: right? And I mean that that works in like the the Amazon cloud environment. But I mean certainly there are some customers who are just like you know it has assigned me this IP address. Do they create an IP public uh public IP pool of one and pull it from there?
+Michael Hrivnak: That's I think not this use case.
+ 
+ 
+00:33:38
+ 
+Michael Hrivnak: Like that's just not OSAC. Uh we're splitting the personas here between there's a cloud operator like there's a
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: service provider that runs a cloud. They're the only ones that talk to it. So maybe we're not AWS, but we're a smaller alternative for in some ways to an AWS. Like it's still a public cloud even if it's a small one. So the tenant is not going to talk to it and get assigned an IP address.
+Will Gordon: Okay.
+Michael Hrivnak: Basically,
+Will Gordon: Okay.
+Michael Hrivnak: they're going to have an API and a web
+Will Gordon: So then the tenant is not Yeah.
+Lars Kellogg-Stedman: There we go.
+Will Gordon: Yeah.
+Michael Hrivnak: UI,
+Will Gordon: So then the tenant is not creating a public IP resource with a natural IP address.
+Michael Hrivnak: right?
+Will Gordon: The service provider might have a single IP address that they get from it and they would create a public IP pool of one that someone could pull from. Okay. So the the service provider creates the public IP pool,
+ 
+ 
+00:34:27
+ 
+Michael Hrivnak: That's
+Will Gordon: the tenant creates the public IP and it will pull from the pool.
+Michael Hrivnak: yeah, the tenant is requesting a an IP and they get
+Lars Kellogg-Stedman: That's one,
+Akshay Nadkarni: Correct.
+Michael Hrivnak: one.
+Lars Kellogg-Stedman: right? I guess I'm unclear how that model works in a world where you can't we can't assign IPs from a pool. Like I can create a pool that says this IP range exists, but OSAC isn't in a position to actually pick IPs. It needs to go to an external service to do that. What does that look like? And that's that's basically what we have at the MOC right now with our cluster where we can say yes, there is a public IP range available and this is the citer that covers it, but that information is almost entirely useless.
+Akshay Nadkarni: right and I think that's what I think and again um um there's more for me to pick up here but I think the the way I understood the MOC setup from Adrian is that the uh public IP pool is like OSAX in a way interface with any external cloud providers and in the case of MOC there is
+ 
+ 
+00:35:42
+ 
+Lars Kellogg-Stedman: Okay.
+Akshay Nadkarni: a OpenStack public IP uh actual public IP pool which will then require some level of mapping with whatever OSAC interface that's created right like if
+Lars Kellogg-Stedman: Okay.
+Akshay Nadkarni: you're integrating with multiple cloud providers we can't have varied integrations right or we'll need to have them but there at least needs to be some commonality which is what our public IP pool
+Lars Kellogg-Stedman: Okay.
+Akshay Nadkarni: is going to represent right and that commonality is basically saying okay so long as there's a public IP pool then you can integrate with other external ways which every cloud provider may have something different but from OSAC's perspective when we are requesting a public IP
+Lars Kellogg-Stedman: Sure.
+Akshay Nadkarni: it will try to get something from this commonality of the public IP pool right assuming that the rest of the framework of getting it and assigning it and mapping it is all in place right which again depends on how we are integrating with the different cloud providers, right? So the question here was like I think more maybe along like if the um so the cloud provider at the end of the day will still have to create some kind of a public IP pool resource.
+ 
+ 
+00:36:54
+ 
+Akshay Nadkarni: We'll have to figure out how to integrate with maybe what they already have on their side, right, for assigning public IPs in order for us to be able to use it. Like without that integration, assignment of public IPs is not really going to just happen just because an IP pool is
+Lars Kellogg-Stedman: Right.
+Akshay Nadkarni: there.
+Lars Kellogg-Stedman: So that we would assume that they would have to for example write anible playbooks that would handle that aspect of things.
+Akshay Nadkarni: Correct. Right. And I think to begin with that's where like for AAP um to your original question like at least the
+Lars Kellogg-Stedman: Okay.
+Akshay Nadkarni: first pass was like okay let's try to do this using metal lb and AAB wherein if you have a public IP pool resource configured using metal lb then these are the runbooks or whatever playbooks to run if it's using OpenStack we may have a completely different role and you know set of playbooks for that and that can keep extending. So
+Lars Kellogg-Stedman: Okay.
+Will Gordon: So it sounds like the public IP pool is essentially a bookmark.
+ 
+ 
+00:37:45
+ 
+Akshay Nadkarni: yeah,
+Will Gordon: It says this range of IPs exist and this is where you can go to get your IP.
+Akshay Nadkarni: correct. Right. I think that that's
+Will Gordon: Okay.
+Lars Kellogg-Stedman: Although the only part so I I think that all sounds reasonable.
+Akshay Nadkarni: Yeah.
+Lars Kellogg-Stedman: The only part that I guess I feel a little uncomfortable with is that a public IP pool advertises a specific cider range. Um in some sense I think it should just be here is a source of public IPs and I will give one to you.
+Akshay Nadkarni: So when you say source of public okay yeah so I think that's where the question was coming right like is is the public IP so now let's if you're getting into the definition of a public IP pool resource right there can be two options over there and one of the options may be that we support the create
+Lars Kellogg-Stedman: Yeah.
+Akshay Nadkarni: the supplying of cider blocks as has been written in the enhancement proposal right like you say I want to create a public IP res pool resource with these cider blocks.
+ 
+ 
+00:38:49
+ 
+Akshay Nadkarni: The other option which may also be something that we need to support is the public IP pool resource per se doesn't have the cider blocks in it but is mainly a reference to something else that exists in the cloud providers environment and do we need that and that has not been the way
+Lars Kellogg-Stedman: Yeah.
+Akshay Nadkarni: it is written at least right now in the enhancement proposal and so the question was do we need that way of referencing in the public IP pool resource
+Lars Kellogg-Stedman: I think we do. I think being able to treat that as basically a black box that you put a coin into and get an IP address out of it um
+Akshay Nadkarni: Okay.
+Lars Kellogg-Stedman: is a worthwhile model and I think that'll be fairly common. Michael,
+Akshay Nadkarni: Okay,
+Michael Hrivnak: Yeah,
+Lars Kellogg-Stedman: you've got a hand up.
+Akshay Nadkarni: Michael.
+Michael Hrivnak: I think if we have that model though, we're going to end up creating an implementation of it. And then as soon as we're creating an implementation of it, now we're back to Ox's question of how does that implementation manage an IP pool and so on.
+ 
+ 
+00:39:42
+ 
+Michael Hrivnak: Um, which is fine and in part is we're just getting into the implementation of where do we put an abstraction. It's good discussion to have. I feel like we're missing the part of this discussion though where we have committed to specific use cases of what are we going to do with these IPs even if we were just prioritizing and maybe this has been decided or been discussed in the proposal. Um but it would help this discussion I think to frame it in terms of we are going to prioritize first using metal LB to do this and therefore we we have a couple different ways to accomplish that and now we can talk in more real terms about how we want to structure APIs and what piece of the system is responsible for what and there's two or three or four different use cases like that um in terms of just what are we going to do with these IP addresses that we probably should Just talk about more specifically.
+Akshay Nadkarni: Okay. So, I think what I can do, Michael,
+Michael Hrivnak: Thank
+ 
+ 
+00:40:39
+ 
+Akshay Nadkarni: is because um I think the like we're just starting the implementation, right? And so I can at least maybe um take a first pass at writing it that way in terms of like this is what we are planning to do with metal lb as our first implementation for public IP pool and then u get it in front of ulars and then uh we can kind of go from there because I think the main thing is like before jumping into the implementation at least uh it would be good to have that level of agreement of this is what we are going to implement as a first pass and this is not kind of like uh what do you say etched in stone like it's all it's going to evolve it's like a living
+Lars Kellogg-Stedman: Yeah.
+Akshay Nadkarni: document in in some ways right like what we were discussing earlier but um at least we'll start somewhere so uh I can do
+Will Gordon: This this almost sounds like we would have a public IP pool class, right? We're like metal LB would be one of the public IP pool classes and we'd support multiple others.
+ 
+ 
+00:41:36
+ 
+Akshay Nadkarni: Mhm.
+Will Gordon: Okay.
+Akshay Nadkarni: That's at least the that's at least in my head based on the conversations that's the idea, right? Like we start with metal lb for public IP pools that will be what the current AAP roles would
+Lars Kellogg-Stedman: Okay,
+Akshay Nadkarni: support. In the future, we could have other ways of implementing the public IP pool. So I think will what you're saying does make sense at least with my current understanding of this
+Lars Kellogg-Stedman: I think we're in Yeah,
+Akshay Nadkarni: good discussion. I I'll I'll uh I'll
+Lars Kellogg-Stedman: I think we're in good shape now. We'll wait to see what how the implementation starts to look
+Akshay Nadkarni: I'll make sense.
+Lars Kellogg-Stedman: like.
+Akshay Nadkarni: Yep.
+Lars Kellogg-Stedman: All right. Does anyone else have stuff they have? Yes, Trey, go ahead.
+Trey West: I have kind of a one-off question maybe around what we're just talking about. Um,
+Akshay Nadkarni: Currently
+Trey West: so I guess I haven't looked over the enhancement much, but I'll look over it some. Uh so public IP pools are are they going to be mainly concerned around compute instance resources or do we see them being used in the realm of cluster as a service as well?
+ 
+ 
+00:42:50
+ 
+Akshay Nadkarni: my head space is uh uh compute instance. Um I think that's where even the um at least that's where even the enhancement proposal was written. Now uh considering that networking basically extends I mean just past uh compute instance it may be something that will grow into supporting other um uh resources as well like cluster as a service but at least that's not where uh we are currently uh starting u because otherwise the problem may probably become much bigger than uh what we are thinking so I hope that I mean addresses your question. I don't know if there's anything else that's custom that will be required for cluster as a service and you know so at least right now it's in the scope of compute
+Trey West: Okay, that's that sounds good.
+Akshay Nadkarni: instances.
+Trey West: Yeah, I mean from my perspective like working with carbide and stuff, I've I've been utilizing Metal LB. Um, but I guess there isn't like a ton of complications to what I've been doing. I I've basically just been like using a single cider block for my API VIPS and then a range of IPs that I can use for ingress.
+ 
+ 
+00:44:05
+ 
+Trey West: Um, so maybe there there might be some way that it maps in the future, but for now I'll just continue with what I've been doing.
+Akshay Nadkarni: Okay.
+Michael Hrivnak: Yeah,
+Akshay Nadkarni: But that's not
+Michael Hrivnak: I think you're you're again getting it like what are we doing with these IPs?
+Trey West: All
+Akshay Nadkarni: true.
+Michael Hrivnak: So, which is um a good thing to narrow down it with just VMs. So, just a comput instance. We're going to take one IP address and just map it to a compute instance.
+Lars Kellogg-Stedman: All
+Michael Hrivnak: That's pretty easy to understand thing. But then the next step after that is I think clusters and other things more just a general software load balancer that we could put in front of multiple different things.
+Trey West: right.
+Michael Hrivnak: Uh whether that's a pool of VMs or nodes in a cluster or uh whatever it
+Trey West: Got you. All right. Thanks.
+Michael Hrivnak: might be.
+Lars Kellogg-Stedman: right, men. You said you have some
+Tzu-Mainn Chen: Uh yeah,
+Lars Kellogg-Stedman: questions.
+ 
+ 
+00:44:59
+ 
+Tzu-Mainn Chen: two very quick questions. Um first of all, uh Lars, uh will you have time to talk tomorrow before like the the morning bare metal meeting? Um just to make sure that I understand what what we're looking to get out of it. Okay.
+Lars Kellogg-Stedman: Yes.
+Tzu-Mainn Chen: Um second question is um I just wanted to reconfirm um from Oron and Heidi um what like the what the OSAC deadline is for MOC 2.0 know and what we're hoping to get out of it.
+Orran Krieger: Sure.
+Tzu-Mainn Chen: I I I just don't know if it's been like formally stated anywhere. So, I just wanted to like make sure everyone was aware and make sure I had like the right dates and like features.
+Orran Krieger: I mean, sorry. How do you want to talk or do you want me to
+Heidi Dempsey: So there is no deadline for MOC 2.0 specifically, but there is a June 1st deadline for Open Shift uh sorry for um OSAC to be included in the dev cluster of the first 2.0 build. So that means something that could be,
+ 
+ 
+00:46:00
+ 
+Orran Krieger: Yeah.
+Heidi Dempsey: you know, released and managed as if it was a a regular production release by
+Orran Krieger: So,
+Tzu-Mainn Chen: Okay.
+Orran Krieger: so, so to be a little more explicit,
+Tzu-Mainn Chen: Um
+Heidi Dempsey: then.
+Orran Krieger: what what High saying, we would like, we would really like to have the entire um stuff done through OSAC. Um, but we have to meet compliance for HIPPA and NS800 171 for the RPA program. And so, we're not confident. I mean, we that that that will be the case. um that OSAC will be able to provide those guarantees. So the consultants are staying up the environment. We want it to be consistent with using OSAC and then we want OSAC to be a development thing or sorry we the the f closer we can get to staying up those compliance like by the end of the summer I think this is one of the things that we've talked about that should should be doable or at least Michael Rivick has told me that he's confident we should be able to do that is to have is to be able to meet those compliance regimes um to stand up self-service clusters.
+ 
+ 
+00:47:11
+ 
+Orran Krieger: Um, but we don't think the June date is it. So, we'd like to move to that as fast as possible. Does that make sense? So,
+Tzu-Mainn Chen: Okay,
+Orran Krieger: we'd like to at least get it into usage,
+Tzu-Mainn Chen: that
+Orran Krieger: but not making the compliance commitments at that
+Tzu-Mainn Chen: Okay, I got it.
+Orran Krieger: point.
+Tzu-Mainn Chen: Okay. Um, so my understanding is that like currently right now OSAC does have, you know, cluster as a service. It's just maybe not like h exhibits the the like the desired workflow. Uh specifically with like bare mail fulfillment like right now it does not there there's like it's it has its own kind of like mini bare mail fulfillment like thing that's kind of custom to it itself and we're trying to
+Orran Krieger: It's amazing.
+Tzu-Mainn Chen: standardize on the more generic bare mail fulfillment. Um so I guess just a heads up um Michael um I I tagged you on the you know enhancements proposal which is based on like um what we talked about in the previous weeks.
+ 
+ 
+00:48:03
+ 
+Tzu-Mainn Chen: Um if there's going to be like a lot of discussion points I might ask for a meeting with you just to kind of like hash hash this out uh faster rather than you know taking up taking a while just just to make sure that we can uh meet this deadline if if that's okay with you.
+Michael Hrivnak: Yeah,
+Tzu-Mainn Chen: Awesome.
+Michael Hrivnak: of course.
+Tzu-Mainn Chen: Thank you very much.
+Lars Kellogg-Stedman: All right.
+Will Gordon: Sorry, I just asked in chat,
+Lars Kellogg-Stedman: Do we have any other topics?
+Will Gordon: but what are the compliance requirements or what are the compliance commitments?
+Lars Kellogg-Stedman: Oh, go ahead.
+Orran Krieger: Um, so so there's a the the big one is there's a $50 million um program from ARPAH that uh require that we'll be setting up for every hospital their own open shift cluster. Um so for that we have to meet HIPPA compliance. Um there's a set of associated things that require NIST 8001 171 compliance. So those are the two regimes that are kind of critical in the first phase.
+Will Gordon: Gotcha.
+ 
+ 
+00:49:01
+ 
+Will Gordon: And so that from our perspective, it's effectively just ensuring that the cluster is configuration is configured or the OSAC cloud is configured in a way that meets those requirements.
+Orran Krieger: Yeah. So,
+Will Gordon: Correct.
+Orran Krieger: so we have the
+Lars Kellogg-Stedman: that the clusters we deploy could meet those requirements is where we want to get
+Orran Krieger: consult
+Lars Kellogg-Stedman: to.
+Will Gordon: Gotcha. Yeah. Just I I come from the ROSA world, so like from from compliance, it's like us as a service has to meet those requirements. So I just wanted to make sure that um I understood the boundaries from the OSAC perspective.
+Orran Krieger: If if you understand these things, well, that would be freaking awesome. Um, where I mean, basically the combination of OSAC and and what the consultants are building and Boston University have to meet these requirements to to the larger opera H program and stuff. So, you know, it is we need to document who's doing which parts of those. Um, and but this is pretty general. I mean almost everything we're doing for sovereign cloud we have to meet certain compliance regimes um that might be national or whatever else.
+ 
+ 
+00:50:05
+ 
+Orran Krieger: So this is I think a good a good sort of first process that we have to do here.
+Will Gordon: Yeah,
+Orran Krieger: Does that make sense?
+Will Gordon: I mean a lot of this comes down to just like most of the compliance stuff that we did on Roses is like, hey, you have to have document that you do these things and you have to have documentation for it. Um, so yeah, I guess the the question ends up becoming is who is responsible for providing the documentation? Is it, you know, OSAC says, you know, we document that the cluster is configured this way and then a customer can just say, hey, look, here's my here's my HIPPA documentation that says I'm configured in Xway.
+Orran Krieger: Yeah. So, so the there there's actually um there there's various products that kind of end to end are being used by universities to stand up uh HIPPA compliant environments and they they sort of have like here's a whole checklist for HIPPA and the product automatically does these with you enable these logging features and then you as a customer need to do these three extra um things in as a um in your own processes and you have to have processes and procedures for these things.
+ 
+ 
+00:51:11
+ 
+Orran Krieger: So it's a really well doumented thing that give a prescriptive story to user. We're like yeah you know you can stand up a hypocmplant thing with us and and uh and there and develop runbooks for it but there's no nothing that sort of regimented if that makes sense and I think it would be really really valuable if we could build
+Will Gordon: Yeah,
+Orran Krieger: that.
+Will Gordon: that makes sense. Basically just like a a runbook that says run this thing and your cluster will be HIPACO compliant according to our
+Orran Krieger: Oh,
+Will Gordon: documentation.
+Orran Krieger: the these are the things you'd have to do outside of it and these are things that the product or the solution or OSAC is doing automatically on your behalf.
+Will Gordon: Yeah. Or or at least capable of doing because I mean a lot of these things are relatively uh restrictive. you probably wouldn't want to run them as the default configuration, but yeah.
+Orran Krieger: Great.
+Heidi Dempsey: So that's that's why I brought up ACM um because Red Hat's standard solution is involves ACM for that.
+ 
+ 
+00:52:10
+ 
+Heidi Dempsey: So like if you're talking about things that are actually products.
+Orran Krieger: Yeah.
+Heidi Dempsey: So it's not clear that Red Hat would want to hand off responsibility to OSAC versus integrating stuff into ACM.
+Orran Krieger: Well,
+Heidi Dempsey: I think we don't know
+Orran Krieger: I think that I think that there's the question is where does OSAC where does the product live someday?
+Heidi Dempsey: yet.
+Orran Krieger: That's that's something just way beyond my my ken. We're going to be using products and whenever we can use a feature in ACM, we should be using that. Um,
+Heidi Dempsey: Right.
+Orran Krieger: but yeah,
+Heidi Dempsey: which is what the consultants are gonna say. So that's why I was
+Will Gordon: Yeah,
+Orran Krieger: but
+Will Gordon: I mean I think like ACM would give us compliance on the cluster,
+Heidi Dempsey: asking
+Will Gordon: but anything outside of that that OSAC is managing, whether it's it's bare metal or the the virtual networks, all that stuff, um, we'd probably have to figure out something Four. So yeah,
+Orran Krieger: Yep.
+Will Gordon: it sounds like you know, hey, if you want HIPPA compliance, you run AC or we install ACM for you and configure it so that your clusters are HIPPA and we do these other things to make sure that your cloud is HIPPA and you have to do these things to make sure that it works with your network or to some effect. Okay, makes sense. Thank
+Orran Krieger: Yes, that's that's exactly right. And and I think we're trying to I mean, unfortunately, consultants don't know what we're doing here with OSAC. And the long-term answer has to be that OSAC is is reinforcing this. And right now, they're doing it sort of so the CIS admins can do this manually. But um so there's lots of gaps
+Lars Kellogg-Stedman: Yeah.
+Orran Krieger: unfortunately.
+Lars Kellogg-Stedman: All right. Do we have any other topics? It looks like a no. Well, we are
+Orran Krieger: Although GDPR does apply Heidi unfortunately to Europeans using American infrastructure too. So we're screwed.
+Heidi Dempsey: La.
+ 
+ 
+Transcription ended after 01:00:43
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.
+[a]This is not at all what feedback indicated. Please listen to the recording.

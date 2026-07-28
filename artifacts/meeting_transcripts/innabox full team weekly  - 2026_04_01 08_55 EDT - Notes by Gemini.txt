@@ -1,0 +1,355 @@
+[PROCESSED 2026-04-09]
+﻿📝 Notes
+Apr 1, 2026
+innabox full team weekly 
+Invited Juan Hernández Danni Shi Adrien Gentil Isaiah Stapleton Taj Salawu Jen Stacy Daniel Erez Thorsten Schwesig Michael Hrivnak Christopher Tate Heidi Dempsey Dylan Stewart Orran Krieger Surbhi Kanthed Lars Kellogg-Stedman Tzu-Mainn Chen Red Hat Research Program Calendar Jason Schlessman Nora Haxhidautiova Michael Daitzman naved001@bu.edu Quan Pham joachimw@bu.edu mmunakami@g.harvard.edu Austin Jamias Meera Malhotra Bradford Nichols Trey West knikolla@bu.edu Avishay Traeger Elior Erez Akshay Nadkarni Omri Hochman Eran Cohen Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Rom Freiman Alona Paz Oved Ourfali Dmitry Tantsur Simone Ferlin-Reiter Marek Grac Jason Kary Maor Friedman Elad Tabak
+Attachments innabox full team weekly  innabox - 2025  Notes - innabox full team weekly   
+Meeting records Transcript Recording 
+
+
+Summary
+Metal Cube team alignment and MOC 2.0 progress was discussed with a focus on HIPPA/NIST 81 compliance requirements and urgent need for AI agent coding policies.
+
+Metal Cube Team Alignment
+The Metal Cube team is interested in becoming the default bare metal backend once development stabilizes but is not aligned with the group’s full use case for flexible backend configuration. Planning documents were provided by Dimmitri for review, scheduling a follow-up meeting for next Tuesday.
+
+MOC 2.0 Compliance Needs
+MOC 2.0 aims for a June 1st operational date, supporting a $50 million ARPA expansion and the State’s AI hub initiative, requiring strongly isolated clusters compliant with HIPPA and NIST 81. Expertise in regulatory compliance is being sought, with Scott Yoko and Red Hat consultants recommending design patterns.
+
+AI Agent Usage Policy
+The group decided to set a deadline two weeks out for agreeing on a minimum written policy concerning the use of AI agents for coding, recognizing that people are committing code without a policy which is dangerous. It was agreed not to forbid AI tools, but human review of pull requests must remain, and developers are responsible for their submissions.
+
+
+Details
+* Update on Metal Cube Team Meeting: A recent meeting with the Metal Cube team focused on alignment, specifically concerning their work on adding networking support to Ionic and Metal Cube to manage top-of-rack switch connectivity (00:00:00). The Metal Cube team is not interested in the group's full use case, which involves flexible backend configuration, but they are interested in potentially becoming the default bare metal backend in the future once development stabilizes. Dimmitri from the Metal Cube team provided planning documents for review, and a follow-up meeting is scheduled for next Tuesday (00:01:02).
+* MOC 2.0 Scheduling and Purchasing Decisions: Discussions are actively underway regarding purchasing decisions for hardware for MOC 2.0, including various switch and compute vendors. The target date for MOC 2.0 to be operational is June 1st, and consultants from Red Hat are assisting in building the initial systems using existing hardware (00:02:10). The design goal includes a multi-tenant and multi-cluster environment that is compliant with HIPPA and NIST 81 requirements, serving as development, staging, and production areas (00:03:21).
+* MOC 2.0 Alignment with External Initiatives: MOC 2.0 is necessary for the State's AI hub initiative and, more significantly, for a $50 million ARPA expansion intended to create a new national platform for all medical data in the country. The immediate requirement for these use cases is to be able to quickly spin up separate, strongly isolated clusters that meet compliance standards (00:05:45). The BUIT research lead is noted as the customer for this initiative, which differs from previous internal Red Hat efforts (00:04:22).
+* Expertise in Regulatory Compliance: The group needs expertise in meeting regulatory requirements such as HIPPA and NIST 81 to spin up compliant clusters. Scott Yoko, who has experience with production clusters at Harvard, is currently recommending a design, and a lead consultant from Red Hat mentioned that Red Hat has recommended design patterns for this type of compliance (00:06:58). The feasibility of the hosted control plane model meeting HIPPA compliance needs careful review, although initial discussions suggested it would be acceptable (00:08:01).
+* Discussion on AI Agent Coding Policies: The conversation shifted to using AI agentic techniques to accelerate software development, emphasizing the project's high visibility and the need to establish policies for acceptable use and standards (00:10:08). It was suggested that the group should take time to digest materials, research other projects like the Open Shells project, and gain experience with the development model before formalizing policies (00:12:36). However, the current state of people committing code using agents without a policy in place was deemed dangerous (00:13:53).
+* Interim Approach to AI Agent Usage: It was generally agreed not to forbid the use of technical tools like AI agents to accelerate development, as the company has directed this. A requirement for human review of pull requests should remain in place, with the principle that developers are responsible for the code they submit (00:14:55) (00:19:07). One suggestion was to require people to be able to explain their pull request without an agent, which was noted as a guiding principle rather than an strictly enforceable policy (00:16:19).
+* Setting a Deadline for Policy Development: Concerns were raised about continuing without a policy, and it was proposed to set a deadline for discussion on acceptable contribution policies for the repository. Given that many people from Israel will be out next week, a policy agreement deadline was tentatively set for two weeks out from the meeting, aiming for a minimum agreed-upon written policy (00:18:08) (00:23:08). Lars Kellogg-Stedman, Robby Stahl, and others volunteered to participate in drafting these policies (00:25:08).
+* Project Significance for AI Best Practices: This project has been designated by both Research and Ecosystem Engineering as the project where they will develop their best practices and principles for AI software development lifecycle (00:21:54). The intent is for two groups passionate about this topic to figure out the necessary principles for using AI in this open-source project (00:23:08). It was decided that one of the speakers would reach out to Aron and Idmar to coordinate participation in the policy-making efforts and agree on a concrete deadline (00:25:08).
+
+
+Suggested next steps
+* [The group] Review Documents: Review planning documents from the Metal Cube team. Prepare for the follow-up meeting next Tuesday.
+* [Oron] Detail Schedule: Create detailed schedule for MOC 2.0 implementation. This plan is needed from the consultants.
+* [Someone in Boston-Liskov-2n372] Form Policy Group: Contact Aaron and Idmar regarding AI policy formation. Determine MOC and research participants for the group.
+* [Someone in Boston-Liskov-2n372] Set Policy Deadline: Email Idmar and Aaron to determine an agreed deadline for the written AI policy.
+* [The group] Join Policy Team: Add names to the meeting notes list to join the AI policy working group.
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+Please provide feedback about using Gemini to take notes in a short survey.
+📖 Transcript
+Apr 1, 2026
+innabox full team weekly  - Transcript
+00:00:00
+ 
+Lars Kellogg-Stedman: All right. So, I've stuck two items on today's agenda. Um, I don't know if there's, uh, things other folks want to bring up. If there are, um, we'll see where we end up here. This shouldn't take too long. Um, there are two things I wanted to bring up today. We had a meeting with some folks from the Metal Cube team yesterday just to touch base on what they're doing and what we're doing and if there is overlap between the two and what the relationship should be. And um it was a good meeting. It was mostly uh Dimmitri on the technical side and I think many folks here know Demetri Tensor. has been involved with Ionic um since forever and um they talked a little about what they're doing in terms of adding networking support into Ionic and into Metal Cubed so that it can manage you know top of rack switch connectivity and um we talked a little bit about our goals of being able to interact with different kinds of bare metal backends.
+ 
+ 
+00:01:02
+ 
+Lars Kellogg-Stedman: So, not just Ironic or Metal Cube, but also things like Carbide or other systems that folks are doing. And um I think it sounds like they are not interested in our complete use case. They're not interested in the flexible backend configuration that we're looking for. Um, but they would be interested in being like our default backend at some point in the future once uh their development stabilized a little bit and once our models have stabilized a little bit. Um, Dimmitri gave us a bunch of their planning documents to look through and we're going to be following up next Tuesday uh once, you know, we've all had a chance to look over them and have a better understanding of kind of where things are going. But it was a good meeting and uh there you know it was a good discussion. I had a a question for I guess Heidi and Oron and the other folks who were involved in the MOC 2.0 stuff. There were um I guess the first thing is I don't have ever really discussed about uh schedules in this meeting with the larger group like when do we expect things to be coming online?
+ 
+ 
+00:02:10
+ 
+Lars Kellogg-Stedman: Um do we have target dates that we need to be aware of? That kind of stuff. And a question that came up on the call, the bare metal call yesterday was around um purchasing decisions for things like hardware and switches, whether that's decisions that we had already made or how that is is happening, who's making those decisions and and that kind of thing. So, I don't know if uh Oron or Heidi, either of you could address some of
+Heidi Dempsey: Yeah,
+Lars Kellogg-Stedman: that.
+Heidi Dempsey: sure I can. Um, so purchasing decisions for hardware um inc 2.0 are under active discussion now. Nothing's been decided. They're looking at um various vendors beyond the ones that we've already worked with. Um obviously switch vendors have a big impact on what we do. um and so do compute vendors, but compute vendors tend to all be um servers that have already been certified as Red Hat compliant as far as working with our software. Um as far as dates go, uh the target date that we are expecting 2.0 to be up and running is June 1st.
+ 
+ 
+00:03:21
+ 
+Heidi Dempsey: Um we have some consultants from Red Hat who are helping to um build the first systems for that based only on hardware that we already have obviously because you can't purchase anything that fast.
+Lars Kellogg-Stedman: Yeah, I always
+Heidi Dempsey: Yeah.
+Boston-Liskov-2n372: Well, you can as long as you don't have any memory in it,
+Heidi Dempsey: Except maybe some servers.
+Lars Kellogg-Stedman: Yeah.
+Boston-Liskov-2n372: then you're okay.
+Heidi Dempsey: Sorry.
+Boston-Liskov-2n372: As long as you don't put any memory in it, he's
+Heidi Dempsey: Yeah. Um,
+Boston-Liskov-2n372: fine.
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: so we will basically be stealing hardware from the existing stock to build the smallest possible functional version of what we need for 2.0 which is basically a development staging and a production area for people to work in um while also being um compliant with HIPPA and NIST 81 um requirements. So there will definitely be new stuff in that cluster that we haven't tried before. The hope is that the consultants will get those pieces up and running quickly so that we don't have to um be the pathfinders like we usually are for all the ways that
+ 
+ 
+00:04:22
+ 
+Lars Kellogg-Stedman: Sure.
+Heidi Dempsey: things can be done wrong. Um because this design being multi-tenant and multicluster is not Red Hat's usual thing. So um but uh our target is June 1st. Um we're pretty serious about not missing that target. We don't have a detailed plan yet from the consultants. Um that's something that Iran and I are working on to achieve. And um also the BUIT um research lead is the customer for this. It's not, you know, it's not Red Hat doing it for ourselves.
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: Um, so it's a little different than everything we've done before.
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: You know, Oruran or I can't just declare that something must be done in a certain way. Um,
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: but we've had lots of meetings with him, so he understands where we think things are going. So, we owe everybody a more detailed schedule. Um, but clearly,
+Lars Kellogg-Stedman: Sure.
+Heidi Dempsey: if we're expecting something to be in the dev cluster with 2.0 I know in OSAC for for us to be you know using in that environment then it's a pretty aggressive Beautiful.
+ 
+ 
+00:05:45
+ 
+Boston-Liskov-2n372: I'd like to sort of emphasize something when you talk about MOC 2.0.
+Lars Kellogg-Stedman: Okay.
+Boston-Liskov-2n372: It's it's not it's not about the MOC in a way. It's it's that there's so the there's the AI hub, the state initiative that's going to be standing things up on the we need to have the MOC
+Lars Kellogg-Stedman: Right.
+Boston-Liskov-2n372: 2.0 for the state initiative. But the bigger thing is that the ARPA we we we expect to hear we just told that it's gone through a review and there's uh they expect to be able to finalize the approvals which to me is kind of a nice statement by April 13th uh that week. So that means we're in two weeks that it's going to be kicking off this $50 million expansion to create a new national platform for all medical data for the country. And so we we want to be in a position where we're ready for that. So it's not about the MOC 2.0,
+Lars Kellogg-Stedman: Okay.
+Boston-Liskov-2n372: it's about the MOC2.0 being used for these other use cases.
+Heidi Dempsey: Yeah.
+Boston-Liskov-2n372: And for that use case, the first thing is the the separate clusters strongly isolated with compliance and being able to as soon as possible get that from OSAC.
+ 
+ 
+00:06:58
+ 
+Boston-Liskov-2n372: But there's also the VM as a service that being able to get compliance and finding great all those things will be
+Heidi Dempsey: s***.
+Boston-Liskov-2n372: useful for different use cases. But being able to first spin up different clusters is the first thing we need to have for those
+Lars Kellogg-Stedman: Okay. Who is um so we don't have within our group and I don't think necessarily within ecosystems either experience with things like HIPPA compliance or um anything else. If our goal is to be able to to spin up clusters meeting those regulatory requirements, who's got that expertise? It's like who's who's going to provide us with here's what you need to
+Boston-Liskov-2n372: So, so that's what So,
+Heidi Dempsey: Wait, let me answer it.
+Boston-Liskov-2n372: okay.
+Lars Kellogg-Stedman: do.
+Heidi Dempsey: So, we have two current people assigned to that.
+Boston-Liskov-2n372: Sorry.
+Heidi Dempsey: One is Scott Yoko who has had experience doing that at Harvard already with production clusters. Um, and so he's recommending basically a design. Um and the lead consultant who's met with us twice from Red Hat um also says that Red Hat you know already has recommended design patterns for doing this and um he hasn't
+ 
+ 
+00:08:01
+ 
+Lars Kellogg-Stedman: Okay.
+Heidi Dempsey: provided details yet but those are the two experts. So we're not expected to be the experts um and I honestly don't think that compliance will be an initial goal of OSAC but it is a goal of the whole
+Lars Kellogg-Stedman: Okay.
+Heidi Dempsey: environment but it needs some
+Lars Kellogg-Stedman: No, because I was going to say because that sounds like stuff that should feed into some,
+Boston-Liskov-2n372: Yes.
+Lars Kellogg-Stedman: you know, templates which would be an interesting um concrete use case um to put together
+Heidi Dempsey: Yes, absolutely. Yep. Yep.
+Lars Kellogg-Stedman: and would help I think figure out whether we have the sufficient levels of flexibility that we think
+Heidi Dempsey: Yep.
+Lars Kellogg-Stedman: we
+Heidi Dempsey: Right.
+Lars Kellogg-Stedman: do.
+Heidi Dempsey: And there's also a bunch of audits and processes that have to go with the HIPPA stuff.
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: um which we'll also have to do as an operations organization, not necessarily as part of OSAC, but you need all of that together to be compliant.
+Lars Kellogg-Stedman: Do we understand yet whether the hosted control plane model which we are relying on can meet um HIPPA compliance?
+ 
+ 
+00:09:00
+ 
+Heidi Dempsey: I I think we need to go through that carefully, but um we had a short discussion with Scott and the and the consultants about it and they both thought it would be okay,
+Lars Kellogg-Stedman: Okay.
+Heidi Dempsey: but I don't believe it until we go through it carefully.
+Lars Kellogg-Stedman: Okay.
+Heidi Dempsey: It certainly wasn't part of our criteria when we started using that. So, it might be necessary that we configure it in a different way or something like that.
+Lars Kellogg-Stedman: Yeah. Yeah. Okay. Well, those are all of my questions. Thank you. Um I felt feel like on Monday's meeting there were some things we didn't get to and I don't know if the folks are on the call who wanted to um bring anything up for the group. Nothing heard. All right. If there is nothing else then this has been a very short meeting.
+Boston-Liskov-2n372: Um, no, I think I think we there's a few emails that came out uh that that just were sent by.
+Lars Kellogg-Stedman: Oh good.
+Boston-Liskov-2n372: I don't know how many people read those, but um so I guess Rahm and Heidi and Idomar and I sort of sent out a bunch of stuff.
+ 
+ 
+00:10:08
+ 
+Boston-Liskov-2n372: I think we So again, there's sort of two issues here, you know. I think that it was great what Aaron sent out. on terms of you know a kind of how he's adopting these things and stuff. I think we're at an early stage in this journey in in Red Hat um and you know I was talking to Christie about what he's been doing in the MOC and I think we're all together at an early stage in this journey um for applying these agentic techniques to to accelerate our software development and especially doing it an open source project. I think as a project that is relatively new, um, we have the ability to be somewhat more aggressive than other projects. At the same time, I think we're going to be really really visible. I mean, I'm terrified, you know, just just every freaking all medical data in the United States will be will will play this role in hosting, you know, um there there's this is it's really an important thing to establish what our standards are. how we're using the techniques not not just our standards of of adopting AI like what what you know using in the most effective way but also just what are our policies what's acceptable use and stuff like that I I was I I sort of was pointed to the open shells project where um they're very aggressive everything's agentic first agent first at the same time they have very strong policies about what people should be able to explain from the stuff that they commit.
+ 
+ 
+00:11:40
+ 
+Boston-Liskov-2n372: So, um I think we should be going down a path of putting into our GitHub repos things that will accelerate the whole team moving on. Maybe we have to figure out a policy for people that are open source contributors from outside how we're going to help them use those same techniques, but I'm going to worry about that later. But I also just think this even what are our policies and our guidance beyond just here's a bunch of stuff you can use. Um, who wants to be on that? I don't feel qualified. I'm not sure. Is Aaron on the line? Aaron, are you there?
+Lars Kellogg-Stedman: Aron is not
+Boston-Liskov-2n372: Iron.
+Lars Kellogg-Stedman: here.
+Tzu-Mainn Chen: I I think the latest email mentioned that a lot of people from ecosystem engineering will be out today because of the
+Boston-Liskov-2n372: Sorry.
+Lars Kellogg-Stedman: Yeah.
+Tzu-Mainn Chen: holidays.
+Boston-Liskov-2n372: Yeah.
+Lars Kellogg-Stedman: Yeah.
+Boston-Liskov-2n372: Okay. I should be too. Um. Oh,
+Lars Kellogg-Stedman: So,
+Boston-Liskov-2n372: yeah. No, no, of course it's much later in Israel.
+Lars Kellogg-Stedman: so yeah,
+Boston-Liskov-2n372: Nobody from Israel will be here.
+ 
+ 
+00:12:36
+ 
+Boston-Liskov-2n372: So I
+Lars Kellogg-Stedman: one of the things I just wanted to reiterate which was that I I think I said last time we had this discussion which is that
+Boston-Liskov-2n372: Yeah.
+Lars Kellogg-Stedman: um I feel that it's really early for the group to be able to formulate like a solid opinion or policies on this because I don't think that everyone is at the same level with respect to working with um AI development model and it seems
+Boston-Liskov-2n372: Hey.
+Lars Kellogg-Stedman: like taking some time for folks to like digest what Iran just posted last week. Um if they haven't explored that before um getting a sense of you know what other projects like the open shell project which you brought up as an example earlier um what their policies look like. uh having having some time to do a little bit of that reading and research and taking the time to experience the development model to get a feel for what it's like and you know what are the limitations or the um benefits before having a discussion about policy and what we're willing to accept otherwise I feel like it's a discussion that will mostly be driven by just a couple of
+ 
+ 
+00:13:53
+ 
+Boston-Liskov-2n372: I'm really comfortable with that.
+Lars Kellogg-Stedman: people.
+Boston-Liskov-2n372: I think that's a great point if we but I think for that we should pose we should as a group sort of say okay you know what next two weeks or we're going to set this deadline for that.
+Lars Kellogg-Stedman: Sure.
+Boston-Liskov-2n372: Um because it just I what I worry about is is is people going and just adopting the things and then what what they've adopted. Yeah. everybody feels like, oh, now I this has become this has become the new way of doing things. I want people to understand we are going to have a concrete time when we're going to set those policies. Um,
+Lars Kellogg-Stedman: Why don't we say Oh, sorry.
+Heidi Dempsey: But but but around that also means that we already have people
+Lars Kellogg-Stedman: Go ahead, Heidi.
+Heidi Dempsey: who are doing this and committing stuff and asking for pull request reviews using agents. And so, um, if we're going to continue doing that without a policy, uh, I think that's pretty dangerous and that's our current state. So, um, you know, there has to be an end to that if we're going to take the risk for a
+ 
+ 
+00:14:55
+ 
+Boston-Liskov-2n372: Yeah,
+Heidi Dempsey: while.
+Boston-Liskov-2n372: I I I don't um that that's an interesting question. So let me rephrase that my way to see if I that is that I think what Heidi's saying is that we if we like during this period of experimentation until we sort of say we're going to set the policy do we let people use the tools and just even without reading the code stuff contribute because that's part of the experiments that we'll be doing here or do we say no you absolutely can't do that during this period until we've established a policy that it's it's more um you have to explicitly get permission to or or as a group to do that. I I think that's partly well we don't have but I think that maybe something is we should we should yeah I I don't think I don't feel a position to impose the top down. What do others feel about
+Lars Kellogg-Stedman: So I guess my initial thought is I don't want to forbid people from
+Boston-Liskov-2n372: that?
+Lars Kellogg-Stedman: using technical tools to accelerate their development and I mean honestly as a company we have been directed to do so in any case right so I would take the position that we don't place limits on the use of AI agents for coding I would say that we do require human review of poll requests.
+ 
+ 
+00:16:19
+ 
+Lars Kellogg-Stedman: Um, and beyond those two things, I'm not sure that I feel like I'm in a position to set like for example one
+Boston-Liskov-2n372: Well, but let me let me let me ask a question.
+Lars Kellogg-Stedman: second.
+Boston-Liskov-2n372: Sorry. Can I ask a clarified question? Do you think like if you look at that open shell thing,
+Lars Kellogg-Stedman: Okay.
+Boston-Liskov-2n372: one of their policies was you as a person that issues a poll request, you you have to without having an agent open be able to explain your poll
+Lars Kellogg-Stedman: Right. So,
+Boston-Liskov-2n372: request.
+Lars Kellogg-Stedman: actually, you anticipate what I was trying to say before you interrupted, which is that I think that some policies like that are effectively uninforcable. Right. Unless I'm going to take the role of like the professor quizzing the students in the class, um, all I can do is say, all I can do is say that sure,
+Heidi Dempsey: Yeah.
+Lars Kellogg-Stedman: yes, you need to understand the code that you're submitting, but that's not an enforceable policy. It's not actionable.
+Boston-Liskov-2n372: It's no no I know but that but the point is it's still saying a set of principles and you know people don't always
+ 
+ 
+00:17:13
+ 
+Lars Kellogg-Stedman: Yeah,
+Boston-Liskov-2n372: adhere to principles but that doesn't mean it's not important as to still as a group say what do we think are born principles right um so I I'm not I I don't know if I have
+Lars Kellogg-Stedman: sure.
+Boston-Liskov-2n372: confidence in what they should be But I think we should have them. And I, you know, I And the question is how lax are we going to be until the point we have them? Should we give ourselves a week, let everybody do whatever the f***
+Lars Kellogg-Stedman: I
+Boston-Liskov-2n372: they want for a week or two and then say at the end of that we're going to make a decision based on this experience? Do others feel or do we want to say no until those two weeks are over you, you have to really com review your code and do not commit anything unless you've done that. I I can go either way. I just want to know what others
+Lars Kellogg-Stedman: think if you said what you just said that it would just make people feel slightly guilty as they open poll requests. I mean you know again
+ 
+ 
+00:18:08
+ 
+Heidi Dempsey: Well, especially Yeah.
+Lars Kellogg-Stedman: there's
+Heidi Dempsey: as they're being actively encouraged not to do that by other people.
+Lars Kellogg-Stedman: right so I guess Iran my take is I don't want to make decisions right now but I think maybe if we said next week we'll you know open with this meeting with having a discussion about what kind of policies we want to set on our repositories for accepting contributions and um that'll give folks between now and then if they don't have an opinion to to develop it and yeah Chris is right there that's kind of the messages we're getting from I think the uh higher up uh levels of of
+Boston-Liskov-2n372: That that is not that sorry that is not that is not the messages that that I mean I've actually
+Lars Kellogg-Stedman: red
+Boston-Liskov-2n372: had a lot of these conversations um and and
+Lars Kellogg-Stedman: oh sorry I just want to interrupt just briefly because a has an important message there which is a lot of people from Israel are going to be
+Boston-Liskov-2n372: with
+Lars Kellogg-Stedman: out next week so that would be two weeks out
+Boston-Liskov-2n372: Okay.
+ 
+ 
+00:19:07
+ 
+Boston-Liskov-2n372: I I think that I think I think that's fine. I I you know I think we should sort of say that will be please everybody should be in a position to Christy say it out loud man I don't want to read your
+Kristi Nikolla: I was just saying um whether there's a policy or not, everyone is responsible for PRs they make, whether an agent was used or not. It's a tool.
+Lars Kellogg-Stedman: Yeah.
+Kristi Nikolla: Um you're still ultimately responsible for pushing code that um you should put your face on. Um saying an AI agent wrote this,
+Lars Kellogg-Stedman: Yeah.
+Kristi Nikolla: I didn't read it, is not an excuse. Um at least for now.
+Boston-Liskov-2n372: I totally agree. Yeah. Well, no, I think for always you can't ever if you're at the end you're using it to accelerate you right now. It's different again that's a moral statement and and it's important but that is different from saying you as a human being are responsible for like I was listening to u talk by um one of the kind of the gent guys at at at um anthropic and and what he was saying was what we find is that people the more they use a particular model right they end up um they start off always reviewing everything then they use it less and less as time goes by in a certain area
+ 
+ 
+00:20:20
+ 
+Boston-Liskov-2n372: where they start gain confidence of it. And so we're doing reverse things where we actually have um where we do checks um automated checks more aggressively as people go up because we know they're reviewing the code less themselves. So so they're seeing that you know anthropic is being quite rigorous around those things. Um I don't know that we can do those automatic policies but what that is is strongly I mean we all get lazy but you are responsible but can we say that we want you to be you you you have to have committed to us that you've reviewed every line of code. Um, I don't know. That's that I don't know. But it's obvious that you're responsible. Yeah. Chrissy.
+Kristi Nikolla: Um, sure. I want to add a bit more context with regards to the at least for now in that right now all of the skills and all of the prompting that you do to the agent to get the result that you are pushing is your responsibility. when we move to a model where we are going to have shared skills perhaps a repo in the org where um we define how the PRs are going to be made how um the agent is going to behave with repositories that creates a sort of delusion of responsibility um that paired with um agents doing PR reviews um then it starts becoming a bit more nebulous that's where I would be a lot more concerned with regards to who is responsible for what as that really starts
+ 
+ 
+00:21:54
+ 
+Kristi Nikolla: to to blur the boundaries. Um and especially as we accelerate and uh as as people have said in the previous meetings, if this creates a situation where reviews are really the bottleneck, which I expect it will be the case, then um who is responsible for a PR that an agent reviewed that was using the skills that we all as an organization wrote together? That's concerning to me, but I don't think we've gotten there yet. So that's why I said at least for
+Lars Kellogg-Stedman: Yeah.
+Boston-Liskov-2n372: Yeah, but by the way, um I'm kind of pleased about this. So So again, every organization is supposed to have a project which is deemed their the project where they're working at for the the as the big demonstration for their AI software development uh coding thing.
+Lars Kellogg-Stedman: Sorry, Oron.
+Boston-Liskov-2n372: Um and so Yeah.
+Lars Kellogg-Stedman: Are you talking about Red Hat's directives when you say supposed to?
+Boston-Liskov-2n372: So inside Red Hat, each each organization is supposed to have something which is where it's developing its
+Lars Kellogg-Stedman: Okay.
+Boston-Liskov-2n372: its AI best practices. So what IDMar just sent out a note.
+ 
+ 
+00:23:08
+ 
+Boston-Liskov-2n372: So I have considered this project the project that for research is where we're going to develop our AI um software development life cycle stuff. And what NMR just sent out is that um that for ecosystem engineering, this is the project that is the one where it's going to be developing the principles. So that's kind of fun. We'll we'll have uh we have two groups that, you know, are passionate about making this the project to figure this s*** out in.
+Heidi Dempsey: So,
+Lars Kellogg-Stedman: Okay.
+Boston-Liskov-2n372: All right.
+Heidi Dempsey: so we need a deadline. Um,
+Lars Kellogg-Stedman: Two weeks.
+Heidi Dempsey: we we know Yeah,
+Lars Kellogg-Stedman: Two weeks from this
+Heidi Dempsey: but not to start the discussion.
+Lars Kellogg-Stedman: meeting.
+Heidi Dempsey: Um, I think that longer than two weeks with no policy. I I'm sorry. I'll be the badass, but I think that's not acceptable. Um,
+Lars Kellogg-Stedman: Heidi, you're always badass.
+Heidi Dempsey: all of all of us can work.
+Lars Kellogg-Stedman: Come on.
+Heidi Dempsey: Wait, let me finish. All of us can work this upcoming week who aren't in Israel and
+ 
+ 
+00:24:05
+ 
+Lars Kellogg-Stedman: Yeah.
+Heidi Dempsey: draft something and the people from Israel can work the next week to revise it and complain about it and you know whatever. But if if that's not clearly stated as this is how it's going to happen that by two weeks we're going to write down whatever our minimum agreement is, then I don't think it's going to happen soon enough. And I I believe we're going to have actual upstream people participating in this
+Lars Kellogg-Stedman: Okay.
+Boston-Liskov-2n372: Yeah.
+Heidi Dempsey: project because otherwise it wouldn't matter. We could just train it on whatever is going to be the product that Red Hat is going to develop which isn't upstream and isn't you know the would be much easier but that's not the goal.
+Boston-Liskov-2n372: Yeah. So, I I'm going to um So,
+Heidi Dempsey: So,
+Boston-Liskov-2n372: so let me um I really I really want to I don't know how much shuts down for Passover. Usually here it's just the first two days um like which is already in that in Israel. So, um let me uh I think we should check with Aaron.
+ 
+ 
+00:25:08
+ 
+Boston-Liskov-2n372: I'd like to I I'm uncomfortable leaving it too long. same time I'm not you know and we're definitely got to make the decision till people are back but um I'd love to see them participating in working on those policies. So let I'll reach out to Aaron and Idmar because says that Aaron is the thing and then figure out from our side who from the MOC would like to participate and who from research would like to participate in kind of coming up with this.
+Lars Kellogg-Stedman: I'd like to participate on the research
+Robby Stahl: I would like to participate.
+Lars Kellogg-Stedman: side.
+Boston-Liskov-2n372: Okay. All right. So, um, so I, so why don't everybody sort of add their name to or add your name to the list on on the thing and and
+Lars Kellogg-Stedman: When you say on the thing,
+Boston-Liskov-2n372: also reach out because I don't want to make people in the
+Lars Kellogg-Stedman: Iran, what do you mean?
+Heidi Dempsey: in the minutes in the notes.
+Boston-Liskov-2n372: minutes. Yeah.
+Heidi Dempsey: Aron added an item in your agenda after you went through your agenda large.
+Lars Kellogg-Stedman: Okay.
+Boston-Liskov-2n372: Yeah.
+Heidi Dempsey: So people can put their names under
+Boston-Liskov-2n372: Yeah. So, people can add their names to it then.
+Heidi Dempsey: that.
+Boston-Liskov-2n372: I think this is um Yeah. Okay. And I'll I'll I'll reach out to NMR and CFC. I I don't I mean I don't want them to feel pressured if they're really off entirely this time, but I didn't think they would be off the entire time. But we let me check and we should try to get this sooner. Cool. Sorry for disrupting
+Lars Kellogg-Stedman: Okay.
+Heidi Dempsey: Okay.
+Boston-Liskov-2n372: things.
+Heidi Dempsey: So to put it more succinctly, you will talk to and you will come up with a deadline by which we are trying to have an agreed upon written
+Lars Kellogg-Stedman: All
+Heidi Dempsey: policy, right?
+Boston-Liskov-2n372: I will at least email with him.
+Lars Kellogg-Stedman: right.
+Boston-Liskov-2n372: Yes.
+Heidi Dempsey: No, you will talk to him eventually.
+Boston-Liskov-2n372: Okay.
+Heidi Dempsey: Maybe not today.
+Boston-Liskov-2n372: Yeah. Cool. All right. And speaking of that, I will go do that now unless there's um Okay. See you guys.
+ 
+ 
+Transcription ended after 00:29:54
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

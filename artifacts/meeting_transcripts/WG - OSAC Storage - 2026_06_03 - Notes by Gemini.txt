@@ -1,0 +1,75 @@
+[PROCESSED 2026-06-04]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jun 3, 2026
+Date: Wed, 03 Jun 2026 14:42:48 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 3, 2026, 4:41 PM CEST and may  
+contain errors.
+
+
+Summary
+Storage framework development planning with API prioritization, security  
+model refinement, and documentation standardization finalized.
+
+
+Storage Architecture and API
+The team prioritized Tier API development to enable virtual machine service  
+functionality. They decided to adopt backend terminology to clarify  
+infrastructure versus tier definitions.
+
+Security and Integration Planning
+A per provider proxy model was selected to enforce control plane routing  
+for storage operations. Storage readiness tracking will be decoupled from  
+cluster status to ensure cleaner separation.
+
+Process and V1 Scope
+Product requirement documents will now formalize development workflows. The  
+scope for version 1 is established as attaching network storage and  
+validating persistent volume claims.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Onboard Research Resource: Coordinate with Dylan  
+regarding OSAC onboarding and facilitate his collaboration with Will Gordon  
+on Vast storage integration.
+
+[Avishay Traeger] Request PRD Skills: Contact Iran to create skills for the  
+product requirements document to standardize documentation.
+
+[The group] Establish Design Process: Create a product requirements  
+document and design document for new storage features and epics before  
+implementation.
+
+[Will Gordon] Manage Vast Integration: Oversee the implementation of Vast  
+storage components for the current version. Transition from environment  
+variables to using the tier API once it becomes available.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

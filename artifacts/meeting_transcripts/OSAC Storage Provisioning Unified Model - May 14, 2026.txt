@@ -1,0 +1,83 @@
+[PROCESSED 2026-05-15]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Storage Provisioning: Unified Model for VMaaS and CaaS” May 14, 2026
+Date: Thu, 14 May 2026 15:51:50 +0000
+---
+Notes from “OSAC Storage Provisioning: Unified Model for VMaaS and CaaS”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 14, 2026, 4:37 PM CEST and may  
+contain errors.
+
+
+Summary
+The team aligned on storage class provisioning strategies and finalized the  
+adoption of onboarding-time template-based configuration.
+
+
+Storage Provisioning Strategy Debated
+Participants evaluated timing for storage class creation between tenant  
+onboarding and virtual machine request triggers. The group prioritized full  
+automation and preventing provisioning bypasses to maintain quota  
+enforcement.
+
+System Design and Reconciliation
+The group reached consensus that the operator should act as a controller  
+for cluster state reconciliation. Discussions established a requirement for  
+an admin API to manage storage tiers.
+
+Provisioning Consensus and Direction
+The team decided to proceed with tenant onboarding-time storage class  
+creation utilizing templating capabilities. Future technical details will  
+be resolved through offline collaboration on specific pull requests.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Review Epics: Review multiple existing storage related  
+epics. Align existing epics or create a new umbrella epic offline.
+
+[Akshay Nadkarni] Send Summary: Send rough summary of discussion topics,  
+including tenant onboarding for storage classes, quota view requirements,  
+and vendor visibility, based on the meeting notes.
+
+[Will Gordon, Akshay Nadkarni, Zoltan Szabo] Review PRs: Connect offline to  
+discuss PR 266 and PR 296 implementation details. Coordinate strategy for  
+tenant onboarding storage class creation using templating.
+
+[Akshay Nadkarni] Distribute Notes: Review Gemini generated meeting notes.  
+Send summarized notes on Slack channel for review.
+
+[Akshay Nadkarni] Schedule Meeting: Speak with Alona to set up a regular  
+recurring discussion meeting.
+
+[Will Gordon] Vast Integration Sync: Connect with Akshay Nadkarni and  
+Zoltan Szabo on Slack. Transfer ownership and coordinate coverage for the  
+Vast integration work before starting PTO.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini Document Chat transcript Video  
+Recording
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

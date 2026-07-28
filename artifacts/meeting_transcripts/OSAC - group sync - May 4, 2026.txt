@@ -1,0 +1,76 @@
+[PROCESSED 2026-05-07]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - group sync” May 4, 2026
+Date: Mon, 04 May 2026 16:10:36 +0000
+---
+Notes from “OSAC - group sync”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 4, 2026, 6:09 PM CEST and may contain  
+errors.
+
+
+Summary
+The team reviewed infrastructure migration, bare metal automation,  
+multi-tenancy authentication, and CI testing pipeline optimizations.
+
+
+Infrastructure and Bare Metal
+The team decided to migrate to a dedicated OSAP Jira project for AI  
+workloads. Demonstrations confirmed that the bare metal fulfillment  
+operator correctly manages host pool creation and agent assignment.
+
+Auth and DNS Integration
+The implementation of multi-tenancy authentication via Keycloak and a  
+generic DNS API interface was reviewed. These developments aim to improve  
+organization management and decouple interaction from external providers.
+
+Testing and CI Pipeline
+CI improvements for virtual machine services were presented to reduce  
+testing time via unified environments. The team is evaluating architectural  
+changes to optimize resource-heavy end-to-end integration cycles.
+
+
+Suggested next steps
+
+
+
+[Amir Gv] Move Project: Move all AI workloads from the MGMT project to the  
+OSAP project.
+
+[The group] Fix Integration: Repair Jira integration broken by the OSAP  
+project movement.
+
+[Avishay Traeger] Sync Agenda: Coordinate tomorrow with Michael Hrivnak  
+regarding agenda topics.
+
+[Crystal Chun] Create Story: Define story allowing organization  
+administrators to change passwords via OSAC interfaces.
+
+[Omer Vishlitzky] Investigate Acquisition: Message officer team; look into  
+30 minute machine acquisition time.
+
+[Yoni Bettan] Discuss Clusters: Take cluster setup discussion offline.  
+Resolve issues installing CNV on Pro cluster pool setup.
+
+[Alona Paz] Send Report: Send weekly updates report today.
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

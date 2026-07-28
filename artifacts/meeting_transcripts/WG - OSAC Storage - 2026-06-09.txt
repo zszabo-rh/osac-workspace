@@ -1,0 +1,92 @@
+[PROCESSED 2026-06-10]
+warning: unknown output format 'text'; falling back to json (valid options: json, table, yaml, csv)
+Using keyring backend: keyring
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jun 9, 2026
+Date: Tue, 09 Jun 2026 14:06:42 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 9, 2026, 4:04 PM CEST and may  
+contain errors.
+
+
+Summary
+Storage architecture discussions finalized V0.1 scope and established  
+critical infrastructure requirements for Vast cloud integration.
+
+
+Architecture and Storage Strategy
+System design necessitates supporting multiple backends for future scaling.  
+The team agreed on prioritizing boot volumes for the initial 0.1 release.
+
+V0.1 Scope Decisions
+The project will focus exclusively on Cluster as a Service for the end of  
+month deadline. Global virtual IP pools will be utilized to manage storage  
+access.
+
+Administrative and Security Controls
+Infrastructure administrators require storage quotas to prevent resource  
+over-utilization. Tenant restrictions on view creation are essential to  
+maintain quality of service policies.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Document Meeting Notes: Capture the discussion regarding  
+storage tier and backend mapping in the meeting minutes.
+
+[Roy Golan, Avishay Traeger] Define Default Tier: Create a plan to define  
+the default storage tier for provisioned clusters and share it for team  
+discussion.
+
+[The group] Review Storage PRDs: Evaluate the storage backend and storage  
+tier proposal documents prepared by Roy and Avishay.
+
+[Akshay Nadkarni] Define UI Attributes: Provide the user interface team  
+with the necessary attributes for the backend and tier management  
+interfaces.
+
+[Akshay Nadkarni] Review Slack Questions: Examine the list of requirements  
+questions posted in the Slack channel. Identify which points have already  
+been addressed.
+
+[Will Gordon] Document VAST Permissions: Research the required realm names  
+and access levels to implement the principle of least privilege. Codify  
+these findings into the project documentation.
+
+[Avishay Traeger] Review PRDs: Examine new product requirements documents  
+shared in the OSAC storage channel. Provide feedback promptly to maintain  
+project momentum.
+
+[The group] Update UI Requirements: Communicate to the user interface team  
+the specific backend configuration information and input fields required  
+from users. Ensure the requested data points align with registration and  
+tier creation processes.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

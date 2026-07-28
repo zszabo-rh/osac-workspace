@@ -1,0 +1,102 @@
+[PROCESSED 2026-07-17]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Volumes Architecture (Contd.)” Jul 16, 2026
+Date: Thu, 16 Jul 2026 16:05:25 +0000
+---
+Notes from “OSAC Volumes Architecture (Contd.)”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on July 16, 2026, 6:02 PM CEST and may  
+contain errors.
+
+
+Summary
+The team established a storage architecture via Kubernetes container  
+storage interface drivers and prioritized upcoming development milestones.
+
+
+Storage Architecture and Workflow
+The team reached a consensus to implement 1 storage class per tier to  
+maintain operational consistency across clusters. All storage requests will  
+bypass standard creation logic to communicate directly via remote procedure  
+calls.
+
+Repository and Operational Strategy
+Participants agreed to create a separate repository for the container  
+storage interface driver to ensure independent management. This driver will  
+be deployed with an operator to support enterprise requirements and  
+certification.
+
+Project Planning and Management
+Development will follow a structured approach using epics for demoable work  
+like storage volumes and private volume APIs. The team will refine Jira  
+tickets to reflect these distinct features.
+
+
+Suggested next steps
+
+
+
+[Roy Golan] Document Workflows: Draft the VM and volume creation workflow  
+documents to clarify the resolution mapping from tier to backend.
+
+[Roy Golan] Create Repository: Request the organization admin to create a  
+new repository for the OSAC CSI driver or update the GitHub configuration.
+
+[Akshay Nadkarni] Update User Flows: Add notes regarding day zero storage  
+configuration issues to the user flows.
+
+[Roy Golan] Create CSI Repository: Establish the CSI driver repository and  
+configure all associated infrastructure components.
+
+[The group] Clarify Reconciliation Strategy: Present the storage  
+reconciliation tool question to the wider OSAC team. Identify the preferred  
+tool for cluster reconciliation between GitOps, ACM, or AAP.
+
+[Roy Golan] Verify Hub Assumption: Confirm with Abisha whether the current  
+single hub cluster assumption remains valid for future scaling.
+
+[Roy Golan] Update Deployment Docs: Expand the deployment option  
+documentation to include full elaboration.
+
+[Akshay Nadkarni] Share Work Breakdown: Distribute the selected VO.2  
+deliverables based on the work breakdown from section 7.
+
+[Akshay Nadkarni] Sync Jira Process: Verify the updated Jira process with  
+Ronnie or Iran and provide an update to the team.
+
+[Ronnie Lazar] Update Jira Skills: Request Run to update the skills for the  
+new epic per version schema.
+
+[Akshay Nadkarni] Draft Jira: Outline the work structure using epics for  
+the storage control plane and CSI driver components.
+
+[Akshay Nadkarni] Schedule meeting: Organize a core team session on Monday  
+to discuss requirements for the control plane service.
+
+[Roy Golan] Write proposal: Document a high-level design plan for the  
+storage control plane service to present to WAN.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

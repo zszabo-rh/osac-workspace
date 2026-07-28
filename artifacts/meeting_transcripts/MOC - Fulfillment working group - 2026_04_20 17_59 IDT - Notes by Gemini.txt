@@ -1,0 +1,680 @@
+[PROCESSED 2026-04-21]
+﻿📝 Notes
+Apr 20, 2026
+MOC - Fulfillment working group
+Invited Juan Hernández Michael Hrivnak Adrien Gentil Alona Paz Oved Ourfali Tzu-Mainn Chen Taj Salawu Thorsten Schwesig Jason Kary Nora Haxhidautiova Danni Shi Joachim Weyl Jason Schlessman Isaiah Stapleton Dylan Stewart Orran Krieger Austin Jamias Surbhi Kanthed Meera Malhotra Elior Erez Trey West Avishay Traeger Elad Tabak Eran Cohen Akshay Nadkarni knikolla@bu.edu Ygal Blum Piotr Kliczewski Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Siddarth Royapally Ilya Skornyakov Dakota Crowder Ori Amizur Will Gordon Omri Hochman Alexander Chuzhoy Elay Aharoni Liat Gamliel Rom Freiman Lars Kellogg-Stedman Dmitry Tantsur Christopher Tate Jen Stacy Simone Ferlin-Reiter Heidi Dempsey Marek Grac Maor Friedman
+Attachments MOC - Fulfillment working group
+Meeting records Transcript Recording 2 Recording 3 Recording 
+
+
+
+
+Summary
+Roadmap discussion emphasized complete demos for finalized features, spurring a detailed debate on Cluster as a Service storage implementation and its necessary API alignment with VM as a Service.
+
+Roadmap and Demo Policy
+The OSAC roadmap includes epics for cluster and bare metal services, with an emphasis that demos should only occur when an epic is fully completed and merged. There was discomfort expressed about relying heavily on the Jira calendar for demo scheduling, suggesting a need for a more definitive completion metric.
+
+Cluster Storage Strategy Review
+Storage for Cluster as a Service lacks definition, prompting discussion of options like using a provider's Container Storage Interface (CSI) driver or implementing an OSAC CSI driver for centralized quota management. It was decided that determining if the Cluster as a Service storage API should be shared or separate from the VM as a Service API is urgent.
+
+GPU Instance Types and Automation
+Demos showcased VM provisioning with networking and GPU pass-through, leading to concerns that creating new Ansible templates for every GPU type requires excessive administrative effort. Discussion concluded that instance types must be defined consistently across bare metal and VMs, requiring automated configuration to ease the cloud administrator’s workload.
+
+
+
+
+Next steps
+* [The group] Update Road Map:[a] Review the OSAC road map document for epics demo dates. If dates are incorrect, inform Alona to update the plan. If an epic lacks a date, contact Alona to schedule one.
+* [Will Gordon, Avishay Traeger, Zultan H, Lars] Coordinate Storage API: Schedule a meeting to coordinate storage API design for VM as a service and cluster as a service. Ensure work avoids duplication between services.
+* [Adrien Gentil] Rerecord Demo: Rerecord the VM networking demo using only the public API. Show the console, VM connectivity, and security group functions working. Share the complete recording on the Osac channel.
+* [The group] Automate GPU Config: Create automation to configure the HyperConverge CR for new GPU support.
+* [Avishay Traeger] Open Epic: Open a new epic to track the work on instance types.
+* [Michael Hrivnak] Define GPU UX: Define the desired user experience and flow for utilizing GPUs and instance types.
+* [The group] Automate Demo: Automate the VM as a Service demo creation process.
+
+
+
+
+Details
+* OSAC Roadmap and Epic Management: Alona Paz introduced a document for the OSC road map that includes epics from Jira for cluster as a service and bare metal as a service. They requested that all individuals working on an epic review the document and notify them if the proposed demo date is inaccurate or if a date needs to be added (00:00:00). Oved Ourfali mentioned they added dates to some epics but expressed some discomfort with relying heavily on the Jira calendar for scheduling. Alona Paz emphasized that demos should only occur when an epic is fully complete, merged, and the feature is ready to be presented (00:01:20).
+* Discussion on Storage for Cluster as a Service: The discussion moved to storage, focusing on generic storage API, multi-tier storage, and tenant onboarding for storage class, which are primarily related to VM as a service. Alona Paz inquired if there were plans to extend the API to cluster as a service. Avishay Traeger and Michael Hrivnak confirmed that little thought has been put into cluster as a service storage, with Tzu-Mainn Chen indicating that Lars, who was absent, would be the best person to address the topic (00:02:29).
+* Storage Implementation Options for Cluster as a Service: Avishay Traeger outlined two options for cluster storage: using the provider CSI driver (e.g., install a Pure Storage CSI driver) or implementing an OSAC CSI driver to route everything through the OSAC API for quotas and billing. Will Gordon suggested a third option using a validating admission web hook to feed back into the API for read-only tracking and to reject requests exceeding quota. Michael Hrivnak expressed concern that implementing quota at the Kubernetes layer via a web hook might be too late, suggesting it should occur before Kubernetes (00:03:52).
+* Quota Enforcement and Tenant Control in Cluster as a Service: Will Gordon clarified that there would be two levels of quota: one for the cluster's overall storage usage and another for developers creating Persistent Volume Claims (PVCs) within the cluster. Will Gordon and Michael Hrivnak discussed the challenge of relying on a web hook within a tenant-owned cluster, but Will Gordon noted that control plane web hooks can be used to block even cluster administrators (00:05:18). Ygal Blum asked if clusters provisioned through Ozac are intended to be a target for other services, like container or VM as a service. Eran Cohen and Michael Hrivnak confirmed that cluster as a service is intended to provide a Kubernetes API for tenants to use for their own Kubernetes tasks, with tenants in charge of maintenance (00:06:21).
+* Next Steps for Cluster as a Service Storage: Michael Hrivnak concluded that they need to identify someone to investigate cluster as a service storage, pending Lars's return (00:07:31). Alona Paz suggested that since work on the VM as a service generic storage API is underway, determining if the cluster as a service API should be shared or separate is urgent. Will Gordon confirmed that an enhancement proposal for the OSAC storage provider and storage class API is being planned (00:08:35).
+* Preventing Duplication in Storage API Development: Alona Paz requested a meeting between Will Gordon, Avishay Traeger, Zultan H, and Lars to ensure they avoid duplicating work on the API pieces for VM as a service and cluster as a service. Michael Hrivnak stressed the importance of mapping out the complete high-level picture of the storage architecture before detailing enhancement proposals to avoid conflicts and overlapping work (00:09:47).
+* Unblocking Pending Tasks: Catalog Items and VM Console: Juan Hernández reported that a proposed alternative for catalog items based on cluster templates was closed due to negative feedback, indicating they should proceed with the original proposal (00:10:47). Michael Hrivnak suggested that whoever is interested should set aside time to finalize the initial catalog items proposal, which was incomplete. Alona Paz confirmed that the VM console epic, which Zultan worked on, is merged, resolving that dependency (00:11:44).
+* Unblocking Pending Tasks: DNS Enhancement Proposal: Eran Cohen raised the need to unblock Dan Manor's DNS enhancement proposal, which had received comments. Eran Cohen suggested simplifying the approach, focusing on functionality rather than immediately creating a large generic project like an Ansible collection (00:11:44). Michael Hrivnak and Eran Cohen agreed that the implementation should be done in a way that allows for generalization in the future without making extra work to be completely generic immediately (00:13:16).
+* Importance of Demos and Demo Planning: Oved Ourfali discussed the goal of utilizing the weekly meeting for showcasing progress and demos, stressing the value of an iterative process that demonstrates how main flows are improved weekly (00:15:29). Alona Paz confirmed adding a demo tab to the agenda to show planned demos for the next three weeks (00:16:35). Alona Paz emphasized that demos should be customer-facing and oriented toward showing feature usage rather than technical code details (00:17:41).
+* Networking and VM Provisioning Demo (Adrian Gentil): Adrien Gentil presented a demo on provisioning networking, subnets, and two VMs (one a web server and one a bastion) with security groups using the serial console (00:18:56). The demo began by showing tenant onboarding and the creation of a dedicated virtual network and subnet using the Cluster User Defined Network (CUDN) for isolation (00:19:40). The demo created a security group to deny traffic, then a web server and bastion VM, but encountered a bug where the bastion VM was created in the wrong namespace, preventing the full connectivity demonstration (00:25:52) (00:28:58).
+* Follow-up for Networking Demo: Alona Paz requested that Adrien Gentil re-record the demo using only the public API, ensuring it shows the console access and proper connectivity between VMs (00:33:04). Alona Paz noted that the functionality is present and the issue was a small bug, further mentioning future features for VM as a service, including multi-tenancy, extended storage, and public IP using load balancing. Adrien Gentil confirmed plans to share the re-recorded demo on the Osac channel (00:34:04).
+* GPU Pass-Through Demo (Juan Hernández): Juan Hernández presented a recorded demo on creating a virtual machine using GPU pass-through. The demo showed an environment with available Nvidia GPUs configured for OpenShift virtualization (00:37:40). Juan Hernández demonstrated modifying the Ansible Automation Platform (AAP) configuration by adding a new role and template to support the GPU device name, which then allowed for the creation of a VM using that specific GPU template without having to specify GPU details in the VM YAML file (00:39:51) (00:43:58).
+* Discussion on Instance Types and GPU Configuration: Oved Ourfali questioned if a generic template could support both GPU pass-through and non-pass-through, and how to handle different GPU types (00:44:57). Juan Hernández suggested that system administrators should create and publish different templates for various GPU types, treating them as VM instance types for users to select (00:46:17). Avishay Traeger proposed opening an epic for instance types, which Michael Hrivnak agreed is necessary to define instance types that are consistent across bare metal and VMs (00:49:52).
+* Improving GPU Configuration User Experience: Alona Paz expressed concern that creating a new Ansible template for every GPU type requires too much administrative work, suggesting the GPU type should potentially be part of the VM compute instance API (00:51:41). Alona Paz and Michael Hrivnak agreed that the process should be automated, making it easier for the cloud administrator, and Michael Hrivnak supported thinking about instance type definition as a selector rather than a free-form field (00:53:17). Will Gordon highlighted the need for tracking inventory, similar to how AWS manages capacity per region (00:55:40).
+* Conclusion and Final Follow-Up Items: Due to time constraints, the two remaining planned demos were tentatively rescheduled for Wednesday. The key follow-up items include automatically configuring the Hyperconverged CR. Avishay Traeger committed to opening an epic for instance types (00:56:51). It was decided that they will continue the discussion in the next meeting to determine the desired user experience regarding GPUs and instance types (00:58:09). Oved Ourfali suggested evolving the VM as a service demo to iteratively include new features, such as GPU pass-through (00:59:09).
+* Demo Strategy and Impact: Oved Ourfali suggests focusing demos on aspects that are more customer-visible and impactful, particularly those that could be shared externally. The discussion centers on ensuring demos, such as the VM as a Service, effectively showcase new capabilities like GPU pass-through from a user perspective. Alona Paz agrees that a full VM as a Service demo doesn't need re-recording for every new feature, but suggests periodic updates to incorporate all new features (01:00:23).
+* Automation of Demos: Adrien Gentil proposes automating the demo process to streamline updates and maintenance. Oved Ourfali concurs, noting that new features might essentially be represented by a simple flag or a checkbox in the user interface. They believe that automating the demo flow would address the challenge of constantly updating materials as new features are integrated (01:00:23).
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 20, 2026
+MOC - Fulfillment working group - Transcript
+00:00:00
+ 
+Alona Paz: Uh so we have a lot of content for today. Uh I will go over uh the agenda. Um so first of all I've created I've created a doc for uh the OSC road map. Um it contains I I believe all the epics that we have in in the Jira and also some of the epics for uh bare metal as a service um uh at least the ones that we depend on uh for uh cluster as a service. the things that uh Tumin presented uh and uh some of them have already a date of uh when it should be demoed. So uh please any of you that is working on any epic uh uh take a look and see if the demo date makes sense. If not uh let me know and uh uh we can change it. And uh if you have an epic and there is no demo date also uh please contact me and uh uh let's add a demo date there. Uh any questions about it?
+Oved Ourfali: I did add a date to some of the epics.
+ 
+ 
+00:01:20
+ 
+Oved Ourfali: I don't know if we want to use that.
+Alona Paz: Mhm.
+Oved Ourfali: Uh I think it's comfortable, especially now with the Jira clothes skills like uh um but again, I'm not I'm not a huge fan of using that. I wasn't a huge fan of using it in the past, but I do think it's beneficial. So, I leave it up to others to see if it's it makes sense or not. I did set up a few of those.
+Alona Paz: Mhm.
+Oved Ourfali: Uh um yeah.
+Alona Paz: So yes, you can put a date, but for me it's the most important is that uh we will know uh when uh when the epic is going to be demoed and uh I want epic to be demoed only when it's like really done closed merged and uh the feature is over and you can present it. So if it's not the state or far from it uh uh let me know. Uh so uh we will update the date and we will think what can or we will add more people will think what can be done uh uh to make it uh presented uh uh on the relevant date on the day that is in on the dock.
+ 
+ 
+00:02:29
+ 
+Alona Paz: Uh okay next issue uh storage here. Yes. So uh we have a few epics for uh generic storage API and uh multi-tier uh storage right and uh and tenant on boarding for storage class. Uh as far as I understand they are all uh VM is a service related uh Aishai is there any plan to extend it to cluster as a service at least the API
+Avishay Traeger: Uh Will and I were just talking like what storage for clusters of favorite look like. I don't know if someone designed this already or has thoughts, but I don't know what it looks like.
+Michael Hrivnak: Yeah, I don't think there's, as far as I know, there's not been much thought put into that yet. That's an area that definitely needs
+Alona Paz: L Heidi I don't know who is here from your side did
+Michael Hrivnak: attention.
+Alona Paz: you think about it work on it on some level storage for cluster There
+Oved Ourfali: I see neither large and hide there unless I miss someone.
+Alona Paz: is
+Oved Ourfali: Maybe mean. Yes.
+ 
+ 
+00:03:52
+ 
+Tzu-Mainn Chen: Um, yeah, I I don't know the answer to that. I just know that Lars is out today. Um,
+Alona Paz: man.
+Tzu-Mainn Chen: but uh he he he'd probably be the best qualified to answer that.
+Avishay Traeger: I mean the two I mean at a very high level the two options are either use the provider CSI driver in the users cluster. So for example, install this vest or pure storage CSI drivers in
+Michael Hrivnak: Mhm.
+Avishay Traeger: there or we implement an OSAC CSI driver and then everything goes through our API similar to EKS calls EBS APIs and then everything goes through these quotas and billing and and so on.
+Will Gordon: and the third option that I literally just thought of was if we did a validating admission web hook. In other words, we can use that to feed back into our API for readonly things like, hey, here's a volume that's being used. And we can also use it to reject the request if it exceeds quota.
+Michael Hrivnak: I think we generally want well we'll get to quota soon hopefully uh after a thing or two otherwise but I think if we've gotten to the Kubernetes layer it's too late like we should be doing quota before we get to Kubernetes.
+ 
+ 
+00:05:18
+ 
+Alona Paz: I
+Will Gordon: Well, there there'd be two quotas, right? I mean,
+Alona Paz: can't
+Will Gordon: there's there's a quota in terms of how much storage can a cluster use, but then in terms of of, you know, I want a PVC for my application. I'm a developer. Like, I'm not even an or admin, right? I'm just a developer. I want a PBC in my cluster. That's a gig. You know, they're not going to be a developer isn't going to be interacting with with OSAC, I would assume, right? Just like if you have an EKS cluster, developers are going to interact with EKS, not with
+Michael Hrivnak: That's fair.
+Will Gordon: AWS.
+Michael Hrivnak: I guess if it's if it's a cluster that is owned by a tenant like cluster as a service, we can't run the web hook or we can't really depend on a web hook in that cluster to keep the tenant in line because it's their cluster. But we we can dig into that.
+Will Gordon: Yeah, there are ways to run the web hooks on the control plane side where they can't be modified by even a cluster admin.
+ 
+ 
+00:06:21
+ 
+Will Gordon: We experimented with that on Rosa. Um, so you can put hooks in HCP that block even cluster admins.
+Michael Hrivnak: Okay, that's interesting. You
+Ygal Blum: I was just wondering about that point because we have similar uh questions in
+Michael Hrivnak: go.
+Ygal Blum: DCM. So clusters that are uh provisioned through Ozac are them meant to also be a target for like let's say you have container as a service or VM as a service on a on a using cube. Do you intend to do something to close the loop there so that you can provision a cluster but then it also becomes a target of VMs for Ozac or is it just like I created a cluster then that cluster is mine and and out of touch from Ozac. It links also to the quota but also for other use
+Eran Cohen: the latter,
+Ygal Blum: usages.
+Eran Cohen: I
+Michael Hrivnak: Yeah, cluster as a service is you,
+Eran Cohen: think
+Michael Hrivnak: you know, the tenant wants a Kubernetes API to then do Kubernetes stuff with. So, we give them a cluster as a service that they can then use.
+ 
+ 
+00:07:31
+ 
+Eran Cohen: to a level which I think they are in charge of upgrading it,
+Michael Hrivnak: Yeah.
+Eran Cohen: maintaining everything.
+Michael Hrivnak: Yeah, we can talk, you know, additionally about to what extent could that be a managed cluster.
+Will Gordon: Yeah, sounds like having VMs on a on a Cass, like a OSAC VM on a Cass is just like turtles all the way down.
+Michael Hrivnak: Yeah.
+Will Gordon: It seems like a bad idea to keep nesting
+Ygal Blum: All right, cool. Thanks,
+Michael Hrivnak: Uh short story is sounds like we need well unless Lars we can check in with him when he's back. Uh we need to maybe appoint somebody to dig into clusters and service storage.
+Avishay Traeger: Yeah,
+Will Gordon: Yeah. Do we just have a a separate call?
+Avishay Traeger: I think Yep.
+Will Gordon: I don't know, sometime this week with Lars or something.
+Oved Ourfali: mean,
+Michael Hrivnak: Yeah.
+Oved Ourfali: do you know when he's bad?
+Tzu-Mainn Chen: Uh, he'll be back tomorrow.
+Oved Ourfali: Oh, okay.
+Tzu-Mainn Chen: I mean, would the Wednesday call just be fine for that?
+Oved Ourfali: We can start them,
+ 
+ 
+00:08:35
+ 
+Alona Paz: like Yes.
+Oved Ourfali: I guess, and then see if we need
+Alona Paz: But because uh we are already working on the generic API for
+Michael Hrivnak: probably.
+Alona Paz: the VM as a service storage uh I wonder if it's not a bit more urgent if we want some kind of a shared a at least API or do we think it should be
+Michael Hrivnak: Mhm.
+Alona Paz: completely separate API? I really don't understand a lot about storage so I can't tell.
+Michael Hrivnak: I would expect commonality, but I haven't looked at is there a proposal open right now for a storage API or
+Alona Paz: I think I think there is right
+Michael Hrivnak: something.
+Alona Paz: Aishai.
+Avishay Traeger: I don't think so. Adrian, you didn't do it, right?
+Adrien Gentil: No,
+Avishay Traeger: You open that big
+Adrien Gentil: no. Open the epic. That's is
+Will Gordon: Yeah, there's different levels. I was planning on submitting an enhancement proposal for um cuz ROM is having me look at at the vast storage um integration and so like the idea of having a OSAC storage provider API OSAC storage class API that's you know on the on the org level
+ 
+ 
+00:09:47
+ 
+Alona Paz: But it makes sense to have the same for VM as a service.
+Will Gordon: um right so like
+Alona Paz: So I don't want like us to have duplicate work on the
+Will Gordon: storage yeah storage provider and storage class would be kind of the the higher level things and then
+Michael Hrivnak: Yeah.
+Alona Paz: same
+Will Gordon: whether it's VM as a service cass you would specify this is the storage class that my VM is using that my cluster is using and it wants to use you know 10 gigs or whatever um and then anible handles the provisioning piece
+Alona Paz: Mhm. So will so will Aishai I think Asha is involved there as well.
+Michael Hrivnak: Oh
+Alona Paz: Zultan H and large please uh have a
+Michael Hrivnak: s***.
+Alona Paz: meeting so we won't get to a situation that you are working on like the same pieces for VM as a service and cluster as a service and we'll have some kind of duplication in the API
+Michael Hrivnak: Yeah, we really ought to start with mapping out the complete picture even just at a high level before we get into enhancement proposal detail necessarily.
+ 
+ 
+00:10:47
+ 
+Michael Hrivnak: Not that we should block anybody from like if you are ready to start digging into the some of those pieces great. But also it'd be great to have the big picture like a lun so we can make sure we're like one not overlapping or conflicting and two understand the complete direction that we need to
+Alona Paz: Yes, exactly. Uh, okay. Thank you.
+Michael Hrivnak: go
+Alona Paz: Perfect. Uh, okay. Unblock pending tasks. So, I see that uh the catalog items was unblocked. I didn't notice how how what what unblocked it.
+Juan Hernández: Uh I made an altered proposal to what Michael proposed initially based on using cluster templates. It got some negative feedback from both Michael and Eron. So I close it. So we should move ahead with the original one.
+Alona Paz: Oh,
+Juan Hernández: So what is needed to complete to match that enhancement proposal and move
+Alona Paz: okay.
+Juan Hernández: forward?
+Michael Hrivnak: Okay, maybe we should set up some time for whoever's interested to finish even
+ 
+ 
+00:11:44
+ 
+Alona Paz: Okay.
+Michael Hrivnak: designing that that first proposal. I think it was basically a draft and is not really complete.
+Alona Paz: Okay. So, we need to assign somebody to finalize this proposal and then implement it. Okay. Uh so, we have an agreement to go with this direction. Okay. I've noticed VM I think uh Zultan you worked on it VM console uh all the the whole epic I now it's merged okay outdated great we can go to the demos nothing one block perfect anything anybody else is blocked and want to use this
+Michael Hrivnak: What?
+Alona Paz: forum uh to ask for a
+Eran Cohen: Yes, I think I think there's just the DNS enhancement that Dan did which I think I got lots of comments
+Michael Hrivnak: What's wrong?
+Alona Paz: review.
+Eran Cohen: but I think we just want to start simple having the functionality not creating like a community project with like anible collection. And
+Dan Manor: I
+Eran Cohen: let's try again.
+Dan Manor: agree.
+Eran Cohen: I want
+Michael Hrivnak: Is there a a particular open question remaining or we just need to get people to approve or what?
+ 
+ 
+00:13:16
+ 
+Eran Cohen: I think it's just you asked if we can make something generic and I think we don't want to
+Michael Hrivnak: Mhm.
+Alona Paz: English.
+Eran Cohen: but we can discuss
+Michael Hrivnak: I I think my maybe uh well what I imagine I might have had in mind at least what I have in mind right now would be not like doing extra work to make something generic and like start up a whole big new thing with like
+Eran Cohen: No more.
+Michael Hrivnak: but just doing it in a way that's like well if it's not specific to it doesn't need to be OSAX specific let's just try to implement it in a way that's not OSAC specific.
+Eran Cohen: Okay, I agree. I agree. Let's try to design it in a in a way that it's generic and then see if
+Dan Manor: Yeah, I mean hypothetically I would I agree but because we don't want to do extra
+Eran Cohen: Okay.
+Dan Manor: work to make it completely non OSAC dependent then we just want to implement what we need for OSAC so we can't really untie it from OSA
+ 
+ 
+00:14:18
+ 
+Eran Cohen: So, put it in the OSA collection. It's fine.
+Dan Manor: right
+Eran Cohen: But
+Michael Hrivnak: Yeah, maybe
+Oved Ourfali: Don't do something Don't do something I guess that would block generalizing it in the
+Michael Hrivnak: Ozak.
+Oved Ourfali: future I guess is the right I mean
+Eran Cohen: Okay, we're
+Dan Manor: okay sounds good then uh then if someone can uh The
+Michael Hrivnak: Yeah.
+Eran Cohen: good.
+Dan Manor: final look or to make our progress with it would be great.
+Alona Paz: Okay. Anything else we need to unblock? Anyone feels that his block needs needs any feedback here? Nope. Okay, let's go to the demos. We have a lot of demos today. So, Adrian, a technical question. And do you know if I will stop the recording and start it again then I will have uh another uh like more than one recording or it will be contacted to the same one.
+Avishay Traeger: theoretically. Yeah.
+Oved Ourfali: I know there should be dependent recording independent recordings but
+Alona Paz: Let's try.
+ 
+ 
+00:15:29
+ 
+Oved Ourfali: uh
+Alona Paz: So I will stop the recording and start a new one. So we will have uh Okay, perfect. So each
+Oved Ourfali: okay just before we start just before we start uh just one comment like we we want to try and make a use and I I sent it on Slack as well to use the opportunity we meet once a week here in this forum and have an hour uh in order to show the the different progress, show the different demos and create a plan on what demos we plan to show each week. Uh so that's uh what we're starting to do now. Instead of creating yet another call to do that, we figured using this one as a starting point would be better. Uh because we know everyone's busy and adding more calls is not helpful. Um so um that's uh that's kind of and so this is the first I guess time we're doing it uh starting this uh week. So um we expect to see more and more in the upcoming weeks and uh as Elena mentioned she worked on a plan on what should be done each week like what should be demoed and let's try to increase it further.
+ 
+ 
+00:16:35
+ 
+Oved Ourfali: Um and the idea is to show also the main flows we have and how those improve on a weekly basis like okay we have we have as a service now we added for example the GPU pass through so we can show it you know okay this was added we had a a networking functionality we can show that we can show cluster as a service and show how we add more and more pieces to it and that would be also something uh that has value of sharing outside of this
+Eran Cohen: It's
+Oved Ourfali: for So um yeah solo not
+Eran Cohen: okay.
+Alona Paz: Yes. And I I've added also a tab to the agenda. I've added an extra tab for the demos. So, uh we can see the demos for the next three weeks uh in this tab. And uh we will always add one week after the demos. Uh so we'll have three weeks ahead uh some view of the demos. Of course, if it's not ready, we can move. And uh the demos should be uh customerf facing oriented like not uh explaining uh very technical details and and code.
+ 
+ 
+00:17:41
+ 
+Alona Paz: It should be really showing usage really showing uh something that we can show the customer like okay you can you are running the VM you can do do this feature that feature uh without uh very technical details. Okay. So, I'm stopping the recording and starting for Adrienne's demo. Adrienne, are you ready?
+Adrien Gentil: I will Five.
+Alona Paz: Stop and
+ 
+ 
+Session ended after 00:18:09
+ 
+00:18:56
+ 
+Adrien Gentil: I will show you a demo. So that will be a live demo. I hope it won't be a disaster. Uh so I will show you a demo where we provision some uh networking. Uh so a virtual network uh then we will pro provision a subnet. We will spawn two VMs in those in this subnet. Um one one of those VM will be a web server. uh we will assign a security group on that whatsoever and we will try to demonstrate that uh the that the the the security group is working. So at the beginning the security group will be will deny all the traffic then I will open the port 80 and I will try to um to curl that web server from the other
+ 
+ 
+00:19:40
+ 
+Eran Cohen: Oh
+Adrien Gentil: VMs.
+Eran Cohen: god.
+Adrien Gentil: Uh and then doing that I will I will show you also the the console. Uh so we have we have access to the sale console uh for to access the VMs and that will be it I think and yeah we'll be able to talk uh so first before we create the VMs and so on when the cluster is empty I need to create a tenant so that that's something that should be done by the cluster admin so we need to onboard a tenant so for that uh we need to define uh a CR so the tenants here uh and say okay the name of my tenant is oac my my my tenant and we need uh to associate uh storage class to it. So I created my own storage class which is this one and when I create that that storage class I need to label it with the tenant that will be using it. So now I have my own tenant with my own storage class and uh hopefully uh it won't be a disaster.
+ 
+ 
+00:20:58
+ 
+Adrien Gentil: Uh let's see if it works. So I have a script um that will u that will discover so the the network classes that we have in uh in the in this setup. So we have only one network class which is the CUDN one. That means that when I equate the network uh and I put the VMs in in it uh it will use uh the CUDM. So the cluster cluster user user defined network uh that will spawn the VMs in a completely isolated network. So they they will be completely isolated from other um things other workload on that cluster. So it's it's very technical from the from the customer point of view uh because it depends on the feature of um of open shift. So here we created the virtual network. We are creating a subnet. So as I said at the moment we are using this the cudn uh the subnet is uh we can have only one subnet. Uh in the future we we expect that we will be able to have several rooted rooted subnets inside the virtual network like you you can have inscets.
+ 
+ 
+00:22:25
+ 
+Adrien Gentil: So it's a limitation for the moment. So currently it's creating I know if you want to add something around on the networking side
+Eran Cohen: We can't show like the underlying resources but it's
+Adrien Gentil: I will show a bit uh I can show
+Eran Cohen: okay.
+Adrien Gentil: you. So uh here we have we have a virtual network that should be here virtual network. So here you see that uh this one was created uh not ago and then inside it we created some interface is ready I don't know what is the state now so now we will create a security group that will deny all the invoices so same I think we have a security that will be there you uh okay so I didn't say but the subet so when you create a subet it creates um a name space so I should have a name space with that name like
+Eran Cohen: Yes.
+Adrien Gentil: yeah you have to table for the
+Eran Cohen: And and here you can see that
+Adrien Gentil: UDN.
+Eran Cohen: Yes.
+Adrien Gentil: Uh we should we should see the cluster uh cluster uh user network user define network as system.
+ 
+ 
+00:24:29
+ 
+Adrien Gentil: So that should be Oh yeah, I selected the whole thing. Uh that should be this one I
+Eran Cohen: Yes. So nice.
+Adrien Gentil: think.
+Eran Cohen: You can see it's a layer two. You can see the subnet there.
+Adrien Gentil: Yeah, you can see
+Eran Cohen: So we spin up with this subnet should get an address in
+Adrien Gentil: the
+Eran Cohen: this network
+Adrien Gentil: Yeah. Okay.
+Eran Cohen: side.
+Adrien Gentil: So now we have created a security group. Uh that should be uh if you that's um what's called what is called already network policy network policy.
+Eran Cohen: policy.
+Adrien Gentil: So you you see it here. So at the meaning uh the yeah we should deny all inquisies at this point. Uh now we create the VM. So we create a web server. So with a cloud in it I injected. So it's not shown here but I inject um the configuration for an engine server. And then you have a bastion just for the sake of the demo where I I will be able to connect on it um using the the the sale console.
+ 
+ 
+00:25:52
+ 
+Adrien Gentil: So if I use the fulfillment as CLI get compute instance. So they are starting. So I have two test instance that are not not part of this demo. But I have those two ones. So the web server and the and the bastion. Uh we can get some details about um about the the instance. So here it was created. You see um so in the spec we we have a small VM with 20 gigs gigs for the the boot drive to cause we use a federal image four gigs of RAM always u always started we associate a security group that one uh we associated to a subnet. So it means that the VM will be will be spawn on the in the the lens space I showed you before. We use the template that you have by default in in um in OAC uh with some default parameters for the for the exposed port. So we open we open the SSH uh the user data and then here you have the state of the instance.
+ 
+ 
+00:27:15
+ 
+Adrien Gentil: So us the state is representing the life cycle of the instance where it is. So if it's uh provisioning ready deleting and then here in the conditions you have the what is happening to the instance. So that's basically it. Uh and if we look at the Vans uh in that one uh I should have so I have one VM currently that is starting. I don't know why the other one will be spawned soon I think. Uh and yeah let's let's see what is so yeah the web so that that one is a web server and the other one we are waiting for it I hope it will be it should be
+Oved Ourfali: Adrian, is it all running as a tenant or is That's me
+Adrien Gentil: Uh I still have a bug.
+Oved Ourfali: again.
+Adrien Gentil: I don't know why. So yeah, the VM. So here is it's running as a tenant in for in their subet in the tenant submit. So this one this subnet that was created is dedicated to that is assigned to that.
+ 
+ 
+00:28:58
+ 
+Adrien Gentil: So I have a bug in that demo. Uh I don't know why it created the the the other VM uh not in the white name space. I don't know why it does that. Need to check that. Maybe you have a bug.
+Eran Cohen: Can you show the the VM definition that it actually tries ask for that
+Adrien Gentil: Uh
+Eran Cohen: subnet?
+Adrien Gentil: uh yeah uh when I looked at it I I had the bug just before. I don't know. I thought it was fixed but yeah they somehow it's not labeled with the with the subnet. I don't know why. And if you look at the definition, I think it's the question here uh we have the subnet. So I don't know maybe maybe there is a race or something that makes it uh create doesn't create uh in the right place. Oh well. Okay. Um I won't be able to show you the web service and so on. uh but I can show you. Uh so we have my compute instance here that is ready and here so we can access the serial console or that one the web server maybe okay and here I have access to web console I can connect because well uh I didn't define any any password for that user but that's That's how we can uh we can connect on the
+ 
+ 
+00:30:42
+ 
+Adrien Gentil: on on on the on the VMs directly. Um what I show you uh more because we don't have that at least I show you the main point and the the main um what we create mainly in uh in the scope of that uh of this flow. Uh and yeah, um I wanted to show you a bit.
+Eran Cohen: The bastion isn't starting because it's in the wrong name
+Adrien Gentil: Sorry. Yeah. Yeah.
+Eran Cohen: space.
+Adrien Gentil: I the fulfillment service and all the all the processes that you have expected expect the VM to be in um in the subnet I mean in the
+Eran Cohen: Okay, I
+Adrien Gentil: name space. So we are watching there uh but it's not creating there.
+Eran Cohen: see.
+Adrien Gentil: So it's it will stay uh waiting like that. That that's a
+Eran Cohen: All right.
+Adrien Gentil: shame.
+Eran Cohen: I guess the way to debug is looking at the AAP and what
+Adrien Gentil: Yeah.
+Eran Cohen: what the route did.
+Adrien Gentil: The thing is that because in the AP we don't have the label uh AP will create it in the tenant name space.
+ 
+ 
+00:32:03
+ 
+Eran Cohen: Oh,
+Adrien Gentil: So in my different space.
+Eran Cohen: so it's going back to the default because because I know I like a
+Adrien Gentil: Yeah.
+Eran Cohen: default in case no one bo to do the networking piece that there's going to be some default name space
+Adrien Gentil: Yeah. Exactly.
+Eran Cohen: and
+Adrien Gentil: So that that's why it creates it in in my default name space and because we don't have the label.
+Eran Cohen: okay
+Adrien Gentil: So the the problem is not on side. It's here why the L is not propagated properly in the in the computer instance here. I don't know why that's really we need to take care. Um yeah I think we can I'm sorry for that it was live. Um,
+Alona Paz: No problem.
+Eran Cohen: Okay.
+Adrien Gentil: yeah.
+Alona Paz: But we will have to re to re-record
+Eran Cohen: Thank you.
+Oved Ourfali: Are you are you the public or private
+Adrien Gentil: Yeah. Yeah. Do a proper recording.
+Oved Ourfali: APIs in order to create the VM?
+Alona Paz: it.
+ 
+ 
+00:33:04
+ 
+Oved Ourfali: That's what I was trying.
+Adrien Gentil: It's public.
+Eran Cohen: I
+Oved Ourfali: Okay.
+Adrien Gentil: Yeah,
+Oved Ourfali: Mhm.
+Adrien Gentil: it's public. So, here it's using the private API. I'm not sure for the Yeah,
+Eran Cohen: Thanks.
+Adrien Gentil: we should be able to use the public API for networking as well.
+Alona Paz: Okay.
+Adrien Gentil: So I used the I used the the clo scale to to do that that uh committed.
+Alona Paz: So,
+Adrien Gentil: It's nice but yeah it's more my side more
+Oved Ourfali: because I think it can be useful to can be useful.
+Adrien Gentil: my side than
+Oved Ourfali: Yeah,
+Adrien Gentil: Yeah.
+Oved Ourfali: I think it can be useful to share this demo with the UI team as well as they're working on uh
+Adrien Gentil: Yeah.
+Oved Ourfali: uh and so that's that was the reason for the question around public or private because if there are different things we want the UI to do then uh uh
+Alona Paz: Uh but anyway, please re-record the demo using only the public API, I guess.
+Adrien Gentil: Yeah.
+Alona Paz: uh and uh also showing uh the the console and the connectivity
+ 
+ 
+00:34:04
+ 
+Adrien Gentil: Yeah.
+Alona Paz: between uh the VMs and maybe that there is no connectivity between VMs on different uh virtual networks and that uh the security group is working and if you can share it on the Osak channel when it's ready so we can share it.
+Adrien Gentil: Yeah, I will do that. I will do that.
+Alona Paz: Uh, perfect. Thank you.
+Adrien Gentil: Perfect. I don't know.
+Alona Paz: And uh, yes, but you know, we have the functionality and it's just it's just a small
+Adrien Gentil: Yeah.
+Alona Paz: bug and uh, maybe just uh, you can mention it in the demo that you will record, but we can mention it now as well that uh, uh, going forward uh, we will have or multit. So there will be operations that uh um so we can show like VMs belong in belong to different users in different organizations and what is visible to to which one and uh we will have uh we will extend all the storage and uh we will have uh public IP to the VM and u using LLB um and more features uh to extend this uh VM as a service story.
+ 
+ 
+00:35:34
+ 
+Adrien Gentil: Yeah, we also have the feature that with the dedicated virtual machine uh
+Alona Paz: Uh
+Adrien Gentil: dedicated cluster for VMAS.
+Alona Paz: yes,
+Adrien Gentil: So, so yeah,
+Alona Paz: Windows VMs
+Adrien Gentil: exactly. If we want to go to separate the control plane of OSAC and the the workloads um the VM workload, we can do that. Um so yeah, it's being improved at the moment and that's
+Alona Paz: uh thank you.
+Adrien Gentil: uh
+Alona Paz: So just to continue the VM as a service story before we move to the cluster as a service. So uh maybe Juan with the GPU
+Juan Hernández: Okay, let me try to share my screen. Okay, can you see my screen?
+Oved Ourfali: Yes.
+Juan Hernández: There it
+Juan Hernández's Presentation: Hi, in this demo I'm going to show how to create a virtual machine using PU pass
+Juan Hernández: goes.
+Juan Hernández's Presentation: through in OSAC. The first thing I want to show is the environment that I'm going to use. This environment is a cluster that uh has already been created.
+ 
+ 
+00:36:43
+ 
+Alona Paz: Juan, sorry, I forgot to stop the recording and and start it.
+Juan Hernández: Okay.
+Alona Paz: So, if you can uh one second,
+Juan Hernández: Anyhow,
+Alona Paz: I will stop.
+Juan Hernández: I do have the recording there already.
+Alona Paz: I'd like to have it
+Juan Hernández: Okay.
+Oved Ourfali: No, he's saying you have
+ 
+ 
+Session ended after 00:37:01
+ 
+00:37:40
+ 
+Juan Hernández's Presentation: Hi, in this demo I'm going to show how to create a virtual machine using the GPU pass
+Juan Hernández: Okay.
+Juan Hernández's Presentation: through in OSAC. The first thing I want to show is the environment that I'm going to use. This environment is a cluster that has already been created. It has this node. I'm going to check the GPUs that we have inside this node. Okay, so we have these eight Nvidia GPUs that we're going to use for them. In addition to that,
+Alona Paz: Eight
+Juan Hernández's Presentation: the node has already well the cluster has already been prepared to support the GPUs. It has all the components that are required installed.
+ 
+ 
+00:38:28
+ 
+Juan Hernández's Presentation: That's outside of the scope of this demo, but I just going to show you that we have some GPUs available
+Alona Paz: breaks.
+Juan Hernández's Presentation: already. So as you can see here these GPUs are already available as resources that can be consumed by the ports in the cluster and in particular as we're going to use virtual machines we're going to use open shift virtualization and open shift virtualization also has to be configured to support uh this GPU pass through we can check that like taking a look at the hyper converge CRD And if we see here this uh hypersift sorry not hypers cube bit has already been configured to support this particular model of GPU. So we should be able to use that when we create the VMs. Okay. The next thing I want to show is that we already have the anvil automation platform configured and it's configured using the default OSAC configuration. So we have this OSAC project and as you can see here it's taking all the playbooks and roles from the default OSAC project configuration.
+ 
+ 
+00:39:51
+ 
+Juan Hernández's Presentation: What I going to do next is I'm going to change that to add a new template. If we look at the templates that we have currently available for um for compute instances or that we can use the fulfillment CLI we have only the default template which is called OCP virtual and do some changes to that project and then ensure that this system is using my project instead of the default. I want first to show you the changes that I made in order to make that template. I have here my fork of the AIP project and I have here just the change that I did in order to add a new template that is the one that is have is going to have a GPU. So this is the change I had to make. It's a simple change and basically what is doing the most important thing is here is defining a new role. This new OCP build VM with GPU ro and that role has a description. The description is VM with Nvidia GPU and as you can see here the rest of the things are basically um delegating to the existing roles.
+ 
+ 
+00:41:20
+ 
+Juan Hernández's Presentation: So the task for example the create task of this role is just delegating to the existing one with one setting with one additional setting which is adding setting this GPU device name field or variable and as you see we are setting here the name of the resource that we want to use the name of the GPU that we already configured in open shift virtualization and for delete is exactly the same there's no change so we just delegated that so this is just adding a new template. Now we need to make sure that this uh template is available in the project. So we have to change the configuration of uh AIP to read from my in order to do that we have to change a secret have to put here the URL of the G repo that we want to use. So I will use my my repo. So I will have to do something like After doing this, we have to reload this configuration. In order to do that, we have to go here to the um job templates.
+ 
+ 
+00:42:43
+ 
+Juan Hernández's Presentation: Look for the Osak config code job template and run it. This is the one. This is the template that is used to configure AAP or our things. I want to config reconfigure it using my own repo. So let's launch that. Okay, so this job finished. If we go successfully, if we go back to see the projects, then those project should now reflect my own rep. Okay, so correct. It's using my main. Next thing I have to do is that uh in order to have this new template, we have a job that runs periodically to read the templates from the g repo and create them in the fulfillment service. So we have to wait or run that uh job manually. I'm going to run it manually just to wait less. So this finished. We can now check if uh we already have the new template and we do have the new template. So with this we should be able to create a VM using that template.
+ 
+ 
+00:43:58
+ 
+Juan Hernández's Presentation: Next step is to actually create the VM. I'm going to do that. Creating a YAML file. I have it already prepared here. This is a description the of the VM. The most important thing is that we are selecting here the template that has the the GPU. And as you see, we don't have to specify anything out of the ordinary here. It's just a regular configuration of a VM. In particular, we are not specifying here that we want to have a GPU and which model or whatever. We are just saying that we want to use this template and all those details are inside the template. So I'm going to create VM So this has created APM. Let's check my template has been created. This is starting. So we need to wait till it is ready and then we will be able to use it. Okay. The VM has already been created and should be running.
+ 
+ 
+00:44:57
+ 
+Juan Hernández's Presentation: I going to check that the actual cube build VM has been created. And I I I want to check if the if the PCI device has been added to this machine. For that I need the LSPCI but this is not installed. So I have to install. Okay. Package is installed. So there it is. So we have the PCI device passed to the virtual machine and we could start to use it. I could then install the Nvidia drivers and show you that they work correctly, but that's quite boring. I'm not going to do that in this demo. So that's it. Thank you very much.
+Oved Ourfali: Um I wrote it on the chat as well like I I saw that the template was referring referring to a specific uh uh GPU type. Do we need a So I guess two questions. First, can we have the the generic template also support both uh GPU pass through or not?
+ 
+ 
+00:46:17
+ 
+Oved Ourfali: And and if and if so also what happens if I have different types? I mean what will the template look like?
+Juan Hernández: I'd say that if we want to support different types, the owner of the system like in this example would have to create different templates pointing to those types and then publish them and offer them to the users. So the users will just see something like I I can create a VM with a GV 100 GPU or a template with um DB200 CPU GPU sorry. So it could be just a list of templates that have been created by the administrator of the system and have ready for use by the user and that's what I am suggesting to to do here. And uh do we need do we need to have that in the in the template itself? I think the answer is no. Like when you go to to AWS for example, you know, you don't say I want to create a VM with a GPU. No, you select an instance type. That's the concept in AWS for example that has a GPU.
+ 
+ 
+00:47:25
+ 
+Juan Hernández: In this architecture, I think the the way to select that is to select a template. So you select a template that is described as having a GPU and the model may be important for you or maybe not. Maybe the administrator of the system decides that the model is not important for for that particular setup or maybe he decides that it's important and then he publishes that as part of the description of the template.
+Oved Ourfali: So we consider it like an VM instance type.
+Juan Hernández: So that's what
+Oved Ourfali: I I mean not calling it like the um you compared it with instance types. So in here we say okay this is uh uh supporting GPU pass through means that actually we're using a different instance type hence we map it to a different template and
+Juan Hernández: Yeah,
+Oved Ourfali: you
+Juan Hernández: the point is that I mean what what we are doing with this thing that I implement is that what we're giving the administrator of the system the capability to create such templates. The administrator can decide the model of the GPU according to the GPUs that he has available.
+ 
+ 
+00:48:36
+ 
+Juan Hernández: and he can create whatever templates he wants. Either telling to the user this is a VM with a GPU with this model and blah blah blah or just saying this is um um AI enabled VM without specifying the model of the of the GPU. Not sure if that's useful or not, but the point is that that freedom is on the administrator of the system. The user does not have that freedom. The user has only the freedom to choose one of the existing templates. I mean this is this is what um I did here. Maybe not what that's not what we want. It's not the
+Oved Ourfali: No, it sounds reasonable to me.
+Juan Hernández: same.
+Oved Ourfali: I guess the question would be around uh how would uh how do we want the flow to update the template and add new template etc. Whether
+Juan Hernández: My understanding is that now the my understanding is that the way to the interface that we decided for administrator to uh configure all that is to create new consable templates so far.
+ 
+ 
+00:49:52
+ 
+Juan Hernández: So that's what is done here. In order to create one of these new template, the user, the administrator, sorry, needs to create one of these anible templates and publish it as a template in the
+Michael Hrivnak: You should jump
+Juan Hernández: system.
+Avishay Traeger: So we want a cloud admin API to define instance types.
+Michael Hrivnak: It's a good question. We need some way to define instance types and we're seeing here that like we need somebody needs to associate those instance types with real world configuration. And this is a starting point, but if we can make an easier process, we probably should. Um, not sure anybody's fully thought through what that instance type definition would look like. Okay.
+Trey West: Do we we kind of have a notion of instance type with cluster as a service, right? Like that would be a host class,
+Michael Hrivnak: Right.
+Trey West: but we're just I guess we're just missing an equivalent on the VM side.
+Michael Hrivnak: That could be Yeah, we Yes, we need a complete picture that includes instance types that can span or be at least relatable or consistent between bare metal VMs and then potentially tie that into these stories of okay we understand that an instance type comes with a particular piece of hardware we need to support that piece of hardware and that's going to automatically bring in some additional stuff how do we automate
+ 
+ 
+00:51:41
+ 
+Michael Hrivnak: that a little
+Alona Paz: Um I have to admit that I when I imagined this future and maybe that's not a good imagination but uh I thought the GPU will be uh the GPU type will be part of the VM compute instance API and uh maybe we will have like catalog items for different GPU types and to to have a simpler way for uh the cloud admin to uh to have GPU VMs to have GPU VMs with different types of G GPUs especially the fact that it is just one field in that is added to the VM YAML. So, um it feels to me like a lot of work to add template per
+Avishay Traeger: I'll
+Alona Paz: each
+Avishay Traeger: Yeah,
+Alona Paz: type
+Avishay Traeger: right. I'll open up an epic for instance tax.
+Alona Paz: or I I know catalog item is not enough for this
+Trey West: Well,
+Alona Paz: case.
+Trey West: another thing too, like I think the instance type notion makes sense because in an environment where you have multiple GPUs that you can choose from, that also influences like where you actually run the VM which I don't think we can do in the current model.
+ 
+ 
+00:53:17
+ 
+Juan Hernández: Yeah, we can the current model is that administrator decides this template uses this model of GPU and that model is basically a label in the resource in the system and the Kubernetes already has mechanisms to decide which node will run the port that corresponds to that VM. It will be a node that has a EPU of that our source of that type available.
+Trey West: That's
+Alona Paz: But how can we uh make the work of this admin easier? like you also showed the hypercon converge the operator CR uh that something should be added there right about the GPU that's also something that the admin has to do
+Juan Hernández: Yes.
+Alona Paz: uh so I think maybe looking forward it can be more user friendly if we can do it as part
+Michael Hrivnak: totally
+Alona Paz: of that We can have some kind of automation that is doing it and not assuming that mean will do it manually
+Michael Hrivnak: agree 100%.
+Alona Paz: and uh okay and so what about having the GPU type in the compute instance API? What uh what do you think about it?
+ 
+ 
+00:54:44
+ 
+Michael Hrivnak: I would have naturally expected that it would come as part of the instance type. Uh but I can I can see your point too though that having it as a a field granted it can't be a free form field. It has to be like a selector where you are presented with a small list of choices and you get to pick one. Um not totally sure how that would work. I think we need a yeah like a just a little bit of thought in a proposal based on what do we see as prior
+Will Gordon: Yeah, like I know GCP is one of the cloud providers that has like,
+Michael Hrivnak: art
+Will Gordon: you know, here are the instance types we support or you can specify your own kind of instance type like mix and match. You know, I want two CPUs and 84 gigs of RAM. um that I don't I think all all providers support. Um but you can have Yeah. custom types. Exactly. And like maybe you know a a tenant or an org admin might use that.
+ 
+ 
+00:55:40
+ 
+Will Gordon: Um, but yeah, you still need to figure out like how does that map to like the physical GPUs that I have as a cloud provider.
+Alona Paz: I'm not sure I understand the difference from instance type and catalog item.
+Michael Hrivnak: An instance type implies just like typically as a starting point memory and CPU is an architecture and it
+Alona Paz: Okay, so it's just the fields but the concept is the same.
+Michael Hrivnak: oh yeah well and then maybe yeah maybe storage okay how much storage comes with this thing is it fast flash discs is it spinny slow discs like that kind of stuff. But instance type does not imply what uh I guess it's just hardware. It doesn't imply what image like OS image comes with this thing, what gets installed on it, how it's configured, any of that kind of
+Will Gordon: Yeah, we'd also need something that tracks inventory.
+Michael Hrivnak: stuff.
+Will Gordon: Like I know AWS, you know, you can only have 10 M5Xarges in US East one, but you can have 20 in US East 2 based on their capacity. I don't know if we have concepts of of inventory like that in OSAC yet.
+ 
+ 
+00:56:51
+ 
+Michael Hrivnak: Not yet.
+Will Gordon: So like an instance type again might be like the template but catalog might track the inventory. I I don't know.
+Alona Paz: Okay, we have one more minute.
+Michael Hrivnak: I think I think Yeah.
+Alona Paz: Sorry, we just have one more minute. So, uh first of all, the two other demos. I hope we can do it on Wednesday. I will ask Heidi and Duran if it's if it's okay. Sorry, we didn't have the time. uh and uh we need to have follow-up items for uh for this. Uh so who can summarize the follow-ups? One
+Juan Hernández: I don't feel I can
+Alona Paz: like uh one of the follow-ups is automatically configure the hyper converge
+Juan Hernández: Okay.
+Alona Paz: CR and uh I think the other followup is uh maybe having the field in the when we'll have instance types right and I guess if it's in the instance type it should be inside the compute instance as
+Juan Hernández: Okay.
+Alona Paz: well
+Avishay Traeger: I I'll open an epic for that.
+ 
+ 
+00:58:09
+ 
+Michael Hrivnak: Yeah, we should figure out what the user experience is that we want to offer around GPUs and instance types. Let's move
+Alona Paz: Do we want to have uh to continue discussing it in the next
+Michael Hrivnak: it
+Alona Paz: meeting?
+Michael Hrivnak: probably. Yeah, it's not a bad idea.
+Alona Paz: Okay. So, let's continue continue the discussion. But per but uh thank you very much. It looks great and it adds the functionality. H we just needed to polish a bit the UIX experience.
+Oved Ourfali: Do we want,
+Alona Paz: H because again Yes.
+Oved Ourfali: by the way, the Yes. Sorry.
+Alona Paz: No, no, continue.
+Oved Ourfali: No,
+Alona Paz: Just wanted to say about the UIX there.
+Oved Ourfali: I was going to say, yeah, do we want to have the next VM as a service demo?
+Alona Paz: Yes.
+Oved Ourfali: Like, I mean, I'm trying to see if we can combine demos. I mean, can we do should we do a creation of a VM and that has GPU inside of it, assuming the template is already there, etc., just to be able to show both functionality.
+ 
+ 
+00:59:09
+ 
+Oved Ourfali: Um, just an idea. I mean that to evolve the VM as a service demo is something we add more and more stuff to it all the time. So one of the things we're adding can be GPU pass to right. Uh currently putting the putting aside the admin flow for that and assuming that the template already exists. Um yeah,
+Alona Paz: template of one specific GPU
+Oved Ourfali: I mean I'm just trying to see if it makes sense to to have uh as we're looking at the VM as
+Alona Paz: type
+Oved Ourfali: a service demo to combine more and more things into it as we add more features in. Again, maybe this is not a very great example. Um but just try as you see other demos that you prepare. If there's an excess as part of the uh overall demo, we can build one iteratively and add more and more things to it. So,
+Alona Paz: And I think the question is for you because you're recording the whole demo.
+Oved Ourfali: we can do we can track it offline anyway.
+ 
+ 
+01:00:23
+ 
+Oved Ourfali: But but yeah,
+Alona Paz: Yes. Let's let's take it off.
+Oved Ourfali: I mean that's uh the question is if you want to show demos that are more like
+Alona Paz: Let's
+Oved Ourfali: customer visible or more um that would make more impact and be able to share those outside, we should probably uh like focus on the like in here. It's great that Juan showed the admin flow because it is important and it is the flow the admin will have to do. uh but maybe as a on the user end we can say okay uh if we're demoing now VM as a service maybe they can create a demo from this template and this template also allows GPU pass through so in the same at the same time we're basically demoing GPU pass right um again from a user
+Alona Paz: Mhm.
+Oved Ourfali: perspective
+Alona Paz: So I don't think that on each feature that we have we add we need to re-record the whole VM as a service demo but maybe once in a while we need to have a new version of the VM as a service like full demo with all the new
+Oved Ourfali: Yeah. At the end of the day,
+Adrien Gentil: Maybe we should we should automate it.
+Oved Ourfali: it might be just a flag,
+Alona Paz: features.
+Oved Ourfali: right? Yes. Sorry.
+Adrien Gentil: Maybe we should automate the the demo.
+Oved Ourfali: Exactly. No, no,
+Adrien Gentil: Yeah.
+Oved Ourfali: I'm really It's really because eventually in here it's a new let's say it's a flag that
+Adrien Gentil: Yeah.
+Oved Ourfali: we have like Okay.
+Adrien Gentil: Yeah.
+Oved Ourfali: Assuming you have a UI, you would press a checkbox. I don't know you want to create it from this template.
+ 
+ 
+Transcription ended after 01:01:43
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.
+[a]Where is this?

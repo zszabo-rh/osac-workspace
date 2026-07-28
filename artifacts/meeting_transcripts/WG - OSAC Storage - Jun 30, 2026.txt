@@ -1,0 +1,100 @@
+[PROCESSED 2026-07-13]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “WG - OSAC Storage” Jun 30, 2026
+Date: Tue, 30 Jun 2026 14:08:54 +0000
+---
+Notes from “WG - OSAC Storage”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on June 30, 2026, 4:07 PM CEST and may  
+contain errors.
+
+
+Summary
+Discussion spanned storage permissions, milestone progress, and improved  
+vendor collaboration strategies for technical development.
+
+
+Milestone Status and Operations
+Milestone 1 faces delays due to incomplete testing. The team agreed to  
+maintain cluster administrator permissions to avoid further development  
+bottlenecks.
+
+Technical Integration and Tools
+Development shifted focus toward new local environments and Container  
+Storage Interface driver wrappers to support vendor-specific integrations.  
+These tools improve resource efficiency and alignment with the broader  
+project workflow.
+
+Storage Roadmap and Partnerships
+Collaborative sessions with storage vendors aim to clarify deployment  
+strategies. Aligning storage provisioning with broader platform goals  
+remains the primary technical focus.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Finish E2E Tests: Finalize and complete end-to-end tests  
+for the cluster-as-a-service PR to ensure code integration.
+
+[Akshay Nadkarni] Create Jira Features: Define and create feature tickets  
+in Jira for the upcoming milestone.
+
+[Akshay Nadkarni] Update PRD: Modify and finalize the product requirement  
+document to reflect current project needs.
+
+[The group] Update Jira Status: Ensure status of all Jira tickets with  
+merged pull requests is updated correctly to provide visibility.
+
+[Roy Golan] Finalize Tier API: Address the design comments on the tier API  
+and merge the implementation into the repository.
+
+[Akshay Nadkarni] Establish Status Process: Set up a recurring process for  
+team members to post status updates on Slack twice a week.
+
+[Ygal Blum] Review Local Environment: Examine the Kind local development  
+environment pull request and provide feedback.
+
+[Danni Shi] Create Documentation: Draft requirements for the upcoming  
+project.
+
+[Danni Shi] Share Integration Plan: Send the pure storage test and strategy  
+to the team.
+
+[Will Gordon] Update Meeting Invitations: Include Ronnie Lazar in the  
+monthly touch point for Vast.
+
+[Will Gordon] Update Meeting Invitations: Include Akshay Nadkarni in the  
+monthly touch point for Vast.
+
+[Will Gordon] Research Admin Permissions: Explore using tenant admin  
+credentials for storage tasks to reduce dependency on cluster levels.
+
+[Ronnie Lazar] Query NCP Cases: Request insights from Vast regarding their  
+current network cloud platform usage.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

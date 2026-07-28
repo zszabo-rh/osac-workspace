@@ -1,0 +1,82 @@
+[PROCESSED 2026-06-02]
+warning: unknown output format 'text'; falling back to json (valid options: json, table, yaml, csv)
+Using keyring backend: keyring
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “Zoltan / Akshay” May 29, 2026
+Date: Fri, 29 May 2026 13:14:23 +0000
+---
+Notes from “Zoltan / Akshay”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 29, 2026, 3:12 PM CEST and may  
+contain errors.
+
+
+Summary
+Project planning session focused on defining milestones and finalizing  
+storage integration strategies for June.
+
+
+Project Planning and Strategy
+Team planning shifted focus toward structuring epics to meet tight June  
+deadlines. Large epics will now be broken into smaller, manageable chunks  
+per milestone.
+
+Storage Integration Definitions
+Backend and tier custom resources will facilitate storage onboarding and  
+act as network readiness checks. Integration with Vast serves as the  
+primary scope for the initial release.
+
+Milestone Delivery Decision
+The team decided to limit Milestone 1 scope to Vast integration to ensure  
+functional end-to-end delivery by June.
+
+
+Suggested next steps
+
+
+
+[Akshay Nadkarni] Breakdown Epics: Break down epics into smaller,  
+milestone-scoped tasks to improve project clarity and manageability for the  
+June release.
+
+[Akshay Nadkarni] Clarify Deadline: Ask O and Alona about the origins of  
+the June deadline and whether there is any flexibility regarding that date.
+
+[Akshay Nadkarni] Inquire Integration: Inquire in the OSAC engineering  
+channel about potential requirements for integrating with Pure Storage for  
+the June milestone.
+
+[Akshay Nadkarni] Contact Dylan: Connect with Dylan to discuss current  
+plans and potential task assignments.
+
+[Akshay Nadkarni] Complete IP Work: Wrap up the public IP attachment work  
+to ensure it is fully functional by next week.
+
+[Akshay Nadkarni] Assign Tasks: Define specific development tasks for  
+Zoltan to undertake on Monday, such as backend CR definition or  
+tier-related implementation, based on updated epic planning.
+
+
+We've updated the Decisions section based on your feedback.
+What do you think?
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

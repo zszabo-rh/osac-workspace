@@ -1,0 +1,78 @@
+[PROCESSED 2026-05-18]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC - group sync” May 18, 2026
+Date: Mon, 18 May 2026 16:06:46 +0000
+---
+Notes from “OSAC - group sync”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 18, 2026, 6:05 PM CEST and may  
+contain errors.
+
+
+Summary
+The session detailed infrastructure updates and architectural decisions  
+regarding authentication, cluster management, and storage system  
+development.
+
+
+Infrastructure and Auth Updates
+Continuous integration status was reviewed, with tests now covering virtual  
+machines. Keycloak organizations were implemented to simplify  
+authentication and improve multi-tenant scalability.
+
+Cluster and Storage Enhancements
+Dedicated cluster modes and storage integrations were demonstrated, showing  
+automated provisioning capabilities. The team identified necessary  
+improvements for efficient Windows virtual machine deployment.
+
+UI and Catalog Strategy
+Dashboard progress was highlighted, shifting focus toward catalog items  
+over templates. Provider and tenant administrators were authorized to  
+manage catalog items.
+
+
+Suggested next steps
+
+
+
+[Omer Vishlitzky] Estimate cluster CI: Ping Alona Paz with a grounded  
+estimation for when cluster as a service CI coverage will be available.
+
+[Crystal Chun] Demo External IDP: Provide a demo of the external IDP  
+management once the API is implemented.
+
+[Ameya Sathe] Update fulfillment CLI: Update the fulfillment CLI to support  
+starting a virtual machine from an existing data volume.
+
+[Ameya Sathe] Update OSAC operator: Modify the OSAC operator to read guest  
+OS flags directly from the compute instance custom resource.
+
+[Elay Aharoni] Update dashboard: Add Cluster as a Service and  
+authentication flow support to the UI dashboard.
+
+[The group] Provide Backend Requirements: Share requirements with backend  
+teams to facilitate proper implementation.
+
+[Liat Berkovich] Manage UIX Design: Coordinate user interface design for  
+cluster as a service with Ethan.
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

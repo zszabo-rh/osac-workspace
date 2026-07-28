@@ -47,8 +47,8 @@ Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-s
 |-----------|-------------|-----------|
 | [`fulfillment-service`](https://github.com/osac-project/fulfillment-service) | gRPC server + REST gateway, PostgreSQL, integrated API definitions | Yes |
 | [`osac-operator`](https://github.com/osac-project/osac-operator) | Kubernetes operator for OpenShift clusters via Hosted Control Planes | Yes |
-| [`osac-aap`](https://github.com/osac-project/osac-aap) | Ansible Automation Platform roles for infrastructure provisioning | — |
-| [`osac-installer`](https://github.com/osac-project/osac-installer) | Helm charts, Kustomize overlays, and installation prerequisites | Yes |
+| [`osac-aap`](https://github.com/osac-project/osac-aap) | Ansible Automation Platform roles for network provisioning | — |
+| [`osac-installer`](https://github.com/osac-project/osac-installer) | Installation manifests and prerequisites | Yes |
 | [`osac-test-infra`](https://github.com/osac-project/osac-test-infra) | Integration testing infrastructure | — |
 | [`osac-ui`](https://github.com/osac-project/osac-ui) | OSAC UI web console | Yes |
 | [`osac-ux`](https://github.com/osac-project/osac-ux) | React 19 + PatternFly 6 UI console — read-only UI reference | Yes (`osac-ux/AGENTS.md`) |
@@ -65,9 +65,9 @@ This workspace has no build step of its own. Each component repo documents build
 |------------------------|------------------------------------|--------------------------|----------------------------|
 | `fulfillment-service/` | `go build`                         | `ginkgo run -r internal` | `uv run dev.py lint`       |
 | `osac-operator/`       | `make build`                       | `make test`              | `make lint`                |
-| `osac-aap/`            | —                                  | `make test`              | `uv run ansible-lint`      |
-| `osac-installer/`      | `kustomize build overlays/<name>`  | —                        | `helm lint charts/osac/`   |
-| `osac-test-infra/`     | —                                  | —                        | `make lint`                |
+| `osac-aap/`            | —                                  | —                        | `ansible-lint`             |
+| `osac-installer/`      | `kustomize build overlays/<name>`  | —                        | `yamllint --strict .`      |
+| `osac-test-infra/`     | —                                  | —                        | `pre-commit run --all-files` |
 | `osac-ui/`             | `pnpm build`                       | `pnpm test`              | `pnpm lint`                |
 
 ### Quick Reference
@@ -87,6 +87,13 @@ make image-build image-push IMG=<registry>/osac-operator:tag
 make install                          # Install CRDs
 make deploy IMG=<registry>/osac-operator:tag
 ```
+
+### CI
+
+The workspace itself runs one GitHub Actions workflow:
+- `pr-dashboard.yml` — generates a PR dashboard (runs on schedule, deploys to GitHub Pages via `tools/pr-notify/generate.py`)
+
+Component repos have their own CI pipelines.
 
 ## Code Style
 
@@ -110,32 +117,33 @@ Link PRs in descriptions: "Depends on fulfillment-service#123".
 
 ## Deployment Coordination
 
-`osac-installer/scripts/setup.sh` pins component versions (AAP collections, fulfillment-service images) via submodule refs. When making changes that cross component boundaries, always update `osac-installer` to match:
+`osac-installer/setup.sh` pins component versions (AAP collections, fulfillment-service images) via submodule refs. When making changes that cross component boundaries, always update `osac-installer` to match:
 
 - **Proto field additions** in `fulfillment-service` → update CI overlays in `osac-installer` to use the new image version
 - **New AAP roles or collections** in `osac-aap` → bump the submodule ref in `osac-installer`
 - **New CRD types** in `osac-operator` → register in the fulfillment-service reconciler
 
-Failing to update `osac-installer` after cross-component changes causes CI failures and deployment mismatches. See `reference/CONVENTIONS.md` for the full cross-repo dependency table.
+Failing to update `osac-installer` after cross-component changes causes CI failures and deployment mismatches. See `.planning/codebase/CONVENTIONS.md` for the full cross-repo dependency table.
 
 ## Enhancement Proposals
 
-OSAC uses the flightctl ai-workflows PRD and design skills with project-level template overrides. The two-stage flow produces a PRD followed by a design document.
+OSAC uses the flightctl ai-workflows PRD and design skills with project-level template overrides in `.design/templates/`. The two-stage flow produces a PRD followed by a design document.
 
 ### Docs Repo
 
 - Both PRD and design workflows publish to the `enhancement-proposals` repo
-- Local path: `./enhancement-proposals/` — give this path when `/publish` asks for the docs repo
+- Local path: `./enhancement-proposals/`
+- When the publish phase asks for the docs repo, provide this path
 
 ### File Path Conventions
 
 When publishing PRDs and design documents to the enhancement-proposals repo:
 
 - Skip the "release" question — use `enhancements` as the fixed directory prefix
-- Feature directory: `enhancements/<jira-key>-<feature-slug>/`, where `<jira-key>` is the Jira **Feature**-level key exactly as it appears in Jira (no zero-padding), placed first in the directory name (e.g., `enhancements/OSAC-42-example-feature/`)
+- Feature directory: `enhancements/<feature-slug>/` (e.g., `enhancements/storage-network/`)
 - PRD filename: `prd.md`
 - Design (EP) filename: `design.md`
-- Both files live in the same directory: `enhancements/<jira-key>-<feature-slug>/prd.md` and `enhancements/<jira-key>-<feature-slug>/design.md`
+- Both files live in the same directory: `enhancements/<slug>/prd.md` and `enhancements/<slug>/design.md`
 
 ### Fork-Based Workflow
 
@@ -150,20 +158,21 @@ Both PRD and design ingest phases must read all files in `.design/context/`:
 
 ### Component Conventions
 
-Design and implement ingest phases must read the `AGENTS.md` of each component repo affected by the feature — authoritative on API design, database patterns, testing, and build tooling; the generic workspace rules summarize but don't replace them.
+Design and implement ingest phases must read the `AGENTS.md` of each component repo affected by the feature. These contain authoritative conventions for API design, database patterns, testing, and build tooling that the generic workspace rules summarize but do not replace.
 
 For features involving the fulfillment-service API (proto definitions, services, request/response patterns), `fulfillment-service/AGENTS.md` points to [`fulfillment-service/docs/API.md`](fulfillment-service/docs/API.md) — the canonical API design guidelines. Read it before drafting or reviewing proto schemas.
 
 ### Template Overrides
 
-- Design template: `enhancement-proposals/guidelines/design_template.md` (EP format with PRD-aware modifications)
-- Design section guidance: `.design/templates/section-guidance.md` — stays local; hand-synced with `design_template.md`
-- PRD template: `enhancement-proposals/guidelines/prd_template.md` (user stories by persona, In Scope/Out of Scope instead of FR-N/NFR-N)
+- Design template: `.design/templates/design.md` (EP format with PRD-aware modifications)
+- Design section guidance: `.design/templates/section-guidance.md`
+- PRD template: `.prd/templates/prd.md` (user stories by persona, In Scope/Out of Scope instead of FR-N/NFR-N)
 
 ## Jira Conventions
 
 - OSAC uses Jira **Tasks** (not Stories) for implementation work — in the **implement** workflow, "story" references mean Tasks in this project
 - Use `jira` CLI for Jira access (e.g., `jira issue view OSAC-1234 --plain`), not Jira MCP
+- Planning artifacts live in `.planning/`
 
 ## AI-Assisted Workflows
 
@@ -237,13 +246,32 @@ OSAC skills are workspace operators, not isolated skill bundles:
 
 Put `CRITICAL` / `IMPORTANT` rules in the first 20% of `SKILL.md` (skillsaw `content-critical-position`). When stating a prohibition, include the required alternative (for example: do Y instead of X). When lint forces a trade-off between passing and preserving operational guidance, preserve the guidance and adjust config or formatting.
 
+### Available Skills
+
+**OSAC repo-local skills** (in `skills/`):
+
+- **create-pr** — Fork-based PR creation on component repos
+- **report-bug** — File a Jira bug without fixing
+- **quick-fix** — Unattended bug fix with Jira ticket and PR
+- **osac-feature** — Create OSAC Jira Features
+- **jira-task-management** — Manage Jira issues via jira-cli
+- **capture-tasks-from-meeting-notes** — Extract action items from meeting notes into Jira
+- **generate-status-report** — Generate project status reports from Jira
+- **design-review** — Review design documents against template requirements and architectural patterns
+- **prd-review** — Review PRDs
+- **milestone-scope** — Milestone readiness assessment
+- **osac-demo-recording** — asciinema API demo recordings
+- **presentation** — Red Hat Marp slide decks
+- **osac-cluster** — Boot and manage OSAC development clusters via cluster-tool
+- **osac-release** — Publish OSAC Helm chart versions across component repos
+
 ## Architecture
 
 ```text
 fulfillment-service    gRPC/REST API server, PostgreSQL, resource lifecycle
 osac-operator          Kubernetes operator, provisions via AAP + Hosted Control Planes
-osac-aap               Ansible playbooks for infrastructure provisioning
-osac-installer         Helm charts + Kustomize overlays, deploys all components to OpenShift
+osac-aap               Ansible playbooks for VM and network provisioning
+osac-installer         Kustomize overlays, deploys all components to OpenShift
 osac-test-infra        E2E test playbooks against fulfillment-service gRPC API
 osac-ui                Web console (React, PatternFly 6, pnpm workspace)
 enhancement-proposals  Design documents and RFCs
@@ -260,11 +288,7 @@ VirtualNetwork → L2 network with CIDR (child of NetworkClass)
   └── SecurityGroup → firewall rules
 ComputeInstance → KubeVirt VM, attached to Subnets + SecurityGroups
 PublicIPPool → IP address ranges
-  ├── PublicIP → allocated from pool
-  └── PublicIPAttachment → binds PublicIP to ComputeInstance
-ExternalIPPool → external IP address ranges
-  ├── ExternalIP → allocated from pool
-  └── ExternalIPAttachment → binds ExternalIP to ComputeInstance
+  └── PublicIP → allocated from pool, attached to ComputeInstance
 ```
 
 ### Operator Architecture (osac-operator)
@@ -273,7 +297,7 @@ The osac-operator uses controller-runtime to reconcile OSAC custom resources on 
 
 - **All controllers follow the same reconciliation pattern**: finalizer → status update → provisioning/deprovisioning lifecycle
 - **Shared provisioning lifecycle**: Controllers use `provisioning.RunProvisioningLifecycle()` for provision and manual deprovision handling
-- **CRD types**: ClusterOrder, ComputeInstance, ExternalIP, ExternalIPAttachment, ExternalIPPool, Job, PublicIP, PublicIPAttachment, PublicIPPool, SecurityGroup, Subnet, Tenant, VirtualNetwork
+- **CRD types**: ClusterOrder, ComputeInstance, Tenant, VirtualNetwork, Subnet, SecurityGroup, PublicIPPool, PublicIP
 - **Multi-cluster support**: Controllers use `multicluster-runtime` for management/workload cluster separation
 - **Management-state annotation**: All controllers should check `osac.openshift.io/management-state` and skip reconciliation when set to `Unmanaged`
 - **Namespace isolation**: Networking controllers filter to a configured namespace via `NetworkingNamespacePredicate`
@@ -282,7 +306,8 @@ When fixing bugs or adding features, **check all controllers** that follow the s
 
 ## UI Reference (osac-ux)
 
-`osac-ux/` is cloned read-only from [osac-project/osac-ux](https://github.com/osac-project/osac-ux) — no `fork` remote, no PRs from backend workflow sessions.
+`osac-ux/` is cloned read-only from [osac-project/osac-ux](https://github.com/osac-project/osac-ux).
+No PRs are created against it from backend workflow sessions (no `fork` remote).
 
 ### What to read during /design:research and /implement:ingest
 
@@ -305,11 +330,31 @@ with a field-by-field mapping table and a justification for any deviation.
 For existing resources, the @temp-api file may contain fields the UI needs but the
 backend has not yet returned — these are real requirements, not speculation.
 
-### API coverage audit
+### API coverage audit (one-time and on-demand)
 
-Run `cd osac-ux && node scripts/gen-api-diff.mjs` to surface API gaps against the current UI.
+To surface the full backlog of existing API gaps against the current UI, run:
+
+```bash
+cd osac-ux && node scripts/gen-api-diff.mjs
+```
+
+This compares all live UI routes against the backend OpenAPI spec and lists
+uncovered or mismatched fields. Use the output as input when scoping EP work,
+not as a file to commit or reference statically.
+
+### Known deviations — flag these in the EP, do not copy from @temp-api
+
+| @temp-api pattern | Correct fulfillment-service design |
+|---|---|
+| Sub-resource actions: `POST .../attach`, `POST .../restore` | Standalone `*_attachments` resource (pattern: `public_ip_attachments`) |
+| `storageClass: 'ssd' \| 'nvme' \| 'standard'` string union | `storage_tier_id: string` reference to StorageTier resource |
+| `spec.storageClassName`, `spec.storageBackend` in StorageTier | Private API only — omit from public proto |
+| `status.secretAccessKey?: string` on create response | Separate `Create*Response` proto message |
+| `AiEnvironment.spec.rhoaiVersion`, `gatewayEndpoint` | RHOAI operator fields — verify these belong in public API before adding |
 
 ## Common Fix Locations (fulfillment-service)
+
+Use this table to go directly to the right file for common bug patterns instead of grepping from scratch:
 
 | Bug pattern | File(s) to check |
 |-------------|-----------------|
@@ -324,5 +369,36 @@ kubectl annotate ingresses.config/cluster ingress.operator.openshift.io/default-
 kubectl apply -k fulfillment-service/manifests
 export token=$(kubectl create token -n osac client)
 export route=$(kubectl get route -n osac fulfillment-api -o json | jq -r '.spec.host')
-grpcurl -insecure -H "Authorization: Bearer ${token}" ${route}:443 osac.public.v1.VirtualNetworks/List
+grpcurl -insecure -H "Authorization: Bearer ${token}" ${route}:443 fulfillment.v1.VirtualNetworks/List
+```
+
+## Reference Documentation
+
+| Location | Content |
+|----------|---------|
+| `.planning/codebase/ARCHITECTURE.md` | System design and layers |
+| `.planning/codebase/CONVENTIONS.md` | Naming and coding patterns |
+| `.planning/codebase/STACK.md` | Technology stack |
+| `.planning/codebase/TESTING.md` | Test patterns and frameworks |
+| `.planning/codebase/STRUCTURE.md` | File organization |
+| [`docs/architecture/`](https://github.com/osac-project/docs/tree/main/architecture) | High-level diagrams and design documents |
+| [`enhancement-proposals/`](https://github.com/osac-project/enhancement-proposals) | RFCs and design proposals |
+
+## Workspace Layout
+
+```text
+bootstrap.sh              # Clone/update all component repos
+Makefile                   # Distrobox dev environment targets
+Containerfile              # Dev container image (Fedora 42 + all tools)
+AGENTS.md                  # Tool-agnostic project conventions (this file)
+CLAUDE.md                  # Claude Code project instructions
+.claude/settings.json      # Pre-approved shell commands
+.claude/rules/             # Architecture, protobuf, cross-repo conventions
+.claude/hooks/             # Workflow hooks
+.design/templates/         # PRD and design template overrides
+.design/context/           # Feature dimensions and review patterns
+skills/                    # AI skills (PRD/design workflows, Jira, bug fix, demo recording)
+tools/pr-notify/           # PR dashboard generator
+docs/pr-dashboard/         # Static site for PR dashboard (GitHub Pages)
+.github/workflows/         # CI (pr-dashboard.yml)
 ```

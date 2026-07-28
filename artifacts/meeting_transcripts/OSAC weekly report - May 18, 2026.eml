@@ -1,0 +1,316 @@
+[PROCESSED 2026-05-20]
+From: Alona Paz <alkaplan@redhat.com>
+To: Heim, Itamar <iheim@redhat.com>, Levy, Ohad <olevy@redhat.com>, Jeff Lo <jlo@redhat.com>, Scott Berens <sberens@redhat.com>, Stephen Cuppett <scuppett@redhat.com>, Orran Krieger <okrieger@redhat.com>, Steve Gordon <sgordon@redhat.com>, Ryan King <rking@redhat.com>, Mike Evans <mevans@redhat.com>, Tushar Katarki <tkatarki@redhat.com>
+Cc: rfreiman-all@redhat.com, Michael Hrivnak <mhrivnak@redhat.com>, Avishay Traeger <atraeger@redhat.com>, Liat Berkovich <lberkovi@redhat.com>, Trey West <trwest@redhat.com>, Hochman, Omri <ohochman@redhat.com>, Chuzhoy, Sasha <schuzhoy@redhat.com>, Kyle Baker <kybaker@redhat.com>, Andrea Hudson <ahudson@redhat.com>, Lucy Kerner <lkerner@redhat.com>, Vincent Caldeira <vcaldeir@redhat.com>, Liming Tsai <ltsai@redhat.com>, Chris Butler <chbutler@redhat.com>, Scott England-Sullivan <scottes@redhat.com>, Erwan Gallen <egallen@redhat.com>, Justin Hibbard <jhibbard@redhat.com>, Lars Kellogg-Stedman <lars@redhat.com>, Heidi Dempsey <hdempsey@redhat.com>, Tzu-Mainn Chen <tzumainn@redhat.com>, Isaiah Stapleton <istaplet@redhat.com>, Abigael Donahue <adonahue@redhat.com>, Ethan Kim <ekim@redhat.com>, Ronen Sde-Or <ronen@redhat.com>, Sachin Mullick <smullick@redhat.com>, Laura Franch <lfranchd@redhat.com>, Matt Carleton <mcarleto@redhat.com>, Thorsten Schwesig <tschwesi@redhat.com>, Darren Orzechowski <dorzecho@redhat.com>, Jeff Picozzi <jpicozzi@redhat.com>, Richa Srivastava <risrivas@redhat.com>, Bradford Nichols <bradnichols@redhat.com>, Karanbir Singh <kbsingh@redhat.com>, Piotr Kliczewski <pkliczew@redhat.com>, Chen Yosef <cyosef@redhat.com>, Ygal Blum <yblum@redhat.com>, Asayag, Moti <masayag@redhat.com>
+Subject: OSAC weekly report - May 18, 2026
+Date: Tue, 19 May 2026 18:37:10 +0300
+---
+Executive Summary
+
+OSAC completed 7 key demos advancing production readiness. Highlights
+include automated storage tenant onboarding with VAST integration (first
+vendor-specific storage integration), Windows VM support, dedicated cluster
+mode for workload isolation, and Keycloak organizations migration improving
+auth scalability.
+
+Developer experience improved significantly—new snapshot-based tooling
+reduces environment setup from 45min to 20min and CI time from 2.5hr to 1hr.
+
+Roadmap: details
+<https://docs.google.com/spreadsheets/d/11YIDvxTK940j4XgyainQO5yzA9a3ppVwy54oypo4eE0/edit?gid=552881355#gid=552881355>
+
+------------------------------
+
+This Week's Demos (May 11, 2026)VMaaS
+
+Dedicated VM cluster (Recording
+<https://drive.google.com/file/d/1hXveDei6GiTlmMPUjt54ID_67FBu4tpK/view>
+13:34 - 25:50)
+
+   -
+
+   Dedicated cluster mode separates the OSAC/control-plane deployment from
+   the VM workload cluster, allowing each to be managed and scaled
+   independently.
+   -
+
+   Full VM lifecycle management is supported.
+   -
+
+   Console proxy is available for VM serial console access.
+   -
+
+   Follow-up Actions
+   -
+
+      Add VNC support for graphical VM console access.
+
+Windows VM (Recording
+<https://drive.google.com/file/d/1hXveDei6GiTlmMPUjt54ID_67FBu4tpK/view>
+36:45 - 51:22)
+
+   -
+
+   Windows VM support requires a different flow because there is no
+   official Windows container disk image.
+   -
+
+   Instead of booting from a container disk, OSAC should support creating
+   VMs from an existing golden image/data volume.
+   -
+
+   Windows also requires specific initialization handling, including
+   hostname limitations and Sysprep configuration.
+   -
+
+   The current flow takes too long for regular usage, with boot time around
+   15 minutes, so we need a more efficient provisioning path.
+   -
+
+   Follow-up Actions
+
+
+   -
+
+   Consider adding a guest operating system flag to the fulfillment CLI and
+   ComputeInstance API.
+   -
+
+   Support creating/starting VMs directly from existing data volumes.
+
+Storage tenant on boarding (Recording
+<https://drive.google.com/file/d/1FUSrN5Deg3iCKH8FfdADj6-p__64lVrD/view>
+13:34 - 25:50)
+
+   -
+
+   Automated storage class creation when OSAC tenant is created, labeled
+   with tenant name.
+   -
+
+   Tenant controller triggers Ansible AAP job to provision storage classes.
+   -
+
+   Self-healing: recreates storage class if accidentally deleted.
+   -
+
+   Deprovisioning: removes storage classes when a tenant is deleted.
+   -
+
+   Follow-up Actions
+   -
+
+      Define a high-level storage integration model for different vendors
+      and services.
+      -
+
+      Support multiple storage tiers (fast, standard) per tenant.
+      -
+
+      Personalize each cloned StorageClass with tenant-specific
+      configuration, such as credentials, storage pool/slot etc.
+
+Cross-Cutting Capabilities
+
+Move to keycloak organizations (Recording
+<https://drive.google.com/file/d/1hXveDei6GiTlmMPUjt54ID_67FBu4tpK/view>
+3:02 - 13:03)
+
+   -
+
+   Today, using a separate Keycloak realm per tenant creates repeated setup
+   and operational overhead.
+   -
+
+   Moving to Keycloak organizations allows each OSAC tenant to map to a
+   Keycloak organization instead of a separate realm.
+   -
+
+   This reduces duplication and improves scalability by sharing common
+   clients, roles, and IDP configuration across tenants.
+   -
+
+   OSAC will use predefined roles, such as tenant-admin and
+   tenant-idp-manager, instead of redefining them per tenant.
+   -
+
+   The implementation includes CRUD support for Keycloak organizations,
+   with proper sync and cleanup of break-glass accounts and users.
+   -
+
+   Follow-up Actions
+
+
+   -
+
+   Implement tenant admin APIs for role management, identity provider
+   management, and project management.
+   -
+
+   Add external IDP integration, where tenant admins configure service
+   account/client credentials in their IDP, and OSAC handles the organization
+   login redirection flow.
+
+Vast Integration (Recording
+<https://drive.google.com/file/d/1llqB8-PQaiLJ5RMEh_o_5asP3TWK48xP/view?usp=drive_link>
+)
+
+   -
+
+   OSAC now supports a Vast storage integration that automates StorageClass
+   provisioning.
+   -
+
+   When a tenant is onboarded, the system creates the required backend
+   storage resources and tenant-specific StorageClasses.
+   -
+
+   Storage tiers can be updated dynamically, for example by adding a
+   high-IOPS tier.
+   -
+
+   When a new tier is added, OSAC automatically creates the matching Vast
+   backend resources, such as QoS policies and views.
+   -
+
+   This demonstrates the current backend-specific storage flow, while
+   highlighting the need for a more generic storage model.
+   -
+
+   Follow-up Actions
+
+
+   -
+
+   Define a generic storage API that can support multiple storage vendors
+   and services.
+   -
+
+   Formalize the storage integration design, including how backend-specific
+   configuration should map into OSAC APIs.
+
+Local Dev environment Overview (Recording
+<https://drive.google.com/file/d/1FUSrN5Deg3iCKH8FfdADj6-p__64lVrD/view>
+36:08 - 49:40)
+
+   -
+
+   OSAC installation is currently long, manual, and error-prone, which
+   slows down both developers and CI.
+   -
+
+   Cluster tool improves this by starting SNO clusters from pre-built
+   snapshots instead of running the full 30–45 minute installation flow.
+   -
+
+   This allows developers to get from zero to a working OSAC cluster in
+   about 20 minutes.
+   -
+
+   The tool refreshes the cloned cluster by updating hostnames,
+   certificates, and application-level resources so the snapshot can be reused
+   safely.
+   -
+
+   CI now uses cluster tool with pre-built OSAC snapshots from Quay,
+   reducing the number of presubmit jobs and shortening total test time from
+   around 2.5 hours to about 1 hour.
+   -
+
+   Current challenges include large snapshot size, around 50 GB, and
+   keeping snapshots fresh when third-party dependencies change.
+   -
+
+   Follow-up Actions
+
+
+   -
+
+   Add nightly snapshot rebuilds to keep snapshots fresh.
+   -
+
+   Extend cluster tool support for Cluster as a Service flows.
+   -
+
+   Explore booting agents after the SNO cluster is running.
+
+UI
+
+Fulfillment service integration with the UI on the tenant flow (Recording
+<https://drive.google.com/file/d/1hXveDei6GiTlmMPUjt54ID_67FBu4tpK/view>
+51:30 - 58:40)
+
+   -
+
+   The UI is moving from mocked flows toward integration with real data
+   from the fulfillment service.
+   -
+
+   The current VMaaS flow supports creating VMs from templates, customizing
+   VM properties such as vCPU count and disk size, and performing lifecycle
+   actions like start, stop, and delete.
+   -
+
+   Follow-up Actions
+
+
+   -
+
+   Add Cluster as a Service support to the UI.
+   -
+
+   Complete the full authentication flow.
+   -
+
+   Replace templates with catalog items, giving users clearer
+   provider-defined provisioning options.
+
+------------------------------
+
+Upcoming Demos:
+
+   -
+
+   OSAC Installer - Move to Helm based installer
+   -
+
+   Public IP attachment management - Extend the Public IP API so it can be
+   used across OSAC services, including VMaaS, CaaS, BMaaS, and future
+   consumers, instead of being limited to VM use cases.
+   -
+
+   Netris integration with OSAC Networking API - Update the existing Netris
+   integration to use the standard OSAC Networking API, aligning it with the
+   common networking flow.
+   -
+
+   Admin APIs - Add administrative APIs for role management, identity
+   provider management, and project management.
+   -
+
+   External IDP support - API to add external IDPs.
+   -
+
+   Catalog Items - adds a user-facing layer above Ansible templates,
+   allowing providers to expose multiple curated provisioning options that can
+   reuse the same underlying Ansible role.
+   -
+
+   DPU network class - Add support for tenant network isolation using
+   DPU/HBN-based networking.
+   -
+
+   Integration with BCM - Integrate with BCM as a server inventory backend.
+   -
+
+   BMaaS Profiles - package reusable bare-metal provisioning workflows,
+   allowing OSAC to request hosts by profile instead of hard-coding
+   backend-specific setup and cleanup steps.
+
+
+👉 Weekly Demo Schedule: View Schedule
+<https://docs.google.com/document/d/1V7uxuxJNyK2pkoaTQ3TJngnNp2ktvZzTAJMUESv0U4M/edit?tab=t.c91kd825w3xm>
+
+Thanks,
+Alona
+

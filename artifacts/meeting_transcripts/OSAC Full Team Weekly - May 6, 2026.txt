@@ -1,0 +1,75 @@
+[PROCESSED 2026-05-07]
+From: Gemini <gemini-notes@google.com>
+To: zszabo@redhat.com
+Subject: Notes: “OSAC Full Team Weekly” May 6, 2026
+Date: Wed, 06 May 2026 14:13:23 +0000
+---
+Notes from “OSAC Full Team Weekly”
+
+These notes have been sent to invited guests in your organization.
+
+Open meeting notes
+
+The content was auto-generated on May 6, 2026, 4:11 PM CEST and may contain  
+errors.
+
+
+Summary
+Meeting reviewed UI development progress, debated repository architecture,  
+defined deletion strategies, and optimized code review processes.
+
+
+UI and Architecture Review
+The UI demo showcased tenant user flows for virtual machine management,  
+though back-end integration remains pending. Discussion regarding  
+repository structure identified potential challenges with dependency  
+management, leading to a proposal for an enhancement document.
+
+Deletion Strategy Outcome
+The team decided to implement blocking deletion as the primary strategy for  
+resources with dependencies. This approach prioritizes system safety before  
+considering future support for cascading deletion options.
+
+Code Review Optimization
+Discussions on pull request efficiency highlighted risks of relying solely  
+on artificial intelligence. The group will shift towards using automated  
+tools to supplement human oversight for faster code validation.
+
+
+Suggested next steps
+
+
+
+[Adrien Gentil] Add VM Clone: Implement clone functionality for virtual  
+machine within the backend environment.
+
+[Elay Aharoni] Sync UI Integration: Coordinate with Adrian Gentil to align  
+UI development based on backend implementation details; determine UI  
+elements to remove or add.
+
+[Eran Cohen] Draft Monorepo EP: Write enhancement proposal assessing the  
+effort required to merge project components into a single monorepo  
+structure.
+
+[The group] Implement Deletion Logic: Implement blocking resource deletion  
+at the API level as the initial approach. Plan to add cascading delete  
+functionality later for resources like Virtual Networks and nested projects.
+
+[Avishay Traeger] Review Quay Alignment: Verify if the Quay team  
+multi-tenancy model and features align with VM image management needs.
+
+
+Meeting records Document Notes by Gemini
+
+
+Is the Next Steps section in this email helpful?
+Not Useful Email Useful Email
+
+
+Google LLC, 1600 Ampitheatre Parkway, Mountain View, CA 94043, USA
+
+You have received this email because meeting artifacts were initiated in  
+Google Meet.
+
+
+

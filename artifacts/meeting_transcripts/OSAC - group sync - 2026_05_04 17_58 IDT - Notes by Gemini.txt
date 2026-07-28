@@ -1,0 +1,61 @@
+[PROCESSED 2026-05-05]
+﻿May 4, 2026
+OSAC - group sync
+Invited Juan Hernández Michael Hrivnak Adrien Gentil Alona Paz Lars Kellogg-Stedman Oved Ourfali Dmitry Tantsur Tzu-Mainn Chen Taj Salawu Thorsten Schwesig Jason Kary Nora Haxhidautiova Simone Ferlin-Reiter Danni Shi Joachim Weyl Jason Schlessman Isaiah Stapleton Dylan Stewart Orran Krieger Austin Jamias Surbhi Kanthed Meera Malhotra Elior Erez Avishay Traeger Elad Tabak Eran Cohen Akshay Nadkarni knikolla@bu.edu Ygal Blum Piotr Kliczewski Zoltan Szabo Dan Manor Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Siddarth Royapally Ilya Skornyakov Dakota Crowder Ori Amizur Will Gordon Omri Hochman Alexander Chuzhoy Elay Aharoni Liat Gamliel Rom Freiman Liat Berkovich Bradford Nichols Robby Stahl Yoni Bettan Crystal Chun Jon Uriarte Ondra Machacek Chen Yosef Christopher Tate Jen Stacy Heidi Dempsey Marek Grac Trey West Maor Friedman
+Attachments OSAC - group sync
+Meeting records Recording 
+
+
+
+
+Summary
+The team reviewed infrastructure migration, bare metal automation, multi-tenancy authentication, and CI testing pipeline optimizations.
+
+Infrastructure and Bare Metal
+The team decided to migrate to a dedicated OSAP Jira project for AI workloads. Demonstrations confirmed that the bare metal fulfillment operator correctly manages host pool creation and agent assignment.
+
+Auth and DNS Integration
+The implementation of multi-tenancy authentication via Keycloak and a generic DNS API interface was reviewed. These developments aim to improve organization management and decouple interaction from external providers.
+
+Testing and CI Pipeline
+CI improvements for virtual machine services were presented to reduce testing time via unified environments. The team is evaluating architectural changes to optimize resource-heavy end-to-end integration cycles.
+
+
+
+
+Next steps
+* [Amir Gv] Move Project: Move all AI workloads from the MGMT project to the OSAP project.
+* [The group] Fix Integration: Repair Jira integration broken by the OSAP project movement.
+* [Avishay Traeger] Sync Agenda: Coordinate tomorrow with Michael Hrivnak regarding agenda topics.
+* [Crystal Chun] Create Story: Define story allowing organization administrators to change passwords via OSAC interfaces.
+* [Omer Vishlitzky] Investigate Acquisition: Message officer team; look into 30 minute machine acquisition time.
+* [Yoni Bettan] Discuss Clusters: Take cluster setup discussion offline. Resolve issues installing CNV on Pro cluster pool setup.
+* [Alona Paz] Send Report: Send weekly updates report today.
+
+
+
+
+Details
+* Jira Project Migration: The team plans to move away from using the MGMT Jira project and will create a dedicated OSAP project to manage AI-related workloads, which should prevent unintended interference with other projects. Amir Gv has agreed to manage the project movement, which is expected to temporarily disrupt existing Jira integrations that will need to be fixed. The new project will be modeled after flight control, specifically edge management, and there is a discussion about whether it should be publicly accessible.
+* Agenda Topic Postponement: Several agenda topics added by Avishay Traeger and Eran Cohen were postponed to allow sufficient time for planned demos. Avishay Traeger will follow up with Michael Hrivnak and discuss their topics next time, while Eran Cohen agreed their discussion could wait for the Wednesday meeting.
+* Cluster as a Service (CaaS) with Bare Metal (BM) as a Service Integration Overview: The first demo focused on a basic implementation of CaaS supported by BM as a service. The CaaS workflow creates a bare metal pool, waits for it to be fulfilled, and then uses the resulting information to identify which agents to use. Initially, network resources and isolation are handled by the CaaS templates, as no templates are currently running against the bare metal pool or host leases.
+* CaaS Bare Metal Pool Creation and Agent Assignment: The demonstration showed the creation of a cluster using the OSAC CLI, which initiates an AAP job that first creates the bare metal pool and cluster network. The bare metal fulfillment operator then queries the inventory backend to look for free hosts that match the requested host types. Once the bare metal pool is successfully fulfilled with the correct number of hosts, the agents corresponding to those hosts are identified, labeled to the cluster, and attached to the private network created for the cluster.
+* Bare Metal Fulfillment Logic and Agent Selection: Michael Hrivnak sought clarification on the flow, confirming that the process involves creating a bare metal pool and then waiting for the host leases to be fulfilled before using that information to identify the agents. The bare metal fulfillment operator, specifically the host lease inventory controller, determines which hosts are chosen from the inventory when multiple hosts meet the criteria. It was noted that this process is currently a hard-coded implementation, and Michael Hrivnak suggested an alternative approach of labeling agents first and searching them directly.
+* Host Management Operator Power API Demo: Danni Shi demonstrated the power on and power off API functionality of the host management OpenStack operator. A host lease CR is created, and the operator uses the host class spec to start reconciling the node. The operator can sync the current power status of the node, and users can trigger a power state change by setting the `poweredOn` spec to true or false.
+* Host Management Operator Cleanup and Error Handling: The demonstration showed that when a host lease is deleted, the operator performs cleanup steps, including unsetting the OpenStack host class and removing the finalizer. If a host lease is created with a bad UUID, the controller fails to fetch the node from Ironic, triggering an exponential backoff and updating the host status to a failed state, recording the failure reason.
+* Future Plans for Bare Metal Updates: The primary next step for the bare metal team is updating bare metal pools to support profiles, which will allow for more flexible workflows beyond just looking for agents. Profiles will enable specifying templates to run against bare metal pools and host leases upon creation, such as creating and deleting a private network with a bare metal pool or attaching and detaching hosts from that network. Templates will initially use OpenStack-specific API calls, with plans to support generic OSAC APIs later.
+* DNS API Implementation for Cluster as a Service: Dan Manor presented work on a generic common interface for interacting with DNS, initially for CaaS. The design is decoupled from OSAC and currently implements A and AAAA records, primarily for the external API, internal API, and ingress records required by every cluster. The architecture replaces the hard-coded AWS Route 53 interaction with a dispatcher role that calls a specific backend driver, which is currently only implemented for Route 53 but is designed to be extensible.
+* Multi-Tenancy Authentication and Organization Management: Crystal Chun provided an initial demo of the multi-tenancy implementation focusing on authentication and authorization using Keycloak. An OSAC organization maps to a Keycloak realm and can be managed through the OSAC CLI. When a cloud provider admin creates an organization, a break-glass account is created, which is a Keycloak user for emergency access in case the identity provider connection fails.
+* Multi-Tenancy Next Steps and Roles: Future work includes moving from Keycloak realms to Keycloak organizations and implementing the full flow for cloud provider admins, including the creation of necessary OSAC projects and IM components. The definition of tenant admin and provider admin roles is a next step, along with implementing tenant admin APIs for managing users and assigning roles. Avishay Traeger suggested creating a separate CLI for cloud admins and allowing the organization admin to change their break-glass password through OSAC rather than Keycloak.
+* VMS CI and End-to-End Testing Development: Omer Vishlitzky presented the creation of CI and end-to-end testing for VMS to address the previous lack of automated integration testing across the stack. The CI includes basic life cycle tests such as creating, running, and deleting VMs, and ensuring no orphan VMs exist after race conditions or recreation after restart. The current pipeline is triggered in Prow when a new PR is opened to OSAC installer.
+* CI Pipeline and Efficiency Improvements: The CI job uses a bare metal machine to install an SNO cluster with CNV and LVM, followed by installing all OSAC components, and then running the end-to-end tests. Each test is currently isolated, requiring a full cluster installation, which is resource-heavy and takes roughly 2 to 2.5 hours to complete. The team is actively working on two enhancements to improve efficiency: creating a unified single environment (one hub and one verification cluster) for all tests, and using a golden image approach to reduce the initial setup time to approximately 60 minutes.
+* Roadmap E2 Status and Unified Test Environment: Omer Vishlitzky reported that Roadmap E2 is in progress on all repositories. A unified test environment is seen as the next step, though cast tests are out of scope for VMS. Dan Manor expressed skepticism about the unified environment idea for cluster service or BM as a service due to the need for many different setups, but suggested it might work for VM as a service.
+* Cluster Pool Request Issues: Yoni Bettan suggested an easy way to define a cluster pool in Pro, where clusters could wait for a PR to clean them. Omer Vishlitzky acknowledged trying to use classic cluster claims but encountered issues with installing CNV, believing it related to working with EBS. The issue of cluster pools not offering hypervisors that can be used to create VMs was raised by Dan Manor, which is where Omer Vishlitzky previously got stuck, and they decided to take this cluster pool discussion offline for further assistance.
+* Improving VM as a Service Testing: Dan Manor clarified that while a unified test environment might not suit Cass, it could improve VM as a service (VMS) testing by running all tests on one setup instead of creating different setups for each end-to-end test. Omer Vishlitzky confirmed this interpretation, stating that this was what they meant by the unified test environment. Dan Manor noted that maintaining a permanent cluster is possible but not very cost-efficient.
+* Meeting Conclusion: Alona Paz ended the meeting due to time constraints, stating they would attempt to send out a report on weekly updates later that day. All participants thanked each other and signed off.
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.

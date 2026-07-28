@@ -1,0 +1,619 @@
+[PROCESSED 2026-04-23]
+﻿📝 Notes
+Apr 22, 2026
+innabox full team weekly 
+Invited Juan Hernández Danni Shi Adrien Gentil Isaiah Stapleton Taj Salawu Daniel Erez Thorsten Schwesig Michael Hrivnak Christopher Tate Heidi Dempsey Dylan Stewart Orran Krieger Surbhi Kanthed Lars Kellogg-Stedman Oved Ourfali Tzu-Mainn Chen Red Hat Research Program Calendar Jason Schlessman Nora Haxhidautiova Michael Daitzman naved001@bu.edu Quan Pham joachimw@bu.edu mmunakami@g.harvard.edu Austin Jamias Meera Malhotra Bradford Nichols Trey West knikolla@bu.edu Elior Erez Akshay Nadkarni Omri Hochman Eran Cohen Zoltan Szabo Ofer Bochan Omer Vishlitzky Ethan Kim Ameya Sathe Will Gordon Rom Freiman Jen Stacy Alona Paz Dmitry Tantsur Simone Ferlin-Reiter Marek Grac Jason Kary Maor Friedman Avishay Traeger Elad Tabak Dan Manor
+Attachments innabox full team weekly  innabox - 2025  Notes - innabox full team weekly  
+Meeting records Transcript Recording 
+
+
+
+
+Summary
+Meeting discussions addressed metering requirements and storage proposals for OSAC via architectural review and roadmap planning.
+
+Metering and Event Requirements
+Participants summarized MOC metering documents, emphasizing metadata capture and event-based tracking for short-lived resources. Integrating these requirements into the OSAC project remains a primary objective.
+
+Storage Proposal and Quotas
+The team decided to mandate quota enforcement at the storage provider level for cluster and bare metal services. This approach pushes multi-tenancy logic directly into storage mechanisms.
+
+Implementation Roadmap and Inventory
+Developers will utilize Ansible to orchestrate storage provisioning before building dedicated Storage API endpoints. The group also identified reviewers for the bare metal inventory interface pull request.
+
+
+
+
+Next steps
+* [Thorsten Schwesig] Summarize Metering: Provide a summary of the MOC metering document rationale. Detail why additional personas and metadata for pricing/billing were needed.
+* [Will Gordon] Review Quota: Investigate existing quota proposals and enforcement enhancements. Aim to reuse general quota management for the storage API implementation.
+* [Will Gordon] Implement Storage: Create initial Ansible playbooks for storage provider and tier configuration. Automate consumer side storage provisioning for VM as a Service and Cluster as a Service.
+* [Trey West] Review Inventory PR: Examine the inventory host controller PR interface definition. Provide feedback to Austin Jamias regarding necessary changes for backend implementation.
+* [Austin Jamias] Post PR Link: Add the inventory host controller PR link to the meeting agenda document.
+
+
+
+
+Details
+* Initial Greetings and Location Discussion: The meeting began with greetings among the participants. Lars Kellogg-Stedman asked about Will Gordon's location, and Oved Ourfali indicated that they were assigned to the Raleigh office, though the exact location was not remembered. Orran Krieger shared an anecdote about their new cabin in Maine having commercial flights only to Florida or Raleigh, North Carolina, but not Boston (00:00:00).
+* Agenda Item Exclusion (Storage Proposal): Lars Kellogg-Stedman noted that the first agenda item, Will Gordon's storage proposal, would be skipped due to Will's initial absence and the fact that several attendees were out on holiday. The intent was to bring up issues from a previous discussion with the larger group (00:04:38).
+* Metering Document Discussion Overview: The second agenda item focused on metering, specifically the broad discussion within a dedicated document and a MOC-specific document detailing requirements for that environment (00:04:38). Lars Kellogg-Stedman sought to determine if participants wanted an active discussion or just awareness of the existing documents (00:06:00).
+* MOC Metering Document Summary: Orran Krieger suggested a summary of the MOC metering document to provide context to the larger group (00:06:00). Thorsten Schwesig provided a summary, noting that the MOC document builds upon Michael Hrivnak's proposed document by adding MOC-specific personas, such as the student and PI. The MOC document emphasizes the need for metadata from inventory or events at the start to ensure fair pricing and billing later (00:06:58).
+* Metering Focus on Events and Metadata: Thorsten Schwesig explained that metering must include metadata (like who used a GPU or from which pool) so the customer can determine pricing. The MOC document also stresses that focusing on events, rather than just observability, is crucial for capturing short-lived resources, especially those under 30 seconds (00:08:18).
+* Event Broker Requirement for OSAC: Orran Krieger advocated for getting the MOC requirements out to ensure no special code is needed in the MOC, aiming to incorporate requirements into the OSAC project (00:09:30). Christopher Tate stated that while a solution is not needed, a message broker that allows multiple services to subscribe to published events would be beneficial (00:10:32).
+* Storage Proposal: Initial Requirements: Upon Will Gordon's arrival, the discussion shifted to their storage proposal, which focused on two initial requirements (00:10:32). The first requirement is a resource (a credentials holder wrapper) for storage provisioning, allowing a CSP admin to set up provider access information. The second requirement is a catalog resource, proposing a "storage tier" instead of the previously suggested "storage class," to list available storage options (00:11:39).
+* Storage Catalog Integration Discussion: The discussion explored where the storage catalog resource should live, noting that OSAC has a template catalog used for virtual machines and cluster as a service (00:12:59). Michael Hrivnak and Lars Kellogg-Stedman suggested a dedicated Storage API endpoint, similar to the Network API, rather than integrating into the existing template catalog. Will Gordon noted that storage is often a just-in-time provisioned resource, although Lars Kellogg-Stedman countered that provisioning clusters or image registries can require immediate storage attachment (00:13:55).
+* Quota Enforcement Mechanisms: Will Gordon outlined three proposals for quota enforcement: using a CSI proxy, employing a validating admission webhook, or relying on eventual consistency with the storage provider handling its own quotas (00:15:54). Lars Kellogg-Stedman raised feasibility concerns with the first two options in a cluster-as-a-service context, as a tenant could potentially disable or bypass them (00:17:12).
+* Quota Enforcement on Hosted Control Plane: Will Gordon detailed a potential solution for hosted control plane (HCP) environments by running a validating admission web hook service on the control plane side. This approach involves either requesting a change in HCP's hard-coded list of resources or running a separate operator to reconcile the protected resources if a cluster administrator attempts to delete them (00:18:14).
+* Feasibility of HCP-Only Solution: Oved Ourfali and Michael Hrivnak expressed concern about adopting a solution that only applies to HCP, noting that dedicated or standalone control planes might be preferred in sovereign environments or for single-node open shift (00:20:41). Michael Hrivnak also stressed that quota enforcement needs to be implemented at all layers, especially since the CSI driver holds the necessary credentials on the worker nodes (00:21:46).
+* Delegating Quota Enforcement to Storage Provider: The group discussed approaching virtualization and cluster/bare metal services separately for quota enforcement. Lars Kellogg-Stedman suggested that quota enforcement for clusters or bare metal must occur at the storage provider level, making it a requirement for fully supported storage backends (00:23:00). Michael Hrivnak agreed with this direction, mentioning that leveraging soft and hard limits supported by providers like Vast seems like a good starting point (00:24:07).
+* Multi-Tenancy and Storage Quotas: Implementing quotas on the storage back end suggests pushing multi-tenancy logic into the storage mechanism itself, which is supported by Michael Hrivnak (00:24:07). This allows storage providers to manage tenant-specific configurations such as encryption and quality of service. Orran Krieger agreed with leveraging provider capabilities but insisted on having an overarching system within OSAC to track quotas across different storage types and tiers (00:25:25) (00:29:07).
+* Storage API and Provider Configuration: Will Gordon proposed having a Storage API endpoint for CSPs to manage storage providers and a "storage tier" resource that tenants can read, with Ansible reconciling quotas to the provider (00:31:30). Michael Hrivnak suggested that OSAC might be able to function without new API endpoints initially, by leveraging Ansible for provider configuration and integrating it into the workflow via environment variables or secrets (00:37:32).
+* Storage Implementation Roadmap: Will Gordon clarified Michael Hrivnak's suggestion, which is to first use Ansible to orchestrate basic setup and provisioning of storage (the consumer side), and then improve the CSP experience (the provider management side) later by adding APIs (00:39:57). The Ansible implementation would require a well-defined interface, similar to networking, to allow for swapping different provider drivers (00:42:25).
+* Storage Abstraction and Tenant Interaction: Ameya Sathe inquired whether the abstraction would cover block, object, and file storage, and whether it would rely on OpenShift CSI drivers or Ansible. The consensus was on using Ansible to create and configure the clusters, including CSI driver installation and storage class creation (00:43:30). The discussion confirmed the intention is for OSAC to abstract the storage tier (e.g., "fast block," "slow NFS") which tenants can request, regardless of the underlying provider (00:52:09).
+* Bare Metal Inventory PR Review: Lars Kellogg-Stedman moved the discussion to the final agenda item concerning bare metal inventory. Austin Jamias requested feedback on a PR for the inventory host controller, which includes an interface for inventory backends. Trey West, who is working on Carbide support, was identified as a candidate to review the interface and provide feedback (00:53:28).
+
+
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+📖 Transcript
+Apr 22, 2026
+innabox full team weekly  - Transcript
+00:00:00
+ 
+Robby Stahl: Hello.
+Orran Krieger: pretty good.
+Thorsten Schwesig: Hello.
+Robby Stahl: Hey.
+Oved Ourfali: Okay. Good morning, good
+Robby Stahl: Hello.
+Orran Krieger: Oops.
+Thorsten Schwesig: You mute class in case you're saying
+Lars Kellogg-Stedman: Does anyone know where Will Gordon is
+Oved Ourfali: uh don't remember the exact location.
+Lars Kellogg-Stedman: located?
+Oved Ourfali: Isn't he on the call to ask? Uh I think it's not uh I don't remember. I remember something. It's not that far from rally, but it's also not close. So,
+Lars Kellogg-Stedman: Okay.
+Oved Ourfali: not very close. I I think like maybe uh yeah, he's in the he's assigned to the rally office. So, and I know he he was in the office here and there. I'm not sure how far he is from the office.
+Lars Kellogg-Stedman: Okay. Well, I was hoping that he would show up for this call, but um let's get the call
+Orran Krieger: So,
+Oved Ourfali: It's me.
+Lars Kellogg-Stedman: going.
+Orran Krieger: just when you're talking about locations, I I I just got a cabin in Maine in a in a place an airport that's relatively nearby and the only commercial flights it has is to Florida or to Rally, North Carolina.
+ 
+ 
+00:04:38
+ 
+Orran Krieger: So, I'm all set.
+Lars Kellogg-Stedman: everywhere you'd want to go.
+Orran Krieger: But but nothing to Boston. Thank
+Lars Kellogg-Stedman: All right,
+Orran Krieger: you.
+Lars Kellogg-Stedman: I'm going to go ahead and start recording. All right, so we have a few items on the agenda today. Um, in Will's absence, we might skip the first one, which was talking about his storage proposal. Um, there were some issues that cropped up as we were discussing yesterday that I was hoping to bring up with the larger group, but I think we do have a bunch of folks who are out today on holidays and um, Will's not here. So, let's move on. The second item there um is metering. Um, who wanted to talk about metering
+Thorsten Schwesig: I can depends which side you want to see. Then you always say we're more academic
+Lars Kellogg-Stedman: um I can't I if I put the agenda item there I can't remember why.
+Thorsten Schwesig: side.
+Lars Kellogg-Stedman: So there is a there is a broad discussion about metering happening in the metering document and I know that there is a uh produced document um kind of looking at metering from the MOC side and the particular requirements of that environment.
+ 
+ 
+00:06:00
+ 
+Lars Kellogg-Stedman: Um was there discussion folks wanted to have on that topic or was it just to make sure everyone is aware that these things exist and have a chance to look at them?
+Michael Hrivnak: I have not yet gone through the MOC document. Um, but I appreciate that it's there to go through.
+Lars Kellogg-Stedman: Okay.
+Michael Hrivnak: So, thank you for that.
+Orran Krieger: Yeah. Does somebody want is it where's somebody summarizing um kind of what's there and why because I think there was just to give a bigger perspective for other people to take a look at it or is it should we just wait for have people read it?
+Lars Kellogg-Stedman: Uh, Iran, you're asking for someone to summarize the MOC
+Orran Krieger: Yeah, I'm just wondering if that would be valuable for somebody that's participated in writing that to just sort of say what what the reason
+Lars Kellogg-Stedman: document.
+Orran Krieger: for doing that was why what it was um why it was valuable to do that or why it's
+Thorsten Schwesig: Okay. I I can do this definitely.
+Lars Kellogg-Stedman: All right.
+Orran Krieger: important
+ 
+ 
+00:06:58
+ 
+Thorsten Schwesig: Um so um the the OC let's call it the OC pure document. I hope this right one that Michael proposed um uh was totally okay as it is uh but it was missing some of the MOC let's say personas for example and some of the MOC things which we need because for example Michael is purely focusing on the metering outcome and everything that comes to pricing and please correct me Michael if I'm wrong um is focusing on the the metering is the output for the customer and pricing and billing is coming from the the user or the customer side in this case. And so the MOC document which we are doing here on the academic side of our SE let's call it like this better is um adding a few more personas like the student and the PI which are sometimes sub or a little bit pumped up uh versions of the persona that Michael described with the more detail they need and also that we added the the meta data which is needed already at beginning from stuff like inventory or events that later on when the metering is handed over to the customer that they have a fair chance to do a right pricing.
+ 
+ 
+00:08:18
+ 
+Thorsten Schwesig: So in a simple ex in a simple expl um example is if the the metering is just delivering a GPU was used and you don't put the metadata who used it or from which pool it was used then the customer has no chances uh of pricing at the end and making its own pricing model. And the second example is that we want to like and this is following Michael's idea about we need to be sure that we can capture short-lived elements or short-lived resources shortlived workloads and if we need this then from our experience and it's also a little bit mentioned in the document then the focus needs to be on the events more than observability. So in the simple example, if you have a rental car, then um the event is picking up the key and bringing back the key. And if you would just measure by how much mileage the car was using, if the car car was not used at all, then you couldn't measure you. The obserability, how much the car was driving doesn't help. If the car wasn't driven at all, observance is picking up the car and giving it back.
+ 
+ 
+00:09:30
+ 
+Thorsten Schwesig: And so especially for short things which are under 30 seconds, we need events for sure. That's what the focus is on this document. More personas in a nutshell. Um more meta data for later on using the pricing after metering
+Lars Kellogg-Stedman: All
+Thorsten Schwesig: and that events are a big thing we need. Obserability by itself is not enough.
+Orran Krieger: Does that make sense?
+Lars Kellogg-Stedman: right.
+Michael Hrivnak: All sounded good to
+Orran Krieger: Yeah. I And I think that what one thing I I've been pushing on the MOC side and stuff is get the
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: me.
+Orran Krieger: requirements out here, right? If there's if for some reason there's a feeling from the OSAC team, hey, these are wild, they're different or we're not they're not useful, um, then we should know that. But my hope is that we're working to get everything that's I'd like to avoid having special code for any of this stuff in the MOC. Let's try to get it a part of the project and then and then a real use case of it.
+ 
+ 
+00:10:32
+ 
+Lars Kellogg-Stedman: All
+Christopher Tate: Yes. So, we don't need a solution to anything,
+Lars Kellogg-Stedman: right.
+Christopher Tate: but it would be great if there was a message broker where you could publish events and more than one service could subscribe to those events.
+Lars Kellogg-Stedman: Okay. All right. Um I see that Will is here now. Hey Will,
+Will Gordon: Hey,
+Lars Kellogg-Stedman: we wanted to talk about storage briefly.
+Will Gordon: sorry.
+Lars Kellogg-Stedman: Um there was So for some context, Will had put together a proposal for a storage API and um I taken a look at that yesterday and I said, "Hey, I don't think that all of these options are technically feasible." And so we had some discussion about that and it looks like um there's some additional discussion that happened after I was offline yesterday. So I wanted to just open this up will for you to talk a little bit about where things are and what the current set of proposals looks
+Will Gordon: Cool. Sounds good. Um,
+Lars Kellogg-Stedman: like.
+Will Gordon: so first of all, the proposal kind of had two differing things in it.
+ 
+ 
+00:11:39
+ 
+Will Gordon: The the document I posted, one of the first things we need to solve is like the storage provisioning and kind of the setting up with with an integration with the storage provider. Um so essentially we need a storage or a um credentials holder wrapper some kind of um API resource that can hold you know like my storage provider is vast my storage provider is pure this is how I access the management API whatever all that stuff um so that's kind of the the first API resource that a CSP admin would set up and then they would create some kind of catalog resource um of these are the storage options that are available. I proposed kind of like an OSAC API of storage class and then everyone said like that's kind of an overloaded term and I'm like yeah sure but um so we need some kind of catalog device of this is the storage that is available. Um those two things are kind of the the primary things that we need. uh we talked about like you know some CSPs might want tenant A to have these tiers and tenant B to have some different tiers and they could assign the cataloges and this and that and um we can figure that out later.
+ 
+ 
+00:12:59
+ 
+Will Gordon: Uh I think the agreement was like let's not do that for this MVP. So those are kind of the two big pieces that we need first. And um you know I I I think part of the issue is we don't have a concept of the catalog yet that I've found. Um go
+Lars Kellogg-Stedman: not not in a not in a abstract sense.
+Will Gordon: ahead.
+Lars Kellogg-Stedman: I mean the concrete sense we have the template catalog but there's not a well-developed API for that I guess and that's the only model we have right
+Will Gordon: Right. Okay.
+Lars Kellogg-Stedman: now.
+Will Gordon: And is one of the thoughts would it be I'm assuming the template catalog is intended for like these are my VM templates. Is it intended to be
+Lars Kellogg-Stedman: Well, so not not not specifically for virtual machines. No.
+Will Gordon: generalized?
+Lars Kellogg-Stedman: Um it's also used for uh cluster as a service. So right now it already supports two different types of
+Will Gordon: Okay. So like is this a good place for like this is my GPU template.
+ 
+ 
+00:13:55
+ 
+Lars Kellogg-Stedman: things.
+Will Gordon: This is my storage template. Like, would that probably be the right place to kind of store these
+Michael Hrivnak: I don't think so. Like we have dedicated endpoints for a type of resource.
+Will Gordon: things?
+Lars Kellogg-Stedman: I
+Michael Hrivnak: So I think we would probably need a new type of endpoint for that kind of
+Lars Kellogg-Stedman: Yeah. Yeah, I mean like like we have a network API for handling networking.
+Michael Hrivnak: thing.
+Lars Kellogg-Stedman: I would look at storage as being a similar thing where we would have a storage API um and potentially a list of available providers and and that kind of thing that it would be a separate
+Will Gordon: maybe and I and I only say that because to me storage is kind of and
+Lars Kellogg-Stedman: stack.
+Will Gordon: we started talking about this in the in the thread as well but like storage is kind of like a just in time thing. You don't really need the storage until you have a VM or a container as a service that and even container as a service technically doesn't have any until you have PVCs.
+ 
+ 
+00:14:56
+ 
+Will Gordon: So like you don't you don't provision storage for a tenant until it gets
+Lars Kellogg-Stedman: That's not necessarily true.
+Will Gordon: consumed.
+Lars Kellogg-Stedman: If you're provisioning a cluster, you may need to attach the storage um you may need to pro provision the storage as part of bringing up the cluster.
+Michael Hrivnak: for sure.
+Lars Kellogg-Stedman: That is things like the im things like the image registry need to consume that storage pretty much
+Michael Hrivnak: Yeah.
+Lars Kellogg-Stedman: immediately.
+Orran Krieger: Yeah. And the quotas for all this stuff needs to
+Lars Kellogg-Stedman: Well, that's that's the second part of the proposal was dealing with quotas and that's uh specifically some of the things that I was
+Orran Krieger: be
+Lars Kellogg-Stedman: referring to when I said there were some feasibility issues in in the proposal
+Will Gordon: Yeah, sorry. Okay, so that that was the first piece like we kind of need you know the generic things and then after that is when
+Lars Kellogg-Stedman: There
+Will Gordon: we have storage in other words when it's provisioned for a VM for a container for a cluster whatever um how do we register that back in OSAC?
+ 
+ 
+00:15:54
+ 
+Will Gordon: Um and so that was kind of the the second part of the conversation of you know do we try to gate something upfront whether um
+Lars Kellogg-Stedman: heat.
+Will Gordon: the three main proposals was like do we put it through a CSI proxy so whenever you request storage through the CSI we manage it through the CSI proxy and then we call the provider CSI driver. Um the second proposal is do we look at doing a um validating admission web hook where the request hits the web hook we call out to the OSAC API register the storage and then based on the quota we either allow or deny the the you know storage request to go through whether that's a data store whether it's a PVC whatever it is um and then the third proposal is essentially we be eventually consistent. We attempt to rely on the storage provider to handle their own quota. Um, some of the issues I saw with that based on my research is like some of the storage providers will handle quota at right time. So in other words, you know, you provision a data store, you provision a PVC, you do whatever you want and that that request goes through fine.
+ 
+ 
+00:17:12
+ 
+Will Gordon: you don't find out that you've hit your quota until after the fact when you actually go to write to the data store is when like the storage provider will enforce their quota. Um, so that can be kind of a a poor user experience.
+Michael Hrivnak: See?
+Lars Kellogg-Stedman: Right. And so my my contention was that the first two options would require instrumenting things on a tenant cluster for cluster as a service and that they would therefore be something that a tenant could disable or bypass and so wouldn't really be effective. Although I saw in the slack discussion after that that there was perhaps some possibility of uh implementing some of this on the control plane in a way that was protected from the
+Will Gordon: Right. So that that was a bit of a rabbit hole I went down um yesterday was kind of investigating what we could do if we were looking to
+Lars Kellogg-Stedman: tenant.
+Will Gordon: enforce this. I mean obviously for things like VM as a service and stuff like that. It's on the CSP's cluster. I'm not I don't think we're concerned about protecting it there.
+ 
+ 
+00:18:14
+ 
+Lars Kellogg-Stedman: Yeah.
+Will Gordon: But yes, for cluster as a service, um assuming that we only support HCP, which I I kind of hope we do, um what we could look at doing is essentially, you know, do you run the web hook service on the control plane side. So the cube API talks directly to the service on the control plane. None of that traffic hits the customer cluster. Um you rely on the uh validating admission configuration on the tenant cluster and you rely on a validating admission policy. Sorry, I think those are the two right things. Anyways on the tenant cluster um the pattern that HCP has is currently the the hosted cluster control plane operator sorry HCCL uh registers some hard-coded list of of VAPs and and VAC's that it monitors and maintains and when you go and delete one of those on the tenant cluster it immediately reconciles it back and So potentially what we could look at is one whether we can get an RF into HCP where like HCP monitors its its hardcoded list and you can provide a list of like other things that you wanted to to reconcile that way.
+ 
+ 
+00:19:39
+ 
+Will Gordon: Or we could potentially look at running an operator on the control plane side alongside the hosted control plane operator um to essentially do the same thing for the resources that we care about protected. And so that yeah and so like that would essentially be you know we would rely on the standard Kubernetes resources to protect
+Lars Kellogg-Stedman: Okay.
+Will Gordon: it and then if cluster admin comes along and decides to nuke them we immediately reconcile them back. So there's a potential you know second subsecond uh race condition where something might squeak through.
+Lars Kellogg-Stedman: Right.
+Will Gordon: Um, but I I think it's it's small enough that it could be feasible and I think it it does away with some of the other complexities of trying to do a CSI proxy or you know what the user experience might be like for the the eventual consistency option as
+Lars Kellogg-Stedman: So, one of those options there requires changes to the HCP because of the hard-coded
+Will Gordon: well.
+Lars Kellogg-Stedman: list of resources. But your second option, running our own operator, would not have that requirement,
+ 
+ 
+00:20:41
+ 
+Will Gordon: Correct. So,
+Lars Kellogg-Stedman: right?
+Will Gordon: like ideally we get this into HCP and I'm chasing that down. But in the short term, yes, we could look at at literally just running our own operator that follows the exact same pattern. Um, and we can do it that
+Lars Kellogg-Stedman: Okay.
+Will Gordon: way.
+Oved Ourfali: I just wonder.
+Lars Kellogg-Stedman: So,
+Oved Ourfali: Yeah,
+Lars Kellogg-Stedman: go ahead.
+Oved Ourfali: sorry.
+Lars Kellogg-Stedman: Go ahead.
+Oved Ourfali: Uh I just want It's true that we have HCP today,
+Lars Kellogg-Stedman: Yeah.
+Oved Ourfali: but I I do wonder whether uh in the sovereign world some customers would prefer to have uh let's say dedicated control planes, etc. So, I'm not sure. Um, I'm not sure I'm in favor of a solution that would apply only to HCP, I guess. Um, so that's something to look into, right? I mean, I wouldn't want us to kind of create something that would block us only for that.
+Lars Kellogg-Stedman: Well, and there's there there's another issue there too, which is that um in the world of bare metal as a service, we may still also want to have some kind of quota enforcement And in that case, it pretty much has to happen at the storage provider side.
+ 
+ 
+00:21:46
+ 
+Lars Kellogg-Stedman: Um, so that is something to take into account also. Although Michael, I see you've got a hand up
+Michael Hrivnak: Yeah. So I I share Ovid's uh thought about I think there is good reason to expect that
+Lars Kellogg-Stedman: there.
+Michael Hrivnak: there will be use cases where uh an individual control plane and a standalone control plane is desirable even if that's for example things like single node open shift or a compact cluster uh or just based on data concerns uh regulatory concerns that are hard to satisfy uh with something like HCP to have a control plane that stands alone also So I think as as I understand this is the the sec second point I wanted to make that the CSI driver is present and running on worker nodes and it's the thing that has the keys the credentials to go actually provision storage and get it mounted on the local host web hook a web hook's not going to prevent somebody maybe from even getting roundabout access to that. So whatever we think we want to do that enforces quota, we need to ensure that we're doing it at all the layers.
+ 
+ 
+00:23:00
+ 
+Lars Kellogg-Stedman: So, so I guess here's a different question also.
+Michael Hrivnak: Um
+Lars Kellogg-Stedman: I mean the mechanisms available to us differ substantially between the virtualization side and everything else cluster and bare metal as a service. Do we want to approach those all separately?
+Michael Hrivnak: Mhm.
+Lars Kellogg-Stedman: Um because I think what I'm I think that implementing storage quotas on the provider side is really going to be the only effective mechanism for clusters or for bare metal environments. Um and so that will put that'll put requirements on the storage provider as to whether or not we can actually support storage quotas in a useful fashion. Because if you've got uh you know you've set up an NFS server on Linux and that's your storage um and you don't have quotas enabled then you know there's not really anything we can do and just accept that that becomes a documentation issue that says here are the requirements for the storage back end.
+Michael Hrivnak: Right.
+Lars Kellogg-Stedman: It has to provide this set of features in order to be fully supported and if you don't have that then you're going to lose out on you know some of these things.
+ 
+ 
+00:24:07
+ 
+Lars Kellogg-Stedman: Um and for things like virtualization which are running um on a cluster to which the tenant doesn't have access and it is in a much more constrained environment with respect to storage use a different solution there. Does that seem like a reasonable
+Michael Hrivnak: that that's the direction I was thinking of going. Um it does seem like it's relatively common to have some sort of a soft limit in addition to a hard limit.
+Lars Kellogg-Stedman: approach?
+Michael Hrivnak: It's like we talked to people at Vast yesterday. They they support right in the vast uh cluster configuring a soft limit at which time you'll get a warning. It's like, hey, you should probably go find more storage or free up some storage or whatever. Uh, you know, kind of like you get on your phone sometimes. Uh, versus the hard limit, which is when rights start failing. So, if we leverage that, that seems like a pretty good starting point at
+Orran Krieger: So
+Michael Hrivnak: least.
+Lars Kellogg-Stedman: So that brings up another question which is for everything we've done so far we have held um multi-tenency in the fulfillment service and that's been kind of where the idea of tenency was isolated but with storage at the back end does storage quotas at the back end that suggests to me that we need to kind of push tenency then into the storage mechanism because you'll need different quotas for different projects and if you're talking about soft quotas that emit warnings then
+ 
+ 
+00:25:25
+ 
+Michael Hrivnak: Yes.
+Lars Kellogg-Stedman: you've got to have a way of configuring who gets the warning and stuff like that. Does that seem
+Michael Hrivnak: Definitely.
+Lars Kellogg-Stedman: correct
+Michael Hrivnak: And in addition because uh encryption can be configured per tenant on like directly on a storage solution and quality of service can be configured there.
+Lars Kellogg-Stedman: or
+Michael Hrivnak: So that mitigates the noise neighbor problems and so on. So there's a lot of reasons we should leverage the multi-tank capabilities of the storage providers.
+Lars Kellogg-Stedman: Okay, you have a hand
+Orran Krieger: Yeah, I I I agree with how this we need to leverage the capabilities in the storage,
+Lars Kellogg-Stedman: up.
+Orran Krieger: but it also feels like we need to have something that knows what's happening across all them like so in other words I I want to make you so things like S3 you know that's going to be used by a tenant directly that's not going to be used ire infrastructure that VMs will or or containers or whatever across different environments will be using it using it and if we're providing quota I mean it might be that we have to that logically the amount that we're that that tenant has bought a certain quota of storage but it may be shifted between different kinds of storage depending on what's going on.
+ 
+ 
+00:26:44
+ 
+Orran Krieger: Um it's just not
+Lars Kellogg-Stedman: I I think different kinds of storage we would probably look at look at as different storage tiers and you'd get a cod per storage tier. I don't think I don't think it would make sense that we'd say you get one terabyte and then that would be a mishmash of different providers. Um, I think we'd say you get 1 TBTE of pure storage or you get 1 TBTE of really slow NFS storage or that kind of thing. And and if you wanted both, then you'd get both quotas separately and and you'd have some visibility into
+Orran Krieger: Yeah,
+Lars Kellogg-Stedman: that
+Orran Krieger: I I I get what you're saying. I I think that if it's fundamentally different types of storage, absolutely. But there's cases where storage is fungeible. Um because you know we're we're using file system storage from say um um as and we're g making available to open shift which is exposing it as as volumes for the containers, right? But we could also have a um we could also be directly mounting a a disk off of or or or we could be directly accessing files from the application.
+ 
+ 
+00:27:58
+ 
+Orran Krieger: And so this is two uses of the same underlying storage service for two very different use cases. One is container storage. The other one is an application that's mounting um a file system. Does that make sense?
+Lars Kellogg-Stedman: No, I did not follow you on that one.
+Orran Krieger: All right. Uh let
+Lars Kellogg-Stedman: But but I but I think I think for if if if we are implementing quotas on the provider side then those two things you just mentioned whether you are mounting storage directly inside the container somehow which is not a common use case that we've seen so far or whether you're consuming it as container storage wouldn't matter because the quotas would be implemented at the source of the storage and it wouldn't care um how you were accessing it. But
+Orran Krieger: Yeah. Okay. I I I I would I I guess that maybe the only part I was trying to think of,
+Lars Kellogg-Stedman: um
+Orran Krieger: let's say if a storage service goes away, failure, whatever, the reconciliation loop should be attempting to get storage that that replaces it in some cases.
+ 
+ 
+00:29:07
+ 
+Lars Kellogg-Stedman: I mean if if the storage goes away because of a failure,
+Orran Krieger: So,
+Lars Kellogg-Stedman: you've lost all your data. So I don't necessarily know that it makes sense to attempt to reattach storage of equivalent size automatically if that is what you're
+Orran Krieger: Yeah.
+Lars Kellogg-Stedman: suggesting.
+Orran Krieger: No, I'm more suggesting that for ephemeral storage for you know a set of kinds of
+Lars Kellogg-Stedman: Okay.
+Orran Krieger: storage or or in fact there's going to be cases where we're going to be doing backups or recovery like part that was one of the big things we ended up sort of automating in vCloud director was in fact the recovery situations. Um, I just want to make sure that the only source of knowledge about what we have isn't only in the storage system that
+Lars Kellogg-Stedman: Well, no.
+Orran Krieger: we
+Lars Kellogg-Stedman: For ultimately this the knowledge about what we have and what the quotas are would have to live in OSAC because that's that is the source of data we'd be using to configure quotas in the backends.
+Orran Krieger: Okay.
+Lars Kellogg-Stedman: We're not talking about somebody going kind of behind the back of OSAC and implementing storage quotas manually in these systems.
+ 
+ 
+00:30:11
+ 
+Lars Kellogg-Stedman: We're talking about OSAC having the data about what quotas are available and performing the necessary configuration.
+Orran Krieger: Okay, good.
+Lars Kellogg-Stedman: Uh Will, you've got a hand
+Orran Krieger: Thanks.
+Will Gordon: All right. Um, want to kind of distill what I'm understanding so far.
+Lars Kellogg-Stedman: up.
+Will Gordon: But the first thing before I get there is one question around quota. So I know Kubernetes has their cluster resource quota concept, right? That just kind of covers your CPU, your memory, your storage. Like these are all the quotas. Would we look at something similar having a generic quota resource that tracks all the quotas across everything or would quota be a specific resource on the storage API in this case?
+Lars Kellogg-Stedman: So there are existing proposals for quota management in a general sense. Um, and it would be awesome to not have storage be a completely separate thing from that unless we decide that for you know terrible technical reasons it has to be. And there's um the metering document that Michael put together which interacts with that because that is a document that is basically how do we know what quantity of given resources people are using so that we are able to implement policy such as quota on top of that.
+ 
+ 
+00:31:30
+ 
+Lars Kellogg-Stedman: And Michael, let me know if I have mischaracterized
+Michael Hrivnak: No, I think that's exactly right. I think we're recognizing that metering information is an input to quota
+Lars Kellogg-Stedman: that
+Michael Hrivnak: enforcement for most things. And so that's the the starting point.
+Will Gordon: Okay, awesome. So what I'm hearing so far is we will have a
+Michael Hrivnak: Um
+Will Gordon: storage API endpoint that lets CSPs manage a storage provider. Uh do full CRUD on it. We will have a storage tier maybe then resource instead of storage class since everyone hates that name. Um but like a storage tier resource that CSPs will do full CRUD on. Um tenants or orgs would be able to read the available tiers. I don't necessarily know if it makes sense for them to be able to read the providers because a tenant or a tier would would reference the uh provider it applies to. Um, we have existing quota somewhere, existing quota proposals somewhere that I'll I'll dig into and try to ideally reutilize that. Um, and then when you specify a quota, um, Ansible goes off and reconciles that to the uh, storage provider.
+ 
+ 
+00:32:55
+ 
+Will Gordon: And then the final piece is we are not implementing storage quota enforcement on the OSAC side. We're we're pushing that down to the storage provider and then presumably we will have some kind of storage volume resource in OSAC that does some eventual consistency polling of like hey here's a volume that exists somewhere in your organization that's using you know x amount of storage and we we can pull that or pull that or whatever it from the storage provider itself.
+Lars Kellogg-Stedman: That last that last bit I'm not sure we'd necessarily care about individual storage
+Michael Hrivnak: Huh?
+Lars Kellogg-Stedman: volumes. I guess it depends a little bit on the capabilities provided by the back end, but we may want just a larger view of what your quota is and what your utilization is and that might cover multiple volumes.
+Will Gordon: the larger piece probably feeds into just the generic metering, right? Like if if we're putting if we're putting metrics somewhere and we're building a dashboard around that,
+Lars Kellogg-Stedman: Okay.
+Will Gordon: like we we would call that out. But one of the um ideas that was mentioned was being able to see your actual volumes just like you can see your EBS volumes in AWS.
+ 
+ 
+00:34:04
+ 
+Will Gordon: So that was that was the idea behind the storage volume resource.
+Lars Kellogg-Stedman: I see. Okay. A you have a hand up.
+Akshay Nadkarni: Yeah. So I think on the Kota uh side like so from a tenants perspective um or even from a CSP's perspective you could have multiple uh providers right um and so a tenant um even as part of uh Cass uh may have multiple providers that is that are being used for storage. Um I agree with the fact that the kota enforcement happens at the provider level but we'll still need to have some kind of an uh overarching kota management for a tenant because maybe let's say a del um um um array that is being used by tenant a only 100 uh whatever terabytes is allocated to the tenant uh which might be fast storage for example, right? And then you may have a net app where the uh let's say standard storage is being used and only 50 terabytes is allocated. And if most of the resources on the cluster are asking for standard storage, yes, we do need to show that from a netapp perspective that you are running out of your standard storage.
+ 
+ 
+00:35:28
+ 
+Akshay Nadkarni: But will the tenants also be able to get how much fast do they have and how much like you know standard storage capacity do they have so that they know which one to increase when to increase it and what not like is that going to be provided in OSAC?
+Will Gordon: Yeah, I think I think that's intent that's the intention of like the
+Akshay Nadkarni: Um
+Will Gordon: metering enhancement.
+Michael Hrivnak: Right.
+Will Gordon: Um, and to be fair, the storage or the the quota quota enforcement enhancement I haven't looked at yet.
+Michael Hrivnak: Yep.
+Will Gordon: So, I will look at that. But like I think that's kind of thing and my understanding is I think that that quota enforcement lives on the CSP side. Is it intended to also be like CSPs set global limits? Tenants can maybe set their own limits inside of things. I don't know yet. Is that captured
+Lars Kellogg-Stedman: I don't uh I don't know if that's captured explicitly but I think that our assumption
+Will Gordon: there?
+Lars Kellogg-Stedman: and everyone can yell at me if I am wrong is that the this is primarily the CSP setting limits and that the tenant is the tenant is responsible for however they manage their environment, but we're not providing facilities through OSAC that would enable them to do their own quotas or anything like that.
+ 
+ 
+00:36:39
+ 
+Will Gordon: So CSP set quotas presumably the metering enhancement which I'm purposely not going down that path. You got to focus on storage. Presumably the metering enhancement will handle like tenant.
+Lars Kellogg-Stedman: Yeah.
+Will Gordon: I want to see how much storage I'm using and this is how I can see that.
+Lars Kellogg-Stedman: Right.
+Michael Hrivnak: Right.
+Akshay Nadkarni: because I think a tenant as part of onboarding would pay for a
+Lars Kellogg-Stedman: Sure.
+Akshay Nadkarni: certain amount of storage of a certain tier. Is that a
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: Yeah.
+Akshay Nadkarni: right?
+Lars Kellogg-Stedman: I think that's that's the model that we're looking at right now is that tenants are paying for x amount of storage and the CSP is limiting to what they've paid
+Akshay Nadkarni: So the CSP has like the umbrella view of okay,
+Lars Kellogg-Stedman: for.
+Akshay Nadkarni: what storage do I have as a whole in my data center and do I need to buy more storage from a provider's perspective based on what the tenants usage is? not a specific tenant but all tenants usages but from a tenants perspective they still want to see okay in from what what I have paid for how much is being consumed do I need
+ 
+ 
+00:37:32
+ 
+Lars Kellogg-Stedman: Right.
+Akshay Nadkarni: to buy more from the CSP or kind of you know shift resources or whatever is necessary for them
+Lars Kellogg-Stedman: Broadly, I think that sounds correct.
+Michael Hrivnak: Yeah.
+Akshay Nadkarni: okay all
+Michael Hrivnak: Yeah. Um, well, I want to go back to the API point you made. It seems to me like we don't we can get pretty far without any new API endpoints and that the storage provider is mostly configuration that the CSP needs to provide to OSAC to say okay OSAC there's a vast over here and this is how you connect to it and use it or there's a net app over here and here's how you connect to it and use it. Uh it seems like we could get pretty far in terms like just doing that and getting it into the workflow
+Lars Kellogg-Stedman: What?
+Michael Hrivnak: and create VMs, create clusters, start, you know, utilizing whatever quota on the provider side there is before we have to start thinking about adding new API endpoints to manage storage. What do you think about that?
+Will Gordon: Where does provider live?
+ 
+ 
+00:38:48
+ 
+Michael Hrivnak: Where did
+Will Gordon: I I guess my my only two things are are the provider information and the tier information. If we're not providing an API endpoint to manage those two things to the CSP, where do they live? Or are we saying that CSPs will just create Kubernetes secrets and config maps directly in the cluster?
+Michael Hrivnak: It can either be I mean the most basic and not the maybe the best long-term solution but any kind of infrastructure integration that is specific to a CSP can be carried out at the anible layer. It's like that's a starting point. So you can just do it there. Um, otherwise we can I don't know do if we have a config file yet. Maybe not. Um,
+Lars Kellogg-Stedman: We have we have configuration that the CSP inputs through like environment variables and things.
+Michael Hrivnak: yeah. Yeah.
+Lars Kellogg-Stedman: It's kind of scattered right now.
+Michael Hrivnak: Yeah.
+Lars Kellogg-Stedman: Um I am I am inclined to think we probably do want API endpoints for storage. Um,
+Michael Hrivnak: And I'm not saying that we don't, but I'm kind of suggesting we maybe don't know yet everything about what they should look like and how
+ 
+ 
+00:39:57
+ 
+Lars Kellogg-Stedman: okay.
+Michael Hrivnak: we want to use them. And we might benefit from doing something simpler in the short term and just get it working and see the endto-end flow of how we can actually use a couple of these storage providers. uh get you know real clear on the complete list of information that we need uh to to receive as configuration and what things we don't need and we can if we really want dynamic APIs to be able to do this at the API layer we can always add those later but
+Will Gordon: It sounds like you're saying, Michael,
+Michael Hrivnak: I
+Will Gordon: like just start creating the Ansible playbooks and all that stuff and just do the orchestration. Don't automate it. Just hack on anible, make it work. Um, and then have Anible automated,
+Michael Hrivnak: I would say automated but rec yeah
+Will Gordon: right?
+Michael Hrivnak: advanceable automated and maybe even we pass this in as environment variables to whatever service needs to know about storage uh or some kind of config file situation put it in a secret mount that secret as a config file for example um like we can whatever input we still need we can make that available to the binary that's running in as part of the OSAC system so that it can we maybe just don't need an API to manage that data coming in and
+ 
+ 
+00:41:23
+ 
+Will Gordon: Yeah. Um, and then I guess the second question is and and what it sounds like you're proposing is like the first question is like make get anible working to where it can just do things and then the second piece would be to automate the um consumer side of things. automate it so that VM as a service, cluster as a service can then get the storage right and then we can improve the CSP
+Michael Hrivnak: Yeah.
+Will Gordon: experience later.
+Michael Hrivnak: Yeah. Exactly. Yeah. This is basically like the five points that I put on Slack last night uh of like let's automate interacting with the you know doing the setup
+Orran Krieger: Thank you.
+Michael Hrivnak: automate uh configuring a cluster after that cluster has been provisioned so that it can use the tenant storage on the CSI or on the uh on whatever the storage solution is whether you know whatever vast specific thing they've got their VIP scheme that we need to think about the network layout uh and and be able to actually call these things at cluster creation
+ 
+ 
+00:42:25
+ 
+Will Gordon: Cool. And just because I'm new, I'm going to get my head around things.
+Michael Hrivnak: time.
+Will Gordon: Like to me that that sounds like OSAC AAP to get the Ansible pieces working and then OSAC operator to be able to do like the the automated provisioning of like, hey, you want a cluster? This is how I give you storage. What's that? Is my mental ma map
+Lars Kellogg-Stedman: probably although OC OSAC operator means you're turning around and it's passing stuff back into AAP which was which is where the um like the cluster deployment orchestration happens.
+Will Gordon: Okay. So maybe not even no sack operator just maybe the the cluster AAP the the cluster anible stuff will just call the storage anal
+Lars Kellogg-Stedman: That's I think that's a good possibility. Um we'll want to have a fairly you know well- definfined interface for storage kind of like what we've tried to do with networking. I think that would allow us to you know to swap in different uh provider drivers in a reasonably flexible fashion.
+Will Gordon: Yeah, absolutely.
+ 
+ 
+00:43:30
+ 
+Will Gordon: So a generalized anible layer that calls the various anible provider galaxy stuff. Yeah.
+Lars Kellogg-Stedman: Yeah. Um, Amaya, you have a hand up for a while.
+Ameya Sathe: Um yes so my question was around the type of like abstraction so I'm presuming when you talk about storage you talk three types of storage block object and file system right that's my presumption so do you want to rely on open shift uh CSI drivers to define those providers or trying to look up at the anible part or the same mean what are you trying to abstract away the anible thing abstraction or the Open Shift base platform abstraction.
+Will Gordon: I think it's the antsible
+Michael Hrivnak: So we use Ansible to yeah we use Ansible to create the clusters and then configure the
+Lars Kellogg-Stedman: Yeah.
+Will Gordon: thing.
+Michael Hrivnak: clusters. Then we hand over the cluster to the tenant so they can start using it.
+Will Gordon: Yeah.
+Michael Hrivnak: Does that answer you?
+Will Gordon: So like a a generalized antsible piece that says you know my cluster needs storage
+Lars Kellogg-Stedman: All
+ 
+ 
+00:44:37
+ 
+Will Gordon: and it will call the Ansible playbook and then based on the storage that we have based pure something it'll then call the provider's anible um to do the actual you know CSI driver installation storage class creation um on the cluster.
+Lars Kellogg-Stedman: right.
+Orran Krieger: Just just going back to that comment, Michael, there's there's a case where we have um where we have clusters, right? And we're probably raw storage to these things um or file system storage or whatever. Then there's a case and and those clusters are managed by a tenant with their own users and everything else. We have nothing to do with it at some level, right? There's cases where we're we're actually managing it to stand up VMs there and so those are OSAC managed in some sense VMs, right? um and and whoever the users of those VMs are are ours. And then there's probably other scenarios where we're going to stand up open shift clusters that really a a cloud service provider is standing up as shared multi- at least in the case of the NOC shared um multi-tenant open shift clusters where students from multiple institutions etc etc are using them.
+ 
+ 
+00:46:02
+ 
+Orran Krieger: Um, and those are I just just to be clear like we're we're we
+Lars Kellogg-Stedman: Actually
+Orran Krieger: we don't always just um hand off a cluster where the users inside that cluster are the are are the the business of the tenant of that that owns the
+Lars Kellogg-Stedman: Aron I think that's not true.
+Orran Krieger: cluster.
+Lars Kellogg-Stedman: I think I think in the case that like if the MOC running a shared multi-tenant cluster the MOC is the tenant. They are the ones consuming OSAC and provisioning a cluster. What they do with that cluster once it's up is it single organization or are they opening up service to multiple organizations themselves? That's outside of our control. Right? The MOC in that case is there is their own tenant. They are consuming their own service to provision a their own multi-tenant cluster that they are managing and we're not asserting any control.
+Orran Krieger: for
+Lars Kellogg-Stedman: We're not we're not asserting any kind of control into that cluster over those
+Orran Krieger: example
+Lars Kellogg-Stedman: tenants.
+Orran Krieger: in the case of the VM as a service thing we are right I mean this is now multi-tenant cluster
+ 
+ 
+00:47:06
+ 
+Lars Kellogg-Stedman: Well, in case of VM as a service,
+Orran Krieger: that
+Lars Kellogg-Stedman: we're not really we're if you're using VM as service, then you get the VM and what you do with that VM is entirely up to you and we don't assert any control over what happens inside that VM.
+Will Gordon: All right. My understanding is is like VM as a service is running on the CSP's Open Shift cluster. So we we provision the storage on the CSP's cluster and it just gets
+Lars Kellogg-Stedman: Yeah.
+Will Gordon: attached to the volume and the customer who sees the VM never has access to our stuff. Um, yeah.
+Lars Kellogg-Stedman: Right.
+Orran Krieger: So so so I'm I'm okay with this separation of concerns. I I think I kind of like what you said, Blush, but the reality is we are going to have organiz I I think we're going to have a lot of CSPs that want us to automate the that whole cluster as well. Um and they want to have a single pain for that. Um is that we thought through the complexity of that
+ 
+ 
+00:48:04
+ 
+Lars Kellogg-Stedman: We have not I that is that's again our use case with cluster as a service is stand up the cluster and then we're And if there's if
+Will Gordon: Yeah, a mult a multi-tenant a multi-tenant CSP owned cluster sounds
+Lars Kellogg-Stedman: there's Yeah, go
+Will Gordon: like container as a service where where like here's a project you can run your
+Lars Kellogg-Stedman: ahead.
+Orran Krieger: Yes.
+Will Gordon: containers.
+Orran Krieger: Yes.
+Michael Hrivnak: right?
+Will Gordon: So I mean like the it would still be the CSP's cluster presumably where we would you know install all the the storage classes and the CSI drivers and then tenants who see their open shift project won't see any of that. They'll just see standard Kubernetes storage classes of like hey I can create a PVC to this storage class but like that would all be I presume like standard Kubernetes resources. I don't even think they would do anything in OSAC for
+Lars Kellogg-Stedman: right? That's kind of what I'm saying is that, you know, we could we would set up the cluster and attach storage or configure it however necessary, but the tenant interaction with that and the CSP interaction with that cluster would really just be it's it's an open shift cluster.
+ 
+ 
+00:49:15
+ 
+Will Gordon: And I'm sure for container as a server like if we actually offer that like we can provide a template like this is how you stamp out a multi-tenant cluster that has all the right protections on it and all the right CRQs and everything else that um works as you would expect for multi-tenant. But again like I think that to like to LA's point like that would just be like a template customer you know CSP can use it
+Michael Hrivnak: it.
+Will Gordon: or not and then they can tweak it as they need
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: And if we if we want container as a service to your point, we should design container as a service. Like we haven't really talked about that,
+Lars Kellogg-Stedman: Yeah.
+Michael Hrivnak: so let's we don't have to design it here.
+Orran Krieger: So I I I think that uh I I encourage I I think you're right. I I guess I buy that. I mean, but that wouldn't So Run Pod, by the way, has been incredibly successful and a very simple their base model.
+ 
+ 
+00:50:01
+ 
+Orran Krieger: And I think we should we should and that just plays directly to our strengths of what we are offering natively. Um I think we should offer something like that. I think that's really what I'm hearing people asking for at least in the
+Lars Kellogg-Stedman: Okay. Okay.
+Orran Krieger: context.
+Lars Kellogg-Stedman: But so I don't want to turn our storage discussion into let's offer containers as a
+Orran Krieger: Sorry.
+Lars Kellogg-Stedman: service. If I think if that's a feature that we want,
+Michael Hrivnak: Mhm.
+Lars Kellogg-Stedman: then we have a mechanism by which you can write up what that should look like and then we can run with it and and see how it fits in.
+Michael Hrivnak: Amea has used a feature that I had forgotten Google Meet has which is a Q&A feature which is neat.
+Lars Kellogg-Stedman: Yes.
+Michael Hrivnak: Uh so presumption this about storage is that OSAC will abstract the block file and object storage. It depends on what you mean by abstract. I don't think we're going to have like a a proxy in front of uh any kind of storage solution like you're going to get direct access.
+ 
+ 
+00:51:01
+ 
+Michael Hrivnak: So I think at the bottom at the end of the day there's no way for us to like hide the fact that this is vast or this is NetApp or this is whatever I think in any reasonable way. But certainly we want to be able to stamp out here is here's your VM or here's your cluster and the user doesn't have to worry about or do anything in particular storage wise to get their VM or their cluster. They just get storage is one of many things that needs to be allocated resource-wise in order to stand up a viable cluster. Is that what you were getting at? Oh yeah.
+Lars Kellogg-Stedman: Yeah.
+Ameya Sathe: Yeah. Should we be concerned? Okay. I when you talk of storage, it's not just for VM. It's also for storing the application data, right? And the VMs can be different like VM can say I want to block storage while the application running on the VM can say want storage which is essential for the VM to start running.
+Will Gordon: Yeah.
+ 
+ 
+00:52:09
+ 
+Ameya Sathe: B level of application that as an OSAC imagine OSAC template or something where people just want to object storage with a block storage at the boot OS disk and then uh I set it up. I don't care as a tenant. I'm a tenant. Don't care where that stuff is running. as a cloud admin tenant I'm going to configure it when I scale up my operations from let's say I go to Azour I go to my private cloud then I start up uh in Asia APAC region which is AWS the tenant can be anywhere so in this case
+Will Gordon: I I think that's I think that's the intention.
+Ameya Sathe: uh right yeah so will That is
+Will Gordon: Yeah. Like I like I think the Ansible like I think the Ansible um abstraction you know we would have a variable that's block NFS something um that like a VM template could refer to um and and eventually if we have an API like I think you know in my envisioning like that would be the storage tier resource like CSPs create their storage tier resources you as a tenant say I want fast block or I want slow NFS and this kind of QoS.
+ 
+ 
+00:53:28
+ 
+Will Gordon: Um but like that's that's not in the immediate path for Yeah. All right. Sorry. All right. Okay, go ahead.
+Lars Kellogg-Stedman: That's right. So, um, as Michael is pointing out, we do have one more agenda item on here. And so, if it's okay with everyone, I'd like to table the rest of this discussion and, um, move on. Is that I got a thumbs up there. Excellent. All right. Um, Austin, you had wanted to say something around, um, bare metal inventory, I think.
+Austin Jamias: Right. So, um there's a PR for the uh inventory host uh controller and it includes an interface to uh inventory backends and I was wondering if uh those of you who are working on implementations of those can look at that interface and uh give me some uh feedback. Tell me what you think should change and etc.
+Lars Kellogg-Stedman: We had someone who was doing work with um carbide support. Who was that?
+Trey West: That is
+Lars Kellogg-Stedman: That is you. Excellent.
+Trey West: me.
+Lars Kellogg-Stedman: Okay. So, you're probably a good candidate to take a look at what Austin has there.
+Trey West: Okay, sounds good. Yeah, just reach out.
+Michael Hrivnak: Hey, Austin, could you put that link in the agenda?
+Austin Jamias: Yep.
+Trey West: Awesome.
+Austin Jamias: Oh, yes I can.
+Michael Hrivnak: Thanks.
+Tzu-Mainn Chen: Trey, I think I also mentioned you on the poll request itself.
+Lars Kellogg-Stedman: Excellent.
+Tzu-Mainn Chen: So, it should be in your inbox somewhere.
+Trey West: Okay, I'll take a look. Thanks,
+Lars Kellogg-Stedman: All right, that is everything that is on the agenda today. Are there any topics that we have not covered that folks want to bring up? That sounds like a no. All right. Thank you everyone. That was a great discussion on storage. Um we'll see you all I guess next week.
+Michael Hrivnak: Thanks. Yep.
+Robby Stahl: Thank you.
+Ameya Sathe: Yep. Thank you.
+ 
+ 
+Transcription ended after 00:55:39
+
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.

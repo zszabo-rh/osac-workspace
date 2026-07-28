@@ -1,0 +1,336 @@
+0:01
+hi and welcome to the AI in a box PC3 demo in this presentation I'll be
+0:06
+sharing with you our progress since the last
+0:09
+PC we'll be looking at the following suite of new features support for
+0:13
+cluster templates the feedback of status information from the Kubernetes operator
+0:17
+to the fulfillment service fully automated management of network
+0:21
+isolation for tenant clusters and support for scaling up clusters by
+0:25
+adding additional nodes before we get into the details I'd
+0:31
+like to run through a brief overview of the components that make up our solution
+0:35
+there are three major parts that we're developing the fulfillment service
+0:38
+implements our external facing API this is how people andor systems will
+0:42
+interact with the solution the fulfillment service receives requests
+0:46
+via gRPC or REST API and then interacts with the Kubernetes operator using
+0:50
+Kubernetes APIs the Kubernetes operator introduces
+0:56
+the cluster order custom resource definition or CRD when the fulfillment
+1:00
+service creates a new cluster order the operator performs some initial setup and
+1:03
+then triggers our anible playbooks via an eventdriven anible or EDA web hook
+1:09
+the operator is responsible for monitoring the cluster order and child
+1:12
+resources such as the hosted cluster and node poolool resources that drive the
+1:16
+hosted control plane process and for updating the status on the cluster order
+1:21
+resource and publishing that status information back to the fulfillment
+1:24
+service we trigger Ansible playbooks using an
+1:29
+EDA web hook this runs an Ansible automation platform or AAP job that is
+1:34
+responsible for the majority of the work involved in deploying a cluster
+1:37
+selecting agents performing necessary network setup creating the hosted
+1:41
+cluster and node pool resources and performing any additional configuration
+1:45
+implemented by the selected cluster template with that out of the way let's
+1:52
+take a look at our cluster template solution
+1:56
+a cluster template is just an Ansible role we package these roles into an
+2:00
+Ansible collection the default collection is named
+2:03
+cloudkit.templates an ansible automation platform job is responsible for
+2:07
+discovering available templates extracting metadata such as their
+2:10
+description and supported parameters and publishing that information to the
+2:13
+fulfillment service an organization that wishes to
+2:17
+develop their own custom templates can create their own anible collection and
+2:20
+make that available to the AAP environment with appropriate
+2:23
+configuration the template discovery job will discover these new templates and
+2:26
+make them available for cluster deployment a template role receives the
+2:31
+cluster order as input and is responsible for creating the hosted
+2:34
+cluster using a set of common rules that we provide for that purpose and
+2:38
+performing any additional configuration of the tenant cluster once it has been
+2:44
+deployed here we see the contents of the cloudkit.templates anible collection
+2:49
+which currently contains two roles the argument specs.yaml
+2:57
+file is used both to provide argument validation at runtime and to provide
+3:02
+metadata about available template parameters available information
+3:06
+includes the parameter name a description and some validation
+3:12
+information the cloudkit.yaml The AML file contains additional metadata about
+3:17
+the template itself including a human-friendly title and a longer
+3:27
+description next we'll have the chance to work with the fulfillment
+3:32
+service we provide a simple command line tool that can be used to interact with
+3:36
+the fulfillment API before we can use it we need to authenticate to the
+3:40
+fulfillment service currently this requires a service account token from
+3:44
+the cluster on which the service is running we'll implement support for more
+3:47
+flexible authentication and multi-tenency in general in the
+3:50
+following months for now we log in with the following
+3:56
+command now that we're authenticated we can do things like look at existing
+4:00
+cluster orders we can look at deployed clusters
+4:12
+and we can also discover available cluster
+4:20
+templates we can dump a template as a JSON document to see the complete
+4:24
+information that's available from the API here we see the list of parameters
+4:32
+and their descriptions that we saw earlier in the arguments dex.yml file
+4:35
+when we were looking at templates once a cluster has been deployed we can
+4:43
+use the CLI to retrieve credentials for administrative API or console
+4:50
+access we use the get cube config command to retrieve a cube config file
+4:54
+for API access we can use the get password command to
+5:09
+retrieve the password for the cube admin user which permits us to log in on the
+5:13
+console now let's walk through the process of
+5:35
+deploying a new cluster to create the cluster through
+5:39
+the API we're going to read API parameters from a file
+5:50
+this will create a new cluster and install my public key on the nodes in
+5:53
+the future you'll also need to provide a pull secret used for authenticating to
+5:56
+Red Hat container registries but at the moment we provide a default
+6:01
+value we can inspect the status of our request with the get cluster orders
+6:06
+command here we see that our request is progressing when the cluster is
+6:10
+available the state will change to fulfilled and at that point we'll be
+6:14
+able to access credentials for our new cluster
+6:20
+now that we've submitted a new cluster request let's see what the Kubernetes
+6:23
+operator is doing the Kubernetes operator watches
+6:29
+for new or updated cluster order resources when we create a new cluster
+6:33
+order resource the operator creates a namespace to hold metadata about the
+6:37
+cluster and then triggers the event driven anible or EDA web hook which in
+6:41
+turn runs our playbooks as an Ansible automation platform
+6:44
+job here we see two existing cluster orders
+6:50
+one is for a deployed cluster that I created earlier and one is for the
+6:55
+request that we just submitted we see that cluster order is in the progressing
+6:59
+state that will change to ready when the cluster is fully
+7:03
+deployed we can find the namespace created by the operator by searching for
+7:07
+a namespace with the appropriate label that name space will contain the hosted
+7:16
+cluster and node poolool resources once they've been created by the Ansible
+7:19
+playbooks and will also contain Kubernetes secrets that hold the cube
+7:22
+admin password and a cube compute file for administrative
+7:40
+access once the cluster has been fully deployed it will show up as ready in
+7:50
+Kubernetes and the fulfillment API will show that the cluster order has
+7:58
+been fulfilled at this point the cluster is ready to hand off to the tenant
+8:05
+most of the work involved in deploying and creating a cluster is driven by
+8:09
+Ansible automation platform jobs i'd like to focus on how we select agents
+8:14
+and configure the network infrastructure bare metal resources are
+8:20
+exposed to Open Shift as agents when we import a node into Open
+8:25
+Shift we label the agent with some metadata available from ESI including
+8:28
+the node UU ID the resource class and the data center location
+8:34
+we can see an example of this here where the node uid is exposed as an
+8:40
+annotation whereas the node resource class and topology information are
+8:45
+exposed as labels the topology tells us the row
+8:50
+cabinet pod u and slot for a particular piece of hardware
+8:58
+when you request a cluster using a cluster template that request will
+9:01
+specify how many nodes of which particular resource class should be
+9:05
+selected the Ansible playbooks use this information to select appropriate agent
+9:09
+resources and label them with a cluster order
+9:12
+name this marks them as usable by the node pool associated with the new
+9:16
+cluster and they will shortly start the installation
+9:19
+process here we see the agents available in our system right now we can see two
+9:24
+agents associated with the cluster we deployed earlier which are in stage done
+9:29
+and we see two agents which are associated with our new request which
+9:33
+are currently rebooting into the new operating system
+9:39
+image we deploy tenant clusters onto isolated layer 2 networks when setting
+9:44
+up the cluster infrastructure the anible playbooks first create the network
+9:47
+environment using ESI for each cluster we
+9:54
+create a network this represents an isolated layer 2 network
+10:04
+segment we create a subnet this provides an IP address
+10:10
+allocation and DHCP services and we create a router
+10:17
+this permits external egress and ingress as you can see we can examine
+10:24
+these resources using standard OpenStack tools after the playbooks have selected
+10:29
+agents for the cluster they are moved onto the new network before they are
+10:33
+marked as available again using OpenStack
+10:40
+APIs clusters are deployed onto networks using private address space in order to
+10:45
+make the clusters externally accessible we create two floating IP addresses for
+10:49
+each cluster one for the Kubernetes API endpoint and one for the cluster ingress
+10:56
+service the Kubernetes API is hosted on the management cluster and is exposed
+11:01
+using a metal LB managed address we create a port forwarding for port 6443
+11:06
+from the API floating IP address to the metalb managed address
+11:21
+the ingress service is hosted on the worker nodes that have been deployed for
+11:24
+the cluster at the moment we create port
+11:28
+forwardings for ports 80 and 443 from the ingress floating IP to the address
+11:32
+of one of the cluster worker nodes while this works it has some
+11:41
+limitations if the selected worker node were to become unavailable it would no
+11:45
+longer be possible to access services hosted on the cluster even though the
+11:48
+cluster was otherwise healthy this is something we plan on addressing in our
+11:52
+future work after a cluster has been deployed
+11:58
+it's possible to increase the resources available to it by adding additional
+12:03
+nodes we do this by editing the cluster through the fulfillment
+12:09
+API here we see that the initial cluster request specified two SC430
+12:14
+nodes we're going to increase the size to
+12:22
+three this will update the cluster order resource on the Kubernetes cluster
+12:39
+this will in turn trigger the ansible playbooks to run which will update the
+12:44
+cluster node pool this will in
+12:48
+turn increase the size of the node pool and at the same time label a new agent
+12:55
+for addition to the cluster
+13:02
+here we see that there are now three agents labeled for our cluster and that
+13:07
+the third is in the process of getting built the new agent will go through the
+13:13
+same set of installation stages that the original agents went
+13:17
+through here we see that the new agent being added to the cluster has reached
+13:22
+the writing image to disk stage after the node has finished installing and has
+13:28
+rebooted it will join the cluster and within a few minutes after that the
+13:34
+scale up will be complete and the cluster will have three
+13:45
+nodes it is also possible to remove a node from the cluster by following the
+13:50
+same procedure once again we start by editing
+13:54
+the cluster through the fulfillment API this time we reduce the number of nodes
+13:59
+from three to two this change will be immediately
+14:03
+reflected in the cluster order resource on the management
+14:07
+cluster this triggers a anible web hook that makes changes to the node poolool
+14:12
+resource associated with our cluster we can see that the node pool is
+14:17
+now in the process of scaling down from three nodes to two nodes
+14:24
+looking at our agent resources we can see that the third node in our cluster
+14:28
+is in the process of being unlabeled and removed we can examine the tenant
+14:33
+cluster and see that the node removal process has
+14:37
+started after waiting a few minutes we'll see that the cluster has
+14:43
+been reduced to two nodes and we can see that the node pool resource on the
+14:47
+management cluster has finished scaling thank you for listening and thank you to
+14:53
+everyone whose efforts brought us to a successful conclusion of PC3
