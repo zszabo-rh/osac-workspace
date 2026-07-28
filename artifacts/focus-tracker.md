@@ -1,6 +1,6 @@
 # Focus Tracker
 
-**Last session:** 2026-07-28 (OSAC-3011 PRs opened, operator rebase/PR#354 fix, fresh demo cluster on edge-17 — E2E in final validation)  
+**Last session:** 2026-07-28 (CodeRabbit fixes pushed to all 3 OSAC-3011 PRs, CI lint/helm failures fixed, helm upgrade completed on edge-17, E2E blocked by AAP project branch mismatch)  
 **Workspace:** osac-workspace
 
 ---
@@ -13,7 +13,7 @@
 **Jira keys:** OSAC-3011, OSAC-3012, OSAC-3013, OSAC-917  
 **GitHub repos:** osac-project/osac-operator, osac-project/osac-aap, osac-project/enhancement-proposals, osac-project/osac-installer  
 **Tracked PRs:** osac-operator#354, osac-operator#375, osac-aap#454, osac-installer#474, osac-operator#397, enhancement-proposals#151, enhancement-proposals#146
-**Next action:** Fix AAP bootstrap on demo cluster (delete job → re-run) → templates appear → E2E completes → mark 3 OSAC-3011 PRs ready for review; PR#354 needs /ok-to-test after today's force-push; PR#375 needs /lgtm  
+**Next action:** Patch AAP project to use `zszabo-rh/osac-aap:test/OSAC-3011-combined` (port-forward AAP, PATCH /api/controller/v2/projects/<id>/) → clear tenant `clusterStorageJobs` → verify StorageClass created → mark 3 PRs ready; PR#354 needs /ok-to-test; PR#375 needs /lgtm  
 **Slack channels:** C0B6USDQ85S (wg-osac-storage), C08ESMFV85Q (wg-osac-eng)  
 **Slack contacts:** anadkarn (Akshay), wgordon17 (Will), rgolan (Roy)  
 **Keywords:** storage, LVMS, VAST, StorageClass, CSI, local-lvms, local-ceph, tier, backend, storage-operations-ig, OSAC-3011, OSAC-3013  

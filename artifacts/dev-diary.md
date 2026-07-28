@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-07-28
+
+### Focus Areas Active
+- Storage (OSAC-917 v0.2): OSAC-3011 PRs — CodeRabbit fixes, CI unblocked, E2E nearly there
+
+### Completed Today
+- Addressed all CodeRabbit CHANGES_REQUESTED comments across all 3 draft PRs: teardown robustness (osac-aap#454), lvms values/schema + helm lint fix + activeDeadlineSeconds + securityContext hardening (osac-installer#474), unused function removal (osac-operator#397)
+- Fixed wrong cross-repo PR references in all 3 PR descriptions (`#375` → `osac-operator#375`, `#OSAC-3011` → `#474`); added OSAC-3013 AAP side as explicit dependency
+- Pushed all fixes to fork, CI lint and helm lint failures now resolved
+- Regenerated stale TLS secrets on edge-17 demo cluster (cert had vmaas-4-22 SANs), restarted ingress-proxy → fulfillment-console-proxy recovered to 1/1
+- Helm upgrade on edge-17 completed (revision 4, deployed)
+- AAP bootstrap completed on edge-17; job template `osac-create-tenant-cluster-storage` (ID 49) confirmed to exist
+- Responded to Roy's OSAC-CSI / passthrough question in storage meeting thread
+- Explained OSAC-3013 AAP side to team context (Will's task = strip static STORAGE_TIERS from IG, read dynamic tier defs from operator event)
+
+### In Progress
+- OSAC-3011 E2E: operator triggers AAP job 132, job fails in ~30s — AAP project points to upstream commit (no `local_lvms_storage` role). Needs branch patch to `zszabo-rh/osac-aap:test/OSAC-3011-combined` via AAP API
+- PR #354: CHANGES_REQUESTED addressed, needs /ok-to-test from org member
+- PR #375: needs /lgtm
+
+### Decisions Made
+- OSAC-3011 intentionally does NOT use osac-csi-driver (still PoC, dev/CI needs no credential hiding) — direct topolvm path. Roy's "passthrough" idea is a valid future migration but out of scope.
+
+### Blocked / Needs Follow-up
+- E2E: patch AAP project branch via port-forward to AAP API (steps documented in memory)
+- SSH to edge-17 unreliable at EOD — lab network issue
+- PR #354 /ok-to-test: needs org member action
+
+---
+
 ## 2026-07-27
 
 ### Focus Areas Active

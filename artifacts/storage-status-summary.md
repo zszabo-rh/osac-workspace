@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-07-28 (mid-session checkpoint — 3 OSAC-3011 draft PRs opened, fresh demo cluster on edge-17, E2E validation in progress)  
+**Last updated:** 2026-07-28 (EOD — CodeRabbit comments addressed, CI fixes pushed, helm upgrade completed on edge-17, E2E blocked by AAP project pointing to wrong branch)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -10,7 +10,7 @@
 
 | Epic | Assignee | Status | Summary |
 |------|----------|--------|---------|
-| OSAC-3011 | Zoltan | In Progress | Local/Dev/E2E CI Storage Setup — **implementation complete July 27** (3 PRs: osac-aap, osac-installer, osac-operator); E2E partial — StorageBackend+StorageTier verified, AAP flow blocked by snapshot issue |
+| OSAC-3011 | Zoltan | In Progress | Local/Dev/E2E CI Storage Setup — 3 PRs open (draft), CodeRabbit addressed, CI lint+helm fixed; E2E on edge-17 cluster `demo`: helm deployed, bootstrap done, AAP job 132 failed — root cause: AAP project points to upstream commit (no `local_lvms_storage` role) |
 | OSAC-3012 | Zoltan | New | MOC Developer Environment Storage Setup — agreed to fold minimal change into OSAC-3011; basically a no-op |
 | OSAC-3013 | Will | In Progress | Backend and Tier API Integration (operator + AAP side) |
 | OSAC-3014 | Will | New | Public Storage Tier API |
@@ -102,11 +102,11 @@ Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks
 
 | PR | Repo | State | Next action |
 |----|------|-------|-------------|
-| #354 | osac-operator | CHANGES_REQUESTED (Akshay Jul 28, addressed) | Fixed: nil BackendsClient vs zero-backends message. Rebased + force-pushed Jul 28. Needs /ok-to-test then /lgtm |
-| #375 | osac-operator | APPROVED (CodeRabbit Jul 27) | Ready — needs /lgtm from org member; ask at storage meeting |
-| **#397** | **osac-operator** | **DRAFT (Jul 28)** | OSAC-3011: remove defaultStorageClassSentinel — awaiting E2E then mark ready |
-| **#454** | **osac-aap** | **DRAFT (Jul 28)** | OSAC-3011: local_lvms_storage role — awaiting E2E then mark ready |
-| **#474** | **osac-installer** | **DRAFT (Jul 28)** | OSAC-3011: register-local-storage hook + configure-lvms idempotency — awaiting E2E then mark ready |
+| #354 | osac-operator | CHANGES_REQUESTED (addressed Jul 28) | nil vs zero-backends fix pushed, CI force-push reset. Needs /ok-to-test from org member → /lgtm from Akshay |
+| #375 | osac-operator | APPROVED (CodeRabbit) | Needs /lgtm from org member |
+| **#397** | **osac-operator** | **DRAFT** | OSAC-3011: unused `allTenantReconcileRequests` removed (lint fix pushed Jul 28). Awaiting E2E then mark ready |
+| **#454** | **osac-aap** | **DRAFT** | OSAC-3011: teardown robustness fix pushed Jul 28. Awaiting E2E then mark ready |
+| **#474** | **osac-installer** | **DRAFT** | OSAC-3011: lvms values/schema, activeDeadlineSeconds 300→900, pipefail fix, securityContext hardening pushed Jul 28. Awaiting E2E then mark ready |
 | #151 | enhancement-proposals | CHANGES_REQUESTED (Akshay updated Jul 27) | Major redesign committed. Roy + Avishay review needed. Roy asked to take out of draft. |
 | #146 | enhancement-proposals | REVIEW_REQUIRED | OSAC-1710 design — no new activity |
 
@@ -116,7 +116,7 @@ Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks
 
 1. **PR #354 /lgtm + ok-to-test** — Force-pushed July 27, CI was reset. Needs an org member to post `/ok-to-test` on PR #354 to re-trigger CI, then /lgtm from Akshay or Will.
 2. ~~**OSAC-3013 AAP half**~~ — **minimal fix done** (July 27): `feat/OSAC-3013-aap-tier-extra-vars` pushed. Full redesign (Will's story) still needed; our minimal version unblocks OSAC-3011 testing.
-3. **OSAC-3011 E2E remaining** — StorageBackend+StorageTier registered manually on edge-17 test cluster. AAP task worker stuck in wait-for-migrations (snapshot pre-existing issue, not our code). Need either: fix the snapshot AAP migration issue, or do fresh `make install` instead of snapshot restore to complete the tenant onboarding test.
+3. **OSAC-3011 E2E remaining** — Helm deployed, bootstrap done, operator polls AAP correctly. AAP job 132 (provision `shared` tenant) failed in ~30s. Root cause: AAP project points to upstream commit (`26399b50f9e63077eb6b80083328197eed4b880c`) which has no `local_lvms_storage` role. Fix: patch AAP project via API to use `zszabo-rh/osac-aap:test/OSAC-3011-combined`, clear tenant `clusterStorageJobs`, let operator retrigger. SSH to edge-17 was unreliable at EOD (lab network).
 3. ~~**Omer / CaaS flavor second disk**~~ — **resolved** (2026-07-27): tracked as OSAC-3234. Architecture decided: Option B (LVMS directly on guest workers, not CSI→hub). See OSAC-3234 Design section above.
 4. **PR #151 credential transit** — Option A vs Option B. Akshay discussing with Roy. Not blocking OSAC-3011.
 5. ~~**OSAC-3011 plan approval**~~ — **resolved**: approved July 24 meeting.
@@ -146,9 +146,10 @@ Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks
 
 ---
 
-## OSAC-3011 E2E Testing Status (July 27)
+## OSAC-3011 E2E Testing Status (July 28)
 
-**Cluster:** edge-17, `vmaas-4-22` flavor, cluster name `osac-3011`. Accessible via `ssh edge-17` + `export KUBECONFIG=/root/.kube/osac-3011.kubeconfig`.
+**Cluster:** edge-17, `vmaas-4-22` flavor, cluster name `demo`. Accessible via `ssh edge-17` + `export KUBECONFIG=/root/.kube/demo.kubeconfig`.
+**Namespace:** `osac-e2e-ci` (forced by snapshot CRD ownership).
 
 **Test image:** `quay.io/rh-ee-zszabo/osac-operator:osac-3011-test`  
 Built from integration branch `test/OSAC-3011-integration` on `osac-project/osac-operator`:  
