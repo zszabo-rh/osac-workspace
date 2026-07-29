@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-07-28 (EOD — CodeRabbit comments addressed, CI fixes pushed, helm upgrade completed on edge-17, E2E blocked by AAP project pointing to wrong branch)  
+**Last updated:** 2026-07-29 (E2E COMPLETE — StorageClass `osac-shared-local` created, all tenant conditions True, PVC createable. Bugs found and fixed: provider name validator too strict (underscores rejected), event tier definitions not consumed by playbooks (OSAC-3013 cherry-pick). All 3 OSAC-3011 PRs ready for review.)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -104,21 +104,22 @@ Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks
 |----|------|-------|-------------|
 | ~~#354~~ | ~~osac-operator~~ | **MERGED** (2026-07-28 17:01 UTC) | ✅ |
 | ~~#375~~ | ~~osac-operator~~ | **MERGED** (2026-07-29 01:19 UTC) | ✅ |
-| **#397** | **osac-operator** | **DRAFT** | OSAC-3011: unused `allTenantReconcileRequests` removed (lint fix pushed Jul 28). Awaiting E2E then mark ready |
-| **#454** | **osac-aap** | **DRAFT** | OSAC-3011: teardown robustness fix pushed Jul 28. Awaiting E2E then mark ready |
-| **#474** | **osac-installer** | **DRAFT** | OSAC-3011: lvms values/schema, activeDeadlineSeconds 300→900, pipefail fix, securityContext hardening pushed Jul 28. Awaiting E2E then mark ready |
-| #151 | enhancement-proposals | CHANGES_REQUESTED (Akshay updated Jul 27) | Major redesign committed. Roy + Avishay review needed. Roy asked to take out of draft. |
+| **#397** | **osac-operator** | **READY** | Rebased Jul 29 (resolved conflicts with #354/#375), test fixes for BackendsClient nil/zero-backends cases. Needs review + /lgtm |
+| **#454** | **osac-aap** | **READY** | Jul 29: +provider name validation fix (underscores), +OSAC-3013 event tier definitions cherry-pick. Needs review + /lgtm |
+| **#474** | **osac-installer** | **READY** | lvms values/schema, activeDeadlineSeconds 300→900, pipefail fix, securityContext hardening. Needs review + /lgtm |
+| ~~#151~~ | ~~enhancement-proposals~~ | **MERGED** (2026-07-28) | ✅ |
+| #172 | enhancement-proposals | OPEN | Akshay's Storage Control Plane follow-up — needs storage team review |
 | #146 | enhancement-proposals | REVIEW_REQUIRED | OSAC-1710 design — no new activity |
 
 ---
 
 ## Open Questions / Decisions Needed
 
-1. **PR #354 /lgtm + ok-to-test** — Force-pushed July 27, CI was reset. Needs an org member to post `/ok-to-test` on PR #354 to re-trigger CI, then /lgtm from Akshay or Will.
-2. ~~**OSAC-3013 AAP half**~~ — **minimal fix done** (July 27): `feat/OSAC-3013-aap-tier-extra-vars` pushed. Full redesign (Will's story) still needed; our minimal version unblocks OSAC-3011 testing.
-3. **OSAC-3011 E2E remaining** — Helm deployed, bootstrap done, operator polls AAP correctly. AAP job 132 (provision `shared` tenant) failed in ~30s. Root cause: AAP project points to upstream commit (`26399b50f9e63077eb6b80083328197eed4b880c`) which has no `local_lvms_storage` role. Fix: patch AAP project via API to use `zszabo-rh/osac-aap:test/OSAC-3011-combined`, clear tenant `clusterStorageJobs`, let operator retrigger. SSH to edge-17 was unreliable at EOD (lab network).
-3. ~~**Omer / CaaS flavor second disk**~~ — **resolved** (2026-07-27): tracked as OSAC-3234. Architecture decided: Option B (LVMS directly on guest workers, not CSI→hub). See OSAC-3234 Design section above.
-4. **PR #151 credential transit** — Option A vs Option B. Akshay discussing with Roy. Not blocking OSAC-3011.
+1. ~~**PR #354 /lgtm + ok-to-test**~~ — **MERGED** 2026-07-28. ✅
+2. ~~**OSAC-3013 AAP half**~~ — **minimal fix cherry-picked into PR #454** (2026-07-29). Full redesign (Will's story) still needed; our minimal version is now in PR #454.
+3. ~~**OSAC-3011 E2E**~~ — **COMPLETE** 2026-07-29. See E2E section below.
+4. ~~**Omer / CaaS flavor second disk**~~ — **resolved** (2026-07-27): tracked as OSAC-3234. Architecture decided: Option B (LVMS directly on guest workers, not CSI→hub). See OSAC-3234 Design section above.
+5. **PR #172 storage control plane follow-up** — Akshay's new EP for internal publish/unpublish API. Needs storage team review. Not blocking OSAC-3011.
 5. ~~**OSAC-3011 plan approval**~~ — **resolved**: approved July 24 meeting.
 6. ~~**CaaS KubeVirt disk scope**~~ — **resolved**: separate ticket, two CaaS flavors, Akshay to create.
 7. ~~**OSAC-3011 bridge approach**~~ — **resolved**: idempotent `configure-lvms.sh`.
@@ -146,48 +147,32 @@ Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks
 
 ---
 
-## OSAC-3011 E2E Testing Status (July 28 EOD)
+## OSAC-3011 E2E Testing Status — COMPLETE ✅ (2026-07-29)
 
-**Cluster:** edge-17, `vmaas-4-22` flavor, cluster name `demo`.
-```bash
-ssh edge-17 && export KUBECONFIG=/root/.kube/demo.kubeconfig
-```
+**Cluster:** edge-17, `vmaas-4-22` flavor, cluster name `demo`.  
 **Namespace:** `osac-e2e-ci`
 
-**Dependencies merged:**
-- osac-operator#354 — merged 2026-07-28 17:01 UTC ✅
-- osac-operator#375 — merged 2026-07-29 01:19 UTC ✅
+### Full flow verified ✅
+1. StorageBackend `local` (provider: `local_lvms`) — registered, `STORAGE_BACKEND_STATE_READY`
+2. StorageTier `local` — registered, `STORAGE_TIER_STATE_ACTIVE`
+3. Operator detects backend → triggers AAP job (template `osac-create-tenant-cluster-storage`)
+4. AAP job runs `local_lvms_storage/tasks/ensure_storage_class.yaml` — creates `osac-shared-local` StorageClass
+5. Tenant conditions: `StorageBackendReady=True`, `ClusterStorageReady=True`, `NamespaceReady=True`
+6. PVC with `storageClassName: osac-shared-local` creatable — `WaitForFirstConsumer` (Pending until pod scheduled, expected)
 
-**Note:** Test image `quay.io/rh-ee-zszabo/osac-operator:osac-3011-test` was built from `test/OSAC-3011-integration` (main + #354 + #375 + sentinel removal). Since both PRs are now on main, the test image is still valid — the integration branch equals upstream main + OSAC-3011 sentinel removal.
-
-### Verified ✅
-- StorageBackend `local` (provider: `local_lvms`) — registered, `STORAGE_BACKEND_STATE_READY`
-- StorageTier `local` — registered, `STORAGE_TIER_STATE_ACTIVE`
-- Operator (test image) — polls AAP correctly, finds template `osac-create-tenant-cluster-storage` (ID 49)
-- Helm upgrade — deployed (revision 4), all pods Running
-- AAP bootstrap — complete; job template ID 49 confirmed to exist
-
-### Blocked ❌ — AAP project branch mismatch
-AAP job 132 (provision `shared` tenant) launched and **failed in ~30 seconds**. Root cause: AAP project points to upstream osac-aap commit (`26399b50f9e63077eb6b80083328197eed4b880c` from `vmaas-ci/values.yaml`) which has **no `local_lvms_storage` role**. The role only exists on our fork branch.
-
-### Next steps to complete E2E
-1. **Patch AAP project via port-forward** (from edge-17 host):
-```bash
-export KUBECONFIG=/root/.kube/demo.kubeconfig
-kubectl port-forward -n osac-e2e-ci svc/osac-aap-controller-service 8053:80 &
-TOKEN=$(oc get secret -n osac-e2e-ci osac-aap-api-token -o jsonpath='{.data.token}' | base64 -d)
-# Find project ID:
-curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8053/api/controller/v2/projects/ | python3 -c 'import sys,json; [print(p["id"],p["name"],p.get("scm_url","")) for p in json.load(sys.stdin).get("results",[])]'
-# Patch to fork branch (replace <ID>):
-curl -s -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d '{"scm_url":"https://github.com/zszabo-rh/osac-aap","scm_branch":"test/OSAC-3011-combined"}' \
-  http://localhost:8053/api/controller/v2/projects/<ID>/
-curl -s -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8053/api/controller/v2/projects/<ID>/update/
+**StorageClass created:**
 ```
-2. Clear failed job from tenant status:
-```bash
-oc patch tenant -n osac-e2e-ci shared --type=json \
-  -p '[{"op":"replace","path":"/status/clusterStorageJobs","value":[]}]' --subresource=status
+NAME               PROVISIONER   RECLAIMPOLICY   VOLUMEBINDINGMODE      AGE
+osac-shared-local  topolvm.io    Delete          WaitForFirstConsumer   ...
+Labels: osac.openshift.io/tenant=shared, osac.openshift.io/storage-tier=local, app.kubernetes.io/managed-by=osac-aap
 ```
-3. Watch operator trigger new AAP job → `osac-shared-local` StorageClass appears
-4. Create test PVC → verify Bound
+
+### Bugs found and fixed during E2E
+
+**Bug 1 — Provider name validator too strict** (`osac.service.storage_provider/tasks/main.yaml`)  
+The regex `^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$` rejected `local_lvms` (underscore not allowed). Provider names map to Ansible role names which use underscores. Fixed: `[a-z0-9_-]`. Included in PR #454.
+
+**Bug 2 — Playbooks ignored event tier definitions** (`playbook_osac_create_tenant_cluster_storage.yml` and 3 others)  
+After PR #375 merged, the operator sends `storage_tier_definitions` in the AAP event, but the playbooks only read `STORAGE_TIERS` env var. Cherry-picked OSAC-3013 fix into PR #454 (required for OSAC-3011 to function).
+
+**Cluster config note:** Bootstrap `shared` tenant had no `osac.openshift.io/tenant` annotation — manually added for test. Real tenants created via API will have it set by the fulfillment service.
