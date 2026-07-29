@@ -12,8 +12,8 @@
 **Read first:** `artifacts/storage-status-summary.md`  
 **Jira keys:** OSAC-3011, OSAC-3012, OSAC-3013, OSAC-917  
 **GitHub repos:** osac-project/osac-operator, osac-project/osac-aap, osac-project/enhancement-proposals, osac-project/osac-installer  
-**Tracked PRs:** osac-operator#354, osac-operator#375, osac-aap#454, osac-installer#474, osac-operator#397, enhancement-proposals#151, enhancement-proposals#146
-**Next action:** Patch AAP project to use `zszabo-rh/osac-aap:test/OSAC-3011-combined` (port-forward AAP, PATCH /api/controller/v2/projects/<id>/) → clear tenant `clusterStorageJobs` → verify StorageClass created → mark 3 PRs ready; PR#354 needs /ok-to-test; PR#375 needs /lgtm  
+**Tracked PRs:** osac-aap#454, osac-installer#474, osac-operator#397, enhancement-proposals#151, enhancement-proposals#146
+**Next action:** Patch AAP project on edge-17 to `zszabo-rh/osac-aap:test/OSAC-3011-combined` (steps in storage-status-summary.md E2E section) → clear tenant `clusterStorageJobs` → verify StorageClass created → mark 3 OSAC-3011 draft PRs ready for review  
 **Slack channels:** C0B6USDQ85S (wg-osac-storage), C08ESMFV85Q (wg-osac-eng)  
 **Slack contacts:** anadkarn (Akshay), wgordon17 (Will), rgolan (Roy)  
 **Keywords:** storage, LVMS, VAST, StorageClass, CSI, local-lvms, local-ceph, tier, backend, storage-operations-ig, OSAC-3011, OSAC-3013  

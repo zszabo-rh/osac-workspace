@@ -102,8 +102,8 @@ Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks
 
 | PR | Repo | State | Next action |
 |----|------|-------|-------------|
-| #354 | osac-operator | CHANGES_REQUESTED (addressed Jul 28) | nil vs zero-backends fix pushed, CI force-push reset. Needs /ok-to-test from org member → /lgtm from Akshay |
-| #375 | osac-operator | APPROVED (CodeRabbit) | Needs /lgtm from org member |
+| ~~#354~~ | ~~osac-operator~~ | **MERGED** (2026-07-28 17:01 UTC) | ✅ |
+| ~~#375~~ | ~~osac-operator~~ | **MERGED** (2026-07-29 01:19 UTC) | ✅ |
 | **#397** | **osac-operator** | **DRAFT** | OSAC-3011: unused `allTenantReconcileRequests` removed (lint fix pushed Jul 28). Awaiting E2E then mark ready |
 | **#454** | **osac-aap** | **DRAFT** | OSAC-3011: teardown robustness fix pushed Jul 28. Awaiting E2E then mark ready |
 | **#474** | **osac-installer** | **DRAFT** | OSAC-3011: lvms values/schema, activeDeadlineSeconds 300→900, pipefail fix, securityContext hardening pushed Jul 28. Awaiting E2E then mark ready |
@@ -146,60 +146,48 @@ Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks
 
 ---
 
-## OSAC-3011 E2E Testing Status (July 28)
+## OSAC-3011 E2E Testing Status (July 28 EOD)
 
-**Cluster:** edge-17, `vmaas-4-22` flavor, cluster name `demo`. Accessible via `ssh edge-17` + `export KUBECONFIG=/root/.kube/demo.kubeconfig`.
-**Namespace:** `osac-e2e-ci` (forced by snapshot CRD ownership).
-
-**Test image:** `quay.io/rh-ee-zszabo/osac-operator:osac-3011-test`  
-Built from integration branch `test/OSAC-3011-integration` on `osac-project/osac-operator`:  
-= `main` + PR #354 (Backend API) + PR #375 (Tier API) + OSAC-3011 sentinel removal.
-
-**AAP fork branch:** `zszabo-rh/osac-aap:test/OSAC-3011-combined`  
-= OSAC-3011 `local_lvms_storage` role + OSAC-3013 AAP minimal fix (playbooks accept event tier defs).
-
-### What was verified ✅
-1. StorageBackend `local` (provider: `local_lvms`) — registered via private API, status: `STORAGE_BACKEND_STATE_READY`
-2. StorageTier `local` (backend_id linked) — registered, status: `STORAGE_TIER_STATE_ACTIVE`
-3. Operator running with test image — confirmed via `oc get deploy osac-operator -o jsonpath='{.spec.template.spec.containers[0].image}'`
-4. Operator detects backend registered — logs show `handleBackendReadiness` routing correctly, tries to trigger AAP jobs
-5. Operator logs `MissingStorageTier` warning — correct: tier `local` has no StorageClass yet (waiting for AAP to create one)
-6. Sentinel removal confirmed — no `tenant=Default` fallback in operator logs
-7. LVMS: `lvms-vg1` StorageClass (default) already exists on hub from snapshot; `WaitForFirstConsumer`
-
-### What's blocked ❌
-- **AAP task worker stuck** (`osac-aap-controller-task`) in `Init:wait-for-migrations` — this is a **pre-existing snapshot issue** (was at attempt 440 when we started, not caused by our changes). Without the task worker, AAP cannot execute jobs, so `ensure_storage_class` never runs and the per-tenant StorageClass is never created.
-- Downstream: tenant onboarding flow (`StorageBackendReady` → `ClusterStorageReady`) not verifiable.
-
-### How to resume E2E
-**Option A (recommended):** Fix the AAP migration wait.
+**Cluster:** edge-17, `vmaas-4-22` flavor, cluster name `demo`.
 ```bash
-ssh edge-17
-export KUBECONFIG=/root/.kube/osac-3011.kubeconfig
-# The init container runs: wait-for-migrations (checks something in AAP postgres)
-# Check what it checks:
-oc logs osac-aap-controller-task-<pod> -n osac-e2e-ci -c init-database | tail -5
-# AAP postgres pod: osac-aap-postgres-15-0
-# Try querying: oc exec osac-aap-postgres-15-0 -- psql ...
+ssh edge-17 && export KUBECONFIG=/root/.kube/demo.kubeconfig
 ```
+**Namespace:** `osac-e2e-ci`
 
-**Option B:** Destroy the cluster and do a fresh `make install` (CI approach, avoids snapshot state entirely):
+**Dependencies merged:**
+- osac-operator#354 — merged 2026-07-28 17:01 UTC ✅
+- osac-operator#375 — merged 2026-07-29 01:19 UTC ✅
+
+**Note:** Test image `quay.io/rh-ee-zszabo/osac-operator:osac-3011-test` was built from `test/OSAC-3011-integration` (main + #354 + #375 + sentinel removal). Since both PRs are now on main, the test image is still valid — the integration branch equals upstream main + OSAC-3011 sentinel removal.
+
+### Verified ✅
+- StorageBackend `local` (provider: `local_lvms`) — registered, `STORAGE_BACKEND_STATE_READY`
+- StorageTier `local` — registered, `STORAGE_TIER_STATE_ACTIVE`
+- Operator (test image) — polls AAP correctly, finds template `osac-create-tenant-cluster-storage` (ID 49)
+- Helm upgrade — deployed (revision 4), all pods Running
+- AAP bootstrap — complete; job template ID 49 confirmed to exist
+
+### Blocked ❌ — AAP project branch mismatch
+AAP job 132 (provision `shared` tenant) launched and **failed in ~30 seconds**. Root cause: AAP project points to upstream osac-aap commit (`26399b50f9e63077eb6b80083328197eed4b880c` from `vmaas-ci/values.yaml`) which has **no `local_lvms_storage` role**. The role only exists on our fork branch.
+
+### Next steps to complete E2E
+1. **Patch AAP project via port-forward** (from edge-17 host):
 ```bash
-python3 /usr/local/bin/cluster-tool destroy osac-3011
-python3 /usr/local/bin/cluster-tool boot --flavor vmaas-4-22 --name osac-3011 --pull-secret /root/pull-secret.json
-cd /tmp/osac-installer && make install VALUES_FILE=values/vmaas-ci/values.yaml \
-  --set operator.image.repository=quay.io/rh-ee-zszabo/osac-operator \
-  --set operator.image.tag=osac-3011-test \
-  --set aap.configAsCode.projectGitUri=https://github.com/zszabo-rh/osac-aap.git \
-  --set aap.configAsCode.projectGitBranch=test/OSAC-3011-combined
+export KUBECONFIG=/root/.kube/demo.kubeconfig
+kubectl port-forward -n osac-e2e-ci svc/osac-aap-controller-service 8053:80 &
+TOKEN=$(oc get secret -n osac-e2e-ci osac-aap-api-token -o jsonpath='{.data.token}' | base64 -d)
+# Find project ID:
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8053/api/controller/v2/projects/ | python3 -c 'import sys,json; [print(p["id"],p["name"],p.get("scm_url","")) for p in json.load(sys.stdin).get("results",[])]'
+# Patch to fork branch (replace <ID>):
+curl -s -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"scm_url":"https://github.com/zszabo-rh/osac-aap","scm_branch":"test/OSAC-3011-combined"}' \
+  http://localhost:8053/api/controller/v2/projects/<ID>/
+curl -s -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8053/api/controller/v2/projects/<ID>/update/
 ```
-
-### Current cluster state (as of July 27 EOD)
-- `osac-operator`: 1/1 Running, test image ✅
-- `fulfillment-grpc-server`: 1/1 Running ✅
-- `fulfillment-rest-gateway`: 1/1 Running ✅
-- `postgres` (fulfillment): 1/1 Running ✅
-- `osac-aap-controller-task`: 0/4 Init:0/2 ❌ (stuck)
-- `osac-aap-controller-web`: 1/1 Running ✅
-- StorageBackend `local`: registered ✅
-- StorageTier `local`: registered ✅
+2. Clear failed job from tenant status:
+```bash
+oc patch tenant -n osac-e2e-ci shared --type=json \
+  -p '[{"op":"replace","path":"/status/clusterStorageJobs","value":[]}]' --subresource=status
+```
+3. Watch operator trigger new AAP job → `osac-shared-local` StorageClass appears
+4. Create test PVC → verify Bound
