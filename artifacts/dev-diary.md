@@ -2,6 +2,40 @@
 
 ---
 
+## 2026-07-29
+
+### Focus Areas Active
+- Storage OSAC-3011: PRs ready, demo in progress
+
+### Completed Today
+- osac-operator rebase conflict resolved (2 commits replayed onto main post-#354/#375 merge)
+- Removed `label-storageclass` Helm hook from operator PR #397 (Akshay's checklist item)
+- CodeRabbit CHANGES_REQUESTED addressed on all 3 PRs: tier name validation (#454), init container security context + SIGPIPE fix in configure-lvms.sh (#474)
+- Status bot replied in wg-osac-storage
+- OSAC-3012 closed (Akshay asked, covered by OSAC-3011)
+- Demo plan + recording script created (`artifacts/demo-osac-3011.md`, `demos_and_workflows/osac-3011-storage/record-demo.sh`)
+- Demo flow updated to match Akshay's input: Backend/Tier → no SCs → onboard tenant → SC created → PVC + VM
+- MOC E2E attempted — cleaned up `osac-zszabo` namespace and restored CRD ownership to tzumainn after hitting hard AAP 2.6 licensing blocker
+- Booted `osac-3011-demo` cluster on edge-17 for demo recording; fixed DNS issue (vmaas-4-22 hostnames added to VM /etc/hosts)
+
+### In Progress
+- osac-operator#397 READY — needs Akshay /lgtm
+- osac-aap#454 READY — needs Akshay /lgtm
+- osac-installer#474 READY — needs Akshay /lgtm
+- Demo recording — cluster booting, install + record tomorrow
+
+### Decisions Made
+- MOC fresh namespace installs broken due to AAP 2.6 dropping subscription manifest licensing (requires RHSM service account). Not our problem to fix.
+- OSAC-3013 AAP gap (storage-operations-ig Secret) is Will's work; documented as dependency in PR #454. Our PRs proceed independently.
+- Clean install test: proper vehicle is CI (`e2e-vmaas-full-install.yml` with /ok-to-test), not manual Beaker reprovision.
+
+### Blocked / Needs Follow-up
+- Akshay /lgtm on all 3 PRs before July 31
+- Demo cluster API needs to be confirmed up tomorrow morning (DNS fix applied Jul 29, not verified)
+- Roy posted "Storage tier and backends demo" in wg-osac-storage — worth coordinating if it overlaps Monday slot
+
+---
+
 ## 2026-07-28
 
 ### Focus Areas Active

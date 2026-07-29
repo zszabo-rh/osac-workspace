@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-07-29 (E2E COMPLETE — StorageClass `osac-shared-local` created, all tenant conditions True, PVC createable. Bugs found and fixed: provider name validator too strict (underscores rejected), event tier definitions not consumed by playbooks (OSAC-3013 cherry-pick). All 3 OSAC-3011 PRs ready for review.)  
+**Last updated:** 2026-07-29 end-of-day (E2E ✅ complete. CodeRabbit changes addressed on all PRs. OSAC-3012 closed. Demo plan + recording script created. edge-17 `osac-3011-demo` cluster booting for demo recording tomorrow.)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -10,8 +10,8 @@
 
 | Epic | Assignee | Status | Summary |
 |------|----------|--------|---------|
-| OSAC-3011 | Zoltan | In Progress | Local/Dev/E2E CI Storage Setup — 3 PRs open (draft), CodeRabbit addressed, CI lint+helm fixed; E2E on edge-17 cluster `demo`: helm deployed, bootstrap done, AAP job 132 failed — root cause: AAP project points to upstream commit (no `local_lvms_storage` role) |
-| OSAC-3012 | Zoltan | New | MOC Developer Environment Storage Setup — agreed to fold minimal change into OSAC-3011; basically a no-op |
+| OSAC-3011 | Zoltan | In Progress | Local/Dev/E2E CI Storage Setup — 3 PRs open, CodeRabbit addressed, E2E ✅ on edge-17. Demo recording in progress (Mon Aug 3). Needs Akshay /lgtm. |
+| ~~OSAC-3012~~ | ~~Zoltan~~ | **CLOSED** 2026-07-29 | Covered by OSAC-3011 — LVMS fully operational on hypershift1 |
 | OSAC-3013 | Will | In Progress | Backend and Tier API Integration (operator + AAP side) |
 | OSAC-3014 | Will | New | Public Storage Tier API |
 | OSAC-2776 | Akshay | In Progress | Storage Framework Bootstrap |
@@ -90,40 +90,30 @@ LVMS is already fully operational on hypershift1 (481 days, active PVCs, `/dev/s
 
 | Half | Status | Notes |
 |------|--------|-------|
-| Operator (PR #354, Zoltan) | MERGEABLE — needs /lgtm | Force-pushed July 27, ok-to-test needed after force push |
-| Operator (PR #375, Will) | CHANGES_REQUESTED (CodeRabbit) | CodeRabbit requested per-call gRPC deadlines + unmapped enum logging; Will addressing |
-| AAP side (Zoltan, minimal) | **DONE** — `zszabo-rh/osac-aap:feat/OSAC-3013-aap-tier-extra-vars` | Playbooks now accept `ansible_eda.event.storage_tier_definitions` (dynamic) and fall back to `STORAGE_TIERS` env var; all 4 storage playbooks updated |
-
-Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks OSAC-3011 testing without waiting for Will's full redesign.
+| Operator (PR #354, Zoltan) | **MERGED** 2026-07-28 | ✅ |
+| Operator (PR #375, Will) | **MERGED** 2026-07-29 | ✅ |
+| AAP side (Zoltan, minimal) | **In PR #454** | Playbooks accept `ansible_eda.event.storage_tier_definitions` (event) + fall back to `STORAGE_TIERS` env var. Cherry-picked from `feat/OSAC-3013-aap-tier-extra-vars`. |
+| AAP side (Will, full) | **Not started** | Will's scope: strip VAST credentials from `storage-operations-ig` pod spec; pass via extra_vars. Dependency documented in PR #454 description. Our PRs can merge without it. |
 
 ---
 
 ## PR Tracker
 
-| PR | Repo | State | Next action |
-|----|------|-------|-------------|
-| ~~#354~~ | ~~osac-operator~~ | **MERGED** (2026-07-28 17:01 UTC) | ✅ |
-| ~~#375~~ | ~~osac-operator~~ | **MERGED** (2026-07-29 01:19 UTC) | ✅ |
-| **#397** | **osac-operator** | **READY** | Rebased Jul 29 (resolved conflicts with #354/#375), test fixes for BackendsClient nil/zero-backends cases. Needs review + /lgtm |
-| **#454** | **osac-aap** | **READY** | Jul 29: +provider name validation fix (underscores), +OSAC-3013 event tier definitions cherry-pick. Needs review + /lgtm |
-| **#474** | **osac-installer** | **READY** | lvms values/schema, activeDeadlineSeconds 300→900, pipefail fix, securityContext hardening. Needs review + /lgtm |
-| ~~#151~~ | ~~enhancement-proposals~~ | **MERGED** (2026-07-28) | ✅ |
+| PR | Repo | State | Notes |
+|----|------|-------|-------|
+| **#397** | **osac-operator** | **READY** | Jul 29: rebased, sentinel removal + test fixes + `label-storageclass` hook removed. CodeRabbit APPROVED. Needs Akshay /lgtm. |
+| **#454** | **osac-aap** | **READY** | Jul 29: provider validation fix, OSAC-3013 tier fix, tier name validation, teardown robustness. CodeRabbit changes addressed. Needs Akshay /lgtm. |
+| **#474** | **osac-installer** | **READY** | Jul 29: register-local-storage hook, configure-lvms idempotency, security context fixes, SIGPIPE fix. CodeRabbit changes addressed. Needs Akshay /lgtm. |
 | #172 | enhancement-proposals | OPEN | Akshay's Storage Control Plane follow-up — needs storage team review |
-| #146 | enhancement-proposals | REVIEW_REQUIRED | OSAC-1710 design — no new activity |
 
 ---
 
 ## Open Questions / Decisions Needed
 
-1. ~~**PR #354 /lgtm + ok-to-test**~~ — **MERGED** 2026-07-28. ✅
-2. ~~**OSAC-3013 AAP half**~~ — **minimal fix cherry-picked into PR #454** (2026-07-29). Full redesign (Will's story) still needed; our minimal version is now in PR #454.
-3. ~~**OSAC-3011 E2E**~~ — **COMPLETE** 2026-07-29. See E2E section below.
-4. ~~**Omer / CaaS flavor second disk**~~ — **resolved** (2026-07-27): tracked as OSAC-3234. Architecture decided: Option B (LVMS directly on guest workers, not CSI→hub). See OSAC-3234 Design section above.
-5. **PR #172 storage control plane follow-up** — Akshay's new EP for internal publish/unpublish API. Needs storage team review. Not blocking OSAC-3011.
-5. ~~**OSAC-3011 plan approval**~~ — **resolved**: approved July 24 meeting.
-6. ~~**CaaS KubeVirt disk scope**~~ — **resolved**: separate ticket, two CaaS flavors, Akshay to create.
-7. ~~**OSAC-3011 bridge approach**~~ — **resolved**: idempotent `configure-lvms.sh`.
-8. ~~**OSAC-3012 Jira description**~~ — **resolved**.
+1. **Akshay /lgtm on PRs #397, #454, #474** — deadline July 31 (0.2-M1). All CodeRabbit issues addressed. Ping Akshay if no review by EOD Jul 30.
+2. **PR #172 storage control plane follow-up** — Akshay's new EP for internal publish/unpublish API. Needs storage team review. Not blocking OSAC-3011.
+3. **OSAC-3013 AAP full work (Will)** — not started. Our PRs depend on it but can merge first; OSAC-2300 describes the gap. Working E2E requires `storage-operations-ig` Secret to exist (empty stub is fine for LVMS; documented in PR #454 description).
+4. **Demo recording (Aug 3)** — `osac-3011-demo` cluster on edge-17 booting (DNS fix applied). Tomorrow: confirm cluster up → `make install-osac` with test overrides → record with `demos_and_workflows/osac-3011-storage/record-demo.sh`.
 
 ---
 
@@ -149,30 +139,48 @@ Will's plan: still needs to land after #375 merges. Our minimal AAP fix unblocks
 
 ## OSAC-3011 E2E Testing Status — COMPLETE ✅ (2026-07-29)
 
-**Cluster:** edge-17, `vmaas-4-22` flavor, cluster name `demo`.  
-**Namespace:** `osac-e2e-ci`
+Full E2E flow doc: `artifacts/osac-3011-e2e-flow.md`
+
+**Cluster used:** edge-17, `vmaas-4-22` flavor, cluster `demo`, namespace `osac-e2e-ci`
 
 ### Full flow verified ✅
 1. StorageBackend `local` (provider: `local_lvms`) — registered, `STORAGE_BACKEND_STATE_READY`
 2. StorageTier `local` — registered, `STORAGE_TIER_STATE_ACTIVE`
-3. Operator detects backend → triggers AAP job (template `osac-create-tenant-cluster-storage`)
-4. AAP job runs `local_lvms_storage/tasks/ensure_storage_class.yaml` — creates `osac-shared-local` StorageClass
+3. Operator detects backend → triggers AAP job `osac-create-tenant-cluster-storage`
+4. AAP runs `local_lvms_storage/tasks/ensure_storage_class.yaml` → creates `osac-shared-local` StorageClass
 5. Tenant conditions: `StorageBackendReady=True`, `ClusterStorageReady=True`, `NamespaceReady=True`
-6. PVC with `storageClassName: osac-shared-local` creatable — `WaitForFirstConsumer` (Pending until pod scheduled, expected)
+6. PVC with `storageClassName: osac-shared-local` creatable (Pending = WaitForFirstConsumer, expected)
 
-**StorageClass created:**
-```
-NAME               PROVISIONER   RECLAIMPOLICY   VOLUMEBINDINGMODE      AGE
-osac-shared-local  topolvm.io    Delete          WaitForFirstConsumer   ...
-Labels: osac.openshift.io/tenant=shared, osac.openshift.io/storage-tier=local, app.kubernetes.io/managed-by=osac-aap
-```
+### Bugs found and fixed during E2E (all in PR #454 or #474)
+- **Bug 1:** Provider name validator rejected underscores — fixed in PR #454
+- **Bug 2:** Playbooks ignored operator event tier definitions — cherry-picked OSAC-3013 fix into PR #454
+- **Bug 3:** Stage 2 playbooks read `tenant_name` from annotation only; Tenant CRs have no self-annotation — fixed to fall back to `metadata.name`
 
-### Bugs found and fixed during E2E
+### MOC E2E — attempted, blocked (2026-07-29)
+Fresh namespace deploy on hypershift1 hit 5 sequential blockers:
+1. CRD ownership conflict (`--take-ownership` handled it, restored after)
+2. Missing `fulfillment-controller-credentials` (per-namespace Phase 2 step skipped)
+3. Keycloak issuer URL mismatch (external vs internal)
+4. Operator OOMKilled at 128Mi limit
+5. **Hard blocker:** AAP 2.6 dropped subscription manifest licensing — requires RHSM credentials. Not fixable without Red Hat portal access.
 
-**Bug 1 — Provider name validator too strict** (`osac.service.storage_provider/tasks/main.yaml`)  
-The regex `^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$` rejected `local_lvms` (underscore not allowed). Provider names map to Ansible role names which use underscores. Fixed: `[a-z0-9_-]`. Included in PR #454.
+**Conclusion:** MOC fresh namespace installs are broken for anyone without a current RHSM service account. Existing namespaces (osac-ori, etc.) predate these issues. Not a storage problem — separate infra concern. OSAC-3012 closed as covered by OSAC-3011.
 
-**Bug 2 — Playbooks ignored event tier definitions** (`playbook_osac_create_tenant_cluster_storage.yml` and 3 others)  
-After PR #375 merged, the operator sends `storage_tier_definitions` in the AAP event, but the playbooks only read `STORAGE_TIERS` env var. Cherry-picked OSAC-3013 fix into PR #454 (required for OSAC-3011 to function).
+---
 
-**Cluster config note:** Bootstrap `shared` tenant had no `osac.openshift.io/tenant` annotation — manually added for test. Real tenants created via API will have it set by the fulfillment service.
+## Demo Status
+
+**Plan:** `artifacts/demo-osac-3011.md` (updated with Akshay's suggested flow + VM creation)  
+**Script:** `demos_and_workflows/osac-3011-storage/record-demo.sh`  
+**Demo date:** Monday 2026-08-03
+
+**Demo cluster:** edge-17, `osac-3011-demo` (vmaas-4-22 snapshot, booted 2026-07-29)
+- VM is running; DNS fix applied (added `api-int.test-infra-cluster-vmaas-4-22.redhat.com` to `/etc/hosts` inside VM, kubelet restarted)
+- **Tomorrow:** confirm cluster API is up → `make install-osac` with test image + fork branch → record
+
+**Demo flow (5 scenes):**
+1. LVMS ready, no tenant SCs
+2. StorageBackend + StorageTier auto-registered (installer hook)
+3. Explicit: no tenant SCs yet
+4. Onboard a tenant via API → watch conditions → SC created
+5. Create PVC + VM using `osac-demo-local` StorageClass

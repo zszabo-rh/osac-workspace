@@ -49,51 +49,23 @@ oc get storageclass | grep osac || echo "no OSAC storage classes ✓"
 
 ### Scene 1 — The Starting State (20s)
 
-**What to show:** Clean cluster, no OSAC namespace, LVMS already present.
+**What to show:** After install — LVMS ready, StorageBackend and StorageTier already registered by the hook, but no tenant StorageClasses yet.
 
 **Narration:**
-> "Fresh cluster — OSAC not yet installed. LVMS is already set up on this node, you can see the LVMCluster is Ready and there's an existing `lvms-vg1` StorageClass. That's our raw material. Now, make install."
+> "OSAC is installed, LVMS is running. The install hook already fired and registered a 'local' StorageBackend and StorageTier. Let me show you those."
 
 ```bash
-# LVMS is ready - raw material is here
-oc get lvmcluster -A
-oc get storageclass lvms-vg1
+# LVMS is ready
+oc get lvmcluster -A --no-headers
+oc get storageclass lvms-vg1 --no-headers
 ```
 
 ---
 
-### Scene 2 — Run the Install (30s shown, ~15 min cut)
-
-**What to show:** The install command, then jump-cut to completion.
-
-**Narration (before cut):**
-> "Running Phase 3 install. [Note to audience: we're using a pre-release test image and a fork branch here because the PRs aren't merged yet — after merge this will be a standard `make install` with no extra parameters.]"
-
-**Narration (after cut, over hook logs):**
-> "The install completed. You can see the `register-local-storage` hook ran — it called the fulfillment API, created the StorageBackend, linked it to a StorageTier. This is the new hook in the installer that fires automatically whenever LVMS is enabled."
-
-```bash
-# THE INSTALL COMMAND (⚠️ WIP: extra --set flags needed until PRs merge)
-# After PR #397 (operator) and #454 (aap) merge → plain `make install-osac`
-make install-osac VALUES_FILE=values/vmaas-ci/values.yaml \
-  --set operator.image.repository=quay.io/rh-ee-zszabo/osac-operator \
-  --set operator.image.tag=osac-3011-test \
-  --set aap.configAsCode.projectGitUri=https://github.com/zszabo-rh/osac-aap.git \
-  --set aap.configAsCode.projectGitBranch=test/OSAC-3011-combined
-
-# [--- CUT: ~15 min wait ---]
-
-# Show the hook log (already completed)
-oc logs -n osac-e2e-ci job/register-local-storage 2>/dev/null || \
-  echo "(hook completed and cleaned up — this is expected)"
-```
-
----
-
-### Scene 3 — StorageBackend and StorageTier Registered (45s)
+### Scene 2 — StorageBackend and StorageTier Registered (45s)
 
 **Narration:**
-> "Let's look at what the hook created. Through the fulfillment API: a StorageBackend named 'local' with provider type local_lvms, and a StorageTier also named 'local' that references it. These are the two new resources that hadn't been shown before. The installer wired them up automatically."
+> "The installer hook called the fulfillment API and registered two resources automatically: a StorageBackend with provider `local_lvms`, and a StorageTier that references it. These are the platform-level objects that didn't exist before and hadn't been shown yet."
 
 ```bash
 # Auth
@@ -126,37 +98,59 @@ for t in items:
 
 ---
 
-### Scene 4 — Operator Triggers AAP, StorageClass Appears (60s)
+### Scene 3 — No Tenant StorageClasses Yet (10s)
 
 **Narration:**
-> "Now watch what the operator does. It saw the StorageBackend become Ready and immediately triggered an AAP job to provision storage for the 'shared' bootstrap tenant. The job ran the new `local_lvms_storage` role — which creates a StorageClass backed by topolvm.io, the LVMS CSI driver."
+> "The backend is registered, but no tenant StorageClasses exist yet — because no tenant has been onboarded. That's next."
 
 ```bash
-# Tenant conditions — operator already acted
-oc get tenant -n osac-e2e-ci shared -o jsonpath='{.status.conditions}' \
-  | python3 -c "
-import sys,json
-for c in json.load(sys.stdin):
-    status = '✓' if c['status'] == 'True' else '✗'
-    print(f\"  {status} {c['type']}: {c['reason']}\")
-"
-
-# The StorageClass that was created automatically
-oc get storageclass -l osac.openshift.io/tenant=shared
+# No OSAC storage classes yet
+oc get storageclass -l app.kubernetes.io/managed-by=osac-aap --no-headers \
+  2>/dev/null || echo "No tenant StorageClasses yet."
 ```
-
-**Narration:**
-> "Three conditions True: StorageBackendReady, ClusterStorageReady, NamespaceReady. And the StorageClass `osac-shared-local` is there — with the topolvm.io provisioner, labelled to the 'shared' tenant and 'local' tier. A developer can use this immediately."
 
 ---
 
-### Scene 5 — Developer Creates a PVC (30s)
+### Scene 4 — Onboard a Tenant (60s)
 
 **Narration:**
-> "Let's verify a tenant can actually use it."
+> "Onboarding a tenant via the fulfillment API. The operator will detect the new tenant, see the 'local' StorageBackend is Ready, and trigger an AAP job to create the per-tenant StorageClass."
 
 ```bash
-# Create a PVC using the auto-provisioned StorageClass
+# Create a tenant via the fulfillment API
+curl -sk -X POST -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  https://$ROUTE/api/private/v1/tenants \
+  -d '{"metadata":{"name":"demo"},"spec":{}}' \
+  | python3 -c "import sys,json; d=json.load(sys.stdin); print('tenant:', d.get('metadata',{}).get('name'))"
+
+# Watch operator trigger AAP and tenant conditions update
+watch -n 3 "
+  oc get tenant -n osac-e2e-ci demo -o jsonpath='{.status.conditions}' 2>/dev/null \
+    | python3 -c \"import sys,json; [print(f'  {\\\"✓\\\" if c[\\\"status\\\"]==\\\"True\\\" else \\\"○\\\"}  {c[\\\"type\\\"]}: {c[\\\"reason\\\"]}') for c in json.load(sys.stdin)]\" 2>/dev/null
+"
+```
+
+---
+
+### Scene 5 — StorageClass Created Automatically (20s)
+
+**Narration:**
+> "All conditions True. And there's the StorageClass — `osac-demo-local`, topolvm.io provisioner, labeled to the 'demo' tenant and 'local' tier. Created automatically. No admin had to touch anything after install."
+
+```bash
+oc get storageclass -l osac.openshift.io/tenant=demo
+```
+
+---
+
+### Scene 6 — Create a PVC and a VM (90s)
+
+**Narration:**
+> "Let's use it. First a PVC to verify the StorageClass works, then a VM with a boot disk from LVMS-backed storage."
+
+```bash
+# PVC
 cat <<EOF | oc apply -n osac-e2e-ci -f -
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -164,28 +158,65 @@ metadata:
   name: osac-demo-pvc
 spec:
   accessModes: [ReadWriteOnce]
-  storageClassName: osac-shared-local
+  storageClassName: osac-demo-local
   resources:
     requests:
-      storage: 1Gi
+      storage: 5Gi
 EOF
-
 oc get pvc -n osac-e2e-ci osac-demo-pvc
 ```
 
 **Narration:**
-> "Status is Pending — that's correct and expected. LVMS uses `WaitForFirstConsumer` binding, which means the volume is provisioned when a pod actually schedules. The StorageClass works. No admin had to create it — the installer handled everything."
+> "PVC is Pending — correct, LVMS uses WaitForFirstConsumer. The volume provisions when a pod schedules. Let's boot a VM and watch the volume bind."
+
+```bash
+# VM using LVMS-backed storage (DataVolume from existing Fedora image)
+cat <<EOF | oc apply -n osac-e2e-ci -f -
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: demo-vm
+  labels:
+    osac.openshift.io/tenant: demo
+spec:
+  running: true
+  template:
+    spec:
+      domain:
+        cpu:
+          cores: 1
+        memory:
+          guest: 1Gi
+        devices:
+          disks:
+          - name: boot
+            disk:
+              bus: virtio
+      volumes:
+      - name: boot
+        persistentVolumeClaim:
+          claimName: osac-demo-pvc
+EOF
+
+# Watch PVC bind as VM schedules
+oc get pvc -n osac-e2e-ci osac-demo-pvc -w
+```
+
+**Narration:**
+> "PVC bound — LVMS provisioned the volume when the VM pod scheduled. The VM is booting from local storage."
 
 ---
 
-### Scene 6 — Wrap-up (15s)
+### Scene 7 — Wrap-up (15s)
 
 **Narration:**
-> "To recap: install OSAC on a node with LVMS, and storage is ready for tenants automatically. No manual StorageBackend registration, no StorageTier setup, no StorageClass creation. The same AAP dispatcher pattern that VAST and other storage providers use — just with a local LVMS role."
+> "To recap: install OSAC, get storage. No manual steps. The same dispatcher pattern as VAST, just a local LVMS role. Backend, tier, StorageClass, PVC, VM — all wired up automatically."
 
 ```bash
-# Clean up the test PVC
+# Cleanup
+oc delete vm -n osac-e2e-ci demo-vm
 oc delete pvc -n osac-e2e-ci osac-demo-pvc
+oc delete tenant -n osac-e2e-ci demo 2>/dev/null || true
 ```
 
 ---
