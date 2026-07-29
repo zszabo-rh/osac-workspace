@@ -27,6 +27,8 @@ operator:
   certs:
     issuerRef:
       name: default-ca
+  hubAccess:
+    enabled: true
 
 # --- Fulfillment Service ---
 service:
@@ -93,11 +95,16 @@ service:
 
 # --- AAP (disabled for kind) ---
 aap:
+  apiToken:
+    create: false
   aap:
     instance:
       enabled: false
   bootstrap:
     enabled: false
+  instanceGroups:
+    publishTemplates:
+      enabled: false
 
 # --- Bare Metal Fulfillment (disabled) ---
 bmf:
@@ -105,7 +112,7 @@ bmf:
 
 # --- Bundled PostgreSQL ---
 bundledPostgres:
-  enabled: true
+  enabled: false
   database:
     name: service
     user: service
@@ -113,10 +120,6 @@ bundledPostgres:
 # --- Hub Access ---
 hubAccess:
   enabled: true
-
-# --- Publish Templates ---
-publishTemplates:
-  enabled: false
 
 # --- Validation hooks ---
 validation:
