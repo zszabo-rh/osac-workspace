@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-07-29 end-of-day (E2E ✅ complete. CodeRabbit changes addressed on all PRs. OSAC-3012 closed. Demo plan + recording script created. edge-17 `osac-3011-demo` cluster booting for demo recording tomorrow.)  
+**Last updated:** 2026-07-30 mid-day checkpoint (PRs fully addressed; demo cluster infrastructure mostly resolved; one blocker remaining: Envoy 404 on API paths)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -101,19 +101,19 @@ LVMS is already fully operational on hypershift1 (481 days, active PVCs, `/dev/s
 
 | PR | Repo | State | Notes |
 |----|------|-------|-------|
-| **#397** | **osac-operator** | **READY** | Jul 29: rebased, sentinel removal + test fixes + `label-storageclass` hook removed. CodeRabbit APPROVED. Needs Akshay /lgtm. |
-| **#454** | **osac-aap** | **READY** | Jul 29: provider validation fix, OSAC-3013 tier fix, tier name validation, teardown robustness. CodeRabbit changes addressed. Needs Akshay /lgtm. |
-| **#474** | **osac-installer** | **READY** | Jul 29: register-local-storage hook, configure-lvms idempotency, security context fixes, SIGPIPE fix. CodeRabbit changes addressed. Needs Akshay /lgtm. |
+| **#397** | **osac-operator** | **READY** | Jul 30: rebased on main (+14 commits), gofmt fix (Roy comment). CodeRabbit APPROVED. Roy's inline comments self-cancelled. Needs Akshay /lgtm. CI running. |
+| **#454** | **osac-aap** | **READY** | Jul 30: null default filter fix (`| default([], true)`). CodeRabbit response posted (findings 1/3 false positives). Roy said "looks good, leaving for Will". Needs Will approval + Akshay /lgtm. |
+| **#474** | **osac-installer** | **READY** | Jul 30: activeDeadlineSeconds 900→3000, BACKEND_ID quoting fix, configure-lvms.sh annotation comment. Roy's osac-binary suggestion acknowledged + deferred. CodeRabbit response posted. Needs Akshay /lgtm. |
 | #172 | enhancement-proposals | OPEN | Akshay's Storage Control Plane follow-up — needs storage team review |
 
 ---
 
 ## Open Questions / Decisions Needed
 
-1. **Akshay /lgtm on PRs #397, #454, #474** — deadline July 31 (0.2-M1). All CodeRabbit issues addressed. Ping Akshay if no review by EOD Jul 30.
-2. **PR #172 storage control plane follow-up** — Akshay's new EP for internal publish/unpublish API. Needs storage team review. Not blocking OSAC-3011.
-3. **OSAC-3013 AAP full work (Will)** — not started. Our PRs depend on it but can merge first; OSAC-2300 describes the gap. Working E2E requires `storage-operations-ig` Secret to exist (empty stub is fine for LVMS; documented in PR #454 description).
-4. **Demo recording (Aug 3)** — `osac-3011-demo` cluster on edge-17 booting (DNS fix applied). Tomorrow: confirm cluster up → `make install-osac` with test overrides → record with `demos_and_workflows/osac-3011-storage/record-demo.sh`.
+1. **Akshay /lgtm on PRs #397, #454, #474** — deadline July 31. Akshay pinged Will in wg-osac-storage Jul 29. Will's PR #455 (OSAC-1992) also open.
+2. **Demo recording (Aug 3)** — `osac-3011-demo` cluster (edge-17, subnet 161) is up. Vanilla OSAC running. Last blocker: Envoy ingress proxy returns 404 NR for `/api/private/v1/*`. All other pods 1/1.
+3. **PR #172 storage control plane follow-up** — Akshay decomposed into OSAC-2872 epic hierarchy. Needs review from storage team.
+4. **OSAC-3013 AAP full work (Will)** — Will's PR #455 (osac-aap) open, CHANGES_REQUESTED. Our PRs can merge without it.
 
 ---
 
