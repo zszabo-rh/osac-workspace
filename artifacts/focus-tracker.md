@@ -13,7 +13,7 @@
 **Jira keys:** OSAC-3011, OSAC-3012, OSAC-3013, OSAC-917  
 **GitHub repos:** osac-project/osac-operator, osac-project/osac-aap, osac-project/enhancement-proposals, osac-project/osac-installer  
 **Tracked PRs:** osac-aap#454, osac-installer#474, osac-operator#397, enhancement-proposals#172, osac-workspace#173
-**Next action:** (1) Fix Envoy ingress proxy 404 on `/api/private/v1/*` paths — all other OSAC pods 1/1, this is the last blocker; (2) Once API works, patch test values + run `upgrade_osac()` equivalent to fire register-local-storage hook; (3) Record demo. Deadline: demo Monday Aug 3. All 3 OSAC-3011 PRs need Akshay /lgtm before July 31.  
+**Next action:** Demo recorded ✅ (2026-07-30, cast at `demos_and_workflows/osac-3011-storage/osac-3011-demo.cast`). Remaining: Akshay /lgtm on PRs #397/#454/#474 — deadline today (July 31). Share demo cast with team.  
 **Slack channels:** C0B6USDQ85S (wg-osac-storage), C08ESMFV85Q (wg-osac-eng)  
 **Slack contacts:** anadkarn (Akshay), wgordon17 (Will), rgolan (Roy)  
 **Keywords:** storage, LVMS, VAST, StorageClass, CSI, local-lvms, local-ceph, tier, backend, storage-operations-ig, OSAC-3011, OSAC-3013  

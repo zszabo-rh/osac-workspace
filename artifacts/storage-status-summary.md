@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-07-30 mid-day checkpoint (PRs fully addressed; demo cluster infrastructure mostly resolved; one blocker remaining: Envoy 404 on API paths)  
+**Last updated:** 2026-07-30 evening (PRs rebased/addressed; **DEMO RECORDED** — cast at `demos_and_workflows/osac-3011-storage/osac-3011-demo.cast`, 6 min, all 5 scenes working)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -10,7 +10,7 @@
 
 | Epic | Assignee | Status | Summary |
 |------|----------|--------|---------|
-| OSAC-3011 | Zoltan | In Progress | Local/Dev/E2E CI Storage Setup — 3 PRs open, CodeRabbit addressed, E2E ✅ on edge-17. Demo recording in progress (Mon Aug 3). Needs Akshay /lgtm. |
+| OSAC-3011 | Zoltan | In Progress | Local/Dev/E2E CI Storage Setup — 3 PRs open, CodeRabbit addressed, E2E ✅, **Demo recorded** 2026-07-30. Needs Akshay /lgtm. |
 | ~~OSAC-3012~~ | ~~Zoltan~~ | **CLOSED** 2026-07-29 | Covered by OSAC-3011 — LVMS fully operational on hypershift1 |
 | OSAC-3013 | Will | In Progress | Backend and Tier API Integration (operator + AAP side) |
 | OSAC-3014 | Will | New | Public Storage Tier API |
@@ -170,17 +170,22 @@ Fresh namespace deploy on hypershift1 hit 5 sequential blockers:
 
 ## Demo Status
 
-**Plan:** `artifacts/demo-osac-3011.md` (updated with Akshay's suggested flow + VM creation)  
+**Plan:** `artifacts/demo-osac-3011.md`  
 **Script:** `demos_and_workflows/osac-3011-storage/record-demo.sh`  
-**Demo date:** Monday 2026-08-03
+**Cast:** `demos_and_workflows/osac-3011-storage/osac-3011-demo.cast` — **RECORDED 2026-07-30** (8 attempts, 6 min, all scenes pass)
 
-**Demo cluster:** edge-17, `osac-3011-demo` (vmaas-4-22 snapshot, booted 2026-07-29)
-- VM is running; DNS fix applied (added `api-int.test-infra-cluster-vmaas-4-22.redhat.com` to `/etc/hosts` inside VM, kubelet restarted)
-- **Tomorrow:** confirm cluster API is up → `make install-osac` with test image + fork branch → record
+**Demo cluster:** edge-17, `osac-3011-demo` (vmaas-4-22 snapshot)
 
-**Demo flow (5 scenes):**
-1. LVMS ready, no tenant SCs
-2. StorageBackend + StorageTier auto-registered (installer hook)
-3. Explicit: no tenant SCs yet
-4. Onboard a tenant via API → watch conditions → SC created
-5. Create PVC + VM using `osac-demo-local` StorageClass
+**Demo flow (5 scenes) — all verified working:**
+1. ✅ LVMS ready, OSAC fulfillment pods at 0, no StorageBackend/Tier
+2. ✅ refresh-after-snapshot.py — Phase 1-3 all pass, helm upgrade fires hook
+3. ✅ StorageBackend `local` (READY) + StorageTier `local` (ACTIVE) via API
+4. ✅ Create `demo` namespace + Tenant CR → conditions all True (~30s including AAP)
+5. ✅ `osac-demo-local` StorageClass + PVC Pending (WaitForFirstConsumer)
+
+**Key fixes applied on edge-17 (NOT in PRs, cluster-local only):**
+- Chart template: added `private` to external-api Envoy regex
+- refresh-after-snapshot.py: removed stale_ts timestamp check (already-running AAP never changes it)
+- refresh-after-snapshot.py: server-side apply for large secrets
+- values/vmaas-ci/values.yaml: `keycloak.issuerUrl` set to external URL
+- refresh-after-snapshot.py: AAP wait timeout increased to 1200s
