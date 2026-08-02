@@ -82,10 +82,7 @@ ensure_fork_remote() {
 }
 
 REPOS=(
-  "fulfillment-service"
-  "osac-operator"
-  "osac-aap"
-  "osac-installer"
+  "osac"
   "osac-test-infra"
   "enhancement-proposals"
   "docs"

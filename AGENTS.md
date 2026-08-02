@@ -41,7 +41,7 @@ Re-run `./bootstrap.sh` anytime to update all repos to latest `main`.
 
 Meta-workspace — run `./bootstrap.sh` to clone/update all component repos to latest `main`. **In component repos, read `CLAUDE.md` first** (progressive disclosure). Use that component's `AGENTS.md` where the table below shows **Yes** for tool-agnostic build/test conventions.
 
-Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-service`.
+Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-service`, which was then merged with `osac-operator`, `osac-aap`, `osac-installer`, and `bare-metal-fulfillment-operator` into the `osac` mono-repo below.
 
 | Component | Description | AGENTS.md |
 |-----------|-------------|-----------|
@@ -55,7 +55,6 @@ Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-s
 | [`enhancement-proposals`](https://github.com/osac-project/enhancement-proposals) | Design documents and RFCs | — |
 | [`docs`](https://github.com/osac-project/docs) | Architecture docs and guides (see `docs/architecture/`) | — |
 | [`host-management-openstack`](https://github.com/osac-project/host-management-openstack) | Bare metal host management via OpenStack | — |
-| [`bare-metal-fulfillment-operator`](https://github.com/osac-project/bare-metal-fulfillment-operator) | Kubernetes operator for bare metal fulfillment | Yes |
 
 ## Build and Test
 
@@ -73,16 +72,16 @@ This workspace has no build step of its own. Each component repo documents build
 ### Quick Reference
 
 ```bash
-# fulfillment-service
-cd fulfillment-service
+# osac/fulfillment-service
+cd osac/fulfillment-service
 go build                              # Build
 ginkgo run -r internal                # Unit tests (excludes integration)
 ginkgo run it                         # Integration tests (requires kind)
 IT_KEEP_KIND=true ginkgo run it       # Preserve kind cluster for debugging
 buf lint && buf generate              # Proto lint + codegen
 
-# osac-operator
-cd osac-operator
+# osac/osac-operator
+cd osac/osac-operator
 make image-build image-push IMG=<registry>/osac-operator:tag
 make install                          # Install CRDs
 make deploy IMG=<registry>/osac-operator:tag
@@ -107,21 +106,20 @@ Component repos have their own CI pipelines.
 
 ### Cross-Component Changes
 
-When a feature spans repos, merge in dependency order:
-1. `fulfillment-service` (proto definitions)
-2. `osac-operator` (CRD types, controllers)
-3. `osac-aap` (Ansible roles/playbooks)
-4. `osac-installer` (submodules, deployment manifests)
+`fulfillment-service`, `osac-operator`, `osac-aap`, `osac-installer`, and
+`bare-metal-fulfillment-operator` all live in one mono-repo (`osac/`) — a
+feature spanning any of them (proto definitions, CRD types, Ansible
+roles/playbooks, Helm values) lands in a single branch and PR there.
 
-Link PRs in descriptions: "Depends on fulfillment-service#123".
+Link PRs in descriptions: "Depends on osac-project/osac#123".
 
 ## Deployment Coordination
 
 `osac-installer/setup.sh` pins component versions (AAP collections, fulfillment-service images) via submodule refs. When making changes that cross component boundaries, always update `osac-installer` to match:
 
-- **Proto field additions** in `fulfillment-service` → update CI overlays in `osac-installer` to use the new image version
-- **New AAP roles or collections** in `osac-aap` → bump the submodule ref in `osac-installer`
-- **New CRD types** in `osac-operator` → register in the fulfillment-service reconciler
+- **New CRD types** in `osac-operator` → register in the `fulfillment-service` reconciler (an in-repo change, same PR)
+- **`osac-ui`** → a real external dependency (OCI chart + image, version-tagged), bumped deliberately when a new release is needed
+- **`osac-csi-driver`** → the one remaining genuine git submodule, under `osac/osac-installer/base/`; bump it with a normal `git submodule update --remote`, then run `make sync-charts` in `osac/osac-installer` to rebuild chart dependencies
 
 Failing to update `osac-installer` after cross-component changes causes CI failures and deployment mismatches. See `.planning/codebase/CONVENTIONS.md` for the full cross-repo dependency table.
 
@@ -160,7 +158,7 @@ Both PRD and design ingest phases must read all files in `.design/context/`:
 
 Design and implement ingest phases must read the `AGENTS.md` of each component repo affected by the feature. These contain authoritative conventions for API design, database patterns, testing, and build tooling that the generic workspace rules summarize but do not replace.
 
-For features involving the fulfillment-service API (proto definitions, services, request/response patterns), `fulfillment-service/AGENTS.md` points to [`fulfillment-service/docs/API.md`](fulfillment-service/docs/API.md) — the canonical API design guidelines. Read it before drafting or reviewing proto schemas.
+For features involving the fulfillment-service API (proto definitions, services, request/response patterns), `osac/fulfillment-service/AGENTS.md` points to [`osac/fulfillment-service/docs/API.md`](osac/fulfillment-service/docs/API.md) — the canonical API design guidelines. Read it before drafting or reviewing proto schemas.
 
 ### Template Overrides
 
@@ -240,7 +238,7 @@ OSAC skills are workspace operators, not isolated skill bundles:
 |----------------|--------|---------|
 | File inside the skill directory | Markdown link ([Agent Skills spec](https://agentskills.io/specification)) | `[preflight.md](steps/preflight.md)` |
 | Path at workspace repo root | Backtick path, not a markdown link | `` `presentations/themes/redhat.css` `` |
-| Component or external doc | Backtick path or full URL | `` `fulfillment-service/docs/API.md` `` |
+| Component or external doc | Backtick path or full URL | `` `osac/fulfillment-service/docs/API.md` `` |
 | User-input markers in examples | Backtick the marker | `` `TODO:` `` in meeting notes (not bare `TODO` in headings) |
 | Bad examples in calibration text | Backtick the quoted phrase | `` `handle edge cases appropriately` `` |
 
@@ -352,7 +350,7 @@ not as a file to commit or reference statically.
 | `status.secretAccessKey?: string` on create response | Separate `Create*Response` proto message |
 | `AiEnvironment.spec.rhoaiVersion`, `gatewayEndpoint` | RHOAI operator fields — verify these belong in public API before adding |
 
-## Common Fix Locations (fulfillment-service)
+## Common Fix Locations (osac/fulfillment-service)
 
 Use this table to go directly to the right file for common bug patterns instead of grepping from scratch:
 
@@ -364,9 +362,20 @@ Use this table to go directly to the right file for common bug patterns instead 
 
 ## OpenShift Deployment
 
+The Kustomize `manifests/` directory was removed from `fulfillment-service` — Helm is
+now the only supported deployment method, and installation requires cert-manager, a
+PostgreSQL operator, and Keycloak to be set up first. See
+[`osac/fulfillment-service/docs/INSTALL.md`](osac/fulfillment-service/docs/INSTALL.md)
+for the full OpenShift installation guide (that guide's first step is enabling HTTP/2,
+shown below).
+
 ```bash
 kubectl annotate ingresses.config/cluster ingress.operator.openshift.io/default-enable-http2=true
-kubectl apply -k fulfillment-service/manifests
+```
+
+Once deployed, verify with:
+
+```bash
 export token=$(kubectl create token -n osac client)
 export route=$(kubectl get route -n osac fulfillment-api -o json | jq -r '.spec.host')
 grpcurl -insecure -H "Authorization: Bearer ${token}" ${route}:443 fulfillment.v1.VirtualNetworks/List

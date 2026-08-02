@@ -96,8 +96,8 @@ Does the feature require new deployment prerequisites or configuration?
 - Does the feature add new configuration options for operators or admins?
 - Are there CI pipeline changes needed?
 
-*Design document specifies: Helm chart values, kustomize overlays,
-osac-installer script changes.*
+*Design document specifies: Helm chart values, `osac/osac-installer`
+script changes.*
 
 ### E2E Testing
 
@@ -113,7 +113,7 @@ What E2E test coverage does the feature require in osac-test-infra (bootstrapped
 What user-facing documentation does the feature require?
 
 - What user-facing documentation is needed (user guides, API reference, architecture docs)?
-- API reference may live in component repos (e.g. `fulfillment-service/`) rather than `osac-docs/` alone.
+- API reference may live in component subdirectories (e.g. `osac/fulfillment-service/`) rather than `osac-docs/` alone.
 - Which persona workflows need documented?
 - Are there docs repo updates needed (`osac-docs/`, `enhancement-proposals/`)?
 - Is documentation in scope for this milestone or explicitly deferred?

@@ -6,13 +6,13 @@ Each component repo has its own CLAUDE.md. **Always read it before making change
 
 | Component | Focus |
 |-----------|-------|
-| `fulfillment-service/CLAUDE.md` | Build, test, server patterns, database layer |
-| `osac-operator/CLAUDE.md` | Operator build, CRDs, deployment |
-| `osac-aap/CLAUDE.md` | Ansible roles, infrastructure provisioning |
-| `osac-installer/CLAUDE.md` | Installation manifests, Helm charts, prerequisites |
+| `osac/fulfillment-service/CLAUDE.md` | Build, test, server patterns, database layer |
+| `osac/osac-operator/CLAUDE.md` | Operator build, CRDs, deployment |
+| `osac/osac-aap/CLAUDE.md` | Ansible roles, infrastructure provisioning |
+| `osac/osac-installer/CLAUDE.md` | Installation manifests, Helm charts, prerequisites |
+| `osac/bare-metal-fulfillment-operator/CLAUDE.md` | Bare-metal fulfillment operator |
 | `osac-test-infra/CLAUDE.md` | E2E tests, pytest fixtures, gRPC/K8s clients |
 | `osac-ui/CLAUDE.md` | Web console, React, PatternFly 6 |
-| `bare-metal-fulfillment-operator/CLAUDE.md` | Bare-metal fulfillment operator |
 
 ## Git Worktrees
 
@@ -41,12 +41,15 @@ When starting the Claude session inside a worktree, explicitly tell it the path 
 
 ## Cross-Component Changes
 
-When a feature spans repos (e.g., API + operator):
+`fulfillment-service`, `osac-operator`, `osac-aap`, `osac-installer`, and
+`bare-metal-fulfillment-operator` live in one mono-repo (`osac/`) — a feature spanning
+any of them is a single branch and PR there. When a feature also spans a
+genuinely separate repo (e.g., `osac` + `osac-test-infra`):
 
 1. Plan dependency order (which repo lands first?)
 2. Create branches with consistent names (e.g., `feature/add-storage-api`)
 3. Use worktrees for multi-commit work
-4. Link PRs in descriptions ("Depends on fulfillment-service#123")
+4. Link PRs in descriptions ("Depends on osac-project/osac#123")
 5. Merge foundation changes first
 
 ## Git Workflow
