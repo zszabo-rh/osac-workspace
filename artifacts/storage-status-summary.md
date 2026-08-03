@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-07-31 morning (demo script fixes applied: spacing, values display, curl command, PVC visibility; cast needs re-recording; open questions: StorageBackend/Tier display in scene 1, tenant onboarding gap)  
+**Last updated:** 2026-08-02 morning (demo re-recorded with improved two-phase script; narration written; PR #474 rebased+fixed; CR responses posted on #454/#474; Will's #455 reviewed; lvms.enabled flag design gap identified)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -99,21 +99,24 @@ LVMS is already fully operational on hypershift1 (481 days, active PVCs, `/dev/s
 
 ## PR Tracker
 
+> **MONOREPO STATUS (as of Aug 3):** `osac-project/osac` is live. fulfillment-service, osac-operator, and osac-aap are merged and archived. osac-installer merged too (Omer's message) but GitHub API still shows `isArchived: false` — archiving imminent. **All 3 PRs must be migrated to `osac-project/osac`.** Monorepo cloned at `osac-workspace/osac/`, fork at `zszabo-rh/osac`.
+
 | PR | Repo | State | Notes |
 |----|------|-------|-------|
-| **#397** | **osac-operator** | **READY** | Jul 30: rebased on main (+14 commits), gofmt fix (Roy comment). CodeRabbit APPROVED. Roy's inline comments self-cancelled. Needs Akshay /lgtm. CI running. |
-| **#454** | **osac-aap** | **READY** | Jul 30: null default filter fix (`| default([], true)`). CodeRabbit response posted (findings 1/3 false positives). Roy said "looks good, leaving for Will". Needs Will approval + Akshay /lgtm. |
-| **#474** | **osac-installer** | **READY** | Jul 30: activeDeadlineSeconds 900→3000, BACKEND_ID quoting fix, configure-lvms.sh annotation comment. Roy's osac-binary suggestion acknowledged + deferred. CodeRabbit response posted. Needs Akshay /lgtm. |
-| #172 | enhancement-proposals | OPEN | Akshay's Storage Control Plane follow-up — needs storage team review |
+| **#397** | **osac-operator (archived)** | **NEEDS MIGRATION** | APPROVED by Roy. `/hold` in place (Akshay Jul 30: "don't merge without context around it"). Stale comment fix committed (cc7e777). Migrate to osac-project/osac (osac-operator/ subdir). |
+| **#454** | **osac-aap (archived)** | **NEEDS MIGRATION** | Roy: "lgtm but re-open in mono repo". CR responses posted (Aug 1, all false positives). After migration: drop STORAGE_TIERS fallback (Will's #455/#99 already migrated). |
+| **#474** | **osac-installer (archiving soon)** | **NEEDS MIGRATION** | Force-pushed Aug 3. Monorepo has old configure-lvms.sh (no idempotency, no error handling). Our full diff (configure-lvms.sh + register-local-storage hook) must land in osac-project/osac (osac-installer/ subdir). |
+| osac #99 | osac (monorepo) | **OPEN** | Will's OSAC-1992 (was #455). Akshay left review comments. When merged: drop STORAGE_TIERS fallback from our migrated #454. |
 
 ---
 
 ## Open Questions / Decisions Needed
 
-1. **Akshay /lgtm on PRs #397, #454, #474** — deadline July 31. Akshay pinged Will in wg-osac-storage Jul 29. Will's PR #455 (OSAC-1992) also open.
-2. **Demo recording (Aug 3)** — `osac-3011-demo` cluster (edge-17, subnet 161) is up. Vanilla OSAC running. Last blocker: Envoy ingress proxy returns 404 NR for `/api/private/v1/*`. All other pods 1/1.
-3. **PR #172 storage control plane follow-up** — Akshay decomposed into OSAC-2872 epic hierarchy. Needs review from storage team.
-4. **OSAC-3013 AAP full work (Will)** — Will's PR #455 (osac-aap) open, CHANGES_REQUESTED. Our PRs can merge without it.
+1. **lvms.enabled flag split** — current design couples Phase 2 (LVMCluster creation) and Phase 3 (OSAC backend registration) under one flag. An infra admin enabling LVMS for infra reasons would accidentally expose it as a tenant storage backend. Fix: add `lvms.registerAsBackend: true` as a second flag gating only the Phase 3 hook. Discuss with Akshay before changing #474.
+2. **Akshay /lgtm on #454 and #474** — #397 blocked on monorepo migration, not needing /lgtm now.
+3. **Will's #455 (OSAC-1992) APPROVED** (Jul 30 final CR pass) — compatible with #454. After #455 merges, drop STORAGE_TIERS fallback from #454.
+4. **Demo recording DONE** — cast at `demos_and_workflows/osac-3011-storage/osac-3011-demo.cast`. Two-phase approach, ~3m50s after compression. Narration written. Scene 4 uses dev `oc apply` path with note about production `osac create`.
+5. **#397 monorepo migration** — osac-operator + fulfillment-service consolidated Jul 30. New repo not yet available. Migrate next week.
 
 ---
 

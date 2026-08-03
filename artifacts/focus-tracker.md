@@ -1,6 +1,6 @@
 # Focus Tracker
 
-**Last session:** 2026-07-31 morning (PRs rebased; demo recorded (8 attempts); demo script fixes applied; open questions: scene 1 StorageBackend display, tenant onboarding gap in OSAC)
+**Last session:** 2026-08-03 (checkpoint + compact + close; all artifact updates carried forward from Aug 2 session)
 **Workspace:** osac-workspace
 
 ---
@@ -12,8 +12,8 @@
 **Read first:** `artifacts/storage-status-summary.md`  
 **Jira keys:** OSAC-3011, OSAC-3012, OSAC-3013, OSAC-917  
 **GitHub repos:** osac-project/osac-operator, osac-project/osac-aap, osac-project/enhancement-proposals, osac-project/osac-installer  
-**Tracked PRs:** osac-aap#454, osac-installer#474, osac-operator#397, enhancement-proposals#172, osac-workspace#173
-**Next action:** (1) Re-record demo with script fixes applied; (2) Akshay /lgtm on PRs #397/#454/#474 — deadline today July 31; (3) Discuss: scene 1 StorageBackend display approach; (4) Research: why OSAC has no external tenant create path (osac.public.v1.Tenants.Create not implemented).  
+**Tracked PRs:** osac-aap#454, osac-installer#474, osac-operator#397
+**Next action:** (1) Akshay /lgtm on #454 and #474; (2) After #455 merges: drop STORAGE_TIERS fallback from #454; (3) Discuss lvms.enabled flag split with Akshay (add lvms.registerAsBackend); (4) Migrate #397 to new consolidated monorepo when available.  
 **Slack channels:** C0B6USDQ85S (wg-osac-storage), C08ESMFV85Q (wg-osac-eng)  
 **Slack contacts:** anadkarn (Akshay), wgordon17 (Will), rgolan (Roy)  
 **Keywords:** storage, LVMS, VAST, StorageClass, CSI, local-lvms, local-ceph, tier, backend, storage-operations-ig, OSAC-3011, OSAC-3013  

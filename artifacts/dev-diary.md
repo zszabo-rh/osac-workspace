@@ -2,6 +2,37 @@
 
 ---
 
+## 2026-08-02–03
+
+### Focus Areas Active
+- Storage OSAC-3011: PR maintenance, demo finalization
+
+### Completed Today
+- Demo re-recorded (two-phase approach: pre-run with `lvms.enabled=false`, scene 2 flips to `true`); cast post-processed (TERM fix, 10s gap cap, 448.9s → 229.1s)
+- Demo narration written (audience: first-time OSAC storage viewers; emphasizes LVMS dev-only context)
+- osac-installer #474: `configure-lvms.sh` error handling fixed (oc get exit status captured), rebased onto origin/main (was 16 behind), CR responses posted
+- osac-aap #454: CR responses posted to all 3 CodeRabbit Jul 30 findings (all confirmed false positives)
+- osac-operator #397: stale code comment fixed at `storage_controller.go:381` (removed false claim about `tenant=Default` fallback), committed cc7e777
+- Will's PR #455 (OSAC-1992) reviewed: compatible with #454; delete playbook hard-fail concern noted; review comments drafted and posted
+
+### In Progress
+- osac-aap #454: WAITING — Will approval + CodeRabbit re-review pass
+- osac-installer #474: WAITING — human review (Roy/Akshay); design gap pending Akshay discussion
+- osac-operator #397: BLOCKED — missed monorepo archive deadline (Jul 30); needs migration to new consolidated repo
+
+### Decisions Made
+- Two-phase demo approach confirmed: pre-run with `lvms.enabled=false` so API is live and empty in scene 1; scene 2 shows the flag flip + second refresh firing the hook
+- `lvms.enabled` flag split needed: current flag gates both LVMCluster creation (Phase 2) and OSAC backend registration (Phase 3 new). Proposed: add `lvms.registerAsBackend: true` as separate flag. Do not change #474 until Akshay confirms.
+- After #455 merges: drop STORAGE_TIERS fallback from #454 (the transitional dual-path code)
+
+### Blocked / Needs Follow-up
+- Akshay /lgtm on #454 and #474
+- Discuss `lvms.enabled` flag split at next 1:1 or storage meeting
+- Migrate osac-operator #397 to new consolidated monorepo when available (new repo not yet open)
+- Tenant onboarding production path (`osac create`) not demoed — binary unavailable + reconciler not wired to edge-17 hub; narration explains the difference
+
+---
+
 ## 2026-07-29
 
 ### Focus Areas Active
