@@ -3,6 +3,7 @@ set -euo pipefail
 
 GITHUB_ORG="osac-project"
 NO_FORK=false
+FORK_REMOTE_NAME="fork"
 
 declare -A FORK_OVERRIDES=()
 if [[ -f "$(dirname "$0")/fork-overrides.sh" ]]; then
@@ -11,29 +12,35 @@ fi
 
 usage() {
   cat <<'EOF'
-Usage: ./bootstrap.sh [--no-fork]
+Usage: ./bootstrap.sh [--no-fork] [--fork-name NAME]
 
 Sets up the OSAC workspace by cloning all component repos.
 
 By default, each repo is forked to your GitHub account and cloned with:
-  origin = osac-project/<repo>  (upstream source, PR target)
-  fork   = <your-username>/<repo>  (push target for feature branches)
+  origin     = osac-project/<repo>  (upstream source, PR target)
+  <fork-name> = <your-username>/<repo>  (push target for feature branches)
 
 Options:
-  --no-fork    Clone directly from osac-project without forking.
-               Useful for read-only access or CI environments.
-  --help       Show this help message.
+  --no-fork          Clone directly from osac-project without forking.
+                     Useful for read-only access or CI environments.
+  --fork-name NAME   Name for the push remote (default: fork).
+                     Use any name you prefer — tools/resolve-remotes.sh
+                     detects remotes by URL, not by name.
+  --help             Show this help message.
 
 Prerequisites:
   - gh CLI installed and authenticated (gh auth login)
 EOF
 }
 
-for arg in "$@"; do
-  case "$arg" in
-    --no-fork) NO_FORK=true ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --no-fork) NO_FORK=true; shift ;;
+    --fork-name)
+      [[ -n "${2:-}" ]] || { echo "Error: --fork-name requires a value"; usage; exit 1; }
+      FORK_REMOTE_NAME="$2"; shift 2 ;;
     --help|-h) usage; exit 0 ;;
-    *) echo "Unknown option: $arg"; usage; exit 1 ;;
+    *) echo "Unknown option: $1"; usage; exit 1 ;;
   esac
 done
 
@@ -142,7 +149,7 @@ for repo in "${REPOS[@]}"; do
     echo "   $repo (branch: $branch)"
     echo "     origin: $origin_url"
     if [ "$fork_url" != "not set" ]; then
-      echo "     fork:   $fork_url"
+      echo "     $FORK_REMOTE_NAME: $fork_url"
     fi
   fi
 done
@@ -151,5 +158,5 @@ if [ "$NO_FORK" = true ]; then
   echo ""
   echo "💡 Cloned in read-only mode. To contribute, re-run without --no-fork"
   echo "   or add your fork manually:"
-  echo "   cd <repo> && git remote add fork \$(gh config get git_protocol | grep -q ssh && echo git@github.com: || echo https://github.com/)\$(gh api user -q .login)/<repo>.git"
+  echo "   cd <repo> && git remote add <name> \$(gh config get git_protocol | grep -q ssh && echo git@github.com: || echo https://github.com/)\$(gh api user -q .login)/<repo>.git"
 fi

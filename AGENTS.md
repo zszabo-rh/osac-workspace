@@ -7,7 +7,7 @@ Meta-workspace that bootstraps all OSAC (Open Sovereign AI Cloud) component repo
 - **`osac-workspace/` is the project root** — all work happens from here; component docs are loaded via progressive disclosure
 - **Never skip tenant isolation metadata** (`osac.openshift.io/tenant`, `osac.openshift.io/owner-reference` annotations) in new resources
 - **Always `buf lint` before committing** proto changes; regenerate with `buf generate`
-- **Fork-based workflow**: always push to `fork` remote, never to `origin`. PRs go from `fork/<branch>` to `origin/main`
+- **Fork-based workflow**: push to `$PUSH_REMOTE`, never to `$UPSTREAM_REMOTE` — resolve with `tools/resolve-remotes.sh`
 - **AI attribution**: use `Assisted-by: Claude Code <noreply@anthropic.com>` trailer on commits — never use `Co-Authored-By` for AI tools (Red Hat attribution standard)
 - When debugging Kubernetes operators, check for stale vendor directories and cached images before rebuilding
 - **Don't raise `.skillsaw.yaml`'s `context-budget` skill limit to silence a token-count warning** — split the oversized `SKILL.md` into `references/`/`steps/` instead (see Skill Authoring Conventions)
@@ -41,7 +41,7 @@ Re-run `./bootstrap.sh` anytime to update all repos to latest `main`.
 
 Meta-workspace — run `./bootstrap.sh` to clone/update all component repos to latest `main`. **In component repos, read `CLAUDE.md` first** (progressive disclosure). Use that component's `AGENTS.md` where the table below shows **Yes** for tool-agnostic build/test conventions.
 
-Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-service`, which was then merged with `osac-operator`, `osac-aap`, `osac-installer`, and `bare-metal-fulfillment-operator` into the `osac` mono-repo below.
+Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-service`, which was then merged with `osac-operator`, `osac-aap`, `osac-installer`, `bare-metal-fulfillment-operator`, and `osac-csi-driver` into the `osac` mono-repo below.
 
 | Component | Description | AGENTS.md |
 |-----------|-------------|-----------|
@@ -53,8 +53,7 @@ Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-s
 | [`osac-ui`](https://github.com/osac-project/osac-ui) | OSAC UI web console | Yes |
 | [`osac-ux`](https://github.com/osac-project/osac-ux) | React 19 + PatternFly 6 UI console — read-only UI reference | Yes (`osac-ux/AGENTS.md`) |
 | [`enhancement-proposals`](https://github.com/osac-project/enhancement-proposals) | Design documents and RFCs | — |
-| [`docs`](https://github.com/osac-project/docs) | Architecture docs and guides (see `docs/architecture/`) | — |
-| [`host-management-openstack`](https://github.com/osac-project/host-management-openstack) | Bare metal host management via OpenStack | — |
+| [`docs`](https://github.com/osac-project/docs) | Architecture docs and guides (see `osac-docs/architecture/`) | — |
 
 ## Build and Test
 
@@ -74,7 +73,7 @@ This workspace has no build step of its own. Each component repo documents build
 ```bash
 # osac/fulfillment-service
 cd osac/fulfillment-service
-go build                              # Build
+go build ./...                        # Build
 ginkgo run -r internal                # Unit tests (excludes integration)
 ginkgo run it                         # Integration tests (requires kind)
 IT_KEEP_KIND=true ginkgo run it       # Preserve kind cluster for debugging
@@ -98,18 +97,19 @@ Component repos have their own CI pipelines.
 
 ### Git Workflow
 
-- **Fork-based**: push to `fork` remote, never to `origin`. PRs go from `fork/<branch>` to `origin/main`.
+- **Fork-based**: push to `$PUSH_REMOTE`, never to `$UPSTREAM_REMOTE`
 - **Branch naming**: `<type>/<ticket-or-description>` (e.g., `feat/OSAC-23607`, `fix/duplicate-aap-jobs`)
-- **Remotes**: `origin` = upstream osac-project (read-only), `fork` = developer fork (push target)
+- **Resolve remotes**: `eval $(tools/resolve-remotes.sh <component-path>)` sets `$UPSTREAM_REMOTE` and `$PUSH_REMOTE` (handles both bootstrap and manual remote naming)
 - **DCO sign-off**: `git commit -s` on all commits
 - **AI attribution**: `Assisted-by: Claude Code <noreply@anthropic.com>` trailer — never `Co-Authored-By` for AI tools
 
 ### Cross-Component Changes
 
-`fulfillment-service`, `osac-operator`, `osac-aap`, `osac-installer`, and
-`bare-metal-fulfillment-operator` all live in one mono-repo (`osac/`) — a
-feature spanning any of them (proto definitions, CRD types, Ansible
-roles/playbooks, Helm values) lands in a single branch and PR there.
+`fulfillment-service`, `osac-operator`, `osac-aap`, `osac-installer`,
+`bare-metal-fulfillment-operator`, and `osac-csi-driver` all live in one
+mono-repo (`osac/`) — a feature spanning any of them (proto definitions,
+CRD types, Ansible roles/playbooks, Helm values) lands in a single branch
+and PR there.
 
 Link PRs in descriptions: "Depends on osac-project/osac#123".
 
@@ -119,7 +119,7 @@ Link PRs in descriptions: "Depends on osac-project/osac#123".
 
 - **New CRD types** in `osac-operator` → register in the `fulfillment-service` reconciler (an in-repo change, same PR)
 - **`osac-ui`** → a real external dependency (OCI chart + image, version-tagged), bumped deliberately when a new release is needed
-- **`osac-csi-driver`** → the one remaining genuine git submodule, under `osac/osac-installer/base/`; bump it with a normal `git submodule update --remote`, then run `make sync-charts` in `osac/osac-installer` to rebuild chart dependencies
+- **`osac-csi-driver`** → also an in-repo component now (no more git submodules exist anywhere in `osac`), but `sync-image-tags.sh` doesn't cover its image tag yet — bump the `csiDriver`/`csiBackends` image tags in the values files by hand until that script is updated
 
 Failing to update `osac-installer` after cross-component changes causes CI failures and deployment mismatches. See `.planning/codebase/CONVENTIONS.md` for the full cross-repo dependency table.
 
@@ -145,13 +145,13 @@ When publishing PRDs and design documents to the enhancement-proposals repo:
 
 ### Fork-Based Workflow
 
-Push to the `fork` remote in the enhancement-proposals repo, not `origin`. PRs go from `fork/<branch>` to `origin/main`.
+Resolve remotes with `tools/resolve-remotes.sh`. Push to `$PUSH_REMOTE`, never to `$UPSTREAM_REMOTE`.
 
 ### Feature Dimensions Context
 
 Both PRD and design ingest phases must read all files in `.design/context/`:
 
-- **`osac-dimensions.md`** — Cross-cutting dimensions (services, personas, tenant onboarding, inventory, provisioning, networking, storage, installation, E2E testing, documentation, UI) that every OSAC feature must address. Use it to guide clarifying questions during PRD clarify and persona/user-story scope during PRD draft (see Personas and `osac-docs/personas.md`); ensure the design covers all relevant dimensions.
+- **`osac-dimensions.md`** — Cross-cutting dimensions (services, personas, tenant onboarding, inventory, provisioning, networking, storage, installation, E2E testing, documentation, UI) that OSAC features should address where relevant — see `osac-dimensions.md`'s own triage rule for which dimensions apply to a given feature. Use it to guide clarifying questions during PRD clarify and persona/user-story scope during PRD draft (see Personas and `osac-docs/personas.md`); ensure the design covers the dimensions that actually apply.
 - **`review-patterns.md`** — Common design reviewer feedback themes, anti-patterns, and the design reference library. Use during PRD draft and design draft to anticipate reviewer expectations.
 
 ### Component Conventions
@@ -370,10 +370,11 @@ for the full OpenShift installation guide (that guide's first step is enabling H
 shown below).
 
 ```bash
-kubectl annotate ingresses.config/cluster ingress.operator.openshift.io/default-enable-http2=true
+oc annotate ingresses.config.openshift.io cluster ingress.operator.openshift.io/default-enable-http2=true
 ```
 
-Once deployed, verify with:
+Once deployed, verify with the `osac` CLI (see INSTALL.md's "Verify the installation" for the full
+sequence, including extracting the CA bundle):
 
 ```bash
 export token=$(kubectl create token -n osac client)

@@ -11,8 +11,9 @@ sync_repo() {
   local dir="$1" name="$2" upstream_remote="${3:-origin}" only_on_main="${4:-false}"
   [[ -d "$dir" ]] || return 0
 
-  local branch
+  local branch upstream
   branch="$(git -C "$dir" branch --show-current 2>/dev/null)" || return 0
+  upstream="$(resolve_upstream "$dir")"
 
   if [[ "$only_on_main" == "true" && "$branch" != "main" ]]; then
     git -C "$dir" fetch "$upstream_remote" -q 2>/dev/null || true

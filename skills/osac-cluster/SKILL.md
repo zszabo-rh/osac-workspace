@@ -357,13 +357,16 @@ export KUBECONFIG=~/.kube/dev.kubeconfig
 cluster-tool boot --flavor vmaas-4-22 --name dev --pull-secret values/vmaas-ci/pull-secret.json --server myserver
 export KUBECONFIG=~/.kube/dev.kubeconfig
 
-cd <path-to-osac-installer>
-git fetch origin main && git rebase origin/main
+cd <path-to-osac-installer>  # osac-installer/ subdir of your osac mono-repo clone
+WORKSPACE_ROOT=$(cd .. && git rev-parse --show-toplevel 2>/dev/null || echo "$(pwd)")
+_resolve_out=$("${WORKSPACE_ROOT}/tools/resolve-remotes.sh" .) || { echo "Failed to resolve remotes"; exit 1; }
+eval "$_resolve_out"
+git fetch "$UPSTREAM_REMOTE" main && git rebase "$UPSTREAM_REMOTE/main"
+git submodule update --init --recursive
 
 env \
     VALUES_FILE=values/vmaas-ci/values.yaml \
     INSTALLER_NAMESPACE=osac-e2e-ci \
-    INSTALLER_VM_TEMPLATE=osac.templates.ocp_virt_vm \
     python3 ./scripts/refresh-after-snapshot.py
 ```
 
@@ -423,12 +426,15 @@ ssh root@<server> "free -g"             # Enough RAM?
 
 ### Refresh fails with "helm upgrade" error
 
-Make sure `osac` (which contains `osac-installer/`) is up to date with origin/main:
+Make sure `osac` (which contains `osac-installer/`) is up to date with the upstream remote:
 
 ```bash
-cd <path-to-osac-installer>
-git fetch origin main
-git rebase origin/main
+cd <path-to-osac-installer>  # osac-installer/ subdir of your osac mono-repo clone
+WORKSPACE_ROOT=$(cd .. && git rev-parse --show-toplevel 2>/dev/null || echo "$(pwd)")
+_resolve_out=$("${WORKSPACE_ROOT}/tools/resolve-remotes.sh" .) || { echo "Failed to resolve remotes"; exit 1; }
+eval "$_resolve_out"
+git fetch "$UPSTREAM_REMOTE" main
+git rebase "$UPSTREAM_REMOTE/main"
 git submodule update --init --recursive
 ```
 

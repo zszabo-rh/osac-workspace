@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create a PR on an OSAC component repo (including the osac mono-repo, which may need per-component validation for multiple touched components in one pass) using the fork-based workflow. Runs repo-specific validation (build, test, lint), pushes to the developer's fork remote, and opens a PR against origin/main with proper title format. Use when the user says 'create PR', 'open PR', 'submit for review', 'push and create PR', or when finishing a feature branch.
+description: Create a PR on an OSAC component repo (including the osac mono-repo, which may need per-component validation for multiple touched components in one pass) using the fork-based workflow. Runs repo-specific validation (build, test, lint), pushes to the developer's push remote, and opens a PR against the upstream repo with proper title format. Use when the user says 'create PR', 'open PR', 'submit for review', 'push and create PR', or when finishing a feature branch.
 ---
 
 # Create Pull Request
@@ -12,8 +12,9 @@ Create a PR on an OSAC component repo using the fork-based workflow.
 ## Prerequisites
 
 - `gh` CLI authenticated (`gh auth status`)
-- A `fork` remote configured (developer's fork — the push target)
+- A push remote configured (developer's personal repo — the push target)
 - Commits on a feature branch, not `main`
+- `tools/resolve-remotes.sh` available (run from `osac-workspace`)
 
 ## Step 1: Detect Context
 
@@ -21,8 +22,32 @@ Determine which component repo you're in and gather branch state.
 
 ```bash
 REPO_DIR=$(git rev-parse --show-toplevel)
-REPO_NAME=$(basename "$REPO_DIR")
 BRANCH=$(git branch --show-current)
+```
+
+**Resolve remote names** before deriving the repo name or running gate checks:
+
+```bash
+WORKSPACE_ROOT=$(cd "$REPO_DIR/.." && git rev-parse --show-toplevel 2>/dev/null || echo "$REPO_DIR/..")
+_resolve_out=$("${WORKSPACE_ROOT}/tools/resolve-remotes.sh" "$REPO_DIR") || {
+  echo "Failed to resolve remotes. Run tools/resolve-remotes.sh --print to diagnose."
+  exit 1
+}
+eval "$_resolve_out"
+```
+
+This sets `$UPSTREAM_REMOTE` (the osac-project remote) and `$PUSH_REMOTE` (developer's push target). Run `tools/resolve-remotes.sh --print` to see current detection.
+
+```bash
+# Derive from the resolved upstream remote, not $(basename "$REPO_DIR") -- a
+# worktree's directory name (e.g. ../osac-feature-branch, per
+# cross-repo-workflow.md) doesn't match the repo name, which would silently
+# skip mono-repo component detection below. Also not remote.origin.url
+# directly -- resolve-remotes.sh already found the real upstream remote by
+# URL/org, not by assuming it's named "origin".
+REPO_NAME=$(git -C "$REPO_DIR" remote get-url "$UPSTREAM_REMOTE")
+REPO_NAME="${REPO_NAME##*/}"
+REPO_NAME="${REPO_NAME%.git}"
 ```
 
 **Gate checks — stop if any fail:**
@@ -30,23 +55,24 @@ BRANCH=$(git branch --show-current)
 | Check | Command | Fail action |
 |-------|---------|-------------|
 | Not on main | `[[ "$BRANCH" != "main" ]]` | Stop: "You're on main. Create a feature branch first." |
-| Fork remote exists | `git remote get-url fork` | Stop: "No `fork` remote. Add one: `git remote add fork git@github.com:<user>/\<repo>.git`" |
+| Push remote exists | `git remote get-url "$PUSH_REMOTE"` | Stop: "No push remote detected. Run `tools/resolve-remotes.sh --print` to diagnose. You may need to add one: `git remote add fork git@github.com:<user>/\<repo>.git`" |
 | Has commits ahead of main | `git log main..HEAD --oneline` | Stop: "No commits ahead of main. Nothing to submit." |
 | Clean working tree | `git status --porcelain` | Stop: "Uncommitted changes detected. Commit or stash before proceeding." |
 
 ### Mono-repo component detection
 
 `osac` is a mono-repo containing `fulfillment-service`, `osac-operator`,
-`osac-aap`, `osac-installer`, and `bare-metal-fulfillment-operator` as
-subdirectories — a single PR can touch more than one of them.
-When `$REPO_NAME` is `osac`, detect which subdirectories this branch actually
-touches instead of assuming a single component:
+`osac-aap`, `osac-installer`, `bare-metal-fulfillment-operator`, and
+`osac-csi-driver` as subdirectories — a single PR can touch more than one of
+them. When `$REPO_NAME` is `osac`, detect which subdirectories this branch
+actually touches instead of assuming a single component:
 
 ```bash
 # Keep the (fulfillment-service|osac-operator|osac-aap|osac-installer|
-# bare-metal-fulfillment-operator) list in sync with bootstrap.sh's
-# MERGED_COMPONENTS array and Step 3's File Classification table below if a
-# future component merges into osac or one of these splits out.
+# bare-metal-fulfillment-operator|osac-csi-driver) list in sync with
+# bootstrap.sh's MERGED_COMPONENTS array and Step 3's File Classification
+# table below if a future component merges into osac or one of these splits
+# out.
 if [[ "$REPO_NAME" == "osac" ]]; then
   # Split the diff and the filter into two steps: a `git diff` failure must
   # still propagate under `set -e`/`pipefail`, but "no merged-component
@@ -55,7 +81,7 @@ if [[ "$REPO_NAME" == "osac" ]]; then
   # would otherwise mask a genuine `git diff` failure too).
   CHANGED_PATHS=$(git diff main..HEAD --name-only)
   TOUCHED_COMPONENTS=$(printf '%s\n' "$CHANGED_PATHS" \
-    | awk -F/ '$1 ~ /^(fulfillment-service|osac-operator|osac-aap|osac-installer|bare-metal-fulfillment-operator)$/ { print $1 }' \
+    | awk -F/ '$1 ~ /^(fulfillment-service|osac-operator|osac-aap|osac-installer|bare-metal-fulfillment-operator|osac-csi-driver)$/ { print $1 }' \
     | sort -u)
 else
   TOUCHED_COMPONENTS="$REPO_NAME"
@@ -65,7 +91,7 @@ fi
 `$TOUCHED_COMPONENTS` may list zero, one, or multiple names. Use it in Steps 2
 and 3 to select which per-component block(s) apply — run every matching block,
 not just the first. If it's empty because the change is purely doc/config
-outside all five subdirectories (e.g. `osac/README.md`), skip the
+outside all six subdirectories (e.g. `osac/README.md`), skip the
 component-specific parts of Steps 2 and 3. If it's empty but the change
 touches root-level files that affect multiple components' builds (e.g.
 `osac/go.work`, a root `Makefile`, `.github/workflows/`), don't skip
@@ -115,7 +141,6 @@ uv run ansible-lint
 
 ```bash
 cd "$REPO_DIR/osac-installer"
-git submodule update --init --recursive
 helm dependency build charts/osac/
 helm lint charts/osac-operators/
 helm lint charts/osac-prereqs/
@@ -143,8 +168,9 @@ If the change touches `values/*/values.yaml` image tags directly, also run:
 scripts/sync-image-tags.sh
 ```
 
-`--fix` auto-corrects drift against `osac`'s current commit SHA. Requires submodules
-to be initialized (`git submodule update --init --recursive`).
+`--fix` auto-corrects drift against `osac`'s current commit SHA. Does not cover
+`osac-csi-driver`'s `csiDriver`/`csiBackends` tags yet — verify and update those
+manually if the change touches them.
 
 ### bare-metal-fulfillment-operator
 
@@ -156,6 +182,19 @@ make build
 make test
 make manifests generate && git diff --exit-code
 ```
+
+### osac-csi-driver
+
+```bash
+cd "$REPO_DIR/osac-csi-driver"
+make fmt && git diff --exit-code
+make lint
+make build
+make test
+```
+
+No CRDs, so no `make manifests`/`generate` step (unlike `osac-operator` and
+`bare-metal-fulfillment-operator`).
 
 ### Other repos
 
@@ -185,15 +224,16 @@ below already carry the mono-repo subdirectory prefix):
 |------|-----------------|------------|-----------------|
 | **fulfillment-service** | `fulfillment-service/**/*.go` not `_test.go` | `fulfillment-service/**/*_test.go` | `fulfillment-service/internal/api/`, `fulfillment-service/**/*.pb.go`, `fulfillment-service/**/migrations/` |
 | **osac-operator** | `osac-operator/**/*.go` not `_test.go` | `osac-operator/**/*_test.go` | `osac-operator/api/v1alpha1/zz_generated*`, `osac-operator/config/` |
-| **osac-aap** | `osac-aap/roles/*/tasks/*.yml`, `osac-aap/plugins/**/*.py` | `osac-aap/molecule/*/`, `osac-aap/tests/`, `osac-aap/test_*.py` | `osac-aap/meta/`, `osac-aap/docs/` |
+| **osac-aap** | `osac-aap/collections/ansible_collections/osac/**/roles/**/tasks/*.yml`, `osac-aap/collections/ansible_collections/osac/**/plugins/**/*.py` | `osac-aap/tests/unit/**`, `osac-aap/tests/integration/targets/**` | `osac-aap/collections/ansible_collections/osac/**/meta/`, `osac-aap/docs/` |
 | **osac-installer** | Skip this check entirely — Helm charts/values, no unit-testable production/test file split | — | — |
 | **bare-metal-fulfillment-operator** | `bare-metal-fulfillment-operator/**/*.go` not `_test.go` | `bare-metal-fulfillment-operator/**/*_test.go` | `bare-metal-fulfillment-operator/api/v1alpha1/zz_generated*`, `bare-metal-fulfillment-operator/config/` |
+| **osac-csi-driver** | `osac-csi-driver/**/*.go` not `_test.go` | `osac-csi-driver/**/*_test.go` | None — no generated code |
 
 For each production file in the diff, check if a corresponding test file also appears in the diff. Matching rules:
 
 - **Go:** `foo.go` → `foo_test.go` in the same directory
-- **Ansible:** `roles/<role>/tasks/*.yml` → `molecule/<role>/` or `tests/` directory has changes
-- **Python:** `osac-aap/plugins/**/*.py` → `osac-aap/tests/` or `osac-aap/test_*.py` has changes
+- **Ansible:** `collections/ansible_collections/osac/<ns>/roles/<role>/tasks/*.yml` → `osac-aap/tests/integration/targets/<role>/` has changes
+- **Python:** `osac-aap/collections/ansible_collections/osac/**/plugins/**/*.py` → `osac-aap/tests/unit/**` has changes
 
 **If gaps exist**, print a warning and continue:
 
@@ -212,12 +252,12 @@ This is a warning — proceeding with PR creation.
 
 **Always continue to Step 4** regardless of the result.
 
-## Step 4: Push to Fork
+## Step 4: Push to Push Remote
 
-Always push to `fork`, never to `origin`.
+Always push to `$PUSH_REMOTE`, never to `$UPSTREAM_REMOTE`.
 
 ```bash
-git push -u fork "$BRANCH"
+git push -u "$PUSH_REMOTE" "$BRANCH"
 ```
 
 If push fails due to diverged history, do not force-push automatically. Show the push error to the user and ask them for explicit instructions on how to proceed.
@@ -244,16 +284,16 @@ If none, omit the prefix — just use a descriptive title.
 
 ## Step 6: Create PR
 
-`fulfillment-service`, `osac-operator`, `osac-aap`, `osac-installer`, and
-`bare-metal-fulfillment-operator` share one `origin`/`fork` pair — the `osac`
-mono-repo — so this step creates a single PR covering every component touched
-in `$TOUCHED_COMPONENTS`, not one PR per component.
+`fulfillment-service`, `osac-operator`, `osac-aap`, `osac-installer`,
+`bare-metal-fulfillment-operator`, and `osac-csi-driver` share one remote pair
+— the `osac` mono-repo — so this step creates a single PR covering every
+component touched in `$TOUCHED_COMPONENTS`, not one PR per component.
 
-Determine the upstream repo from the `origin` remote:
+Determine the upstream repo and push remote owner from the resolved remotes:
 
 ```bash
-UPSTREAM=$(gh repo view $(git remote get-url origin) --json nameWithOwner -q .nameWithOwner)
-FORK_OWNER=$(gh repo view $(git remote get-url fork) --json owner -q .owner.login)
+UPSTREAM=$(gh repo view $(git remote get-url "$UPSTREAM_REMOTE") --json nameWithOwner -q .nameWithOwner)
+FORK_OWNER=$(gh repo view $(git remote get-url "$PUSH_REMOTE") --json owner -q .owner.login)
 ```
 
 Construct the title from the ticket key and a short description (ask the user if unclear):
@@ -262,7 +302,7 @@ Construct the title from the ticket key and a short description (ask the user if
 PR_TITLE="${TICKET:+$TICKET: }<short description>"
 ```
 
-Create the PR from the fork to upstream:
+Create the PR from `$PUSH_REMOTE` to upstream:
 
 ```bash
 gh pr create \
@@ -303,21 +343,25 @@ related PRs in the description (e.g., 'Depends on osac-project/osac#123')."
 
 | Step | What | Gate |
 |------|------|------|
-| 1 | Detect context | Not on main, fork exists, commits ahead |
+| 1 | Detect context, resolve remotes | Not on main, push remote exists, commits ahead |
 | 2 | Run validation | All checks pass |
 | 3 | Check test coverage | Advisory warning (does not block) |
-| 4 | Push to fork | Push succeeds |
+| 4 | Push branch | Push to `$PUSH_REMOTE` succeeds |
 | 5 | Determine title | Jira key included if available |
-| 6 | Create PR | PR created against origin/main |
+| 6 | Create PR | PR created against upstream repo |
 | 7 | Report | Show PR URL |
 
 ## Common Issues
 
-### No `fork` remote
+### No push remote detected
+
+Run `tools/resolve-remotes.sh --print` to see which remotes were detected. If no push remote was found, add one:
 
 ```bash
-git remote add fork git@github.com:<your-username>/<repo>.git
+git remote add <name> git@github.com:<your-username>/<repo>.git
 ```
+
+The name can be anything (`fork`, `myfork`, your username) — `resolve-remotes.sh` detects it by URL, not by name.
 
 ### `gh pr create` fails with "not authenticated"
 
@@ -326,14 +370,14 @@ gh auth status
 gh auth login
 ```
 
-### Push rejected (branch exists on fork)
+### Push rejected (branch already exists on remote)
 
 Do not force-push automatically. Show the push error to the user and ask them for explicit instructions on how to proceed.
 
 ### PR already exists
 
 ```bash
-gh pr list --repo <upstream> --head <fork-owner>:<branch>
+gh pr list --repo <upstream> --head <push-remote-owner>:<branch>
 ```
 
 If a PR already exists, show its URL instead of creating a duplicate.
@@ -341,14 +385,15 @@ If a PR already exists, show its URL instead of creating a duplicate.
 ## Red Flags
 
 **Never:**
-- Push to `origin` — always use `fork`
+- Push to `$UPSTREAM_REMOTE` — always use `$PUSH_REMOTE`
 - Create a PR from `main`
 - Skip validation checks
 - Force-push without user confirmation
 - Create a PR with failing tests
 
 **Always:**
+- Resolve remotes with `tools/resolve-remotes.sh` before pushing
 - Run repo-specific validation first
-- Push to `fork` remote
+- Push to `$PUSH_REMOTE`
 - Include Jira ticket key in title when available
 - Check for existing PRs before creating duplicates
