@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-08-02 morning (demo re-recorded with improved two-phase script; narration written; PR #474 rebased+fixed; CR responses posted on #454/#474; Will's #455 reviewed; lvms.enabled flag design gap identified)  
+**Last updated:** 2026-08-05 EOD (osac#131 rebased, CodeRabbit cleared, CaaS E2E passing; OSAC-3234 implementation complete on `feat/OSAC-3234-caas-lvms`; edge-17 caas-dev cluster set up but access lost — recover or recreate tomorrow)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -63,17 +63,31 @@ Demo scope: hub cluster boots → StorageBackend + StorageTier auto-registered �
 
 Option A (CSI→hub→LVMS) is a dead end: local LVMS volumes on the hub are node-local and cannot be network-mounted by guest cluster workers. The OSAC CSI driver is designed for network-addressable backends (VAST NFS/block). Using it for local LVMS would require NFS-over-LVM — a hack that adds a non-existent layer.
 
-Option B follows the existing `local_lvms_storage` pattern cleanly:
+Option B follows the existing `lvms_storage` pattern cleanly:
 1. The dispatcher already has `_remote_kubeconfig` support (from `admin_kubeconfig` in the event)
 2. `ensure_storage_class` extended to: get guest kubeconfig → install LVMS operator on guest → apply LVMCluster (auto-discovers second disk) → create per-tenant SC on guest cluster (`topolvm.io` provisioner)
 3. PVCs served from guest worker's local disk — no cross-cluster I/O, no network bridging
+
+**CaaS deployment flow (confirmed from Aug 3 weekly demo, Trey West):**
+- Flavor: `sno-4-22` (NOT `vmaas-4-22` — SNO is clean, no pre-baked operators)
+- `cluster-tool pull sno-4-22` + `cluster-tool boot sno-4-22 <name>`
+- `make install-operators` installs LVMS, CNV, MCE, AAP fresh (LVMS not pre-baked in sno flavor)
+- `make install-osac` (Helm chart)
+- CaaS-specific: update `clusterFulfillment` IG ConfigMap with DNS zone + AWS credentials for Route 53
+- `setup-caas-agents.sh`: SSH to server, creates agent VM on hub network, boots with InfraEnv ISO, labels with CI worker resource class
+
+**Key implication for OSAC-3234:** `sno-4-22` has NO pre-existing `lvms-vg1` (unlike `vmaas-4-22` which had it pre-baked). The full `configure-lvms.sh` LVMCluster creation path runs every time. The second disk on the agent VM (`AGENT_VM_EXTRA_DISK_SIZE`) is **genuinely required** — LVMS has no disk to manage without it.
+
+**vmaas-4-22 vs sno-4-22:**
+- `vmaas-4-22`: pre-baked with KubeVirt/CNV, LVMS already installed — used for VMaaS and OSAC-3011 demo
+- `sno-4-22`: clean SNO, all operators installed fresh — used for CaaS development
 
 **What OSAC-3234 needs to implement:**
 
 | Piece | Owner | Notes |
 |-------|-------|-------|
 | `AGENT_VM_EXTRA_DISK_SIZE` in `setup-caas-agents.sh` (osac-installer) | Zoltan | Add env var; when set, create second qcow2 + add `--disk` to `virt-install`. Opt-in, BM nodes unaffected. |
-| `local_lvms_storage/tasks/ensure_storage_class.yaml` | Zoltan | When `_remote_kubeconfig` is set (CaaS guest cluster), install LVMS on guest + apply LVMCluster + create SC on guest. Hub path unchanged. |
+| `lvms_storage/tasks/ensure_storage_class.yaml` | Zoltan | When `_remote_kubeconfig` is set (CaaS guest cluster), install LVMS on guest + apply LVMCluster + create SC on guest. Hub path unchanged. |
 | `setup-remote-cluster.sh` hookup or removal | TBD | Script exists but never called automatically. Either hook into CaaS provisioning or remove — the new role action replaces it. |
 
 **For production CaaS (bare metal):** Not needed. Physical nodes have data disks; LVMS auto-discovers them. No agent VM injection required.
@@ -99,24 +113,26 @@ LVMS is already fully operational on hypershift1 (481 days, active PVCs, `/dev/s
 
 ## PR Tracker
 
-> **MONOREPO STATUS (as of Aug 3):** `osac-project/osac` is live. fulfillment-service, osac-operator, and osac-aap are merged and archived. osac-installer merged too (Omer's message) but GitHub API still shows `isArchived: false` — archiving imminent. **All 3 PRs must be migrated to `osac-project/osac`.** Monorepo cloned at `osac-workspace/osac/`, fork at `zszabo-rh/osac`.
+> **MONOREPO STATUS (as of Aug 4):** All component repos archived. Migration COMPLETE — single PR #131 covers all three components in one branch.
 
 | PR | Repo | State | Notes |
 |----|------|-------|-------|
-| **#397** | **osac-operator (archived)** | **NEEDS MIGRATION** | APPROVED by Roy. `/hold` in place (Akshay Jul 30: "don't merge without context around it"). Stale comment fix committed (cc7e777). Migrate to osac-project/osac (osac-operator/ subdir). |
-| **#454** | **osac-aap (archived)** | **NEEDS MIGRATION** | Roy: "lgtm but re-open in mono repo". CR responses posted (Aug 1, all false positives). After migration: drop STORAGE_TIERS fallback (Will's #455/#99 already migrated). |
-| **#474** | **osac-installer (archiving soon)** | **NEEDS MIGRATION** | Force-pushed Aug 3. Monorepo has old configure-lvms.sh (no idempotency, no error handling). Our full diff (configure-lvms.sh + register-local-storage hook) must land in osac-project/osac (osac-installer/ subdir). |
-| osac #99 | osac (monorepo) | **OPEN** | Will's OSAC-1992 (was #455). Akshay left review comments. When merged: drop STORAGE_TIERS fallback from our migrated #454. |
+| **osac#131** | **osac (monorepo)** | **WAITING /lgtm (Roy+Akshay must re-lgtm)** | OSAC-3011: rebased onto main (PR#98), CodeRabbit cleared (Default SC test fixture added). CaaS E2E now passing. VMaaS E2E flaky (infra issue, 3rd consecutive run). lgtm label cleared by rebase — do NOT rebase again, Tide handles it. Need /override from Eranco/Omer for VMaaS. |
+| osac#99 | osac (monorepo) | **OPEN** | Will's OSAC-1992. When merged: drop STORAGE_TIERS fallback from osac#131. |
+| osac#97 | osac (monorepo) | **Both lgtms, needs rebase** | OSAC-3547 EDA var rename. If merges before #131: rebase needed + rename ansible_eda.event.storage_tier_definitions → osac_job_vars.storage_tier_definitions in our code. |
+| **osac#DRAFT** | **osac (monorepo)** | **NOT YET OPENED** | OSAC-3234: CaaS LVMS — branch `feat/OSAC-3234-caas-lvms` pushed. Needs test env recovery + testing before opening PR. |
+| ~~#397, #454, #474~~ | archived repos | superseded by osac#131 | |
 
 ---
 
 ## Open Questions / Decisions Needed
 
-1. **lvms.enabled flag split** — current design couples Phase 2 (LVMCluster creation) and Phase 3 (OSAC backend registration) under one flag. An infra admin enabling LVMS for infra reasons would accidentally expose it as a tenant storage backend. Fix: add `lvms.registerAsBackend: true` as a second flag gating only the Phase 3 hook. Discuss with Akshay before changing #474.
-2. **Akshay /lgtm on #454 and #474** — #397 blocked on monorepo migration, not needing /lgtm now.
-3. **Will's #455 (OSAC-1992) APPROVED** (Jul 30 final CR pass) — compatible with #454. After #455 merges, drop STORAGE_TIERS fallback from #454.
-4. **Demo recording DONE** — cast at `demos_and_workflows/osac-3011-storage/osac-3011-demo.cast`. Two-phase approach, ~3m50s after compression. Narration written. Scene 4 uses dev `oc apply` path with note about production `osac create`.
-5. **#397 monorepo migration** — osac-operator + fulfillment-service consolidated Jul 30. New repo not yet available. Migrate next week.
+1. **osac#131 /lgtm situation** — Roy /lgtm'd Aug 4; cleared by rebase push Aug 5. Akshay /lgtm never set. Both need to re-/lgtm on current HEAD (`8f482552`). Do NOT push or rebase — Tide merges automatically. Need /override from Eranco or Omer for VMaaS E2E flake (3 consecutive identical failures = infra issue).
+2. **CaaS E2E now passing** on osac#131 — confirmed Aug 5 CI run. This is new and good.
+3. **osac#97 (OSAC-3547)** — both Roy+Akshay lgtm'd Aug 4, needs rebase to merge. If it merges before #131: rebase #131 and rename `ansible_eda.event.storage_tier_definitions` → `osac_job_vars.storage_tier_definitions` in lvms_storage playbook.
+4. **Will's osac#99 (OSAC-1992)** — when merged: drop STORAGE_TIERS fallback from osac#131.
+5. **OSAC-3234 implementation COMPLETE** — see design section below. Branch `feat/OSAC-3234-caas-lvms` pushed. Needs test env to validate before opening draft PR.
+6. **CSI driver** — Roy opened osac#141 (OSAC-3271: CSI Controller handlers via fulfillment service) Aug 4. This is the next CSI step after #94 merges. PR #94 reviewed today — Roy's own design comment on client.go:54 still unaddressed (key finding).
 
 ---
 

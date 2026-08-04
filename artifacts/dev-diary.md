@@ -2,6 +2,119 @@
 
 ---
 
+## 2026-08-05
+
+### Focus Areas Active
+- Storage OSAC-3011: PR maintenance, CR cleared, awaiting /lgtm
+- Storage OSAC-3234: full implementation completed + pushed
+- Test env: edge-17 caas-dev cluster setup (partial — lost access at end)
+
+### Completed Today
+- **osac#131 rebased** onto origin/main (PR#98 EDA cleanup), force-pushed; CodeRabbit re-reviewed and cleared
+- **Test coverage gap fixed**: added Default SC fixture to tier-resolution tests (`storage_controller_test.go`) — finding from CodeRabbit that was genuinely valid regression gap
+- **OSAC-3234 fully implemented**: `feat/OSAC-3234-caas-lvms` branch created from #131 tip, pushed to fork
+  - `setup-caas-agents.sh`: optional `AGENT_VM_DATA_DISK_SIZE` env var + second qcow2 disk + virt-install array approach
+  - `ensure_storage_class.yaml`: CaaS path (LVMS operator install via OLM + LVMCluster + wait for SC + per-tenant SC on guest cluster), gated on `_remote_kubeconfig is defined`
+  - `defaults/main.yaml`: `lvms_storage_operator_channel: stable-4.22`, `lvms_storage_operator_namespace: openshift-storage`
+- **Route53 research completed**: domain=ecoeng-osac-ci.devcluster.openshift.com; IAM user=osac-ci-caas-route53; Vault path=selfservice/osac/packet-osac; Adrien granted access; AWS creds retrieved
+- **values/edge-17/values.yaml created** (local, uncommitted): DNS overrides for caas-dev; usage pattern with EXTRA_HELM_ARGS for creds
+- **Edge-17 cluster setup** (partial):
+  - Destroyed osac-3011-demo, pulled caas flavor, booted caas-dev
+  - Fixed cert-manager-webhook and cluster-proxy-addon-manager EC key issues (delete stale secret → rollout restart)
+  - install-operators and install-prereqs: succeeded after bulk Helm adoption of kustomize-managed resources
+  - install-osac: failed with context deadline exceeded (unknown — lost access before diagnosing)
+- **PR #94 reviewed** (Roy's CSI gRPC client stub): key finding is Roy's own unaddressed comment on client.go:54; Jira AC mismatch; conn.go lacks tests; user posting only #3 (no tests)
+- **storageFulfillment.enabled design note**: after #99 merges, the flag only controls VAST credentials, not storage fulfillment. Naming confusing for LVMS-only envs. Raised as future cleanup.
+
+### In Progress
+- osac#131: WAITING /lgtm from Akshay + Roy re-lgtm; VMaaS E2E flaky (need /override)
+- osac#97: both lgtms set, needs rebase — will trigger rebase of #131 when it merges
+- OSAC-3234: implementation done, branch pushed, NOT yet draft PR
+
+### Decisions Made
+- **OSAC-3234 branched from osac#131 tip** (not main) — shares lvms_storage role code; rebase onto main when #131 merges
+- **lvms_storage_operator_channel: stable-4.22** — matches OCP version used in caas-ci and edge-17; matches osac-operators chart default
+- **DNS_CLASS not needed in values** — defaults to `dns.route53.dns` in group_vars, not in IG ConfigMap
+- **IMPORT_AGENTS_* not needed** — only for bare metal import scheduled job; setup-caas-agents.sh flow uses manage_agents with hardware-inventory namespace directly
+- **Don't rebase osac#131 again** — every push clears lgtm; Tide rebases at merge time; BEHIND status is irrelevant to Tide
+
+### Blocked / Needs Follow-up
+- **Edge-17 caas-dev cluster access lost** — kubeconfig corrupted; virsh console unresponsive; core SSH uses Omer's key baked in caas flavor, not our cluster-tool key; options: (a) DM Omer for his cluster-tool key or kubeadmin password, (b) destroy and recreate (~45 min to redo prereqs+osac)
+- **install-osac failure reason unknown** — context deadline exceeded; need cluster access to diagnose hooks
+- **Akshay /lgtm** on #131 — ping him this afternoon
+- **Eranco or Omer /override** on #131 VMaaS E2E flake
+- **osac#97 rebase** — when it merges, rebase #131 and update ansible_eda → osac_job_vars rename in lvms_storage
+
+---
+
+## 2026-08-04
+
+### Focus Areas Active
+- Storage OSAC-3011: monorepo migration PR opened, CI fixes
+
+### Completed Today
+- **osac#131 opened** — single PR covering all 3 OSAC-3011 components in the monorepo (lvms_storage role, sentinel removal, hook, configure-lvms.sh)
+- Major architectural simplification: role-only change, no playbook modifications (monorepo dispatcher handles routing)
+- Provider renamed `local_lvms` → `lvms` (DNS-label compliant, follows `vast` pattern)
+- SCC fix: removed `runAsUser: 1001` from hook (namespace SCC range violation)
+- CI fixes: `defaultStorageClassSentinel` undefined in 9 tests, YAML parse error (f-strings at 0 indent), bmaas schema (`additionalProperties: false` blocking `lvms.channel`)
+- CodeRabbit findings addressed: tier name validation dropped (Roy's call), 409 validation strengthened, teardown intentional behavior explained
+- lvms.enabled flag split resolved: no split needed (Elior confirmed dev/CI only)
+- OSAC-3011 Jira ticket → Review
+- CaaS demo transcript analyzed: sno-4-22 vs vmaas-4-22 distinction, cluster-tool CaaS flow documented
+
+### In Progress
+- osac#131: WAITING /lgtm (Roy, Akshay); CodeRabbit re-review pending; VMaaS E2E flaky rerun in progress
+
+### Decisions Made
+- **Provider name `lvms`** (not `local_lvms`) — underscore fails dispatcher DNS-label regex; follows `vast` pattern
+- **No playbook modifications** in monorepo — dispatcher routes automatically, direct dispatch is prohibited pattern
+- **No flag split** — `lvms.enabled` is dev/CI only per Elior; piggybacking is fine
+- **No tier name validation** in AAP role — fulfillment service enforces it; per Roy's review
+
+### Blocked / Needs Follow-up
+- VMaaS E2E flaky rerun (console/compute/external-IP, unrelated to storage)
+- osac#99 (Will) merge → then drop STORAGE_TIERS fallback from osac#131
+- osac#97 (OSAC-3547 EDA rename) merge → then rebase osac#131
+- OSAC-3234 CaaS LVMS starts after osac#131 merges
+
+---
+
+## 2026-08-04 (morning session)
+
+### Focus Areas Active
+- Storage OSAC-3011: monorepo migration groundwork, lvms.enabled design gap
+
+### Completed Today
+- `/gm` scan: discovered Roy's lgtm on #454 pending monorepo re-open; Akshay's demo prep (slides + videos); OSAC weekly demo confirmed today at 15:30 CEST
+- Jul 31 1:1 transcript processed: lvms.enabled flag split confirmed with Akshay; action to contact infra team; CSI driver next work identified; demo format confirmed (Akshay slides → Zoltan cast)
+- Jul 30 demo discussion transcript processed: `/hold` on #397 confirmed; no-AAP fallback discussion captured
+- Monorepo (`osac-project/osac`) forked + cloned into `osac-workspace/osac/` with correct remotes
+- `fulfillment-service` standalone repo removed (absorbed into monorepo, only pr-728 tracking branches — already merged)
+- osac-installer #474 force-pushed to fork (branch was rebased during /gm but not pushed)
+- Elior Erez messaged re: lvms.enabled dev/prod scope — answer ambiguous ("easiest options for dev/CI" vs "customer can use whatever")
+- Rephrased question drafted: "Is `lvms.enabled: true` a supported production config?"
+- Demo narration for Scene 4 (3 Tenant conditions) explained: NamespaceReady → StorageBackendReady → ClusterStorageReady
+
+### In Progress
+- ALL 3 PRs (#454, #474, #397) need migration to osac-project/osac monorepo — Roy waiting on #454 to re-/lgtm
+- Awaiting Elior's answer on lvms.enabled production scope (gates flag split decision)
+- Demo today 15:30 CEST (no prep needed — cast is ready)
+
+### Decisions Made
+- lvms.enabled design gap: NOT yet closed — Elior's answer was ambiguous. Rephrased question sent. Do not change #474 until answer confirmed.
+- All 3 PRs need monorepo migration (not just #397 as previously thought — osac-aap and osac-installer also archived/archiving)
+- osac-installer is also in the monorepo — its configure-lvms.sh is old, register-local-storage hook absent
+- Ronnie = line manager (not quota-related); Monday 10:00 CEST 1:1 is generic line management
+
+### Blocked / Needs Follow-up
+- Elior's lvms.enabled clarification (before changing #474)
+- Roy's #97 (OSAC-3547): renames `ansible_eda.event.*` → `osac_job_vars.*` — must adapt our migrated #454 to use new naming
+- After osac#99 (Will) merges: drop STORAGE_TIERS fallback from migrated #454
+- CSI driver work: coming after cluster PRs merge (Akshay will assign)
+
+---
+
 ## 2026-08-02–03
 
 ### Focus Areas Active
