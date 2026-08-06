@@ -119,7 +119,6 @@ Link PRs in descriptions: "Depends on osac-project/osac#123".
 
 - **New CRD types** in `osac-operator` → register in the `fulfillment-service` reconciler (an in-repo change, same PR)
 - **`osac-ui`** → a real external dependency (OCI chart + image, version-tagged), bumped deliberately when a new release is needed
-- **`osac-csi-driver`** → also an in-repo component now (no more git submodules exist anywhere in `osac`), but `sync-image-tags.sh` doesn't cover its image tag yet — bump the `csiDriver`/`csiBackends` image tags in the values files by hand until that script is updated
 
 Failing to update `osac-installer` after cross-component changes causes CI failures and deployment mismatches. See `.planning/codebase/CONVENTIONS.md` for the full cross-repo dependency table.
 
@@ -216,6 +215,12 @@ Canonical skill definitions live in `skills/` (committed OSAC skills plus bootst
 | GitHub Copilot | `AGENTS.md` conventions only | — |
 
 `.claude/`, `.cursor/`, and `.gemini/` are gitignored except project settings; bootstrap recreates agent skill symlinks via `tools/link-agent-skills.sh`.
+
+`osac` also has its own root `AGENTS.md`/`tools/bootstrap.sh` upstream (`OSAC-3557`), which
+installs the same ai-workflows skills for someone cloning `osac` standalone, outside this
+workspace. **Don't run `osac/tools/bootstrap.sh` from within `osac-workspace`** — this
+workspace's own `./bootstrap.sh` and skill-linking above already cover `osac/` as a
+component; running both would install two separate, out-of-sync `.ai-workflows` clones.
 
 ### Skillsaw Linting
 
