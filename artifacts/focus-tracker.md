@@ -1,6 +1,6 @@
 # Focus Tracker
 
-**Last session:** 2026-08-05 (OSAC-3234 implemented + pushed; osac#131 rebased+CR cleared; edge-17 caas-dev cluster set up but lost access; PR #94 reviewed)
+**Last session:** 2026-08-06 (CodeRabbit re-review triggered on osac#131; confirmed no code changes needed from #97/#99 — lvms_storage role unaffected; edge-17 cluster recovery + OSAC-3234 E2E in progress)
 **Workspace:** osac-workspace
 
 ---
@@ -12,8 +12,8 @@
 **Read first:** `artifacts/storage-status-summary.md`  
 **Jira keys:** OSAC-3011, OSAC-3012, OSAC-3013, OSAC-917  
 **GitHub repos:** osac-project/osac (monorepo — ALL component work now here), osac-project/osac-installer (archiving soon), osac-project/enhancement-proposals  
-**Tracked PRs:** osac#131 (OSAC-3011, WAITING /lgtm from Akshay+Roy re-lgtm; CaaS E2E now passes; VMaaS E2E flaky — needs /override from Eranco/Omer), osac#99 (Will's OSAC-1992, WAITING merge), osac#97 (OSAC-3547 EDA rename, both lgtms in, needs rebase — if merges before #131: rebase #131 for osac_job_vars rename)
-**Next action:** (1) Akshay /lgtm on #131 this afternoon — don't rebase again, Tide handles it; (2) Ask Eranco or Omer for /retest or /override on VMaaS E2E flake; (3) OSAC-3234 branch `feat/OSAC-3234-caas-lvms` pushed, NOT yet draft PR — implementation complete, needs testing; (4) Recover edge-17 caas-dev cluster OR start from scratch (see test-env blocked item below); (5) After #131 merges: start OSAC-3234 PR and test on recovered env.  
+**Tracked PRs:** osac#131 (OSAC-3011, WAITING /lgtm Roy+Akshay; CodeRabbit re-review triggered Aug 6; VMaaS E2E flaky — needs /override from Eranco/Omer. No code changes needed from #97/#99 merges — lvms_storage unaffected), osac#141 (Roy OSAC-3271 CSI handlers, CONFLICTING)
+**Next action:** (1) Wait for CodeRabbit re-review on #131; (2) Ask Eranco/Omer /override on VMaaS flake; (3) Get Roy+Akshay /lgtm; (4) OSAC-3234: recover edge-17 cluster, validate E2E, open draft PR; (5) Reply to Akshay's wg-osac-storage thread re StorageBackendStatus/ClusterStorageStatus  
 **Slack channels:** C0B6USDQ85S (wg-osac-storage), C08ESMFV85Q (wg-osac-eng)  
 **Slack contacts:** anadkarn (Akshay), wgordon17 (Will), rgolan (Roy), eliorerz (Elior, CI/monorepo)  
 **Keywords:** storage, LVMS, VAST, StorageClass, CSI, local-lvms, local-ceph, tier, backend, storage-operations-ig, OSAC-3011, OSAC-3013  
