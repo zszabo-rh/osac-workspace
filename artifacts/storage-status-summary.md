@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-08-06 EOD (osac#131 **MERGED** ✅ by Tide; osac-test-infra#326 merged fixing VMaaS CI race condition + template name; OSAC-3234 branch rebased on main; edge-17 SNAT fix applied, ClusterOrder progressing but not yet complete)  
+**Last updated:** 2026-08-07 PM (OSAC-3234 E2E: CaaS cluster fully provisioned on edge-17 — MetalLB secondary network (192.168.180.x) fix, dual-NIC agent VM, worker Ready, CaaS storage path fires. LVMS install block not yet E2E tested (AAP project on main branch). 4 commits on feat/OSAC-3234-caas-lvms. Omer PR#198 reviewed: approve after CI green. Roy PR#141: unrelated to VMaaS CI break)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -10,7 +10,7 @@
 
 | Epic | Assignee | Status | Summary |
 |------|----------|--------|---------|
-| OSAC-3011 | Zoltan | In Progress | Local/Dev/E2E CI Storage Setup — 3 PRs open, CodeRabbit addressed, E2E ✅, **Demo recorded** 2026-07-30. Needs Akshay /lgtm. |
+| ~~OSAC-3011~~ | ~~Zoltan~~ | **CLOSED** 2026-08-07 | osac#131 MERGED Aug 6. All done. |
 | ~~OSAC-3012~~ | ~~Zoltan~~ | **CLOSED** 2026-07-29 | Covered by OSAC-3011 — LVMS fully operational on hypershift1 |
 | OSAC-3013 | Will | In Progress | Backend and Tier API Integration (operator + AAP side) |
 | OSAC-3014 | Will | New | Public Storage Tier API |
@@ -119,8 +119,8 @@ LVMS is already fully operational on hypershift1 (481 days, active PVCs, `/dev/s
 |----|------|-------|-------|
 | ~~**osac#131**~~ | osac (monorepo) | **MERGED Aug 6** ✅ | OSAC-3011 complete. lvms_storage role + installer hook + operator Default SC removal. |
 | ~~osac-test-infra#326~~ | osac-test-infra | **MERGED Aug 6** ✅ | VMaaS CI fixes: storage wait fixture + template name fix (templateID CRD regex issue). |
-| **osac#DRAFT** | **osac (monorepo)** | **NOT YET OPENED** | OSAC-3234: CaaS LVMS — branch `feat/OSAC-3234-caas-lvms` rebased on main (incl. OSAC-3011). Needs edge-17 E2E validation before opening PR. |
-| osac#141 | osac (monorepo) | CONFLICTING | Roy OSAC-3271 CSI handlers — still open. |
+| **osac#DRAFT** | **osac (monorepo)** | **READY TO OPEN** | OSAC-3234: CaaS LVMS — `feat/OSAC-3234-caas-lvms` 4 commits ahead of main. E2E partially validated (cluster+worker provisioning, CaaS storage trigger). LVMS install path untested (AAP on main). RBAC fix needed in Helm chart. Next: rebase + RBAC fix + open draft. |
+| osac#141 | osac (monorepo) | BEHIND, CHANGES_REQUESTED (CodeRabbit stale) | Roy OSAC-3271 CSI handlers. zszabo APPROVED Aug 7, @coderabbitai review triggered. Needs Roy rebase (away). |
 | ~~osac#97, #99, #397, #454, #474~~ | various | merged/superseded | All resolved. |
 
 ---
