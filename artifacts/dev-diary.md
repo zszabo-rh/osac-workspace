@@ -2,6 +2,39 @@
 
 ---
 
+## 2026-08-06
+
+### Focus Areas Active
+- Storage OSAC-917 v0.2: OSAC-3011 merged, OSAC-3234 E2E in progress
+
+### Completed Today
+- **osac#131 (OSAC-3011) MERGED** by Tide at 14:12 UTC — all three components (lvms_storage role, installer hook, operator sentinel removal)
+- **osac-test-infra#326 MERGED** — three VMaaS CI fixes: storage wait fixture, template name (cli instead of raw manifest), loop correctness fix
+- **Edge-17 cluster recovered** — kubeconfig was corrupted; cluster still alive; 6 cold-boot issues fixed by agent
+- **SNAT fix applied on edge-17** — attempted to fix MetalLB VIP asymmetric routing for CaaS guest cluster enrollment
+- **StorageBackendStatus/ClusterStorageStatus analysis** — found StorageBackendStatus always nil (TODO OSAC-1111), ClusterStorage VMaaS-overwrites-CaaS race, StorageBackendReady single-backend semantics
+- **OSAC-3234 branch rebased** on latest main (now at `feat/OSAC-3234-caas-lvms`)
+- Replied to Akshay's wg-osac-storage thread about Tenant conditions analysis
+- Diagnosed and fixed VMaaS CI root cause: `templateID` CRD regex rejects hyphens → `ocp-virt-vm` invalid, test needed CLI path
+
+### In Progress
+- **OSAC-3234** — branch ready, edge-17 E2E blocked by SNAT fix verification + ClusterOrder completion
+- **Edge-17 SNAT** — agent applied fix, ClusterOrder still progressing as of EOD; verify tomorrow
+- **osac-test-infra#326 Akshay nit** — add print() to storage wait fixture; defer to next push
+
+### Decisions Made
+- `lvms.enabled` gates both Phase 2 (LVMCluster) AND Phase 3 (backend registration) — intentional, not split into separate flags
+- OSAC-3234 E2E approach: SNAT on hub node (iptables POSTROUTING) rather than OVN topology change
+- VMaaS E2E not a required Tide check — FAILED blocks (Tide won't re-evaluate) but PENDING doesn't; CI gap flagged to infra team
+- vmaas-ci needs `storageFulfillment: enabled` + wait fixture — both in osac#131 + osac-test-infra#326 respectively
+
+### Blocked / Needs Follow-up
+- Edge-17 ClusterOrder enrollment: agent VM stuck in `installing-pending-user-action` (SNAT fix applied but not yet verified)
+- OSAC-3234 draft PR: hold until E2E confirms LVMS installed on guest cluster + per-tenant SC created
+- Tide CI gap: flag to Elior/Omer — VMaaS FAILED blocks but PENDING doesn't
+
+---
+
 ## 2026-08-05
 
 ### Focus Areas Active

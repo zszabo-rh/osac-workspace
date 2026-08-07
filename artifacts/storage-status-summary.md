@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-08-05 EOD (osac#131 rebased, CodeRabbit cleared, CaaS E2E passing; OSAC-3234 implementation complete on `feat/OSAC-3234-caas-lvms`; edge-17 caas-dev cluster set up but access lost — recover or recreate tomorrow)  
+**Last updated:** 2026-08-06 EOD (osac#131 **MERGED** ✅ by Tide; osac-test-infra#326 merged fixing VMaaS CI race condition + template name; OSAC-3234 branch rebased on main; edge-17 SNAT fix applied, ClusterOrder progressing but not yet complete)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -117,22 +117,22 @@ LVMS is already fully operational on hypershift1 (481 days, active PVCs, `/dev/s
 
 | PR | Repo | State | Notes |
 |----|------|-------|-------|
-| **osac#131** | **osac (monorepo)** | **WAITING /lgtm (Roy+Akshay must re-lgtm)** | OSAC-3011: rebased onto main (PR#98), CodeRabbit cleared (Default SC test fixture added). CaaS E2E now passing. VMaaS E2E flaky (infra issue, 3rd consecutive run). lgtm label cleared by rebase — do NOT rebase again, Tide handles it. Need /override from Eranco/Omer for VMaaS. |
-| osac#99 | osac (monorepo) | **OPEN** | Will's OSAC-1992. When merged: drop STORAGE_TIERS fallback from osac#131. |
-| osac#97 | osac (monorepo) | **Both lgtms, needs rebase** | OSAC-3547 EDA var rename. If merges before #131: rebase needed + rename ansible_eda.event.storage_tier_definitions → osac_job_vars.storage_tier_definitions in our code. |
-| **osac#DRAFT** | **osac (monorepo)** | **NOT YET OPENED** | OSAC-3234: CaaS LVMS — branch `feat/OSAC-3234-caas-lvms` pushed. Needs test env recovery + testing before opening PR. |
-| ~~#397, #454, #474~~ | archived repos | superseded by osac#131 | |
+| ~~**osac#131**~~ | osac (monorepo) | **MERGED Aug 6** ✅ | OSAC-3011 complete. lvms_storage role + installer hook + operator Default SC removal. |
+| ~~osac-test-infra#326~~ | osac-test-infra | **MERGED Aug 6** ✅ | VMaaS CI fixes: storage wait fixture + template name fix (templateID CRD regex issue). |
+| **osac#DRAFT** | **osac (monorepo)** | **NOT YET OPENED** | OSAC-3234: CaaS LVMS — branch `feat/OSAC-3234-caas-lvms` rebased on main (incl. OSAC-3011). Needs edge-17 E2E validation before opening PR. |
+| osac#141 | osac (monorepo) | CONFLICTING | Roy OSAC-3271 CSI handlers — still open. |
+| ~~osac#97, #99, #397, #454, #474~~ | various | merged/superseded | All resolved. |
 
 ---
 
 ## Open Questions / Decisions Needed
 
-1. **osac#131 /lgtm situation** — Roy /lgtm'd Aug 4; cleared by rebase push Aug 5. Akshay /lgtm never set. Both need to re-/lgtm on current HEAD (`8f482552`). Do NOT push or rebase — Tide merges automatically. Need /override from Eranco or Omer for VMaaS E2E flake (3 consecutive identical failures = infra issue).
-2. **CaaS E2E now passing** on osac#131 — confirmed Aug 5 CI run. This is new and good.
-3. **osac#97 (OSAC-3547)** — both Roy+Akshay lgtm'd Aug 4, needs rebase to merge. If it merges before #131: rebase #131 and rename `ansible_eda.event.storage_tier_definitions` → `osac_job_vars.storage_tier_definitions` in lvms_storage playbook.
-4. **Will's osac#99 (OSAC-1992)** — when merged: drop STORAGE_TIERS fallback from osac#131.
-5. **OSAC-3234 implementation COMPLETE** — see design section below. Branch `feat/OSAC-3234-caas-lvms` pushed. Needs test env to validate before opening draft PR.
-6. **CSI driver** — Roy opened osac#141 (OSAC-3271: CSI Controller handlers via fulfillment service) Aug 4. This is the next CSI step after #94 merges. PR #94 reviewed today — Roy's own design comment on client.go:54 still unaddressed (key finding).
+1. **OSAC-3011 MERGED** ✅ Aug 6. All components (lvms_storage role, installer hook, operator Default SC removal) in main.
+2. **OSAC-3234** — branch rebased on main. Needs edge-17 E2E validation: SNAT fix applied (hub node iptables POSTROUTING rule to route pod responses to 192.168.162.0/24 via enp1s0), ClusterOrder still progressing as of EOD. Verify tomorrow.
+3. **vmaas-ci storageFulfillment** — added in merged osac#131, enabling storage jobs in VMaaS CI. Fixed CI race condition via osac-test-infra#326 (storage wait fixture + template name fix).
+4. **Tenant conditions analysis** (for Akshay): StorageBackendStatus never populated (TODO OSAC-1111), ClusterStorage slice VMaaS-overwrites-CaaS race (design debt), StorageBackendReady single-backend semantics need multi-backend fix for v0.2.
+5. **CSI driver** — osac#141 (Roy, CONFLICTING) still open. Next CSI step after that merges.
+6. **Tide CI gap** — VMaaS E2E is NOT a required Tide check. FAILED was blocking (Tide wouldn't re-evaluate), PENDING unblocked it. Flag to Elior/Omer.
 
 ---
 
