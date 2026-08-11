@@ -8,9 +8,10 @@ Meta-workspace that bootstraps all OSAC (Open Sovereign AI Cloud) component repo
 - **Never skip tenant isolation metadata** (`osac.openshift.io/tenant`, `osac.openshift.io/owner-reference` annotations) in new resources
 - **Always `buf lint` before committing** proto changes; regenerate with `buf generate`
 - **Fork-based workflow**: push to `$PUSH_REMOTE`, never to `$UPSTREAM_REMOTE` — resolve with `tools/resolve-remotes.sh`
-- **AI attribution**: use `Assisted-by: Claude Code <noreply@anthropic.com>` trailer on commits — never use `Co-Authored-By` for AI tools (Red Hat attribution standard)
+- **AI attribution**: use an `Assisted-by: <tool> <contact>` trailer on commits, naming whichever AI tool actually did the work — never use `Co-Authored-By` for AI tools (Red Hat attribution standard). Example for Claude Code: `Assisted-by: Claude Code <noreply@anthropic.com>`
 - When debugging Kubernetes operators, check for stale vendor directories and cached images before rebuilding
 - **Don't raise `.skillsaw.yaml`'s `context-budget` skill limit to silence a token-count warning** — split the oversized `SKILL.md` into `references/`/`steps/` instead (see Skill Authoring Conventions)
+- **Bump `metadata.version` in any `skills/*/SKILL.md` you modify** — the `check-skill-version-bump` CI job fails if a skill's content changes without a version bump. Use semver patch increments (e.g. `0.1.0` → `0.1.1`) for fixes and improvements, minor increments (`0.1.0` → `0.2.0`) for new capabilities.
 
 ## Dev Environment
 
@@ -101,7 +102,7 @@ Component repos have their own CI pipelines.
 - **Branch naming**: `<type>/<ticket-or-description>` (e.g., `feat/OSAC-23607`, `fix/duplicate-aap-jobs`)
 - **Resolve remotes**: `eval $(tools/resolve-remotes.sh <component-path>)` sets `$UPSTREAM_REMOTE` and `$PUSH_REMOTE` (handles both bootstrap and manual remote naming)
 - **DCO sign-off**: `git commit -s` on all commits
-- **AI attribution**: `Assisted-by: Claude Code <noreply@anthropic.com>` trailer — never `Co-Authored-By` for AI tools
+- **AI attribution**: `Assisted-by: <tool> <contact>` trailer, naming whichever AI tool actually did the work — never `Co-Authored-By` for AI tools. Example for Claude Code: `Assisted-by: Claude Code <noreply@anthropic.com>`
 
 ### Cross-Component Changes
 
