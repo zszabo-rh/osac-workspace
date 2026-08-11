@@ -32,3 +32,32 @@
 
 ### Recommendation
 REQUEST CHANGES (major: missing Create validation)
+
+---
+
+## Round 2 — 2026-08-11
+
+### Context
+- Commits reviewed: 461d0b5..f070c474 (5 new commits)
+- CI status: All checks pass (100% green — CodeRabbit pass, all unit/integration/lint/build)
+- Other reviewers: CodeRabbit (all Major findings resolved or accepted by author)
+
+### Findings
+| # | Severity | Category | File:Line | Finding | Status |
+|---|----------|----------|-----------|---------|--------|
+| 1 | Major | validation | private_volumes_server.go:117-155 | validateVolumeCreate added | RESOLVED |
+| 2 | Minor | crd-validation | volume_types.go:49 | PVCRef optionalOldSelf — behavior is correct without it: field-level rule prevents post-creation add/change; spec-level rule prevents removal; CREATE skips transition rules so pvcRef settable at creation. "Set at creation or never" semantics ✅ | RESOLVED |
+| 3 | Minor | crd-validation | volume_types.go:42-44 | AccessMode now VolumeAccessMode enum with 4 valid values + buf.validate defined_only | RESOLVED |
+| 4 | Minor | test-coverage | 94_create_volumes_tables_test.go:51 | archived_volumes table still not tested — only Entry("volumes","volumes") exists | STILL OPEN |
+| 5 | Nitpick | jira | PR-level | Jira target version | not checked |
+| 6 | Minor | protocol-type | volume_type.proto | StorageProtocol enum now used (shared storage_common_type.proto) | RESOLVED |
+
+### CodeRabbit open items (accepted by author)
+- SizeGiB max bound — valid skip, backend limits belong in quota/controller layer
+- Spec immutability at API layer — deferred to controller PR (#223), correct for passthrough GenericServer
+
+### Draft Comments
+1. [94_create_volumes_tables_test.go:51] The DescribeTable block only verifies the `volumes` table. `archived_volumes` is created by the same migration but has no test entry. Add `Entry("archived_volumes", "archived_volumes")` — same one-liner as the volumes entry.
+
+### Recommendation
+APPROVE with comment on finding #4 (one-liner fix, can go here or in #223)

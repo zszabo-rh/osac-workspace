@@ -2,6 +2,39 @@
 
 ---
 
+## 2026-08-11
+
+### Focus Areas Active
+- Storage — OSAC-3234 (CaaS LVMS E2E), PR reviews (#201/#223), demo prep
+
+### Completed Today
+- OSAC-3234 E2E fully verified on edge-17: happy path (LVMS→SC→PVC bound in 66s) + failure mode (no-disk fast-fail in 56s with clear error, not silent 30-retry timeout)
+- Fixed 2 E2E bugs found during testing: OLM channel auto-detect from packagemanifest + overprovisionRatio field name for LVMS 4.16
+- PR #199: removed draft, all 6 test plan items checked, rebased on upstream (6 commits now)
+- OSAC-3234 Jira transitioned to Review
+- Reviewed PR #201 (Akshay, Volume API/CRD) — 7 findings; PR #223 (Volume controllers) — 8 findings
+- Demo narration reviewed + 4 corrections (Beaker→lab server, lvm→lvms, tenant clusters→CaaS clusters, lvms-vg1 prerequisite clarification)
+- Role-play architect Q&A session — all 5 tough questions on the LVMS storage feature answered
+- Investigated Roy's AAP tier validation failure — not a code regression (local tests pass); Roy's env-specific issue
+- Confirmed Will's `STORAGE_TESTS_ENABLED=true uv run make test` is the correct approach
+
+### In Progress
+- PR #199: APPROVED, MERGEABLE, needs `lgtm` from Akshay/Elior
+
+### Decisions Made
+- LVMS default channel should be auto-detected from `packagemanifest.status.defaultChannel`, not hardcoded — OCP version-agnostic approach
+- `lvms.enabled` controls both LVMS operator install (prereqs chart) AND backend registration (post-install hook) — single flag for the full stack
+- StorageBackendReady=True means hub Secret exists, not backend liveness — same pattern across all backend types; no ongoing health monitoring
+- SC deletion doesn't block on active PVCs in k8s — OSAC's finalizer on Tenant enforces teardown ordering, not k8s itself
+
+### Blocked / Needs Follow-up
+- **edge-17 LOST** to lab migration — CaaS E2E env gone; replication guide saved to memory `project-caas-replication-guide.md`
+- PR #199 needs `lgtm` — ping Akshay or Elior
+- PR #201/#223 findings not yet shared with Akshay — do it next session
+- OSAC-333 (old quota EP) still In Progress/unassigned in Jira — needs reassignment to Ronnie's WG
+
+---
+
 ## 2026-08-06
 
 ### Focus Areas Active
