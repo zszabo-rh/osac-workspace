@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-08-11 (OSAC-3234 PR #199: 6 commits, READY FOR REVIEW (not draft), all CI green, APPROVED, MERGEABLE — needs `lgtm`. Two bugs found+fixed during E2E: wrong OLM channel (stable-4.22 → auto-detect from packagemanifest.defaultChannel) + wrong LVMCluster field (overprovisionFactor → overprovisionRatio for LVMS 4.16). Both E2E paths verified: happy path (LVMS→SC→PVC bound) + failure mode (no-disk fast-fail 56s, not 30-retry silent timeout). OSAC-3234 Jira → Review. edge-17 LOST to lab migration — CaaS replication guide in memory project-caas-replication-guide.md)  
+**Last updated:** 2026-08-11 (OSAC-3234 PR #199: 10 commits, all review feedback addressed — fixed: clusterrole RBAC split+secrets rule, AGENT_VM_DATA_DISK_SIZE regex, CSV wait loop fail-fast, teardown comment, README CaaS stale docs, PackageManifest namespace, hostedcontrolplanes RBAC comment. Waiting for Akshay `lgtm`. osac#141 CSI MERGED. PR #256 OSAC-3886 bot fix open — all checks green, auto-merge queued. Jira-Autofix Bot GitHub App installed on zszabo-rh/osac and zszabo-rh/osac-ui.)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -119,11 +119,11 @@ LVMS is already fully operational on hypershift1 (481 days, active PVCs, `/dev/s
 |----|------|-------|-------|
 | ~~**osac#131**~~ | osac (monorepo) | **MERGED Aug 6** ✅ | OSAC-3011 complete. lvms_storage role + installer hook + operator Default SC removal. |
 | ~~osac-test-infra#326~~ | osac-test-infra | **MERGED Aug 6** ✅ | VMaaS CI fixes: storage wait fixture + template name fix (templateID CRD regex issue). |
-| **osac#199** | **osac (monorepo)** | **OPEN, APPROVED, READY FOR REVIEW** | OSAC-3234: CaaS LVMS — `feat/OSAC-3234-caas-lvms` 6 commits. Two E2E bugs fixed: OLM channel auto-detect + overprovisionRatio. Both E2E paths verified. Draft removed. All test plan items ✅. Needs `lgtm` to merge. edge-17 gone (lab migration). |
-| osac#201 | osac (monorepo) | OPEN, needs review | Akshay OSAC-2872: Volume API, CRD, DB migration. 7 findings reviewed (Major: missing Create validation — FIXED in #223; Minor: PVCRef optionalOldSelf, accessMode Enum, archived_volumes test; design Q: Update surface, VolumeCleanupFinalizer owner). |
-| osac#223 | osac (monorepo) | OPEN DRAFT, needs review | Akshay OSAC-2872: Volume controllers (reconciler, controller, feedback). 8 findings: 4 Minor (silent UNSPECIFIED→RWO, client inconsistency, duplicated namespace const, update path untested), 4 Nitpick. Pattern checks all pass (management-state, tenant annotation, Signal RPC, finalizers). |
-| osac#141 | osac (monorepo) | BEHIND, CHANGES_REQUESTED (CodeRabbit stale) | Roy OSAC-3271 CSI handlers. zszabo APPROVED Aug 7, @coderabbitai review triggered. Needs Roy rebase (away). |
-| ~~osac#97, #99, #397, #454, #474~~ | various | merged/superseded | All resolved. |
+| **osac#199** | **osac (monorepo)** | **OPEN, APPROVED, all feedback addressed** | OSAC-3234: CaaS LVMS — 10 commits. All review findings fixed (see Last updated). Needs `lgtm` from Akshay/Elior. |
+| osac#201 | osac (monorepo) | OPEN, Round 2 → APPROVE | Akshay OSAC-2872: Volume API, CRD, DB migration. All Round 1 major findings resolved. One minor open: missing `Entry("archived_volumes","archived_volumes")` in migration test. Post comment + approve. |
+| osac#223 | osac (monorepo) | OPEN DRAFT, CONFLICTING | Akshay OSAC-2872: Volume controllers. Needs rebase after #201 merges. Not actionable yet. |
+| ~~osac#141~~ | osac (monorepo) | **MERGED Aug 7 ✅** | Roy OSAC-3271 CSI handlers. Done. |
+| osac#256 | osac (monorepo) | OPEN, auto-merge queued | OSAC-3886 bot fix: orphan hook removal. All checks green at HEAD (b21af28b). Merge queue processing. |
 
 ---
 
