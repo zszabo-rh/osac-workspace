@@ -2,6 +2,38 @@
 
 ---
 
+## 2026-08-14
+
+### Focus Areas Active
+- Storage — OSAC-917 v0.2: PR #286/#327 progress, OSAC-4041 filed, K8s training Lesson 4
+
+### Completed Today
+- PR #286 (OSAC-3985 tier guard): addressed Akshay's two nits — added `r.BackendsClient != nil` to guard condition, dropped `requeueAfter` log key, added error-path test for Stage 2; all CI failures confirmed pre-existing (metering postgres, securitygroup vet, console middleware flaky)
+- PR #327 (OSAC-4041 bot PR): analyzed full bot timeline — bot addressed nil-guard + test comment nits after fullsend review; fullsend APPROVED; needs our /lgtm + /approve; bot's "unable to produce code changes" on `StorageBackendsCreateRequest.object` explained (out-of-diff comment on systemic cross-repo gap)
+- OSAC-4041: filed Bug ticket, linked to OSAC-917, type corrected to Bug
+- K8s storage Lesson 4: LVMS internals — LV/VG/PV naming, topolvm-controller + LogicalVolume CR + topolvm-node DaemonSet, topology key flow end-to-end, why OSAC NodeGetInfo should compute key itself (multi-backend concern)
+- Graphify: discovered Elior's knowledge graph tool (wg-osac-eng announcement), installed `graphifyy`, ran `graphify claude install` in osac repo, manually fetched graph-latest bundle (99,990 nodes, 179,258 links)
+
+### In Progress
+- PR #199 (CaaS LVMS): APPROVED, waiting Akshay/Elior lgtm
+- PR #201 (Volume API): needs our archived_volumes comment + approve
+- PR #257 (Carlo per-disk SC): waiting for Carlo to fix storageTier defaults
+- PR #286: waiting Akshay /lgtm
+- PR #327: waiting our /lgtm + /approve
+
+### Decisions Made
+- `StorageBackendsCreateRequest.object` missing `required=true` deferred — systemic gap across all resource types; fixing only StorageBackend makes it inconsistent
+- Graphify auto-fetch not yet in 0.9.42 — Elior's "consumption side in final review"; manual refresh needed until then
+- PR #327 CI: osac-metering PostgresStore failures pre-existing on main (00:38 Aug 13), not caused by bot PR
+
+### Blocked / Needs Follow-up
+- Ping Elior: graphify auto-fetch SessionStart hook ETA
+- Ping Akshay: /lgtm on PR #286
+- Resume K8s training Lesson 5 (block vs file, RWO/RWX, protocols)
+- Roy sync on OSAC-3702 passthrough architecture still pending
+
+---
+
 ## 2026-08-11
 
 ### Focus Areas Active

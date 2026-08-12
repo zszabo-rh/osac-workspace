@@ -1,6 +1,6 @@
 # OSAC Storage v0.2 — Status Summary
 
-**Last updated:** 2026-08-11 (OSAC-3234 PR #199: 10 commits, all review feedback addressed — fixed: clusterrole RBAC split+secrets rule, AGENT_VM_DATA_DISK_SIZE regex, CSV wait loop fail-fast, teardown comment, README CaaS stale docs, PackageManifest namespace, hostedcontrolplanes RBAC comment. Waiting for Akshay `lgtm`. osac#141 CSI MERGED. PR #256 OSAC-3886 bot fix open — all checks green, auto-merge queued. Jira-Autofix Bot GitHub App installed on zszabo-rh/osac and zszabo-rh/osac-ui.)  
+**Last updated:** 2026-08-14 (PR #286 OSAC-3985: nits addressed — BackendsClient nil check added to guard, requeueAfter log key dropped, error-path test added; all CI failures pre-existing. PR #327 OSAC-4041: bot PR analyzed — fullsend APPROVED after addressing nil-guard + test comment nits; needs our /lgtm + /approve. OSAC-4041 Bug ticket filed + linked to OSAC-917; StorageBackendsCreateRequest.object missing required=true deferred as systemic cross-repo issue. Graphify knowledge graph installed in osac repo: 99,990 nodes, 179,258 links; auto-fetch SessionStart hook pending Elior's PR.)  
 **Owner:** Zoltan Szabo  
 **Update this file** at the end of each working session. Read it first at the start of the next one.
 
@@ -119,11 +119,13 @@ LVMS is already fully operational on hypershift1 (481 days, active PVCs, `/dev/s
 |----|------|-------|-------|
 | ~~**osac#131**~~ | osac (monorepo) | **MERGED Aug 6** ✅ | OSAC-3011 complete. lvms_storage role + installer hook + operator Default SC removal. |
 | ~~osac-test-infra#326~~ | osac-test-infra | **MERGED Aug 6** ✅ | VMaaS CI fixes: storage wait fixture + template name fix (templateID CRD regex issue). |
-| **osac#199** | **osac (monorepo)** | **OPEN, APPROVED, all feedback addressed** | OSAC-3234: CaaS LVMS — 10 commits. All review findings fixed (see Last updated). Needs `lgtm` from Akshay/Elior. |
-| osac#201 | osac (monorepo) | OPEN, Round 2 → APPROVE | Akshay OSAC-2872: Volume API, CRD, DB migration. All Round 1 major findings resolved. One minor open: missing `Entry("archived_volumes","archived_volumes")` in migration test. Post comment + approve. |
+| **osac#199** | **osac (monorepo)** | **OPEN, APPROVED, all feedback addressed** | OSAC-3234: CaaS LVMS — 10 commits. All review findings fixed. Needs `lgtm` from Akshay/Elior. |
+| osac#201 | osac (monorepo) | OPEN, Round 2 → APPROVE | Akshay OSAC-2872: Volume API, CRD, DB migration. One minor open: missing `Entry("archived_volumes","archived_volumes")` in migration test. Post comment + approve. |
 | osac#223 | osac (monorepo) | OPEN DRAFT, CONFLICTING | Akshay OSAC-2872: Volume controllers. Needs rebase after #201 merges. Not actionable yet. |
 | ~~osac#141~~ | osac (monorepo) | **MERGED Aug 7 ✅** | Roy OSAC-3271 CSI handlers. Done. |
-| osac#256 | osac (monorepo) | OPEN, auto-merge queued | OSAC-3886 bot fix: orphan hook removal. All checks green at HEAD (b21af28b). Merge queue processing. |
+| ~~osac#256~~ | osac (monorepo) | **MERGED Aug 11 ✅** | OSAC-3886 bot fix: orphan hook removal. Done. |
+| osac#286 | osac (monorepo) | OPEN, nits addressed Aug 14 | OSAC-3985 tier guard: BackendsClient check + error-path test added. CI failures all pre-existing. Needs /lgtm from Akshay. |
+| osac#327 | osac (monorepo) | OPEN, fullsend APPROVED | OSAC-4041 bot PR: StorageBackend proto buf.validate migration. Bot addressed all nits. Needs our /lgtm + /approve. |
 
 ---
 
