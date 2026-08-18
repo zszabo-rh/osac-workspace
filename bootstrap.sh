@@ -24,8 +24,8 @@ Options:
   --no-fork          Clone directly from osac-project without forking.
                      Useful for read-only access or CI environments.
   --fork-name NAME   Name for the push remote (default: fork).
-                     Use any name you prefer — tools/resolve-remotes.sh
-                     detects remotes by URL, not by name.
+                     Use any name you prefer — the vendored osac-ai-skills
+                     resolve-remotes.sh detects remotes by URL, not by name.
   --help             Show this help message.
 
 Prerequisites:
@@ -133,6 +133,24 @@ else
   echo "📥 Cloning ai-workflows..."
   git clone "https://github.com/${AI_WORKFLOWS_REPO}.git" ".ai-workflows"
 fi
+# Must run before ai-workflows' install.sh: on a from-scratch clone, nothing
+# under .claude/, .cursor/, or .gemini/ exists yet, so link-agent-skills.sh
+# can freely create the .claude/skills -> ../skills (etc.) umbrella symlinks.
+# install.sh's own `mkdir -p "<agent>/skills"` + targeted `ln -sfn .../<wf>`
+# calls are non-destructive against an existing directory symlink -- they
+# follow it and land each ai-workflows entry inside the shared skills/ tree.
+# Reversing this order breaks a from-scratch bootstrap: install.sh would
+# create .claude/skills (etc.) as a real directory first, and safe_symlink
+# refuses to replace a real directory with a symlink.
+#
+# Export the vendor dir this script just resolved/updated/cloned above so the
+# wrapper uses that exact directory instead of independently re-resolving one
+# -- the wrapper's own resolve_osac_ai_skills_dir() has no way to know this
+# script already rejected a stale/invalid ~/.osac-ai-skills or .osac-ai-skills
+# in favor of the other, and could otherwise silently link skills from a
+# different vendor than the one just fetched/rebased/cloned.
+echo "🔗 Linking agent skill directories to skills/..."
+OSAC_AI_SKILLS_VENDOR_DIR="${OSAC_AI_SKILLS_DIR}" tools/link-agent-skills.sh --all
 echo "🔧 Installing ai-workflows skills..."
 "$AI_WORKFLOWS_DIR/install.sh" claude --project . --workflows bugfix,implement
 "$AI_WORKFLOWS_DIR/install.sh" cursor --project . --workflows bugfix,implement
