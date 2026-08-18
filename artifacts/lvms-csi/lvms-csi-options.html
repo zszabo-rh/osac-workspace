@@ -1,0 +1,1054 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OSAC Storage — LVMS as a CSI Backend</title><style>
+:root{--fg:#1a1a1a;--muted:#555;--line:#e0e0e0;--accent:#1565c0;--warn:#cc0000;}
+*{box-sizing:border-box}
+body{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:var(--fg);
+  max-width:960px;margin:0 auto;padding:40px 28px;line-height:1.55;font-size:16px}
+h1{font-size:30px;border-bottom:3px solid var(--accent);padding-bottom:10px;margin-top:0}
+h2{font-size:23px;margin-top:44px;border-bottom:1px solid var(--line);padding-bottom:6px}
+h3{font-size:18px;margin-top:30px;color:#222}
+h4{font-size:15px;margin-top:22px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+code{background:#f4f4f4;padding:1px 5px;border-radius:4px;font-size:13.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:#f7f7f9;border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+  overflow-x:auto;font-size:13px;line-height:1.4}
+pre code{background:none;padding:0}
+table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14.5px}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:#f0f4f8}
+tr:nth-child(even) td{background:#fafbfc}
+.diagram{margin:22px 0;padding:16px;background:#fff;border:1px solid var(--line);
+  border-radius:10px;text-align:center;overflow-x:auto}
+.diagram svg{max-width:100%;height:auto}
+.tldr{background:#eef4fb;border-left:5px solid var(--accent);padding:16px 20px;border-radius:0 8px 8px 0;margin:22px 0}
+.warn{background:#fdecea;border-left:5px solid var(--warn);padding:14px 18px;border-radius:0 8px 8px 0;margin:18px 0}
+.ok{background:#eaf6ec;border-left:5px solid #2e7d32;padding:14px 18px;border-radius:0 8px 8px 0;margin:18px 0}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:12px;color:#fff}
+.tA{background:#8e24aa}.tB{background:#1565c0}.tC{background:#2e7d32}
+.small{color:var(--muted);font-size:13.5px}
+ul{margin:8px 0}
+.check{color:#2e7d32;font-weight:700}.cross{color:#cc0000;font-weight:700}
+footer{margin-top:50px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:13px}
+</style></head>
+<body>
+<h1>OSAC Storage: LVMS as a CSI Backend — Options Analysis</h1>
+<p class="small">Working document for the Storage WG · prepared for discussion · reflects merged code + in-flight PRs + the OSAC-2872 design as of review.</p>
+
+<div class="tldr">
+<b>TL;DR.</b> The OSAC Storage Control Plane (OSAC-2872) was designed exclusively for
+<b>network-attached</b> arrays (VAST/NetApp/Pure). Its entire model — provision a Volume via the
+API independently of any pod, vendor controllers on the hub, credential isolation — assumes the
+storage is reachable from anywhere. <b>LVMS is node-local and sticky</b>: a volume physically lives
+in a volume group on one node and can only be created once the consuming pod's node is known.
+LVMS therefore <b>cannot</b> fit the design cleanly. The three options below are three different
+<b>levels of compromise</b>, not three equivalent implementations. None makes LVMS behave like a
+network tier. Crucially, <b>LVMS was introduced for a dev-only purpose</b> — giving developers
+usable storage without a real backend array. That premise (not a "who is the user?" question)
+should drive the decision: it removes any hard requirement for tenant-facing inventory, quota, or a
+uniform provisioner, and points away from the heaviest option.
+</div>
+
+<h2>1. Background: how the OSAC Storage Control Plane works (network-attached)</h2>
+<p>Four repos plus the installer make up the storage control plane. The key design principles,
+quoted from the OSAC-2872 design:</p>
+<ul>
+<li><b>Asynchronous, declarative Volume API.</b> The CSI driver calls <code>CreateVolume</code>,
+which persists a record and returns immediately. A reconciler then creates a <code>Volume</code> CR
+on the hub; the operator drives the vendor call; a feedback controller syncs status back.</li>
+<li><b>"The tenant cluster has no vendor controllers and no vendor credentials."</b> All controller
+operations route through the fulfillment-service. Vendor <b>controllers</b> run on the <b>hub</b>;
+only vendor <b>node plugins</b> run on the tenant cluster.</li>
+<li><b>"The CSI driver never connects directly to vendor controllers."</b> The CSI <b>node</b>
+plugin <i>is</i> a proxy (it routes mount calls to a vendor node socket by
+<code>volume_context["osac.backend"]</code>). The CSI <b>controller</b> is <i>not</i> a proxy — it
+talks only to the fulfillment-service.</li>
+</ul>
+
+<h4>Deployment topology (VAST)</h4>
+<div class="diagram"><svg width="870pt" height="588pt"
+ viewBox="0.00 0.00 870.00 588.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 583.75)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-583.75 865.75,-583.75 865.75,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_tenant</title>
+<polygon fill="#e8f5e9" stroke="#e8f5e9" points="8,-281 8,-571.75 379,-571.75 379,-281 8,-281"/>
+<text xml:space="preserve" text-anchor="middle" x="193.5" y="-556.35" font-family="Helvetica,sans-Serif" font-size="12.00">TENANT CLUSTER &#160;(no vendor controllers, no vendor credentials)</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_node</title>
+<polygon fill="#f1f8e9" stroke="#f1f8e9" points="258,-374.25 258,-541.5 371,-541.5 371,-374.25 258,-374.25"/>
+<text xml:space="preserve" text-anchor="middle" x="314.5" y="-526.1" font-family="Helvetica,sans-Serif" font-size="12.00">worker node</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_hub</title>
+<polygon fill="#e3f2fd" stroke="#e3f2fd" points="387,-65 387,-355.25 760,-355.25 760,-65 387,-65"/>
+<text xml:space="preserve" text-anchor="middle" x="573.5" y="-339.85" font-family="Helvetica,sans-Serif" font-size="12.00">HUB CLUSTER &#160;(control plane + vendor controllers + credentials)</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_fs</title>
+<polygon fill="#ede7f6" stroke="#ede7f6" points="499,-158 499,-231.5 752,-231.5 752,-158 499,-158"/>
+<text xml:space="preserve" text-anchor="middle" x="625.5" y="-217.05" font-family="Helvetica,sans-Serif" font-size="11.00">fulfillment&#45;service</text>
+</g>
+<!-- pvc -->
+<g id="node1" class="node">
+<title>pvc</title>
+<path fill="white" stroke="black" d="M236.12,-511.25C236.12,-511.25 163.88,-511.25 163.88,-511.25 157.88,-511.25 151.88,-505.25 151.88,-499.25 151.88,-499.25 151.88,-487.25 151.88,-487.25 151.88,-481.25 157.88,-475.25 163.88,-475.25 163.88,-475.25 236.12,-475.25 236.12,-475.25 242.12,-475.25 248.12,-481.25 248.12,-487.25 248.12,-487.25 248.12,-499.25 248.12,-499.25 248.12,-505.25 242.12,-511.25 236.12,-511.25"/>
+<text xml:space="preserve" text-anchor="middle" x="200" y="-495.75" font-family="Helvetica,sans-Serif" font-size="10.00">PVC</text>
+<text xml:space="preserve" text-anchor="middle" x="200" y="-483.75" font-family="Helvetica,sans-Serif" font-size="10.00">sc: osac&#45;vast&#45;gold</text>
+</g>
+<!-- ep -->
+<g id="node2" class="node">
+<title>ep</title>
+<path fill="#f0f0f0" stroke="black" d="M238.38,-418.25C238.38,-418.25 161.62,-418.25 161.62,-418.25 155.62,-418.25 149.62,-412.25 149.62,-406.25 149.62,-406.25 149.62,-394.25 149.62,-394.25 149.62,-388.25 155.62,-382.25 161.62,-382.25 161.62,-382.25 238.38,-382.25 238.38,-382.25 244.38,-382.25 250.38,-388.25 250.38,-394.25 250.38,-394.25 250.38,-406.25 250.38,-406.25 250.38,-412.25 244.38,-418.25 238.38,-418.25"/>
+<text xml:space="preserve" text-anchor="middle" x="200" y="-402.75" font-family="Helvetica,sans-Serif" font-size="10.00">external&#45;provisioner</text>
+<text xml:space="preserve" text-anchor="middle" x="200" y="-390.75" font-family="Helvetica,sans-Serif" font-size="10.00">/ external&#45;attacher</text>
+</g>
+<!-- pvc&#45;&gt;ep -->
+<g id="edge2" class="edge">
+<title>pvc&#45;&gt;ep</title>
+<path fill="none" stroke="black" d="M200,-475.13C200,-462.38 200,-444.67 200,-429.78"/>
+<polygon fill="black" stroke="black" points="203.5,-430.11 200,-420.11 196.5,-430.11 203.5,-430.11"/>
+</g>
+<!-- csictrl -->
+<g id="node3" class="node">
+<title>csictrl</title>
+<path fill="#dbeafe" stroke="black" d="M300.88,-325C300.88,-325 215.12,-325 215.12,-325 209.12,-325 203.12,-319 203.12,-313 203.12,-313 203.12,-301 203.12,-301 203.12,-295 209.12,-289 215.12,-289 215.12,-289 300.88,-289 300.88,-289 306.88,-289 312.88,-295 312.88,-301 312.88,-301 312.88,-313 312.88,-313 312.88,-319 306.88,-325 300.88,-325"/>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-309.5" font-family="Helvetica,sans-Serif" font-size="10.00">OSAC CSI Controller</text>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-297.5" font-family="Helvetica,sans-Serif" font-size="10.00">(Deployment)</text>
+</g>
+<!-- ep&#45;&gt;csictrl -->
+<g id="edge3" class="edge">
+<title>ep&#45;&gt;csictrl</title>
+<path fill="none" stroke="black" d="M210.91,-382.09C219.36,-368.79 231.23,-350.12 240.93,-334.85"/>
+<polygon fill="black" stroke="black" points="243.72,-336.99 246.13,-326.67 237.81,-333.24 243.72,-336.99"/>
+</g>
+<!-- volapi -->
+<g id="node6" class="node">
+<title>volapi</title>
+<path fill="#d1c4e9" stroke="black" d="M583.38,-202C583.38,-202 518.62,-202 518.62,-202 512.62,-202 506.62,-196 506.62,-190 506.62,-190 506.62,-178 506.62,-178 506.62,-172 512.62,-166 518.62,-166 518.62,-166 583.38,-166 583.38,-166 589.38,-166 595.38,-172 595.38,-178 595.38,-178 595.38,-190 595.38,-190 595.38,-196 589.38,-202 583.38,-202"/>
+<text xml:space="preserve" text-anchor="middle" x="551" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">Volume API</text>
+<text xml:space="preserve" text-anchor="middle" x="551" y="-174.5" font-family="Helvetica,sans-Serif" font-size="10.00">(Create / Delete)</text>
+</g>
+<!-- csictrl&#45;&gt;volapi -->
+<g id="edge8" class="edge">
+<title>csictrl&#45;&gt;volapi</title>
+<path fill="none" stroke="black" d="M210.22,-288.63C203.15,-283.98 196.81,-278.19 192.5,-271 185.3,-258.99 182.73,-249.53 192.5,-239.5 203.41,-228.3 436.49,-236.32 491.94,-232.95"/>
+<polygon fill="black" stroke="black" points="492.04,-236.46 501.5,-231.7 491.13,-229.52 492.04,-236.46"/>
+<text xml:space="preserve" text-anchor="middle" x="287.75" y="-262.45" font-family="Helvetica,sans-Serif" font-size="9.00">ONE cross&#45;cluster gRPC connection</text>
+<text xml:space="preserve" text-anchor="middle" x="287.75" y="-251.95" font-family="Helvetica,sans-Serif" font-size="9.00">Volume API (Create/Delete) +</text>
+<text xml:space="preserve" text-anchor="middle" x="287.75" y="-241.45" font-family="Helvetica,sans-Serif" font-size="9.00">Storage Control Plane API (Publish/Unpublish)</text>
+</g>
+<!-- csinode -->
+<g id="node4" class="node">
+<title>csinode</title>
+<path fill="#dbeafe" stroke="black" d="M345.5,-511.25C345.5,-511.25 278.5,-511.25 278.5,-511.25 272.5,-511.25 266.5,-505.25 266.5,-499.25 266.5,-499.25 266.5,-487.25 266.5,-487.25 266.5,-481.25 272.5,-475.25 278.5,-475.25 278.5,-475.25 345.5,-475.25 345.5,-475.25 351.5,-475.25 357.5,-481.25 357.5,-487.25 357.5,-487.25 357.5,-499.25 357.5,-499.25 357.5,-505.25 351.5,-511.25 345.5,-511.25"/>
+<text xml:space="preserve" text-anchor="middle" x="312" y="-495.75" font-family="Helvetica,sans-Serif" font-size="10.00">OSAC CSI Node</text>
+<text xml:space="preserve" text-anchor="middle" x="312" y="-483.75" font-family="Helvetica,sans-Serif" font-size="10.00">(DaemonSet)</text>
+</g>
+<!-- vastnode -->
+<g id="node5" class="node">
+<title>vastnode</title>
+<path fill="#fff3cd" stroke="black" d="M351,-418.25C351,-418.25 281,-418.25 281,-418.25 275,-418.25 269,-412.25 269,-406.25 269,-406.25 269,-394.25 269,-394.25 269,-388.25 275,-382.25 281,-382.25 281,-382.25 351,-382.25 351,-382.25 357,-382.25 363,-388.25 363,-394.25 363,-394.25 363,-406.25 363,-406.25 363,-412.25 357,-418.25 351,-418.25"/>
+<text xml:space="preserve" text-anchor="middle" x="316" y="-402.75" font-family="Helvetica,sans-Serif" font-size="10.00">VAST node plugin</text>
+<text xml:space="preserve" text-anchor="middle" x="316" y="-390.75" font-family="Helvetica,sans-Serif" font-size="10.00">(vendor socket)</text>
+</g>
+<!-- csinode&#45;&gt;vastnode -->
+<g id="edge1" class="edge">
+<title>csinode&#45;&gt;vastnode</title>
+<path fill="none" stroke="black" d="M312.75,-475.13C313.31,-462.38 314.09,-444.67 314.75,-429.78"/>
+<polygon fill="black" stroke="black" points="318.23,-430.26 315.17,-420.11 311.24,-429.95 318.23,-430.26"/>
+<text xml:space="preserve" text-anchor="middle" x="353.73" y="-448.7" font-family="Helvetica,sans-Serif" font-size="9.00">route by</text>
+<text xml:space="preserve" text-anchor="middle" x="353.73" y="-438.2" font-family="Helvetica,sans-Serif" font-size="9.00">osac.backend=vast</text>
+</g>
+<!-- array -->
+<g id="node12" class="node">
+<title>array</title>
+<path fill="#c9e0ff" stroke="black" d="M656.5,-32.73C656.5,-34.53 641.48,-36 623,-36 604.52,-36 589.5,-34.53 589.5,-32.73 589.5,-32.73 589.5,-3.27 589.5,-3.27 589.5,-1.47 604.52,0 623,0 641.48,0 656.5,-1.47 656.5,-3.27 656.5,-3.27 656.5,-32.73 656.5,-32.73"/>
+<path fill="none" stroke="black" d="M656.5,-32.73C656.5,-30.92 641.48,-29.45 623,-29.45 604.52,-29.45 589.5,-30.92 589.5,-32.73"/>
+<text xml:space="preserve" text-anchor="middle" x="623" y="-14.5" font-family="Helvetica,sans-Serif" font-size="10.00">VAST Array</text>
+</g>
+<!-- vastnode&#45;&gt;array -->
+<g id="edge10" class="edge">
+<title>vastnode&#45;&gt;array</title>
+<path fill="none" stroke="black" d="M363.5,-397.23C472.13,-392.24 731.84,-378.04 764,-355.25 782.9,-341.86 786,-331.16 786,-308 786,-308 786,-308 786,-90 786,-38.39 716.46,-23.91 668.22,-20.07"/>
+<polygon fill="black" stroke="black" points="668.49,-16.58 658.28,-19.42 668.04,-23.57 668.49,-16.58"/>
+<text xml:space="preserve" text-anchor="middle" x="823.88" y="-180.7" font-family="Helvetica,sans-Serif" font-size="9.00">iSCSI / NFS mount</text>
+</g>
+<!-- volcr -->
+<g id="node8" class="node">
+<title>volcr</title>
+<path fill="#fce4ec" stroke="black" d="M600.12,-109C600.12,-109 557.88,-109 557.88,-109 551.88,-109 545.88,-103 545.88,-97 545.88,-97 545.88,-85 545.88,-85 545.88,-79 551.88,-73 557.88,-73 557.88,-73 600.12,-73 600.12,-73 606.12,-73 612.12,-79 612.12,-85 612.12,-85 612.12,-97 612.12,-97 612.12,-103 606.12,-109 600.12,-109"/>
+<text xml:space="preserve" text-anchor="middle" x="579" y="-87.5" font-family="Helvetica,sans-Serif" font-size="10.00">Volume CR</text>
+</g>
+<!-- volapi&#45;&gt;volcr -->
+<g id="edge4" class="edge">
+<title>volapi&#45;&gt;volcr</title>
+<path fill="none" stroke="black" d="M571.54,-165.56C576.19,-160.43 580.5,-154.45 583,-148 586.31,-139.47 586.66,-129.67 585.77,-120.67"/>
+<polygon fill="black" stroke="black" points="589.25,-120.32 584.26,-110.98 582.34,-121.4 589.25,-120.32"/>
+<text xml:space="preserve" text-anchor="middle" x="622.56" y="-134.2" font-family="Helvetica,sans-Serif" font-size="9.00">reconciler creates</text>
+</g>
+<!-- cpapi -->
+<g id="node7" class="node">
+<title>cpapi</title>
+<path fill="#d1c4e9" stroke="black" d="M732.38,-202C732.38,-202 625.62,-202 625.62,-202 619.62,-202 613.62,-196 613.62,-190 613.62,-190 613.62,-178 613.62,-178 613.62,-172 619.62,-166 625.62,-166 625.62,-166 732.38,-166 732.38,-166 738.38,-166 744.38,-172 744.38,-178 744.38,-178 744.38,-190 744.38,-190 744.38,-196 738.38,-202 732.38,-202"/>
+<text xml:space="preserve" text-anchor="middle" x="679" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">Storage Control Plane API</text>
+<text xml:space="preserve" text-anchor="middle" x="679" y="-174.5" font-family="Helvetica,sans-Serif" font-size="10.00">(Publish / Unpublish)</text>
+</g>
+<!-- opctrl -->
+<g id="node9" class="node">
+<title>opctrl</title>
+<path fill="#c8e6c9" stroke="black" d="M476.62,-202C476.62,-202 407.38,-202 407.38,-202 401.38,-202 395.38,-196 395.38,-190 395.38,-190 395.38,-178 395.38,-178 395.38,-172 401.38,-166 407.38,-166 407.38,-166 476.62,-166 476.62,-166 482.62,-166 488.62,-172 488.62,-178 488.62,-178 488.62,-190 488.62,-190 488.62,-196 482.62,-202 476.62,-202"/>
+<text xml:space="preserve" text-anchor="middle" x="442" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">Volume Controller</text>
+<text xml:space="preserve" text-anchor="middle" x="442" y="-174.5" font-family="Helvetica,sans-Serif" font-size="10.00">(osac&#45;operator)</text>
+</g>
+<!-- opctrl&#45;&gt;volcr -->
+<g id="edge5" class="edge">
+<title>opctrl&#45;&gt;volcr</title>
+<path fill="none" stroke="black" d="M488.96,-160.76C491,-159.82 493.02,-158.9 495,-158 505.15,-153.4 508.95,-154.5 518,-148 528.22,-140.66 527.92,-135.72 537,-127 543.3,-120.95 550.49,-114.73 557.13,-109.24"/>
+<polygon fill="black" stroke="black" points="487.69,-157.49 480.09,-164.87 490.63,-163.84 487.69,-157.49"/>
+<text xml:space="preserve" text-anchor="middle" x="558" y="-134.2" font-family="Helvetica,sans-Serif" font-size="9.00">reconciles</text>
+</g>
+<!-- vastctrl -->
+<g id="node11" class="node">
+<title>vastctrl</title>
+<path fill="#fff3cd" stroke="black" d="M502.38,-109C502.38,-109 419.62,-109 419.62,-109 413.62,-109 407.62,-103 407.62,-97 407.62,-97 407.62,-85 407.62,-85 407.62,-79 413.62,-73 419.62,-73 419.62,-73 502.38,-73 502.38,-73 508.38,-73 514.38,-79 514.38,-85 514.38,-85 514.38,-97 514.38,-97 514.38,-103 508.38,-109 502.38,-109"/>
+<text xml:space="preserve" text-anchor="middle" x="461" y="-93.5" font-family="Helvetica,sans-Serif" font-size="10.00">VAST CSI Controller</text>
+<text xml:space="preserve" text-anchor="middle" x="461" y="-81.5" font-family="Helvetica,sans-Serif" font-size="10.00">(vendor, on hub)</text>
+</g>
+<!-- opctrl&#45;&gt;vastctrl -->
+<g id="edge6" class="edge">
+<title>opctrl&#45;&gt;vastctrl</title>
+<path fill="none" stroke="black" d="M432.63,-165.71C427.8,-154.45 423.84,-139.56 428.75,-127 429.93,-123.97 431.52,-121.04 433.35,-118.26"/>
+<polygon fill="black" stroke="black" points="435.94,-120.63 439.37,-110.6 430.44,-116.3 435.94,-120.63"/>
+<text xml:space="preserve" text-anchor="middle" x="473.38" y="-139.45" font-family="Helvetica,sans-Serif" font-size="9.00">vendor CreateVolume</text>
+<text xml:space="preserve" text-anchor="middle" x="473.38" y="-128.95" font-family="Helvetica,sans-Serif" font-size="9.00">(+ credentials)</text>
+</g>
+<!-- opfb -->
+<g id="node10" class="node">
+<title>opfb</title>
+<path fill="#c8e6c9" stroke="black" d="M590.88,-325C590.88,-325 511.12,-325 511.12,-325 505.12,-325 499.12,-319 499.12,-313 499.12,-313 499.12,-301 499.12,-301 499.12,-295 505.12,-289 511.12,-289 511.12,-289 590.88,-289 590.88,-289 596.88,-289 602.88,-295 602.88,-301 602.88,-301 602.88,-313 602.88,-313 602.88,-319 596.88,-325 590.88,-325"/>
+<text xml:space="preserve" text-anchor="middle" x="551" y="-303.5" font-family="Helvetica,sans-Serif" font-size="10.00">Feedback Controller</text>
+</g>
+<!-- opfb&#45;&gt;volapi -->
+<g id="edge7" class="edge">
+<title>opfb&#45;&gt;volapi</title>
+<path fill="none" stroke="black" d="M551,-288.66C551,-269.08 551,-236.89 551,-213.58"/>
+<polygon fill="black" stroke="black" points="554.5,-213.82 551,-203.82 547.5,-213.82 554.5,-213.82"/>
+<text xml:space="preserve" text-anchor="middle" x="573.5" y="-251.95" font-family="Helvetica,sans-Serif" font-size="9.00">sync status</text>
+</g>
+<!-- vastctrl&#45;&gt;array -->
+<g id="edge9" class="edge">
+<title>vastctrl&#45;&gt;array</title>
+<path fill="none" stroke="black" d="M500.63,-72.63C524.29,-62.26 554.39,-49.07 578.82,-38.36"/>
+<polygon fill="black" stroke="black" points="580.11,-41.62 587.87,-34.4 577.3,-35.21 580.11,-41.62"/>
+</g>
+</g>
+</svg>
+</div>
+<p class="small">Note where things live: vendor <b>controller</b> + credentials + operator on the
+<b>hub</b>; vendor <b>node plugin</b> on the tenant worker. The OSAC CSI driver has exactly one
+cross-cluster connection — to the fulfillment-service — and never to a vendor controller.</p>
+
+<h2>2. Reference flow: VAST (network-attached) provisioning</h2>
+<div class="diagram"><svg width="1061pt" height="52pt"
+ viewBox="0.00 0.00 1061.00 52.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 48)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-48 1057,-48 1057,4 -4,4"/>
+<!-- pvc -->
+<g id="node1" class="node">
+<title>pvc</title>
+<path fill="white" stroke="black" d="M71.5,-40C71.5,-40 12,-40 12,-40 6,-40 0,-34 0,-28 0,-28 0,-16 0,-16 0,-10 6,-4 12,-4 12,-4 71.5,-4 71.5,-4 77.5,-4 83.5,-10 83.5,-16 83.5,-16 83.5,-28 83.5,-28 83.5,-34 77.5,-40 71.5,-40"/>
+<text xml:space="preserve" text-anchor="middle" x="41.75" y="-24.5" font-family="Helvetica,sans-Serif" font-size="10.00">1. PVC created</text>
+<text xml:space="preserve" text-anchor="middle" x="41.75" y="-12.5" font-family="Helvetica,sans-Serif" font-size="10.00">(tier=gold)</text>
+</g>
+<!-- csi -->
+<g id="node2" class="node">
+<title>csi</title>
+<path fill="#dbeafe" stroke="black" d="M200,-40C200,-40 131.5,-40 131.5,-40 125.5,-40 119.5,-34 119.5,-28 119.5,-28 119.5,-16 119.5,-16 119.5,-10 125.5,-4 131.5,-4 131.5,-4 200,-4 200,-4 206,-4 212,-10 212,-16 212,-16 212,-28 212,-28 212,-34 206,-40 200,-40"/>
+<text xml:space="preserve" text-anchor="middle" x="165.75" y="-24.5" font-family="Helvetica,sans-Serif" font-size="10.00">2. OSAC CSI ctrl</text>
+<text xml:space="preserve" text-anchor="middle" x="165.75" y="-12.5" font-family="Helvetica,sans-Serif" font-size="10.00">CreateVolume</text>
+</g>
+<!-- pvc&#45;&gt;csi -->
+<g id="edge1" class="edge">
+<title>pvc&#45;&gt;csi</title>
+<path fill="none" stroke="black" d="M83.71,-22C91.43,-22 99.63,-22 107.73,-22"/>
+<polygon fill="black" stroke="black" points="107.55,-25.5 117.55,-22 107.55,-18.5 107.55,-25.5"/>
+</g>
+<!-- api -->
+<g id="node3" class="node">
+<title>api</title>
+<path fill="#d1c4e9" stroke="black" d="M342,-44C342,-44 260,-44 260,-44 254,-44 248,-38 248,-32 248,-32 248,-12 248,-12 248,-6 254,0 260,0 260,0 342,0 342,0 348,0 354,-6 354,-12 354,-12 354,-32 354,-32 354,-38 348,-44 342,-44"/>
+<text xml:space="preserve" text-anchor="middle" x="301" y="-30.5" font-family="Helvetica,sans-Serif" font-size="10.00">3. Volume API</text>
+<text xml:space="preserve" text-anchor="middle" x="301" y="-18.5" font-family="Helvetica,sans-Serif" font-size="10.00">resolve tier, policy,</text>
+<text xml:space="preserve" text-anchor="middle" x="301" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00">persist (CREATING)</text>
+</g>
+<!-- csi&#45;&gt;api -->
+<g id="edge2" class="edge">
+<title>csi&#45;&gt;api</title>
+<path fill="none" stroke="black" d="M212.23,-22C220.02,-22 228.24,-22 236.4,-22"/>
+<polygon fill="black" stroke="black" points="236.33,-25.5 246.33,-22 236.33,-18.5 236.33,-25.5"/>
+</g>
+<!-- cr -->
+<g id="node4" class="node">
+<title>cr</title>
+<path fill="#fce4ec" stroke="black" d="M455.5,-40C455.5,-40 402,-40 402,-40 396,-40 390,-34 390,-28 390,-28 390,-16 390,-16 390,-10 396,-4 402,-4 402,-4 455.5,-4 455.5,-4 461.5,-4 467.5,-10 467.5,-16 467.5,-16 467.5,-28 467.5,-28 467.5,-34 461.5,-40 455.5,-40"/>
+<text xml:space="preserve" text-anchor="middle" x="428.75" y="-24.5" font-family="Helvetica,sans-Serif" font-size="10.00">4. Volume CR</text>
+<text xml:space="preserve" text-anchor="middle" x="428.75" y="-12.5" font-family="Helvetica,sans-Serif" font-size="10.00">on hub</text>
+</g>
+<!-- api&#45;&gt;cr -->
+<g id="edge3" class="edge">
+<title>api&#45;&gt;cr</title>
+<path fill="none" stroke="black" d="M354.24,-22C362.22,-22 370.43,-22 378.35,-22"/>
+<polygon fill="black" stroke="black" points="378.16,-25.5 388.16,-22 378.16,-18.5 378.16,-25.5"/>
+</g>
+<!-- op -->
+<g id="node5" class="node">
+<title>op</title>
+<path fill="#c8e6c9" stroke="black" d="M561.5,-44C561.5,-44 515.5,-44 515.5,-44 509.5,-44 503.5,-38 503.5,-32 503.5,-32 503.5,-12 503.5,-12 503.5,-6 509.5,0 515.5,0 515.5,0 561.5,0 561.5,0 567.5,0 573.5,-6 573.5,-12 573.5,-12 573.5,-32 573.5,-32 573.5,-38 567.5,-44 561.5,-44"/>
+<text xml:space="preserve" text-anchor="middle" x="538.5" y="-30.5" font-family="Helvetica,sans-Serif" font-size="10.00">5. operator</text>
+<text xml:space="preserve" text-anchor="middle" x="538.5" y="-18.5" font-family="Helvetica,sans-Serif" font-size="10.00">reads creds,</text>
+<text xml:space="preserve" text-anchor="middle" x="538.5" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00">calls vendor</text>
+</g>
+<!-- cr&#45;&gt;op -->
+<g id="edge4" class="edge">
+<title>cr&#45;&gt;op</title>
+<path fill="none" stroke="black" d="M467.74,-22C475.47,-22 483.69,-22 491.66,-22"/>
+<polygon fill="black" stroke="black" points="491.58,-25.5 501.58,-22 491.58,-18.5 491.58,-25.5"/>
+</g>
+<!-- vast -->
+<g id="node6" class="node">
+<title>vast</title>
+<path fill="#fff3cd" stroke="black" d="M678.75,-40C678.75,-40 621.5,-40 621.5,-40 615.5,-40 609.5,-34 609.5,-28 609.5,-28 609.5,-16 609.5,-16 609.5,-10 615.5,-4 621.5,-4 621.5,-4 678.75,-4 678.75,-4 684.75,-4 690.75,-10 690.75,-16 690.75,-16 690.75,-28 690.75,-28 690.75,-34 684.75,-40 678.75,-40"/>
+<text xml:space="preserve" text-anchor="middle" x="650.12" y="-24.5" font-family="Helvetica,sans-Serif" font-size="10.00">6. VAST ctrl</text>
+<text xml:space="preserve" text-anchor="middle" x="650.12" y="-12.5" font-family="Helvetica,sans-Serif" font-size="10.00">create on array</text>
+</g>
+<!-- op&#45;&gt;vast -->
+<g id="edge5" class="edge">
+<title>op&#45;&gt;vast</title>
+<path fill="none" stroke="black" d="M573.89,-22C581.48,-22 589.69,-22 597.8,-22"/>
+<polygon fill="black" stroke="black" points="597.6,-25.5 607.6,-22 597.6,-18.5 597.6,-25.5"/>
+</g>
+<!-- fb -->
+<g id="node7" class="node">
+<title>fb</title>
+<path fill="#c8e6c9" stroke="black" d="M805,-40C805,-40 738.75,-40 738.75,-40 732.75,-40 726.75,-34 726.75,-28 726.75,-28 726.75,-16 726.75,-16 726.75,-10 732.75,-4 738.75,-4 738.75,-4 805,-4 805,-4 811,-4 817,-10 817,-16 817,-16 817,-28 817,-28 817,-34 811,-40 805,-40"/>
+<text xml:space="preserve" text-anchor="middle" x="771.88" y="-24.5" font-family="Helvetica,sans-Serif" font-size="10.00">7. feedback →</text>
+<text xml:space="preserve" text-anchor="middle" x="771.88" y="-12.5" font-family="Helvetica,sans-Serif" font-size="10.00">API: AVAILABLE</text>
+</g>
+<!-- vast&#45;&gt;fb -->
+<g id="edge6" class="edge">
+<title>vast&#45;&gt;fb</title>
+<path fill="none" stroke="black" d="M691,-22C698.77,-22 707.05,-22 715.22,-22"/>
+<polygon fill="black" stroke="black" points="715.12,-25.5 725.12,-22 715.12,-18.5 715.12,-25.5"/>
+</g>
+<!-- poll -->
+<g id="node8" class="node">
+<title>poll</title>
+<path fill="#dbeafe" stroke="black" d="M926,-44C926,-44 865,-44 865,-44 859,-44 853,-38 853,-32 853,-32 853,-12 853,-12 853,-6 859,0 865,0 865,0 926,0 926,0 932,0 938,-6 938,-12 938,-12 938,-32 938,-32 938,-38 932,-44 926,-44"/>
+<text xml:space="preserve" text-anchor="middle" x="895.5" y="-30.5" font-family="Helvetica,sans-Serif" font-size="10.00">8. CSI polls</text>
+<text xml:space="preserve" text-anchor="middle" x="895.5" y="-18.5" font-family="Helvetica,sans-Serif" font-size="10.00">GetVolume →</text>
+<text xml:space="preserve" text-anchor="middle" x="895.5" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00">volume_context</text>
+</g>
+<!-- fb&#45;&gt;poll -->
+<g id="edge7" class="edge">
+<title>fb&#45;&gt;poll</title>
+<path fill="none" stroke="black" d="M817.47,-22C825.22,-22 833.34,-22 841.28,-22"/>
+<polygon fill="black" stroke="black" points="841.22,-25.5 851.22,-22 841.22,-18.5 841.22,-25.5"/>
+</g>
+<!-- pv -->
+<g id="node9" class="node">
+<title>pv</title>
+<path fill="white" stroke="black" d="M1041,-40C1041,-40 986,-40 986,-40 980,-40 974,-34 974,-28 974,-28 974,-16 974,-16 974,-10 980,-4 986,-4 986,-4 1041,-4 1041,-4 1047,-4 1053,-10 1053,-16 1053,-16 1053,-28 1053,-28 1053,-34 1047,-40 1041,-40"/>
+<text xml:space="preserve" text-anchor="middle" x="1013.5" y="-24.5" font-family="Helvetica,sans-Serif" font-size="10.00">9. PV created,</text>
+<text xml:space="preserve" text-anchor="middle" x="1013.5" y="-12.5" font-family="Helvetica,sans-Serif" font-size="10.00">PVC bound</text>
+</g>
+<!-- poll&#45;&gt;pv -->
+<g id="edge8" class="edge">
+<title>poll&#45;&gt;pv</title>
+<path fill="none" stroke="black" d="M938.38,-22C946.14,-22 954.32,-22 962.3,-22"/>
+<polygon fill="black" stroke="black" points="962.26,-25.5 972.26,-22 962.26,-18.5 962.26,-25.5"/>
+</g>
+</g>
+</svg>
+</div>
+<p class="small">This is the <b>CSI / PVC-driven</b> path (dynamic provisioning). The other entry is
+<b>API-first</b>: the Volume is created via the API with no consumer, then a pre-provisioned PV
+(<code>csi.volumeHandle = &lt;osac volume id&gt;</code>) is bound statically and
+<code>CreateVolume</code> is never called. API-first is out of scope here — it is impossible for
+LVMS (see §3.1) — so only the CSI-driven path is elaborated.</p>
+<p>Numbered, matching the OSAC-2872 sequence:</p>
+<pre><code>1. Tenant creates PVC (storageClassName: osac-&lt;vendor&gt;-gold)
+2. external-provisioner → OSAC CSI Controller.CreateVolume(tier=gold, tenant, size, accessMode, clusterID)
+3. Volume API: resolve tier→backend+protocol, OPA policy check, persist record (state=CREATING), return now
+4. fulfillment reconciler (on pg_notify) creates a Volume CR on the HUB
+5. operator Volume controller: reads tenant creds from hub Secret, calls vendor CSI CreateVolume
+6. VAST CSI controller creates the volume on the array, returns vendor volume ID
+7. feedback controller → Volume API: Update(state=AVAILABLE, vendor_volume_id) + Signal(id)
+8. OSAC CSI polls GetVolume until AVAILABLE → returns volume_context{osac.backend, osac.volume-id, osac.protocol}
+9. Kubernetes creates the PV (volume_context stored as spec.csi.volumeAttributes), binds the PVC</code></pre>
+<p><b>Mount is a separate timeline</b>, triggered not by provisioning but by <b>a consumer being
+scheduled onto a node</b> — a pod, or for VMaaS the KubeVirt VM's <code>virt-launcher</code> pod. It
+repeats every time a consumer starts on a node; provisioning happens only once. Sequence: pod/VM
+scheduled → <code>VolumeAttachment</code> created → external-attacher →
+<code>ControllerPublishVolume</code> → Storage Control Plane API → operator → vendor
+<code>ControllerPublishVolume</code> (attach); then kubelet → OSAC CSI <b>node</b> →
+<code>NodeStageVolume</code> / <code>NodePublishVolume</code>, routed by
+<code>osac.backend=vast</code> → VAST node plugin → iSCSI/NFS mount. <b>No control-plane call is made
+from the node</b>; all routing is baked into <code>volume_context</code> at create time.</p>
+
+<h2>3. Why LVMS does not fit: the node-local constraint</h2>
+<div class="diagram"><svg width="344pt" height="252pt"
+ viewBox="0.00 0.00 344.00 252.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 248)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-248 340.25,-248 340.25,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_net</title>
+<polygon fill="#e8f0fe" stroke="#e8f0fe" points="24.88,-8 24.88,-100 328.25,-100 328.25,-8 24.88,-8"/>
+<text xml:space="preserve" text-anchor="middle" x="176.56" y="-84.6" font-family="Helvetica,sans-Serif" font-size="12.00">Network&#45;attached (VAST / NetApp / Pure)</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_local</title>
+<polygon fill="#fde8e8" stroke="#fde8e8" points="8,-108 8,-236 320,-236 320,-108 8,-108"/>
+<text xml:space="preserve" text-anchor="middle" x="164" y="-220.6" font-family="Helvetica,sans-Serif" font-size="12.00">Node&#45;local (LVMS / topolvm)</text>
+</g>
+<!-- vpod -->
+<g id="node1" class="node">
+<title>vpod</title>
+<polygon fill="white" stroke="black" points="93.12,-52 32.88,-52 32.88,-16 93.12,-16 93.12,-52"/>
+<text xml:space="preserve" text-anchor="middle" x="63" y="-37.05" font-family="Helvetica,sans-Serif" font-size="11.00">Pod on</text>
+<text xml:space="preserve" text-anchor="middle" x="63" y="-23.55" font-family="Helvetica,sans-Serif" font-size="11.00">any node</text>
+</g>
+<!-- varr -->
+<g id="node2" class="node">
+<title>varr</title>
+<path fill="#c9e0ff" stroke="black" d="M320.25,-59.69C320.25,-62.1 299.02,-64.06 272.88,-64.06 246.73,-64.06 225.5,-62.1 225.5,-59.69 225.5,-59.69 225.5,-20.31 225.5,-20.31 225.5,-17.9 246.73,-15.94 272.88,-15.94 299.02,-15.94 320.25,-17.9 320.25,-20.31 320.25,-20.31 320.25,-59.69 320.25,-59.69"/>
+<path fill="none" stroke="black" d="M320.25,-59.69C320.25,-57.27 299.02,-55.31 272.88,-55.31 246.73,-55.31 225.5,-57.27 225.5,-59.69"/>
+<text xml:space="preserve" text-anchor="middle" x="272.88" y="-43.05" font-family="Helvetica,sans-Serif" font-size="11.00">VAST Array</text>
+<text xml:space="preserve" text-anchor="middle" x="272.88" y="-29.55" font-family="Helvetica,sans-Serif" font-size="11.00">(on the network)</text>
+</g>
+<!-- vpod&#45;&gt;varr -->
+<g id="edge1" class="edge">
+<title>vpod&#45;&gt;varr</title>
+<path fill="none" stroke="black" d="M93.34,-34.85C124.51,-35.75 174.6,-37.19 213.8,-38.32"/>
+<polygon fill="black" stroke="black" points="213.45,-41.82 223.55,-38.61 213.65,-34.82 213.45,-41.82"/>
+<text xml:space="preserve" text-anchor="middle" x="167.75" y="-64.56" font-family="Helvetica,sans-Serif" font-size="10.00">mount over</text>
+<text xml:space="preserve" text-anchor="middle" x="167.75" y="-52.56" font-family="Helvetica,sans-Serif" font-size="10.00">NFS / iSCSI</text>
+<text xml:space="preserve" text-anchor="middle" x="167.75" y="-40.56" font-family="Helvetica,sans-Serif" font-size="10.00">(node&#45;agnostic)</text>
+</g>
+<!-- lpod -->
+<g id="node3" class="node">
+<title>lpod</title>
+<polygon fill="white" stroke="black" points="92.38,-152 33.62,-152 33.62,-116 92.38,-116 92.38,-152"/>
+<text xml:space="preserve" text-anchor="middle" x="63" y="-137.05" font-family="Helvetica,sans-Serif" font-size="11.00">Pod on</text>
+<text xml:space="preserve" text-anchor="middle" x="63" y="-123.55" font-family="Helvetica,sans-Serif" font-size="11.00">NODE X</text>
+</g>
+<!-- ldisk -->
+<g id="node4" class="node">
+<title>ldisk</title>
+<path fill="#ffd0d0" stroke="black" d="M312,-180.69C312,-183.1 294.46,-185.06 272.88,-185.06 251.29,-185.06 233.75,-183.1 233.75,-180.69 233.75,-180.69 233.75,-141.31 233.75,-141.31 233.75,-138.9 251.29,-136.94 272.88,-136.94 294.46,-136.94 312,-138.9 312,-141.31 312,-141.31 312,-180.69 312,-180.69"/>
+<path fill="none" stroke="black" d="M312,-180.69C312,-178.27 294.46,-176.31 272.88,-176.31 251.29,-176.31 233.75,-178.27 233.75,-180.69"/>
+<text xml:space="preserve" text-anchor="middle" x="272.88" y="-164.05" font-family="Helvetica,sans-Serif" font-size="11.00">LV in VG</text>
+<text xml:space="preserve" text-anchor="middle" x="272.88" y="-150.55" font-family="Helvetica,sans-Serif" font-size="11.00">ON NODE X</text>
+</g>
+<!-- lpod&#45;&gt;ldisk -->
+<g id="edge2" class="edge">
+<title>lpod&#45;&gt;ldisk</title>
+<path fill="none" stroke="black" d="M92.84,-132.91C122,-132.34 168.24,-132.91 207.5,-140 212.45,-140.89 217.54,-142.07 222.59,-143.42"/>
+<polygon fill="black" stroke="black" points="221.48,-146.74 232.05,-146.17 223.43,-140.02 221.48,-146.74"/>
+<text xml:space="preserve" text-anchor="middle" x="167.75" y="-154.5" font-family="Helvetica,sans-Serif" font-size="10.00">local block dev</text>
+<text xml:space="preserve" text-anchor="middle" x="167.75" y="-142.5" font-family="Helvetica,sans-Serif" font-size="10.00">(ONLY on node X)</text>
+</g>
+<!-- lother -->
+<g id="node5" class="node">
+<title>lother</title>
+<polygon fill="#f5f5f5" stroke="black" points="110,-206 16,-206 16,-170 110,-170 110,-206"/>
+<text xml:space="preserve" text-anchor="middle" x="63" y="-191.05" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#999999">NODE Y</text>
+<text xml:space="preserve" text-anchor="middle" x="63" y="-177.55" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#999999">(cannot reach it)</text>
+</g>
+<!-- lother&#45;&gt;ldisk -->
+<g id="edge3" class="edge">
+<title>lother&#45;&gt;ldisk</title>
+<path fill="none" stroke="#cc0000" stroke-dasharray="5,2" d="M110.39,-181.97C143.61,-177.66 188.28,-171.86 222.22,-167.45"/>
+<polygon fill="#cc0000" stroke="#cc0000" points="222.32,-170.97 231.79,-166.21 221.42,-164.02 222.32,-170.97"/>
+<text xml:space="preserve" text-anchor="middle" x="167.75" y="-181.77" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#cc0000">X</text>
+</g>
+</g>
+</svg>
+</div>
+<p>VAST is node-agnostic: the array is on the network, any node mounts it. LVMS is the opposite —
+the volume is an LV carved from a volume group <b>on one specific node</b>, and it is only reachable
+from that node. Consequences that ripple through the whole architecture:</p>
+<ul>
+<li><b><code>WaitForFirstConsumer</code> is mandatory.</b> You cannot pick where to put the volume
+until the scheduler picks the pod's node.</li>
+<li><b>Topology must flow end-to-end.</b> Scheduler picks node X → CSI
+<code>CreateVolume</code> receives <code>accessibility_requirements.preferred=[{topology.topolvm.io/node: X}]</code>
+→ provisioning must target X → the response's <code>accessible_topology</code> pins the PV to X.</li>
+<li><b>Node affinity must be propagated to the PV.</b> The <b>LV</b> (the LVM block device) is
+physically on node X — that's a given. The challenge is making Kubernetes aware of it: the <b>PV</b>
+must carry <code>spec.nodeAffinity=node X</code> so the scheduler
+only places consumers there. A VAST PV has no node affinity (mountable anywhere); an LVMS PV must be
+pinned to node X for its lifetime, and that pin has to be threaded through the provisioning path.</li>
+</ul>
+
+<h3>3.2 Deployment asymmetry: why the vendor-controller-on-hub model breaks for LVMS</h3>
+<p>A CSI driver is two halves — a <b>controller</b> (Deployment) and a <b>node plugin</b>
+(DaemonSet). OSAC splits them deliberately:</p>
+<table>
+<tr><th>Piece</th><th>Where it runs</th><th>Why</th></tr>
+<tr><td>Vendor <b>controller</b> (VAST/NetApp/Pure)</td><td><b>Hub</b></td><td>Credential isolation — vendor creds stay on the hub, never reach the tenant cluster. The controller just makes a <b>network API call to the array</b>, so it doesn't matter where nodes are.</td></tr>
+<tr><td>Vendor <b>node plugin</b></td><td><b>Tenant / CaaS</b></td><td>Must run where the mounts happen; reached by the OSAC node plugin via socket routing.</td></tr>
+<tr><td><b>OSAC</b> CSI driver (controller + node)</td><td><b>Tenant / CaaS</b> (and the hub too, per the passthrough proposal)</td><td>That's where tenant PVCs are. Its only cross-cluster reach is one gRPC connection to the fulfillment-service.</td></tr>
+</table>
+<p><b>topolvm-controller cannot follow the vendor-controller-on-hub pattern.</b> Unlike VAST's
+controller (which makes a network call to a remote array), topolvm-controller on
+<code>CreateVolume</code> <b>creates a <code>LogicalVolume</code> CR in its own cluster's API</b>,
+which the <b>topolvm-node DaemonSet in that same cluster</b> watches and acts on, and its scheduling
+reads <b>that cluster's node VG capacity</b>. It operates entirely within one cluster and can only
+manage that cluster's own nodes. Run it on the hub and it would target hub nodes, not tenant nodes.
+So it <b>must</b> live on the tenant cluster — exactly where OSAC-3011/3234 already install LVMS.
+This is the concrete reason Option A's "operator on the hub calls the vendor controller" model
+does not translate to LVMS.</p>
+
+<h3>3.3 How a CSI controller is normally reached (context for Option B)</h3>
+<p>A CSI controller pod contains the vendor plugin container <b>plus</b> the CSI sidecars
+(external-provisioner, external-attacher, external-resizer). The plugin serves its CSI gRPC over a
+<b>unix-domain socket on an in-pod <code>emptyDir</code></b>, and the <b>only clients are those
+co-located sidecars</b>. external-provisioner watches PVCs → calls <code>CreateVolume</code> on the
+socket; external-attacher watches VolumeAttachments → calls <code>ControllerPublish</code>. Nothing
+outside the pod ever talks to topolvm-controller; it is never on the network. That is why any option
+where a <i>different</i> pod (the OSAC CSI controller) drives topolvm-controller needs a new access
+path — see Option B.</p>
+
+<h3>3.1 The deepest mismatch: API-first provisioning</h3>
+<p>With <code>pvc_ref</code> now removed from the Volume API (PR #341, merged) and a future
+<b>VolumeAttachment</b> object (OSAC-3278) taking over the Volume↔PVC linkage, the OSAC Volume
+lifecycle is <b>decoupled from pods</b>. The canonical path becomes <b>API-first</b>: create a
+Volume with no consumer, attach it later. This is natural for a network array — and
+<b>structurally impossible for LVMS</b>.</p>
+<div class="diagram"><svg width="366pt" height="304pt"
+ viewBox="0.00 0.00 366.00 304.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 299.75)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-299.75 362,-299.75 362,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_a</title>
+<polygon fill="#e8f5e9" stroke="#e8f5e9" points="8,-8 8,-287.75 158,-287.75 158,-8 8,-8"/>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-272.35" font-family="Helvetica,sans-Serif" font-size="12.00">VAST: API&#45;first works</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_b</title>
+<polygon fill="#fde8e8" stroke="#fde8e8" points="166,-14.25 166,-287.75 350,-287.75 350,-14.25 166,-14.25"/>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-272.35" font-family="Helvetica,sans-Serif" font-size="12.00">LVMS: API&#45;first is IMPOSSIBLE</text>
+</g>
+<!-- a1 -->
+<g id="node1" class="node">
+<title>a1</title>
+<path fill="white" stroke="black" d="M121,-257.5C121,-257.5 45,-257.5 45,-257.5 39,-257.5 33,-251.5 33,-245.5 33,-245.5 33,-221 33,-221 33,-215 39,-209 45,-209 45,-209 121,-209 121,-209 127,-209 133,-215 133,-221 133,-221 133,-245.5 133,-245.5 133,-251.5 127,-257.5 121,-257.5"/>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-243.05" font-family="Helvetica,sans-Serif" font-size="11.00">POST /volumes</text>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-229.55" font-family="Helvetica,sans-Serif" font-size="11.00">(tier=gold, 100Gi)</text>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-216.05" font-family="Helvetica,sans-Serif" font-size="11.00">NO consumer yet</text>
+</g>
+<!-- a2 -->
+<g id="node2" class="node">
+<title>a2</title>
+<path fill="#c9e0ff" stroke="black" d="M124.38,-161C124.38,-161 41.62,-161 41.62,-161 35.62,-161 29.62,-155 29.62,-149 29.62,-149 29.62,-124.5 29.62,-124.5 29.62,-118.5 35.62,-112.5 41.62,-112.5 41.62,-112.5 124.38,-112.5 124.38,-112.5 130.38,-112.5 136.38,-118.5 136.38,-124.5 136.38,-124.5 136.38,-149 136.38,-149 136.38,-155 130.38,-161 124.38,-161"/>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-146.55" font-family="Helvetica,sans-Serif" font-size="11.00">VAST array carves</text>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-133.05" font-family="Helvetica,sans-Serif" font-size="11.00">a 100Gi volume</text>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-119.55" font-family="Helvetica,sans-Serif" font-size="11.00">(exists on network)</text>
+</g>
+<!-- a1&#45;&gt;a2 -->
+<g id="edge1" class="edge">
+<title>a1&#45;&gt;a2</title>
+<path fill="none" stroke="black" d="M83,-208.89C83,-198.07 83,-184.98 83,-172.99"/>
+<polygon fill="black" stroke="black" points="86.5,-173.01 83,-163.01 79.5,-173.01 86.5,-173.01"/>
+<text xml:space="preserve" text-anchor="middle" x="90.12" y="-181.5" font-family="Helvetica,sans-Serif" font-size="10.00">OK</text>
+</g>
+<!-- a3 -->
+<g id="node3" class="node">
+<title>a3</title>
+<path fill="white" stroke="black" d="M137.88,-64.5C137.88,-64.5 28.12,-64.5 28.12,-64.5 22.12,-64.5 16.12,-58.5 16.12,-52.5 16.12,-52.5 16.12,-28 16.12,-28 16.12,-22 22.12,-16 28.12,-16 28.12,-16 137.88,-16 137.88,-16 143.88,-16 149.88,-22 149.88,-28 149.88,-28 149.88,-52.5 149.88,-52.5 149.88,-58.5 143.88,-64.5 137.88,-64.5"/>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-50.05" font-family="Helvetica,sans-Serif" font-size="11.00">later: VolumeAttachment</text>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-36.55" font-family="Helvetica,sans-Serif" font-size="11.00">binds it to a PVC/pod</text>
+<text xml:space="preserve" text-anchor="middle" x="83" y="-23.05" font-family="Helvetica,sans-Serif" font-size="11.00">on any node</text>
+</g>
+<!-- a2&#45;&gt;a3 -->
+<g id="edge2" class="edge">
+<title>a2&#45;&gt;a3</title>
+<path fill="none" stroke="black" d="M83,-112.39C83,-101.57 83,-88.48 83,-76.49"/>
+<polygon fill="black" stroke="black" points="86.5,-76.51 83,-66.51 79.5,-76.51 86.5,-76.51"/>
+<text xml:space="preserve" text-anchor="middle" x="90.12" y="-85" font-family="Helvetica,sans-Serif" font-size="10.00">OK</text>
+</g>
+<!-- b1 -->
+<g id="node4" class="node">
+<title>b1</title>
+<path fill="white" stroke="black" d="M296.75,-257.5C296.75,-257.5 219.25,-257.5 219.25,-257.5 213.25,-257.5 207.25,-251.5 207.25,-245.5 207.25,-245.5 207.25,-221 207.25,-221 207.25,-215 213.25,-209 219.25,-209 219.25,-209 296.75,-209 296.75,-209 302.75,-209 308.75,-215 308.75,-221 308.75,-221 308.75,-245.5 308.75,-245.5 308.75,-251.5 302.75,-257.5 296.75,-257.5"/>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-243.05" font-family="Helvetica,sans-Serif" font-size="11.00">POST /volumes</text>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-229.55" font-family="Helvetica,sans-Serif" font-size="11.00">(tier=local, 100Gi)</text>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-216.05" font-family="Helvetica,sans-Serif" font-size="11.00">NO consumer yet</text>
+</g>
+<!-- b2 -->
+<g id="node5" class="node">
+<title>b2</title>
+<path fill="#ffd0d0" stroke="black" d="M303.5,-161C303.5,-161 212.5,-161 212.5,-161 206.5,-161 200.5,-155 200.5,-149 200.5,-149 200.5,-124.5 200.5,-124.5 200.5,-118.5 206.5,-112.5 212.5,-112.5 212.5,-112.5 303.5,-112.5 303.5,-112.5 309.5,-112.5 315.5,-118.5 315.5,-124.5 315.5,-124.5 315.5,-149 315.5,-149 315.5,-155 309.5,-161 303.5,-161"/>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-146.55" font-family="Helvetica,sans-Serif" font-size="11.00">which node?</text>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-133.05" font-family="Helvetica,sans-Serif" font-size="11.00">no pod scheduled →</text>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-119.55" font-family="Helvetica,sans-Serif" font-size="11.00">no node → no VG</text>
+</g>
+<!-- b1&#45;&gt;b2 -->
+<g id="edge3" class="edge">
+<title>b1&#45;&gt;b2</title>
+<path fill="none" stroke="black" d="M258,-208.89C258,-198.07 258,-184.98 258,-172.99"/>
+<polygon fill="black" stroke="black" points="261.5,-173.01 258,-163.01 254.5,-173.01 261.5,-173.01"/>
+<text xml:space="preserve" text-anchor="middle" x="260.62" y="-181.5" font-family="Helvetica,sans-Serif" font-size="10.00">?</text>
+</g>
+<!-- b3 -->
+<g id="node6" class="node">
+<title>b3</title>
+<path fill="#ffd0d0" stroke="black" d="M304.62,-58.25C304.62,-58.25 211.38,-58.25 211.38,-58.25 205.38,-58.25 199.38,-52.25 199.38,-46.25 199.38,-46.25 199.38,-34.25 199.38,-34.25 199.38,-28.25 205.38,-22.25 211.38,-22.25 211.38,-22.25 304.62,-22.25 304.62,-22.25 310.62,-22.25 316.62,-28.25 316.62,-34.25 316.62,-34.25 316.62,-46.25 316.62,-46.25 316.62,-52.25 310.62,-58.25 304.62,-58.25"/>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-43.3" font-family="Helvetica,sans-Serif" font-size="11.00">cannot carve an LV</text>
+<text xml:space="preserve" text-anchor="middle" x="258" y="-29.8" font-family="Helvetica,sans-Serif" font-size="11.00">without a target node</text>
+</g>
+<!-- b2&#45;&gt;b3 -->
+<g id="edge4" class="edge">
+<title>b2&#45;&gt;b3</title>
+<path fill="none" stroke="#cc0000" d="M258,-112.39C258,-99.54 258,-83.49 258,-69.89"/>
+<polygon fill="#cc0000" stroke="#cc0000" points="261.5,-70.22 258,-60.22 254.5,-70.22 261.5,-70.22"/>
+<text xml:space="preserve" text-anchor="middle" x="277.88" y="-85" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#cc0000">dead end</text>
+</g>
+</g>
+</svg>
+</div>
+<p class="small">This is the single strongest architectural argument: the direction the Volume API is
+evolving (provision-in-advance, pod-independent) is exactly the direction LVMS cannot follow. For
+LVMS the <b>only</b> viable entry point is the CSI + <code>WaitForFirstConsumer</code> path, where a
+node exists at provision time. The pure-API path must be forbidden for local tiers.</p>
+
+<h2>4. The three options</h2>
+
+<h3><span class="tag tA">Option A</span> Full chain — CSI → fulfillment → Volume CR → operator → topolvm</h3>
+<div class="diagram"><svg width="862pt" height="172pt"
+ viewBox="0.00 0.00 862.00 172.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 168)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-168 857.5,-168 857.5,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_t</title>
+<polygon fill="#e8f5e9" stroke="#e8f5e9" points="452.5,-20 452.5,-156 845.5,-156 845.5,-20 452.5,-20"/>
+<text xml:space="preserve" text-anchor="middle" x="649" y="-141.55" font-family="Helvetica,sans-Serif" font-size="11.00">TENANT CLUSTER</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_h</title>
+<polygon fill="#e3f2fd" stroke="#e3f2fd" points="8,-54 8,-128 362.75,-128 362.75,-54 8,-54"/>
+<text xml:space="preserve" text-anchor="middle" x="185.38" y="-113.55" font-family="Helvetica,sans-Serif" font-size="11.00">HUB CLUSTER</text>
+</g>
+<!-- pvc -->
+<g id="node1" class="node">
+<title>pvc</title>
+<path fill="white" stroke="black" d="M592.75,-64C592.75,-64 472.5,-64 472.5,-64 466.5,-64 460.5,-58 460.5,-52 460.5,-52 460.5,-40 460.5,-40 460.5,-34 466.5,-28 472.5,-28 472.5,-28 592.75,-28 592.75,-28 598.75,-28 604.75,-34 604.75,-40 604.75,-40 604.75,-52 604.75,-52 604.75,-58 598.75,-64 592.75,-64"/>
+<text xml:space="preserve" text-anchor="middle" x="532.62" y="-48.5" font-family="Helvetica,sans-Serif" font-size="10.00">PVC (WaitForFirstConsumer)</text>
+<text xml:space="preserve" text-anchor="middle" x="532.62" y="-36.5" font-family="Helvetica,sans-Serif" font-size="10.00">pod scheduled → node X</text>
+</g>
+<!-- csi -->
+<g id="node2" class="node">
+<title>csi</title>
+<path fill="#dbeafe" stroke="black" d="M824.75,-64C824.75,-64 767.5,-64 767.5,-64 761.5,-64 755.5,-58 755.5,-52 755.5,-52 755.5,-40 755.5,-40 755.5,-34 761.5,-28 767.5,-28 767.5,-28 824.75,-28 824.75,-28 830.75,-28 836.75,-34 836.75,-40 836.75,-40 836.75,-52 836.75,-52 836.75,-58 830.75,-64 824.75,-64"/>
+<text xml:space="preserve" text-anchor="middle" x="796.12" y="-48.5" font-family="Helvetica,sans-Serif" font-size="10.00">OSAC CSI ctrl</text>
+<text xml:space="preserve" text-anchor="middle" x="796.12" y="-36.5" font-family="Helvetica,sans-Serif" font-size="10.00">extract node X</text>
+</g>
+<!-- pvc&#45;&gt;csi -->
+<g id="edge1" class="edge">
+<title>pvc&#45;&gt;csi</title>
+<path fill="none" stroke="black" d="M605.08,-46C648.89,-46 703.97,-46 743.54,-46"/>
+<polygon fill="black" stroke="black" points="743.52,-49.5 753.52,-46 743.52,-42.5 743.52,-49.5"/>
+</g>
+<!-- api -->
+<g id="node5" class="node">
+<title>api</title>
+<path fill="#d1c4e9" stroke="black" d="M98,-98C98,-98 28,-98 28,-98 22,-98 16,-92 16,-86 16,-86 16,-74 16,-74 16,-68 22,-62 28,-62 28,-62 98,-62 98,-62 104,-62 110,-68 110,-74 110,-74 110,-86 110,-86 110,-92 104,-98 98,-98"/>
+<text xml:space="preserve" text-anchor="middle" x="63" y="-82.5" font-family="Helvetica,sans-Serif" font-size="10.00">Volume API</text>
+<text xml:space="preserve" text-anchor="middle" x="63" y="-70.5" font-family="Helvetica,sans-Serif" font-size="10.00">+ node_hint (new)</text>
+</g>
+<!-- csi&#45;&gt;api -->
+<g id="edge2" class="edge">
+<title>csi&#45;&gt;api</title>
+<path fill="none" stroke="black" d="M755.19,-34.51C704.23,-20.89 613.14,0 533.62,0 179.5,0 179.5,0 179.5,0 141.22,0 106.46,-30.07 85.3,-53.34"/>
+<polygon fill="black" stroke="black" points="88.15,-42.42 85.69,-52.73 94.04,-46.2 88.15,-42.42"/>
+<text xml:space="preserve" text-anchor="middle" x="302.88" y="-12.45" font-family="Helvetica,sans-Serif" font-size="9.00">CreateVolume</text>
+<text xml:space="preserve" text-anchor="middle" x="302.88" y="-1.95" font-family="Helvetica,sans-Serif" font-size="9.00">(node_hint=X)</text>
+</g>
+<!-- topc -->
+<g id="node3" class="node">
+<title>topc</title>
+<path fill="#ffe0b2" stroke="black" d="M570.62,-126C570.62,-126 494.62,-126 494.62,-126 488.62,-126 482.62,-120 482.62,-114 482.62,-114 482.62,-94 482.62,-94 482.62,-88 488.62,-82 494.62,-82 494.62,-82 570.62,-82 570.62,-82 576.62,-82 582.62,-88 582.62,-94 582.62,-94 582.62,-114 582.62,-114 582.62,-120 576.62,-126 570.62,-126"/>
+<text xml:space="preserve" text-anchor="middle" x="532.62" y="-112.5" font-family="Helvetica,sans-Serif" font-size="10.00">topolvm&#45;controller</text>
+<text xml:space="preserve" text-anchor="middle" x="532.62" y="-100.5" font-family="Helvetica,sans-Serif" font-size="10.00">(MUST live here —</text>
+<text xml:space="preserve" text-anchor="middle" x="532.62" y="-88.5" font-family="Helvetica,sans-Serif" font-size="10.00">node&#45;local)</text>
+</g>
+<!-- topn -->
+<g id="node4" class="node">
+<title>topn</title>
+<path fill="#fff3cd" stroke="black" d="M825.5,-122C825.5,-122 766.75,-122 766.75,-122 760.75,-122 754.75,-116 754.75,-110 754.75,-110 754.75,-98 754.75,-98 754.75,-92 760.75,-86 766.75,-86 766.75,-86 825.5,-86 825.5,-86 831.5,-86 837.5,-92 837.5,-98 837.5,-98 837.5,-110 837.5,-110 837.5,-116 831.5,-122 825.5,-122"/>
+<text xml:space="preserve" text-anchor="middle" x="796.12" y="-106.5" font-family="Helvetica,sans-Serif" font-size="10.00">topolvm&#45;node</text>
+<text xml:space="preserve" text-anchor="middle" x="796.12" y="-94.5" font-family="Helvetica,sans-Serif" font-size="10.00">carves LV on X</text>
+</g>
+<!-- topc&#45;&gt;topn -->
+<g id="edge6" class="edge">
+<title>topc&#45;&gt;topn</title>
+<path fill="none" stroke="black" d="M583.12,-104C628.85,-104 696.54,-104 743.07,-104"/>
+<polygon fill="black" stroke="black" points="742.9,-107.5 752.9,-104 742.9,-100.5 742.9,-107.5"/>
+<text xml:space="preserve" text-anchor="middle" x="679.75" y="-105.95" font-family="Helvetica,sans-Serif" font-size="9.00">LogicalVolume CR (node X)</text>
+</g>
+<!-- cr -->
+<g id="node6" class="node">
+<title>cr</title>
+<path fill="#fce4ec" stroke="black" d="M202,-98C202,-98 159,-98 159,-98 153,-98 147,-92 147,-86 147,-86 147,-74 147,-74 147,-68 153,-62 159,-62 159,-62 202,-62 202,-62 208,-62 214,-68 214,-74 214,-74 214,-86 214,-86 214,-92 208,-98 202,-98"/>
+<text xml:space="preserve" text-anchor="middle" x="180.5" y="-82.5" font-family="Helvetica,sans-Serif" font-size="10.00">Volume CR</text>
+<text xml:space="preserve" text-anchor="middle" x="180.5" y="-70.5" font-family="Helvetica,sans-Serif" font-size="10.00">+ node_hint</text>
+</g>
+<!-- api&#45;&gt;cr -->
+<g id="edge3" class="edge">
+<title>api&#45;&gt;cr</title>
+<path fill="none" stroke="black" d="M110.31,-80C118.59,-80 127.19,-80 135.4,-80"/>
+<polygon fill="black" stroke="black" points="135.16,-83.5 145.16,-80 135.16,-76.5 135.16,-83.5"/>
+</g>
+<!-- op -->
+<g id="node7" class="node">
+<title>op</title>
+<path fill="#c8e6c9" stroke="black" d="M342.75,-98C342.75,-98 263,-98 263,-98 257,-98 251,-92 251,-86 251,-86 251,-74 251,-74 251,-68 257,-62 263,-62 263,-62 342.75,-62 342.75,-62 348.75,-62 354.75,-68 354.75,-74 354.75,-74 354.75,-86 354.75,-86 354.75,-92 348.75,-98 342.75,-98"/>
+<text xml:space="preserve" text-anchor="middle" x="302.88" y="-82.5" font-family="Helvetica,sans-Serif" font-size="10.00">operator</text>
+<text xml:space="preserve" text-anchor="middle" x="302.88" y="-70.5" font-family="Helvetica,sans-Serif" font-size="10.00">lvms dispatch (new)</text>
+</g>
+<!-- cr&#45;&gt;op -->
+<g id="edge4" class="edge">
+<title>cr&#45;&gt;op</title>
+<path fill="none" stroke="black" d="M214.39,-80C222.23,-80 230.86,-80 239.54,-80"/>
+<polygon fill="black" stroke="black" points="239.42,-83.5 249.42,-80 239.42,-76.5 239.42,-83.5"/>
+</g>
+<!-- op&#45;&gt;topc -->
+<g id="edge5" class="edge">
+<title>op&#45;&gt;topc</title>
+<path fill="none" stroke="#cc0000" d="M362.75,-86.2C395.95,-89.7 437.35,-94.07 470.85,-97.6"/>
+<polygon fill="#cc0000" stroke="#cc0000" points="470.43,-101.07 480.74,-98.64 471.16,-94.11 470.43,-101.07"/>
+<text xml:space="preserve" text-anchor="middle" x="407.62" y="-106.6" font-family="Helvetica,sans-Serif" font-size="9.00" fill="#cc0000">cross&#45;cluster hop</text>
+<text xml:space="preserve" text-anchor="middle" x="407.62" y="-96.1" font-family="Helvetica,sans-Serif" font-size="9.00" fill="#cc0000">BACK to tenant</text>
+</g>
+</g>
+</svg>
+</div>
+<h4>Components</h4>
+<p>OSAC CSI controller (+ topology extraction), Volume API (+ a new <code>node_hint</code>/topology
+field), Volume CR (+ <code>node_hint</code>), operator Volume controller (+ an lvms
+<code>VendorProvisioner</code>), topolvm on the tenant cluster, OSAC CSI node (+ topology labels).</p>
+<h4>Data flow</h4>
+<pre><code>1. Pod scheduled → node X (WaitForFirstConsumer)
+2. OSAC CSI ctrl extracts node X from accessibility_requirements
+3. → fulfillment.CreateVolume(tier=local, size, accessMode, node_hint=X)   [Volume API needs new field]
+4. tier resolution → backend=lvms; DB record; Volume CR on HUB (spec: ..., node_hint=X)
+5. operator lvms dispatch → creates a LogicalVolume CR targeting node X ON THE TENANT CLUSTER
+6. operator polls LV ready → Volume CR status (AVAILABLE); feedback → DB
+7. OSAC CSI polls GetVolume → volume_context + accessible_topology=[node X]
+8. node plugin routes osac.backend=lvms → topolvm-node socket → mount</code></pre>
+<div class="warn">
+<b>Two structural problems.</b> (1) <b>Control-flow round-trip:</b> the request climbs from the
+tenant cluster to the hub (fulfillment + CR + operator), then the operator must reach
+<b>back down into the tenant cluster</b> to create the LogicalVolume on node X — for a purely local
+operation the hub has no part in. (2) <b>topolvm-controller cannot live on the hub</b> where VAST's
+controller lives; it must run on the tenant cluster with the nodes and VGs. So step 5 is either the
+operator <b>reimplementing topolvm-controller's job</b> (fragile, duplicative) or the operator
+<b>delegating to topolvm-controller</b> — in which case <b>Option A = Option B plus fulfillment/CR/
+operator bookkeeping and a cross-cluster hop.</b>
+</div>
+<h4>Pros</h4>
+<ul><li><span class="check">✓</span> Full volume inventory in the OSAC DB</li>
+<li><span class="check">✓</span> Quota enforcement possible</li>
+<li><span class="check">✓</span> One provisioner name (<code>osac-csi</code>) — looks uniform to the tenant</li></ul>
+<h4>Cons</h4>
+<ul><li><span class="cross">✗</span> Needs a new topology field in the Volume API (Volume API owner / OSAC-3273/3280) — not there today</li>
+<li><span class="cross">✗</span> Needs an operator lvms provisioner — not there today</li>
+<li><span class="cross">✗</span> Cross-cluster reach hub→tenant to create the LV</li>
+<li><span class="cross">✗</span> <b>Still</b> cannot support API-first / provision-in-advance (§3.1) — no VAST parity despite the most work</li>
+<li><span class="cross">✗</span> Most engineering of the three</li></ul>
+
+<h3><span class="tag tB">Option B</span> Passthrough — CSI controller forwards local provisioning to topolvm</h3>
+<div class="diagram"><svg width="775pt" height="183pt"
+ viewBox="0.00 0.00 775.00 183.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 179)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-179 770.75,-179 770.75,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_t</title>
+<polygon fill="#e8f5e9" stroke="#e8f5e9" points="8,-90 8,-167 758.75,-167 758.75,-90 8,-90"/>
+<text xml:space="preserve" text-anchor="middle" x="383.38" y="-152.55" font-family="Helvetica,sans-Serif" font-size="11.00">TENANT CLUSTER &#160;(both controllers co&#45;located)</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_h</title>
+<polygon fill="#e3f2fd" stroke="#e3f2fd" points="412.25,-8 412.25,-82 526,-82 526,-8 412.25,-8"/>
+<text xml:space="preserve" text-anchor="middle" x="469.12" y="-67.55" font-family="Helvetica,sans-Serif" font-size="11.00">HUB</text>
+</g>
+<!-- pvc -->
+<g id="node1" class="node">
+<title>pvc</title>
+<path fill="white" stroke="black" d="M148.25,-134C148.25,-134 28,-134 28,-134 22,-134 16,-128 16,-122 16,-122 16,-110 16,-110 16,-104 22,-98 28,-98 28,-98 148.25,-98 148.25,-98 154.25,-98 160.25,-104 160.25,-110 160.25,-110 160.25,-122 160.25,-122 160.25,-128 154.25,-134 148.25,-134"/>
+<text xml:space="preserve" text-anchor="middle" x="88.12" y="-118.5" font-family="Helvetica,sans-Serif" font-size="10.00">PVC (WaitForFirstConsumer)</text>
+<text xml:space="preserve" text-anchor="middle" x="88.12" y="-106.5" font-family="Helvetica,sans-Serif" font-size="10.00">pod → node X</text>
+</g>
+<!-- csi -->
+<g id="node2" class="node">
+<title>csi</title>
+<path fill="#dbeafe" stroke="black" d="M280,-134C280,-134 209.25,-134 209.25,-134 203.25,-134 197.25,-128 197.25,-122 197.25,-122 197.25,-110 197.25,-110 197.25,-104 203.25,-98 209.25,-98 209.25,-98 280,-98 280,-98 286,-98 292,-104 292,-110 292,-110 292,-122 292,-122 292,-128 286,-134 280,-134"/>
+<text xml:space="preserve" text-anchor="middle" x="244.62" y="-118.5" font-family="Helvetica,sans-Serif" font-size="10.00">OSAC CSI ctrl</text>
+<text xml:space="preserve" text-anchor="middle" x="244.62" y="-106.5" font-family="Helvetica,sans-Serif" font-size="10.00">resolve tier→lvms</text>
+</g>
+<!-- pvc&#45;&gt;csi -->
+<g id="edge1" class="edge">
+<title>pvc&#45;&gt;csi</title>
+<path fill="none" stroke="black" d="M160.5,-116C168.88,-116 177.36,-116 185.53,-116"/>
+<polygon fill="black" stroke="black" points="185.32,-119.5 195.32,-116 185.32,-112.5 185.32,-119.5"/>
+</g>
+<!-- topc -->
+<g id="node3" class="node">
+<title>topc</title>
+<path fill="#ffe0b2" stroke="black" d="M503.75,-134C503.75,-134 434.5,-134 434.5,-134 428.5,-134 422.5,-128 422.5,-122 422.5,-122 422.5,-110 422.5,-110 422.5,-104 428.5,-98 434.5,-98 434.5,-98 503.75,-98 503.75,-98 509.75,-98 515.75,-104 515.75,-110 515.75,-110 515.75,-122 515.75,-122 515.75,-128 509.75,-134 503.75,-134"/>
+<text xml:space="preserve" text-anchor="middle" x="469.12" y="-118.5" font-family="Helvetica,sans-Serif" font-size="10.00">topolvm&#45;controller</text>
+<text xml:space="preserve" text-anchor="middle" x="469.12" y="-106.5" font-family="Helvetica,sans-Serif" font-size="10.00">(TCP Service)</text>
+</g>
+<!-- csi&#45;&gt;topc -->
+<g id="edge3" class="edge">
+<title>csi&#45;&gt;topc</title>
+<path fill="none" stroke="#1565c0" d="M292.27,-116C326.91,-116 374.35,-116 411.23,-116"/>
+<polygon fill="#1565c0" stroke="#1565c0" points="410.79,-119.5 420.79,-116 410.79,-112.5 410.79,-119.5"/>
+<text xml:space="preserve" text-anchor="middle" x="356.12" y="-128.45" font-family="Helvetica,sans-Serif" font-size="9.00" fill="#1565c0">PROXY CreateVolume</text>
+<text xml:space="preserve" text-anchor="middle" x="356.12" y="-117.95" font-family="Helvetica,sans-Serif" font-size="9.00" fill="#1565c0">(in&#45;cluster, verbatim)</text>
+</g>
+<!-- tier -->
+<g id="node5" class="node">
+<title>tier</title>
+<path fill="#d1c4e9" stroke="black" d="M506,-52C506,-52 432.25,-52 432.25,-52 426.25,-52 420.25,-46 420.25,-40 420.25,-40 420.25,-28 420.25,-28 420.25,-22 426.25,-16 432.25,-16 432.25,-16 506,-16 506,-16 512,-16 518,-22 518,-28 518,-28 518,-40 518,-40 518,-46 512,-52 506,-52"/>
+<text xml:space="preserve" text-anchor="middle" x="469.12" y="-36.5" font-family="Helvetica,sans-Serif" font-size="10.00">tier lookup only</text>
+<text xml:space="preserve" text-anchor="middle" x="469.12" y="-24.5" font-family="Helvetica,sans-Serif" font-size="10.00">(no Volume record)</text>
+</g>
+<!-- csi&#45;&gt;tier -->
+<g id="edge2" class="edge">
+<title>csi&#45;&gt;tier</title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M292.27,-98.81C326.37,-86.24 372.86,-69.11 409.47,-55.62"/>
+<polygon fill="black" stroke="black" points="410.41,-59 418.59,-52.26 407.99,-52.43 410.41,-59"/>
+<text xml:space="preserve" text-anchor="middle" x="356.12" y="-93.72" font-family="Helvetica,sans-Serif" font-size="9.00">resolve tier=local</text>
+</g>
+<!-- topn -->
+<g id="node4" class="node">
+<title>topn</title>
+<path fill="#fff3cd" stroke="black" d="M738.75,-134C738.75,-134 680,-134 680,-134 674,-134 668,-128 668,-122 668,-122 668,-110 668,-110 668,-104 674,-98 680,-98 680,-98 738.75,-98 738.75,-98 744.75,-98 750.75,-104 750.75,-110 750.75,-110 750.75,-122 750.75,-122 750.75,-128 744.75,-134 738.75,-134"/>
+<text xml:space="preserve" text-anchor="middle" x="709.38" y="-118.5" font-family="Helvetica,sans-Serif" font-size="10.00">topolvm&#45;node</text>
+<text xml:space="preserve" text-anchor="middle" x="709.38" y="-106.5" font-family="Helvetica,sans-Serif" font-size="10.00">carves LV on X</text>
+</g>
+<!-- topc&#45;&gt;topn -->
+<g id="edge4" class="edge">
+<title>topc&#45;&gt;topn</title>
+<path fill="none" stroke="black" d="M516.06,-116C556.23,-116 614.53,-116 656.4,-116"/>
+<polygon fill="black" stroke="black" points="656.23,-119.5 666.23,-116 656.23,-112.5 656.23,-119.5"/>
+<text xml:space="preserve" text-anchor="middle" x="593" y="-128.45" font-family="Helvetica,sans-Serif" font-size="9.00">LogicalVolume CR (node X)</text>
+<text xml:space="preserve" text-anchor="middle" x="593" y="-117.95" font-family="Helvetica,sans-Serif" font-size="9.00">topology native</text>
+</g>
+</g>
+</svg>
+</div>
+<h4>Two realizations (confirm which with the proposer — they differ in what must be exposed)</h4>
+<table>
+<tr><th></th><th>B1 · gRPC proxy</th><th>B2 · CRD create</th></tr>
+<tr><td>OSAC CSI ctrl does</td><td>Proxies the CSI <code>CreateVolume</code> RPC to topolvm-controller</td><td>Directly creates a topolvm <code>LogicalVolume</code> CR</td></tr>
+<tr><td>Requires</td><td>topolvm-controller exposed via a <b>TCP Service</b> (non-standard)</td><td>A <b>k8s client + RBAC</b> in the CSI driver (none today)</td></tr>
+<tr><td>Security surface</td><td>Network-exposes a normally in-pod socket</td><td>RBAC to create one CRD type</td></tr>
+<tr><td>Note</td><td>Bypasses topolvm's own provisioner sidecar</td><td>Reimplements the thin part of topolvm-controller (CR creation)</td></tr>
+</table>
+<p class="small"><b>Sidecar nuance:</b> with StorageClass <code>provisioner: osac-csi</code>, <b>OSAC's</b>
+external-provisioner sidecar handles the PVC and topolvm's own provisioner sidecar sits idle (it only
+watches <code>provisioner: topolvm.io</code>). So Option B effectively <b>replaces topolvm's
+provisioner sidecar with a cross-pod hop</b> (B1) or with direct CR creation (B2).</p>
+<h4>Components</h4>
+<p>OSAC CSI controller (+ an lvms proxy branch), fulfillment (tier-resolution lookup only, no Volume
+record), topolvm-controller exposed via a TCP Service, OSAC CSI node (existing socket routing).</p>
+<h4>Data flow</h4>
+<pre><code>1. Pod scheduled → node X
+2. OSAC CSI ctrl: resolve tier=local → backend=lvms + topolvm-controller endpoint
+3. OSAC CSI ctrl PROXIES CreateVolume verbatim → topolvm-controller (in-cluster)
+4. topolvm-controller creates the LogicalVolume on node X, returns AccessibleTopology natively
+5. OSAC CSI returns topolvm's response, adding volume_context{osac.backend=lvms}
+6. node plugin routes osac.backend=lvms → topolvm-node socket → mount</code></pre>
+<div class="warn">
+<b>This is the design's rejected Alternative 3</b> ("CSI driver proxies vendor calls / client-side
+orchestration"). It was rejected for <b>credential isolation</b> — vendor credentials would transit
+the tenant cluster. <b>But LVMS has no vendor credentials</b> (local disk, no array API, no Secret),
+so the specific reason for the rejection <b>does not apply to LVMS.</b> That makes B a defensible
+exception rather than a violation.
+</div>
+<p class="small"><b>Co-location detail:</b> on both shapes the OSAC CSI controller and
+topolvm-controller are on the <b>same</b> cluster (CaaS: both on the guest cluster per OSAC-3234;
+VMaaS/hub: both on the hub per OSAC-3011), so the path is an <b>in-cluster</b> hop — strictly
+simpler than A's cross-cluster reach. The one new mechanic applies to <b>B1 only</b>:
+topolvm-controller isn't network-exposed by default (its csi-provisioner sidecar uses an in-pod unix
+socket), so a TCP Service must be added — pre-condition to confirm with the CSI driver owner / topolvm. <b>B2</b>
+sidesteps this entirely (create the <code>LogicalVolume</code> CR directly; needs only RBAC).</p>
+<h4>Pros</h4>
+<ul><li><span class="check">✓</span> No dependency on the operator lvms path or a new Volume-API field</li>
+<li><span class="check">✓</span> Topology "just works" — topolvm owns it natively</li>
+<li><span class="check">✓</span> Low latency (direct, in-cluster); provisioner name stays <code>osac-csi</code></li>
+<li><span class="check">✓</span> The credential-isolation objection is moot for LVMS</li></ul>
+<h4>Cons</h4>
+<ul><li><span class="cross">✗</span> No Volume record → no inventory, no quota for LVMS</li>
+<li><span class="cross">✗</span> The controller behaves differently per backend (proxy for lvms, full-chain for network) — a split path to maintain</li>
+<li><span class="cross">✗</span> New exposure: TCP Service for topolvm-controller (B1) or a CR-creation RBAC client in the CSI driver (B2)</li></ul>
+
+<h3><span class="tag tC">Option C</span> Native — keep the topolvm/AAP path, OSAC not in the LVMS path</h3>
+<div class="diagram"><svg width="533pt" height="142pt"
+ viewBox="0.00 0.00 533.00 142.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 138)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-138 529.25,-138 529.25,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_t</title>
+<polygon fill="#e8f5e9" stroke="#e8f5e9" points="14.88,-8 14.88,-90 517.25,-90 517.25,-8 14.88,-8"/>
+<text xml:space="preserve" text-anchor="middle" x="266.06" y="-75.55" font-family="Helvetica,sans-Serif" font-size="11.00">TENANT CLUSTER &#160;(OSAC control plane NOT in the path)</text>
+</g>
+<!-- pvc -->
+<g id="node1" class="node">
+<title>pvc</title>
+<path fill="white" stroke="black" d="M125.12,-60C125.12,-60 34.88,-60 34.88,-60 28.88,-60 22.88,-54 22.88,-48 22.88,-48 22.88,-28 22.88,-28 22.88,-22 28.88,-16 34.88,-16 34.88,-16 125.12,-16 125.12,-16 131.12,-16 137.12,-22 137.12,-28 137.12,-28 137.12,-48 137.12,-48 137.12,-54 131.12,-60 125.12,-60"/>
+<text xml:space="preserve" text-anchor="middle" x="80" y="-46.5" font-family="Helvetica,sans-Serif" font-size="10.00">PVC</text>
+<text xml:space="preserve" text-anchor="middle" x="80" y="-34.5" font-family="Helvetica,sans-Serif" font-size="10.00">sc: osac&#45;lvms</text>
+<text xml:space="preserve" text-anchor="middle" x="80" y="-22.5" font-family="Helvetica,sans-Serif" font-size="10.00">provisioner: topolvm.io</text>
+</g>
+<!-- topc -->
+<g id="node2" class="node">
+<title>topc</title>
+<path fill="#ffe0b2" stroke="black" d="M302,-56C302,-56 232.75,-56 232.75,-56 226.75,-56 220.75,-50 220.75,-44 220.75,-44 220.75,-32 220.75,-32 220.75,-26 226.75,-20 232.75,-20 232.75,-20 302,-20 302,-20 308,-20 314,-26 314,-32 314,-32 314,-44 314,-44 314,-50 308,-56 302,-56"/>
+<text xml:space="preserve" text-anchor="middle" x="267.38" y="-34.5" font-family="Helvetica,sans-Serif" font-size="10.00">topolvm&#45;controller</text>
+</g>
+<!-- pvc&#45;&gt;topc -->
+<g id="edge1" class="edge">
+<title>pvc&#45;&gt;topc</title>
+<path fill="none" stroke="black" d="M137.37,-38C160.15,-38 186.41,-38 209.27,-38"/>
+<polygon fill="black" stroke="black" points="209.01,-41.5 219.01,-38 209.01,-34.5 209.01,-41.5"/>
+<text xml:space="preserve" text-anchor="middle" x="190.38" y="-39.95" font-family="Helvetica,sans-Serif" font-size="9.00">native</text>
+</g>
+<!-- topn -->
+<g id="node3" class="node">
+<title>topn</title>
+<path fill="#fff3cd" stroke="black" d="M497.25,-56C497.25,-56 438.5,-56 438.5,-56 432.5,-56 426.5,-50 426.5,-44 426.5,-44 426.5,-32 426.5,-32 426.5,-26 432.5,-20 438.5,-20 438.5,-20 497.25,-20 497.25,-20 503.25,-20 509.25,-26 509.25,-32 509.25,-32 509.25,-44 509.25,-44 509.25,-50 503.25,-56 497.25,-56"/>
+<text xml:space="preserve" text-anchor="middle" x="467.88" y="-40.5" font-family="Helvetica,sans-Serif" font-size="10.00">topolvm&#45;node</text>
+<text xml:space="preserve" text-anchor="middle" x="467.88" y="-28.5" font-family="Helvetica,sans-Serif" font-size="10.00">carves LV on X</text>
+</g>
+<!-- topc&#45;&gt;topn -->
+<g id="edge2" class="edge">
+<title>topc&#45;&gt;topn</title>
+<path fill="none" stroke="black" d="M314.41,-38C344.37,-38 383.51,-38 414.64,-38"/>
+<polygon fill="black" stroke="black" points="414.62,-41.5 424.62,-38 414.62,-34.5 414.62,-41.5"/>
+<text xml:space="preserve" text-anchor="middle" x="370.25" y="-39.95" font-family="Helvetica,sans-Serif" font-size="9.00">LogicalVolume CR</text>
+</g>
+<!-- note -->
+<g id="node4" class="node">
+<title>note</title>
+<polygon fill="#f5f5f5" stroke="black" points="154,-134 0,-134 0,-98 160,-98 160,-128 154,-134"/>
+<polyline fill="none" stroke="black" points="154,-134 154,-128"/>
+<polyline fill="none" stroke="black" points="160,-128 154,-128"/>
+<text xml:space="preserve" text-anchor="middle" x="80" y="-118.5" font-family="Helvetica,sans-Serif" font-size="10.00">fulfillment / operator / OSAC CSI</text>
+<text xml:space="preserve" text-anchor="middle" x="80" y="-106.5" font-family="Helvetica,sans-Serif" font-size="10.00">= not involved</text>
+</g>
+</g>
+</svg>
+</div>
+<h4>Components</h4>
+<p>A topolvm StorageClass created by AAP (already shipped via OSAC-3011/3234),
+<code>provisioner: topolvm.io</code>. The OSAC CSI driver, fulfillment, and operator are not
+involved in the LVMS path at all.</p>
+<h4>Data flow</h4>
+<pre><code>PVC (sc=osac-lvms, WaitForFirstConsumer) → topolvm-controller → LogicalVolume → topolvm-node → LV
+(zero OSAC control-plane involvement)</code></pre>
+<h4>Pros</h4>
+<ul><li><span class="check">✓</span> Zero new work — already functional and merged</li>
+<li><span class="check">✓</span> Correct by construction (topolvm as designed); no new security surface, no cross-cluster hops</li>
+<li><span class="check">✓</span> Honest about LVMS being a different category</li></ul>
+<h4>Cons</h4>
+<ul><li><span class="cross">✗</span> StorageClass provisioner is <code>topolvm.io</code>, not <code>osac-csi</code> — an <b>abstraction leak</b> (tenant sees LVMS internals)</li>
+<li><span class="cross">✗</span> No OSAC inventory or quota for LVMS</li>
+<li><span class="cross">✗</span> Two visibly different tenant UXes (local tier vs network tiers)</li></ul>
+
+<h2>5. Side-by-side comparison</h2>
+<p>Every row where a "network parity" property is <span class="cross">✗</span> is a compromise that
+<b>no option removes</b> — because they stem from LVMS being node-local, not from implementation choices.</p>
+<table>
+<tr><th>Dimension</th><th>VAST (reference)</th><th class="tA">A · Full chain</th><th class="tB">B · Passthrough</th><th class="tC">C · Native</th></tr>
+<tr><td>OSAC volume inventory</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+<tr><td>Quota enforcement</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+<tr><td>Provisioner = <code>osac-csi</code></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗ (topolvm.io)</td></tr>
+<tr><td>API-first / provision-in-advance</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+<tr><td>Topology handled by</td><td>n/a</td><td>OSAC (4 layers)</td><td>topolvm</td><td>topolvm</td></tr>
+<tr><td>Cross-cluster reach needed</td><td class="check">✓ (by design)</td><td class="cross">✗ hub→tenant</td><td>in-cluster only</td><td>none</td></tr>
+<tr><td>New security surface</td><td>—</td><td>operator→tenant</td><td>topolvm TCP Service</td><td>none</td></tr>
+<tr><td>Follows OSAC-2872 design</td><td class="check">✓</td><td>partly</td><td>rejected Alt. 3*</td><td>rejected Alt. 4</td></tr>
+<tr><td>New engineering</td><td>—</td><td>Highest</td><td>Medium</td><td>~None</td></tr>
+</table>
+<p class="small">* Alternative 3 was rejected for credential isolation, which does not apply to LVMS.</p>
+
+<h2>6. Open questions for the WG</h2>
+<p class="small"><b>Settled premise:</b> LVMS is dev-only (usable storage without a real backend
+array). So there is no tenant-facing requirement for inventory, quota, or a uniform provisioner —
+which removes the only justification for Option A. The remaining questions are about B vs C.</p>
+<ol>
+<li><b>Does the tenant-visible provisioner name matter even for dev use?</b> (<code>osac-csi</code>
+vs <code>topolvm.io</code>) — if no, C is sufficient; if we want dev flows to exercise the real
+osac-csi path, B.</li>
+<li><b>Do we want dev flows to exercise the OSAC CSI path at all</b> (so dev testing mirrors the
+network-backend path), or is native topolvm fine for dev?</li>
+<li><b>[B pre-condition]</b> Which realization — B1 (expose topolvm-controller via a TCP Service) or
+B2 (CSI driver creates the <code>LogicalVolume</code> CR directly, RBAC only)? Confirm with the CSI
+driver owner / topolvm.</li>
+<li><b>Are we OK maintaining a split controller path (B)</b> long term — passthrough for lvms,
+full-chain for network backends?</li>
+</ol>
+<p class="small">Option A is retained below for completeness only; the dev-only premise rules it out.</p>
+
+<h2>7. Recommendation</h2>
+<div class="ok">
+<b>Given the dev-only premise, it's B vs C.</b> <b>Option C</b> is already done and correct — if
+native topolvm (provisioner <code>topolvm.io</code>) is acceptable for dev use, stop there.
+<b>Option B</b> is worth it only if we want dev flows to exercise the real <code>osac-csi</code> path
+(so dev testing mirrors the network-backend experience) — topology is correct for free and the
+credential objection is moot for LVMS; the split path is the only real cost. Prefer the <b>B2</b>
+realization (direct <code>LogicalVolume</code> CR creation, RBAC only) over B1 (TCP-exposing
+topolvm-controller). <b>Option A is ruled out</b> by the dev-only premise: it buys tenant-facing
+inventory/quota nobody needs here, and still cannot achieve VAST parity (API-first is impossible for
+LVMS regardless) — A-delegate is just B plus bookkeeping and a cross-cluster hop, A-reimplement
+duplicates topolvm-controller.
+</div>
+
+<h2>Appendix A — Verified current code state</h2>
+<table>
+<tr><th>Area</th><th>State (verified)</th></tr>
+<tr><td>VolumeSpec proto</td><td><code>storage_tier, size_gib, access_mode</code> only. <code>pvc_ref</code> removed (PR #341 merged). No topology/<code>node_hint</code> field.</td></tr>
+<tr><td>Tier resolution</td><td>Merged (PR #342): Volume Create resolves tier→backend+protocol, writes <code>status.backend</code>/<code>status.protocol</code>.</td></tr>
+<tr><td>OSAC CSI controller</td><td>Delegates to fulfillment VolumeClient (PR #141 merged). No topology extraction, no <code>AccessibleTopology</code> in response, no <code>VOLUME_ACCESSIBILITY_CONSTRAINTS</code> capability.</td></tr>
+<tr><td>OSAC CSI node</td><td>Routes mount to a vendor socket by <code>osac.backend</code> (proxy.Manager). <code>NodeGetInfo</code> returns only <code>node_id</code> — no topology labels.</td></tr>
+<tr><td>operator Volume controller</td><td>PR #340 (open): <code>VendorProvisioner</code> interface, currently nil. No lvms/topolvm/LogicalVolume awareness anywhere in the codebase.</td></tr>
+<tr><td>Volume reconciler (fulfillment)</td><td>PR #339 (open).</td></tr>
+<tr><td>Vendor CSI controllers deploy</td><td>PR #188 (open): csi-backends Helm chart (VAST/Trident/Pure) — network backends only.</td></tr>
+</table>
+
+<h2>Appendix B — What OSAC-3702 must add on the CSI side (any of A/B)</h2>
+<ul>
+<li><code>ControllerGetCapabilities</code> += <code>VOLUME_ACCESSIBILITY_CONSTRAINTS</code> (required for WaitForFirstConsumer)</li>
+<li><code>CreateVolume</code>: extract <code>accessibility_requirements.preferred[0]</code>, return <code>AccessibleTopology</code></li>
+<li><code>NodeGetInfo</code>: return <code>topology.topolvm.io/node=&lt;nodeID&gt;</code></li>
+<li>Helm: mount the topolvm-node socket into the OSAC CSI node container; register <code>lvms=&lt;socket&gt;</code> in <code>--vendor-sockets</code></li>
+</ul>
+
+<footer>
+Sources: OSAC-2872 storage-control-plane design.md (authoritative), verified against merged code
+(PR #141/#341/#342) and open PRs (#339/#340/#188), OSAC-1110 StorageTier design (single-backend-per-tier),
+OSAC-3011/3234 (LVMS install). Diagrams rendered locally with graphviz.
+</footer>
+</body></html>

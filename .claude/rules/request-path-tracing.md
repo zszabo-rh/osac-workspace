@@ -1,0 +1,1 @@
+/home/zszabo/projects/osac-workspace/.osac-ai-skills/.claude/rules/request-path-tracing.md
