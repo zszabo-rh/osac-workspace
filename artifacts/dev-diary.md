@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-08-24
+
+### Focus Areas Active
+- Storage — OSAC-917 v0.2: PR #286 CI stale-failure fix + rebase; metering flake root-cause; LVMS decision pending (Roy leans A)
+
+### Completed Today
+- PR #286 (OSAC-3985 tier guard): diagnosed the "CI never goes green" complaint — the red checks were STALE, from an e2e run on 2026-08-13 while the branch sat 252 commits behind main. The fixes that turned main green (OSAC-3714 metering BSR→local proto; OSAC-3972 shared metering event schema → kills `specversion: None`) were merged after that run and absent from the branch. Rebased #286 on main, force-pushed to fork (`--force-with-lease`), re-triggered CI. Diff is clean (operator `storage_controller.go` +6, test +60).
+- Root-caused the recurring `Run unit tests (osac-metering)` flake (57P03 "database system is shutting down"): `container.go:71` binds the Postgres container to the BeforeSuite ctx via `exec.CommandContext`; `postgres_test.go:47 defer cancel()` SIGTERMs Postgres the moment BeforeSuite returns → every new spec connection rejected. From OSAC-3418; ~37% flake on main itself (confirmed identical signature on the 2026-08-18 main failure). No ticket; team just /retests. Wrote memory `project-metering-unit-flake.md`.
+- Read the wg-osac-eng thread behind the metering CI question: it was the proto-skew case (DiskImage change vs stale `buf.build/...:v0.0.84` cloud module in `osac-metering/buf.gen.yaml`), fixed via #336 and productized as OSAC-3714. Related to but distinct from #286's failures.
+- Slack MCP was down all session — established the web-API fallback (conversations.replies / search.messages via `~/.config/slack` tokens); recorded in `reference-slack-setup.md`.
+
+### In Progress
+- PR #286 (OPEN, head 5454b9f2): after rebase, vmaas e2e green; STILL RED — caas e2e (+gate), osac-metering unit (the flake), check-labels. caas e2e needs a fresh look (echo-adapter Service gap, or new cause).
+- LVMS-as-CSI decision (OSAC-3702): shared the study; Roy responded leaning **Option A**.
+
+### Decisions Made
+- #286 needs no Omer ping — the metering/echo-adapter issues are already fixed on main; a rebase carries them in.
+- Do NOT treat the metering unit failure as this PR's problem — it's a main-wide container.go flake.
+
+### Blocked / Needs Follow-up
+- LVMS option decision: Roy's Option-A push contradicts the doc's "A ruled out." Re-read meeting transcript in ~/Downloads (incl. non-LVMS-backend passthrough discussion) before committing. Updated `project-osac-csi-next.md` with his exact points.
+- Decide whether to raise the metering flake (draft-first: Slack to metering owner and/or Jira bug — fix is small).
+- Pending reviews untouched today: enhancement-proposals #212, osac #369, #376, updated #340; plus Roy's #188.
+
+---
+
 ## 2026-08-14
 
 ### Focus Areas Active
