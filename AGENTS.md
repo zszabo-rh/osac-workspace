@@ -178,6 +178,19 @@ For features involving the fulfillment-service API (proto definitions, services,
 - Use `jira` CLI for Jira access (e.g., `jira issue view OSAC-1234 --plain`), not Jira MCP
 - Planning artifacts live in `.planning/`
 
+### Mandatory Component
+
+OSAC requires a **Component** on every created issue — Jira rejects creates
+without one. Any automation creating an OSAC issue must set it:
+
+- Inherit from the parent: epics/stories take the parent Feature's component(s)
+  (parent has multiple → give each child the matching subset from the parent's
+  set; confirm with the driver before creating).
+- **Never invent a component** or use one the parent lacks. If none fits, or the
+  parent has none, stop and ask the driver.
+- Set on create — MCP `fields: {"components": [{"name": "<name>"}]}` / `jira` CLI
+  `-C "<name>"`; match component strings exactly.
+
 ## AI-Assisted Workflows
 
 See [`AI-assisted-development-workflow.md`](AI-assisted-development-workflow.md) for the full workflow: Feature → PRD → Design → Jira sync → Implement.
