@@ -1,0 +1,42 @@
+digraph G {
+  label="Scenario 4 — topolvm via OSAC CSI (Option A, corrected)  ·  ONE cluster (VMaaS=hub), WFC";
+  
+  graph [fontname="Helvetica", fontsize=11, labelloc="t", nodesep=0.35, ranksep=0.55];
+  node  [fontname="Helvetica", fontsize=10, shape=box, style="rounded,filled", fillcolor="#eef2ff", color="#334"];
+  edge  [fontname="Helvetica", fontsize=9, color="#334"];
+
+  subgraph cluster_c {
+    label="ONE CLUSTER  (VMaaS: hub == tenant)"; bgcolor="#f6f8ff"; color="#99a";
+    pvc [label="PVC (sc=osac-local)\nPending until pod", fillcolor="#fde8d0"];
+    pv  [label="PV\nnodeAffinity=N", fillcolor="#fde8d0"];
+    pod [label="Pod → node N", fillcolor="#fde8d0"];
+    octrl [label="OSAC CSI controller", fillcolor="#dbeafe"];
+    api [label="fulfillment: Volume API\ntier→provider=lvms · guard node · inventory", fillcolor="#efe3ff"];
+    vcr [label="Volume CR (topology.node=N)", fillcolor="#efe3ff"];
+    op  [label="osac-operator\nLvmsVendorProvisioner", fillcolor="#efe3ff"];
+    lv  [label="LogicalVolume CR\n(spec.nodeName=N)", fillcolor="#efe3ff"];
+    subgraph cluster_n {
+      label="node N"; bgcolor="#eef7ee"; color="#7a9";
+      onode [label="OSAC CSI node\n(proxy by osac.backend)", fillcolor="#dbeafe"];
+      tnode [label="topolvm-node\n(LV reconciler + lvmd)", fillcolor="#dbeafe"];
+      kubelet [label="kubelet", fillcolor="#fde8d0"];
+      vg [label="VG on node N", shape=cylinder, fillcolor="#d7f5d7", color="#274"];
+    }
+    tctrl [label="topolvm-controller\n(present, BYPASSED)", style="rounded,filled,dashed", fillcolor="#eee"];
+  }
+  pod -> pvc [label="2. schedule→N (⚠ blind w/o CSIStorageCapacity)\nselected-node=N", style=dashed];
+  pvc -> octrl [label="1. watch (WFC) → 3. CreateVolume(topology=N)"];
+  octrl -> api [label="4. CreateVolume(tier=local, node=N)"];
+  api -> vcr [label="reconciler writes CR"];
+  vcr -> op [label="reconcile"];
+  op -> lv [label="5. create CR (bypass topolvm-controller)\nno-capacity→ResourceExhausted"];
+  lv -> tnode [label="watch (internal)"];
+  tnode -> vg [label="6. lvcreate"];
+  op -> api [label="7. feedback AVAILABLE (vendor_volume_id=topolvm id)", style=dotted];
+  api -> octrl [label="8. GetVolume→AVAILABLE", style=dotted];
+  octrl -> pv [label="accessible_topology=N; PV bind"];
+  octrl -> tctrl [label="9. Publish → endpoint 'none' = NO-OP", style=dotted, color="#a55"];
+  kubelet -> onode [label="10. NodePublish"];
+  onode -> tnode [label="route osac.backend"];
+  tnode -> vg [label="mount LV", style=dotted];
+}

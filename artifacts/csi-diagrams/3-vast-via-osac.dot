@@ -1,0 +1,34 @@
+digraph G {
+  label="Scenario 3 — VAST via OSAC CSI (aggregating driver, network backend)";
+  
+  graph [fontname="Helvetica", fontsize=11, labelloc="t", nodesep=0.35, ranksep=0.55];
+  node  [fontname="Helvetica", fontsize=10, shape=box, style="rounded,filled", fillcolor="#eef2ff", color="#334"];
+  edge  [fontname="Helvetica", fontsize=9, color="#334"];
+
+  subgraph cluster_t {
+    label="TENANT CLUSTER"; bgcolor="#eef7ee"; color="#7a9";
+    pvc [label="PVC (sc=osac-vast-gold)", fillcolor="#fde8d0"];
+    pv  [label="PV", fillcolor="#fde8d0"];
+    octrl [label="OSAC CSI controller\n(thin delegate)", fillcolor="#dbeafe"];
+    onode [label="OSAC CSI node\n(proxy by osac.backend)", fillcolor="#dbeafe"];
+  }
+  subgraph cluster_h {
+    label="HUB CLUSTER"; bgcolor="#f6f8ff"; color="#99a";
+    api [label="fulfillment: Volume API\n(tier / policy / inventory)", fillcolor="#efe3ff"];
+    vcr [label="Volume CR", fillcolor="#efe3ff"];
+    op  [label="osac-operator\nVastVendorProvisioner\n(reads hub creds)", fillcolor="#efe3ff"];
+    vctrl [label="vast-csi vendor controller", fillcolor="#dbeafe"];
+  }
+  array [label="VAST array", shape=cylinder, fillcolor="#d7f5d7", color="#274"];
+  pvc -> octrl [label="1. watch → CreateVolume"];
+  octrl -> api [label="2. CreateVolume (delegate)"];
+  api -> vcr [label="3. reconciler writes CR"];
+  vcr -> op [label="4. reconcile"];
+  op -> vctrl [label="5. vendor CreateVolume (gRPC)"];
+  vctrl -> array [label="VAST API"];
+  op -> api [label="6. feedback: AVAILABLE", style=dotted];
+  api -> octrl [label="7. GetVolume→AVAILABLE", style=dotted];
+  octrl -> pv [label="PV bind\nvolume_context{osac.backend,osac.volume-id}"];
+  onode -> vctrl [label="8. Publish (OSAC-4187 stopgap)", style=dotted];
+  onode -> array [label="9. NodePublish → vast node → mount"];
+}

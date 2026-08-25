@@ -1,0 +1,36 @@
+digraph G {
+  label="Scenario 2 — topolvm native (node-local CSI, no OSAC)  ·  one cluster, WaitForFirstConsumer";
+  
+  graph [fontname="Helvetica", fontsize=11, labelloc="t", nodesep=0.35, ranksep=0.55];
+  node  [fontname="Helvetica", fontsize=10, shape=box, style="rounded,filled", fillcolor="#eef2ff", color="#334"];
+  edge  [fontname="Helvetica", fontsize=9, color="#334"];
+
+  subgraph cluster_c {
+    label="Cluster"; bgcolor="#f6f8ff"; color="#99a";
+    pvc [label="PVC (sc=topolvm)\nPending until pod", fillcolor="#fde8d0"];
+    pv  [label="PV\nnodeAffinity=N", fillcolor="#fde8d0"];
+    pod [label="Pod → node N", fillcolor="#fde8d0"];
+    subgraph cluster_ctrl {
+      label="topolvm-controller pod"; bgcolor="#eaf2ff"; color="#88a";
+      ep  [label="external-provisioner", fillcolor="#fff3bf"];
+      tctrl [label="topolvm-controller", fillcolor="#dbeafe"];
+    }
+    lv  [label="LogicalVolume CR\n(spec.nodeName=N)", fillcolor="#efe3ff"];
+    subgraph cluster_n {
+      label="node N"; bgcolor="#eef7ee"; color="#7a9";
+      tnode [label="topolvm-node\n(LV reconciler + lvmd)", fillcolor="#dbeafe"];
+      kubelet [label="kubelet", fillcolor="#fde8d0"];
+      vg [label="VG on node N", shape=cylinder, fillcolor="#d7f5d7", color="#274"];
+    }
+  }
+  pod -> pvc [label="2. schedule→N (capacity-aware)\nselected-node=N", style=dashed];
+  pvc -> ep [label="1. watch (WFC)"];
+  ep -> tctrl [label="3. CreateVolume\n(topology=N)"];
+  tctrl -> lv [label="4. create CR"];
+  lv -> tnode [label="watch (internal)"];
+  tnode -> vg [label="5. lvcreate"];
+  tnode -> lv [label="status.volumeID", style=dotted];
+  tctrl -> pv [label="6-7. accessible_topology=N\ncreate + bind"];
+  kubelet -> tnode [label="8. NodePublish (no ctrl attach)"];
+  tnode -> vg [label="mount LV", style=dotted];
+}

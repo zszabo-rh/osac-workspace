@@ -1,0 +1,32 @@
+digraph G {
+  label="Scenario 1 — VAST native (network CSI driver, no OSAC)  ·  one cluster, Immediate binding";
+  
+  graph [fontname="Helvetica", fontsize=11, labelloc="t", nodesep=0.35, ranksep=0.55];
+  node  [fontname="Helvetica", fontsize=10, shape=box, style="rounded,filled", fillcolor="#eef2ff", color="#334"];
+  edge  [fontname="Helvetica", fontsize=9, color="#334"];
+
+  subgraph cluster_c {
+    label="Cluster"; bgcolor="#f6f8ff"; color="#99a";
+    pvc [label="PVC\n(sc=vast)", fillcolor="#fde8d0"];
+    pv  [label="PV", fillcolor="#fde8d0"];
+    pod [label="Pod on node N\n(any node)", fillcolor="#fde8d0"];
+    subgraph cluster_ctrl {
+      label="vast-csi controller pod"; bgcolor="#eaf2ff"; color="#88a";
+      ep  [label="external-provisioner", fillcolor="#fff3bf"];
+      ea  [label="external-attacher", fillcolor="#fff3bf"];
+      vctrl [label="vast-csi controller", fillcolor="#dbeafe"];
+    }
+    vnode [label="vast-csi node\n(DaemonSet)", fillcolor="#dbeafe"];
+    kubelet [label="kubelet (node N)", fillcolor="#fde8d0"];
+  }
+  array [label="VAST array", shape=cylinder, fillcolor="#d7f5d7", color="#274"];
+  pvc -> ep [label="1. watch"];
+  ep -> vctrl [label="2. CreateVolume"];
+  vctrl -> array [label="3. VAST API create"];
+  ep -> pv [label="4. create + bind"];
+  pod -> ea [label="5. sched (any node)\n→ VolumeAttachment", style=dashed];
+  ea -> vctrl [label="6. ControllerPublish"];
+  vctrl -> array [label="7. map LUN→N", style=dotted];
+  kubelet -> vnode [label="8. NodePublish"];
+  vnode -> array [label="mount iSCSI/NFS"];
+}
