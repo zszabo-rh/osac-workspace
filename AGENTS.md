@@ -62,7 +62,6 @@ Note: `fulfillment-api` and `fulfillment-common` were merged into `fulfillment-s
 | [`osac-installer`](https://github.com/osac-project/osac-installer) | Installation manifests and prerequisites | Yes |
 | [`osac-test-infra`](https://github.com/osac-project/osac-test-infra) | Integration testing infrastructure | — |
 | [`osac-ui`](https://github.com/osac-project/osac-ui) | OSAC UI web console | Yes |
-| [`osac-ux`](https://github.com/osac-project/osac-ux) | React 19 + PatternFly 6 UI console — read-only UI reference | Yes (`osac-ux/AGENTS.md`) |
 | [`enhancement-proposals`](https://github.com/osac-project/enhancement-proposals) | Design documents and RFCs | — |
 | [`docs`](https://github.com/osac-project/docs) | Architecture docs and guides (see `osac-docs/architecture/`) | — |
 
