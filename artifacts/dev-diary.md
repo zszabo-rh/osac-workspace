@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-08-31
+
+### Focus Areas Active
+- Storage / OSAC-4542: review-response cycle on the 3-PR set; all bot feedback addressed, branches re-pushed.
+
+### Completed Today
+- Pulled review state on all 3 OSAC-4542 PRs (osac#563 code, EP#236 PRD, EP#237 design). No human reviews yet; CodeRabbit APPROVED #563, fullsend-ai APPROVED #563; doc PRs got CodeRabbit CHANGES_REQUESTED.
+- Triaged the red `Check generated code (osac-operator)` on #563 → **confirmed systemic, not ours**: reproduced with CI's buf 1.50.0 on clean origin/main = 122 dirty files, 0 volume-related; root cause is stale committed osac-operator gen code on main (infra PR #418). Non-required check; left untouched.
+- Addressed all CodeRabbit doc asks: PRD #236 (Tenant User List contract, stable id, private fields, Acceptance Criteria) + design #237 (cleanapi private=true + schema guard, authz matrix, tenant-level=not-a-leak, resolved name `volumes`, order note, fence tag).
+- Added 2 code tests (reject private-field filter + generated-schema guard) — also closes fullsend-ai's substantive finding. 9/9 focused pass, gofmt clean, golangci 0.
+- Refreshed stale #563 + #237 PR bodies (removed obsolete osac-ux block-volumes deviation table + block_volumes OQ).
+
+### In Progress
+- OSAC-4542: all 3 PRs open, bot-clean, **awaiting human /lgtm** (docs then need danmanor approve).
+
+### Decisions Made
+- Do NOT commit the 122-file osac-operator regen to make CI green — it's systemic pollution; rebase when infra fix (#418) lands.
+- Tenant-level scoping stands as a recorded product narrowing (not a leak); owner-level deferred; ownership of that follow-up is the one open team question on the PRs.
+
+### Blocked / Needs Follow-up
+- Need human /lgtm on all 3 PRs; team decision on who owns deferred owner-level (per-creator) visibility.
+- On design #237 approval → /design:decompose + /sync.
+- Optional: fullsend-ai's 3 cosmetic nits on #563 (naming prefix, doc-comment placement, attributionLogic nil-check) — deferred.
+- Post OSAC-4542 Slack announcement + E2E-pass comment (drafts ready).
+
+---
+
 ## 2026-08-24
 
 ### Focus Areas Active
