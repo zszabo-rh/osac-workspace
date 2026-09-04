@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Smoke test for the osac-workspace deprecation notice on ./bootstrap.sh
+# and the matching README banner.
+# Run from osac-workspace: bash tools/test/workspace-deprecation-notice-smoke.sh
+set -euo pipefail
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
+BOOTSTRAP="${ROOT}/bootstrap.sh"
+
+fail() { echo "FAIL: $*" >&2; exit 1; }
+pass() { echo "PASS: $*"; }
+
+[[ -f "$BOOTSTRAP" ]] || fail "missing $BOOTSTRAP"
+
+contains() {
+  local haystack=$1 needle=$2
+  grep -Fq -- "$needle" <<<"$haystack"
+}
+
+assert_notice_bullets() {
+  local haystack=$1 label=$2
+  contains "$haystack" "New work is in" || fail "$label missing 'New work is in'"
+  contains "$haystack" "osac-project/osac" || fail "$label missing 'osac-project/osac'"
+  contains "$haystack" "Do not start a new osac-workspace checkout" || fail "$label missing 'Do not start a new osac-workspace checkout'"
+  contains "$haystack" "osac/tools/bootstrap.sh" || fail "$label missing 'osac/tools/bootstrap.sh'"
+  contains "$haystack" "osac-workspace/osac" || fail "$label missing 'osac-workspace/osac'"
+  contains "$haystack" "Clone osac-project/osac and run tools/bootstrap.sh there" || fail "$label missing clone-and-bootstrap sentence"
+}
+
+help_out=$(cd "$ROOT" && ./bootstrap.sh --help)
+help_rc=$?
+[[ "$help_rc" -eq 0 ]] || fail "./bootstrap.sh --help exited $help_rc"
+pass "./bootstrap.sh --help exits 0"
+
+assert_notice_bullets "$help_out" "./bootstrap.sh --help stdout"
+pass "./bootstrap.sh --help stdout contains the deprecation bullets"
+
+contains "$help_out" "Usage: ./bootstrap.sh" || fail "./bootstrap.sh --help stdout missing usage text"
+pass "./bootstrap.sh --help still prints usage"
+
+help_notice_count=$(grep -cF "Do not start a new osac-workspace checkout" <<<"$help_out" || true)
+[[ "$help_notice_count" -eq 1 ]] || fail "./bootstrap.sh --help printed the notice ${help_notice_count} times (expected 1; footer is for full runs only)"
+pass "./bootstrap.sh --help prints the notice once"
+
+tail -n 20 "$BOOTSTRAP" | grep -qx 'print_workspace_deprecation_notice' \
+  || fail "bootstrap.sh must reprint the notice at the end of a full run"
+pass "bootstrap.sh reprints the notice at the end of a full run"
+
+if grep -Fq "OSAC_ALLOW_WORKSPACE_BOOTSTRAP" "$BOOTSTRAP"; then
+  fail "bootstrap.sh must not mention OSAC_ALLOW_WORKSPACE_BOOTSTRAP"
+fi
+pass "bootstrap.sh does not mention OSAC_ALLOW_WORKSPACE_BOOTSTRAP"
+
+README="${ROOT}/README.md"
+[[ -f "$README" ]] || fail "missing $README"
+readme=$(cat "$README")
+contains "$readme" "New work is in" || fail "README.md missing 'New work is in'"
+contains "$readme" "osac-project/osac" || fail "README.md missing 'osac-project/osac'"
+contains "$readme" "Do not start a new osac-workspace checkout" || fail "README.md missing 'Do not start a new osac-workspace checkout'"
+contains "$readme" "osac/tools/bootstrap.sh" || fail "README.md missing 'osac/tools/bootstrap.sh'"
+contains "$readme" "osac-workspace/osac" || fail "README.md missing 'osac-workspace/osac'"
+contains "$readme" "https://github.com/osac-project/osac" || fail "README.md missing link to osac-project/osac"
+contains "$readme" 'Clone `osac-project/osac` and run `tools/bootstrap.sh` there' || fail "README.md missing clone-and-bootstrap sentence"
+pass "README.md contains the deprecation bullets"
