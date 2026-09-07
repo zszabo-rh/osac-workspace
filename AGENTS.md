@@ -34,7 +34,14 @@ Install Go, Node.js, buf, kubectl, kind, jira CLI, gh CLI, jq directly.
 Kind lives in the `osac` mono-repo, under `osac-installer/` (no Makefile at the `osac/` root). From this workspace:
 
 ```bash
+# Control plane only (same footprint as integration tests)
 make -C osac/osac-installer install PLATFORM=kind PROFILE=dev NS=osac
+
+# Full local dev environment (superset of dev): adds KubeVirt/CDI/Multus, AWX,
+# the UI, and a seeded catalog for the end-to-end "create a VM from the UI" flow.
+# Needs a rootful container runtime + /dev/kvm (Linux) or Docker Desktop (macOS);
+# supports Distrobox. See osac/osac-installer/README.md ("Full local dev environment").
+make -C osac/osac-installer install PLATFORM=kind PROFILE=dev-full NS=osac
 ```
 
 Infra-only, uninstall, `/etc/hosts`, and test suites: [`osac/fulfillment-service/AGENTS.md`](osac/fulfillment-service/AGENTS.md) (Integration Tests).
